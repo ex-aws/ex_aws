@@ -1,12 +1,14 @@
 defmodule ExAws.Dynamo do
+  alias __MODULE__
   alias Dynamo.Conversions
+  alias Dynamo.Config
   # These function should be used for everything.
   def request(action) do
     request(action, [])
   end
 
   def request(action, data) do
-    :erlcloud_ddb_impl.request(Dynamo.Config.erlcloud_config, Dynamo.Actions.get(action), data)
+    :erlcloud_ddb_impl.request(Config.erlcloud_config, Dynamo.Actions.get(action), Config.namespace_table(data))
   end
 
   ## Tables

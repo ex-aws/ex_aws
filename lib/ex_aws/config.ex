@@ -47,4 +47,12 @@ defmodule ExAws.Config do
       |> aws_config(ddb_host: conf[:ddb_host])
       |> aws_config(ddb_port: conf[:ddb_port])
   end
+
+  def namespace_table(data) do
+    if table = Keyword.get(data, :TableName) do
+      Keyword.put(data, :TableName, "#{table}_#{Mix.env}")
+    else
+      data
+    end
+  end
 end
