@@ -50,7 +50,10 @@ defmodule ExAws.Config do
 
   def namespace_table(data) do
     if table = Keyword.get(data, :TableName) do
-      Keyword.put(data, :TableName, "#{table}_#{Mix.env}")
+      name = [table, Application.get_env(:ex_aws, :ddb_namespace), Mix.env]
+        |> Enum.filter(&(&1))
+        |> Enum.join("_")
+      Keyword.put(data, :TableName, name)
     else
       data
     end
