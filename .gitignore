@@ -1,0 +1,10 @@
+/_build
+*_build*
+/deps
+**/deps*
+erl_crash.dump
+*.ez
+/mnesia/dev
+/mnesia/test
+/mnesia/prod
+*.pem
