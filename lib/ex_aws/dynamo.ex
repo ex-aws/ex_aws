@@ -54,10 +54,10 @@ defmodule ExAws.Dynamo do
   ## Records
   ######################
 
-  def scan(table) do
+  def scan(table, opts \\ []) do
     data = [
       TableName: table
-    ]
+    ] ++ opts
     request(:scan, data)
   end
 
