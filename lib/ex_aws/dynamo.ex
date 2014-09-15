@@ -1,7 +1,7 @@
 defmodule ExAws.Dynamo do
   alias __MODULE__
   alias Dynamo.Conversions
-  alias Dynamo.Config
+  alias ExAws.Config
   # These function should be used for everything.
   def request(action) do
     request(action, [])

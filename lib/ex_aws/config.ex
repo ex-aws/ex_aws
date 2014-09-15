@@ -36,7 +36,7 @@ defmodule ExAws.Config do
   ]
 
   def erlcloud_config do
-    conf = Application.get_env(:senseware, :excloud)
+    conf = Application.get_all_env(:ex_aws)
       |> Enum.map(fn
         {k,v} when is_binary(v) -> {k, String.to_char_list(v)}
         x -> x
