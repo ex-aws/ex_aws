@@ -48,7 +48,7 @@ defmodule ExAws.Config do
       |> aws_config(ddb_port: conf[:ddb_port])
   end
 
-  def namespace_table(data) do
+  def namespace(data, :dynamo) do
     if table = Keyword.get(data, :TableName) do
       name = [table, Application.get_env(:ex_aws, :ddb_namespace), Mix.env]
         |> Enum.filter(&(&1))
@@ -58,4 +58,8 @@ defmodule ExAws.Config do
       data
     end
   end
+
+  def namespace(data, :stream) do
+  end
+
 end
