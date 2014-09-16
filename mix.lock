@@ -1,8 +1,4 @@
 %{"erlcloud": {:git, "git://github.com/gleber/erlcloud.git", "4982cc04442d4b1ca795f08d16610a6648125f5d", []},
-  "hackney": {:package, "0.13.1"},
-  "httpoison": {:git, "git://github.com/edgurgel/httpoison.git", "8bae300f2ad9ebf9e984801e632c6922c958c92b", []},
-  "idna": {:package, "1.0.1"},
   "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "507fa4c41db33c81e925ab53f4d789d234aaff2f", [ref: "master"]},
   "lhttpc": {:git, "git://github.com/talko/lhttpc", "2d01a5f9c7543b77bdd57f44c92e72801f46e423", [ref: "master"]},
-  "meck": {:git, "https://github.com/eproxus/meck.git", "b1f313b4cecc3df05a477a93641bf0a24d858590", [ref: "master"]},
-  "poison": {:git, "git://github.com/devinus/poison.git", "7d78c836fcd535f4277ab0a19903c18f04104e2d", []}}
+  "meck": {:git, "https://github.com/eproxus/meck.git", "b1f313b4cecc3df05a477a93641bf0a24d858590", [ref: "master"]}}

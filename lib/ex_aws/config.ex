@@ -1,6 +1,6 @@
 defmodule ExAws.Config do
   require Record
-  @attrs [
+  Record.defrecord :aws_config, [
     as_host: nil,
     ec2_host: nil,
     iam_host: nil,
@@ -34,7 +34,6 @@ defmodule ExAws.Config do
     timeout: nil,
     cloudtrail_raw_result: nil
   ]
-  Record.defrecord :aws_config, @attrs
 
   def erlcloud_config do
     conf = Application.get_all_env(:ex_aws)
@@ -47,13 +46,6 @@ defmodule ExAws.Config do
       |> aws_config(ddb_scheme: conf[:ddb_scheme])
       |> aws_config(ddb_host: conf[:ddb_host])
       |> aws_config(ddb_port: conf[:ddb_port])
-  end
-
-  def config_map do
-    config = erlcloud_config
-    @attrs |> Enum.with_index |> Enum.reduce(%{}, fn({{attr, _}, i}, map) ->
-      Map.put(map, attr, elem(config, i + 1))
-    end)
   end
 
   def namespace(data, :dynamo) do
