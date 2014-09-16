@@ -2,6 +2,10 @@ defmodule ExAws.Kinesis do
   alias __MODULE__
   alias ExAws.Config
 
+  def list_streams do
+    
+  end
+
   # This function should be used for everything.
   def request(action) do
     request(action, [])
