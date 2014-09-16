@@ -36,16 +36,24 @@ defmodule ExAws.Config do
   ]
 
   def erlcloud_config do
-    conf = Application.get_all_env(:ex_aws)
+    app_config = Application.get_all_env(:ex_aws)
       |> Enum.map(fn
         {k,v} when is_binary(v) -> {k, String.to_char_list(v)}
         x -> x
       end)
 
-    :erlcloud_aws.default_config
-      |> aws_config(ddb_scheme: conf[:ddb_scheme])
-      |> aws_config(ddb_host: conf[:ddb_host])
-      |> aws_config(ddb_port: conf[:ddb_port])
+    config = :erlcloud_aws.default_config
+    if app_config[:ddb_scheme] do
+      config = config |> aws_config(ddb_scheme: app_config[:ddb_scheme])
+    end
+
+    if app_config[:ddb_host] do
+      config = config |> aws_config(ddb_host: app_config[:ddb_host])
+    end
+
+    if app_config[:ddb_port] do
+      config = config |> aws_config(ddb_port: app_config[:ddb_port])
+    end
   end
 
   def namespace_table(data) do
