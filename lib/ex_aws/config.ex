@@ -1,6 +1,6 @@
 defmodule ExAws.Config do
   require Record
-  Record.defrecord :aws_config, [
+  @attrs [
     as_host: nil,
     ec2_host: nil,
     iam_host: nil,
@@ -34,6 +34,7 @@ defmodule ExAws.Config do
     timeout: nil,
     cloudtrail_raw_result: nil
   ]
+  Record.defrecord :aws_config, @attrs
 
   def erlcloud_config do
     conf = Application.get_all_env(:ex_aws)
@@ -48,14 +49,28 @@ defmodule ExAws.Config do
       |> aws_config(ddb_port: conf[:ddb_port])
   end
 
-  def namespace_table(data) do
-    if table = Keyword.get(data, :TableName) do
-      name = [table, Application.get_env(:ex_aws, :ddb_namespace), Mix.env]
-        |> Enum.filter(&(&1))
-        |> Enum.join("_")
-      Keyword.put(data, :TableName, name)
-    else
-      data
-    end
+
+  def config_map do
+    config = erlcloud_config
+    @attrs |> Enum.with_index |> Enum.reduce(%{}, fn({{attr, _}, i}, map) ->
+      Map.put(map, attr, elem(config, i + 1))
+    end)
   end
+
+  def namespace(%{TableName: table} = data, :dynamo) do
+    name = prefix([table, Application.get_env(:ex_aws, :ddb_namespace), Mix.env])
+    Map.put(data, :TableName, name)
+  end
+  def namespace(data, :dynamo), do: data
+
+  def namespace(%{StreamName: stream} = data, :kinesis) do
+    name = prefix([stream, Application.get_env(:ex_aws, :kinesis_namespace), Mix.env])
+    Map.put(data, :StreamName, name)
+  end
+  def namespace(data, :kinesis), do: data
+
+  defp prefix(items) when is_list(items) do
+    items |> Enum.filter(&(&1)) |> Enum.join("_")
+  end
+
 end

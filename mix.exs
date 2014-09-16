@@ -3,7 +3,7 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.0.1",
+     version: "0.0.2",
      elixir: "~> 1.0.0",
      deps: deps]
   end
@@ -12,7 +12,7 @@ defmodule ExAws.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger, :erlcloud]]
+    [applications: [:logger, :erlcloud, :httpoison]]
   end
 
   # Dependencies can be Hex packages:
@@ -25,6 +25,10 @@ defmodule ExAws.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:erlcloud, github: "gleber/erlcloud"}]
+    [
+      {:erlcloud, github: "gleber/erlcloud"},
+      {:httpoison, github: "edgurgel/httpoison"},
+      {:poison, github: "devinus/poison"}
+    ]
   end
 end
