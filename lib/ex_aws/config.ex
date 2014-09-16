@@ -59,7 +59,7 @@ defmodule ExAws.Config do
     end
   end
 
-  def namespace(data, :stream) do
+  def namespace(data, :kinesis) do
   end
 
 end
