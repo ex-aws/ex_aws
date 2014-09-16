@@ -18,11 +18,11 @@ defmodule ExAws.Dynamo.Conversions do
   def dynamize(false), do: [S: "FALSE"]
 
   # Convert structures and their attributes
-  def dynamize(%{__struct__: struct} = record) do
+  def dynamize(%{__struct__: _} = record) do
     record
       |> Map.from_struct
       |> Map.to_list
-      |> Enum.filter(fn({k, v}) -> v end)
+      |> Enum.filter(fn({_, v}) -> v end)
       |> Enum.map(fn({k, v}) -> {k, dynamize(v)} end)
   end
 

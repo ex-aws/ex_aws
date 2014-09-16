@@ -6,6 +6,23 @@ defmodule ExAws.Kinesis do
     request(:list_streams)
   end
 
+  def create_stream(name, shard_count \\ 1) do
+    data = [
+      ShardCount: shard_count,
+      StreamName: name
+    ]
+    data |> IO.inspect
+    request(:create_stream, data)
+  end
+
+  def delete_stream(name) do
+    data = [
+      StreamName: name
+    ]
+
+    request(:delete_stream, data)
+  end
+
   # This function should be used for everything.
   def request(action) do
     request(action, [])
