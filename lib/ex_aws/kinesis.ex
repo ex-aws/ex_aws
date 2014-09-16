@@ -23,6 +23,15 @@ defmodule ExAws.Kinesis do
     request(:delete_stream, data)
   end
 
+  def put_record(stream_name, partition_key, blob, opts \\ []) do
+    data = [
+      Data: blob,
+      PartitionKey: partition_key,
+      StreamName: stream_name
+    ] ++ opts
+    request(:put_record, data)
+  end
+
   # This function should be used for everything.
   def request(action) do
     request(action, [])
