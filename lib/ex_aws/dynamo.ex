@@ -8,7 +8,7 @@ defmodule ExAws.Dynamo do
   end
 
   def request(action, data) do
-    :erlcloud_ddb_impl.request(Config.erlcloud_config, Dynamo.Actions.get(action), Config.namespace(data, :dynamo))
+    ExAws.Request.request(:ddb, Dynamo.Actions.get(action), Config.namespace(data, :dynamo))
   end
 
   ## Tables

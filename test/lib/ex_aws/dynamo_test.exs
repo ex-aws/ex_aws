@@ -3,7 +3,7 @@ defmodule ExAws.DynamoTest do
   use ExUnit.Case, async: true
 
   test "#list_tables" do
-    assert {:ok, [{"TableNames", _}]} = Dynamo.list_tables
+    assert {:ok, %{"TableNames" => _}} = Dynamo.list_tables
   end
 
 end

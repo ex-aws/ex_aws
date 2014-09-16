@@ -7,29 +7,27 @@ defmodule ExAws.Kinesis do
   end
 
   def create_stream(name, shard_count \\ 1) do
-    data = [
+    data = %{
       ShardCount: shard_count,
       StreamName: name
-    ]
+    }
     data |> IO.inspect
     request(:create_stream, data)
   end
 
   def delete_stream(name) do
-    data = [
-      StreamName: name
-    ]
+    data = %{StreamName: name}
 
     request(:delete_stream, data)
   end
 
   # This function should be used for everything.
   def request(action) do
-    request(action, [])
+    request(action, %{})
   end
 
   def request(action, data) do
-    :erlcloud_kinesis_impl.request(Config.erlcloud_config, Kinesis.Actions.get(action), Config.namespace(data, :kinesis))
+    ExAws.Request.request(:kinesis, Kinesis.Actions.get(action), Config.namespace(data, :kinesis))
   end
 
 end

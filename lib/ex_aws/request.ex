@@ -2,13 +2,18 @@ defmodule ExAws.Request do
   alias ExAws.Config
 
   def request(service, operation, data) do
-    body = Poison.encode!(data)
+    body = case data do
+      [] -> "{}"
+      _  -> Poison.encode!(data)
+    end
+
     headers = headers(service, operation, body)
     request_and_retry(service, headers, body, {:attempt, 1})
   end
 
   def headers(service, operation, body) do
     conf = Config.config_map
+
     headers = [
       {'host', Map.get(conf, :"#{service}_host")},
       {'x-amz-target', operation |> String.to_char_list},
@@ -27,9 +32,13 @@ defmodule ExAws.Request do
   def request_and_retry(service, headers, body, {:attempt, attempt}) do
     url = url(service, Config.config_map)
     headers = [{'content-type', 'application/x-amz-json-1.1'} | headers] |> binary_headers
-    url |> IO.inspect
-    headers |> IO.inspect
-    HTTPoison.post(url, body, headers)
+
+    case HTTPoison.post(url, body, headers) do
+      %HTTPoison.Response{status_code: 200, body: body} ->
+        {:ok, Poison.decode!(body)}
+      %HTTPoison.Response{status_code: code, body: body} ->
+        {:error, Poison.decode!(body)}
+    end
   end
 
   def binary_headers(headers) do
