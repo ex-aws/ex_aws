@@ -2,14 +2,6 @@ defmodule ExAws.Dynamo do
   alias __MODULE__
   alias Dynamo.Conversions
   alias ExAws.Config
-  # These function should be used for everything.
-  def request(action) do
-    request(action, %{})
-  end
-
-  def request(action, data) do
-    ExAws.Request.request(:ddb, Dynamo.Actions.get(action), Config.namespace(data, :dynamo))
-  end
 
   ## Tables
   ######################
@@ -83,6 +75,15 @@ defmodule ExAws.Dynamo do
       Key: module.dynamo_key(record)
     }
     request(:delete_item, data)
+  end
+
+  # These function should be used for everything.
+  def request(action) do
+    request(action, %{})
+  end
+
+  def request(action, data) do
+    ExAws.Request.request(:ddb, Dynamo.Actions.get(action), Config.namespace(data, :dynamo))
   end
 
 end
