@@ -1,5 +1,6 @@
 defmodule ExAws.Request do
   alias ExAws.Config
+  @max_attempts 10
 
   def request(service, operation, data) do
     body = case data do
@@ -35,10 +36,57 @@ defmodule ExAws.Request do
 
     case HTTPoison.post(url, body, headers) do
       %HTTPoison.Response{status_code: 200, body: body} ->
-        {:ok, Poison.decode!(body)}
-      %HTTPoison.Response{status_code: code, body: body} ->
-        {:error, Poison.decode!(body)}
+        {:ok, Poison.Parser.parse!(body)}
+      %HTTPoison.Response{status_code: status} = resp when status >= 400 and status < 500 ->
+        case client_error(resp) do
+          {:retry, reason} ->
+            request_and_retry(service, headers, body, attempt_again?(attempt, reason))
+          {:error, reason} -> {:error, reason}
+        end
+      %HTTPoison.Response{status_code: status, body: body} = resp when status >= 500 ->
+        reason = {:http_error, status, body}
+        request_and_retry(service, headers, body, attempt_again?(attempt, reason))
+      whoknows -> {:error, whoknows}
     end
+  end
+
+  def client_error(%HTTPoison.Response{status_code: status, body: body}) do
+    case Poison.Parser.parse(body) do
+      {:ok, %{"__type" => error_type, "Message" => message}} ->
+        error_type
+          |> String.split("#")
+          |> fn
+            [_, type] -> handle_aws_error(type, message)
+            _         -> {:error, {:http_error, status, body}}
+          end.()
+      _ -> {:error, {:http_error, status, body}}
+    end
+  end
+
+  def handle_aws_error("ProvisionedThroughputExceededException" = type, message) do
+    {:retry, {type, message}}
+  end
+
+  def handle_aws_error("ThrottlingException" = type, message) do
+    {:retry, {type, message}}
+  end
+
+  def handle_aws_error(type, message) do
+    {:error, {type, message}}
+  end
+
+  def attempt_again?(attempt, reason) when attempt >= @max_attempts do
+    {:error, reason}
+  end
+
+  def attempt_again?(attempt, _) do
+    attempt |> backoff
+    {:attempt, attempt + 1}
+  end
+
+  # TODO: make exponential
+  def backoff(attempt) do
+    :timer.sleep(attempt * 1000)
   end
 
   def binary_headers(headers) do
