@@ -1,6 +1,6 @@
 defmodule ExAws.Config do
   require Record
-  Record.defrecord :aws_config, [
+  @attrs [
     as_host: nil,
     ec2_host: nil,
     iam_host: nil,
@@ -34,6 +34,7 @@ defmodule ExAws.Config do
     timeout: nil,
     cloudtrail_raw_result: nil
   ]
+  Record.defrecord :aws_config, @attrs
 
   def erlcloud_config do
     conf = Application.get_all_env(:ex_aws)
