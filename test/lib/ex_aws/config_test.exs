@@ -3,7 +3,7 @@ defmodule ExAws.ConfigTest do
   use ExUnit.Case, async: true
 
   test "#namespace" do
-    name = [TableName: "Foo"] |> Config.namespace(:dynamo)
-    assert name == [TableName: "Foo_test"]
+    name = %{TableName: "Foo"} |> Config.namespace(:dynamo)
+    assert name == %{TableName: "Foo_test"}
   end
 end

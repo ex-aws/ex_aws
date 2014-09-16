@@ -3,7 +3,7 @@ defmodule ExAws.KinesisTest do
   use ExUnit.Case, async: true
 
   test "#list_streams" do
-    assert {:ok, [{"HasMoreStreams", _}, {"StreamNames", _}]} = Kinesis.list_streams
+    assert {:ok, %{"HasMoreStreams" => _, "StreamNames" => _}} = Kinesis.list_streams
   end
 
   test "#create_stream" do
