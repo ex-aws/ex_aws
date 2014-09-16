@@ -1,29 +1,30 @@
 defmodule ExAws.Dynamo.Conversions do
   def dynamize_attrs(attrs) do
     attrs |> Enum.map(fn({name, type}) ->
-      [AttributeName: name, AttributeType: type]
+      %{AttributeName: name, AttributeType: type}
     end)
   end
 
   # Basic values to their dynamo format
   def dynamize(val) when is_integer(val) do
-    [N: val]
+    %{N: val}
   end
 
   def dynamize(val) when is_binary(val) do
-    [S: val]
+    %{S: val}
   end
 
-  def dynamize(true),  do: [S: "TRUE"]
-  def dynamize(false), do: [S: "FALSE"]
+  def dynamize(true),  do: %{S: "TRUE"}
+  def dynamize(false), do: %{S: "FALSE"}
 
   # Convert structures and their attributes
   def dynamize(%{__struct__: _} = record) do
     record
       |> Map.from_struct
-      |> Map.to_list
-      |> Enum.filter(fn({_, v}) -> v end)
-      |> Enum.map(fn({k, v}) -> {k, dynamize(v)} end)
+      |> Enum.reduce(%{}, fn
+        ({k, v}, map) when not is_nil(v) -> Map.put(map, k, dynamize(v))
+        (_, map) -> map
+      end)
   end
 
   ### Dynamo format to elixir
