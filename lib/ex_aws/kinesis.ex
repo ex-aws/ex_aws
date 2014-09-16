@@ -3,7 +3,7 @@ defmodule ExAws.Kinesis do
   alias ExAws.Config
 
   def list_streams do
-    
+    request(:list_streams)
   end
 
   # This function should be used for everything.
