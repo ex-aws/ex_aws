@@ -60,6 +60,14 @@ defmodule ExAws.Config do
   end
 
   def namespace(data, :kinesis) do
+    if table = Keyword.get(data, :StreamName) do
+      name = [table, Application.get_env(:ex_aws, :kinesis_namespace), Mix.env]
+        |> Enum.filter(&(&1))
+        |> Enum.join("_")
+      Keyword.put(data, :StreamName, name)
+    else
+      data
+    end
   end
 
 end
