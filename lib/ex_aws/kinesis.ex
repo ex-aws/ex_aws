@@ -101,7 +101,7 @@ defmodule ExAws.Kinesis do
     data = %{
       StreamName: name,
       TagKeys: tag_keys
-    } |> Map.merge(opts)
+    }
     request(:remove_tags_for_stream, data)
   end
 
