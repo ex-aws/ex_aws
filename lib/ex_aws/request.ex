@@ -33,7 +33,7 @@ defmodule ExAws.Request do
 
   def request_and_retry(service, config, headers, body, {:attempt, attempt}) do
     url = url(service, ExAws.Config.config_map(config))
-    headers = [{'content-type', 'application/x-amz-json-1.0'} | headers] |> binary_headers
+    headers = [{"content-type", "application/x-amz-json-1.0"} | headers |> binary_headers]
 
     case HTTPoison.post(url, body, headers) do
       %HTTPoison.Response{status_code: 200, body: body} ->

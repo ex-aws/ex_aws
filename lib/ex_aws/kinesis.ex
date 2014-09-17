@@ -38,11 +38,30 @@ defmodule ExAws.Kinesis do
       ShardIterator: shard_iterator
     } |> Map.merge(opts)
     request(:get_records, data)
+      |> do_get_records
   end
 
-  def put_record(stream_name, partition_key, blob, opts \\ %{}) do
+  def do_get_records({:ok, %{"Records" => records}}) do
+    decoded_records = records
+      |> Enum.map(fn(%{"Data" => data} = record) ->
+        %{record | "Data" => Base.decode64(data)}
+      end)
+    {:ok, %{"Records" => decoded_records}}
+  end
+
+  def do_get_records(result), do: result
+
+  def put_record(stream_name, partition_key, blob) do
+    put_record(stream_name, partition_key, blob, %{})
+  end
+
+  def put_record(stream_name, partition_key, blob, opts) when is_list(blob) do
+    put_record(stream_name, partition_key, IO.iodata_to_binary(blob), opts)
+  end
+
+  def put_record(stream_name, partition_key, blob, opts) when is_binary(blob) do
     data = %{
-      Data: blob,
+      Data: blob |> Base.encode64,
       PartitionKey: partition_key,
       StreamName: stream_name
     } |> Map.merge(opts)
