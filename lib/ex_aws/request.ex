@@ -18,9 +18,9 @@ defmodule ExAws.Request do
       {'x-amz-target', operation |> String.to_char_list},
     ]
 
-    host = Map.get(conf, :"#{service}_host") |> List.to_string
-    region = case host |> String.split(".") do
-      [_, value, _, _] -> value |> String.to_char_list
+    host = Map.get(conf, :"#{service}_host")
+    region = case host |> :string.tokens('.') do
+      [_, value, _, _] -> value
       _ -> 'us-east-1'
     end
     headers = :erlcloud_aws.sign_v4(config, headers, body, region, service_name(service))
