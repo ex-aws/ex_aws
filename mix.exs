@@ -28,7 +28,7 @@ defmodule ExAws.Mixfile do
     [
       {:erlcloud, github: "gleber/erlcloud"},
       {:httpoison, github: "edgurgel/httpoison"},
-      {:poison, github: "devinus/poison"}
+      {:poison, "~> 1.1.0", [hex_app: :poison]}
     ]
   end
 end
