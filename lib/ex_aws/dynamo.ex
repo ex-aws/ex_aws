@@ -40,7 +40,7 @@ defmodule ExAws.Dynamo do
   end
 
   def delete_table(table) do
-    request(:delete_table, [TableName: table])
+    request(:delete_table, %{TableName: table})
   end
 
   ## Records
