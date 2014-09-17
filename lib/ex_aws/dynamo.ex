@@ -55,7 +55,7 @@ defmodule ExAws.Dynamo do
 
   def put_item(name, record) do
     data = %{
-      TableName: module,
+      TableName: name,
       Item: Dynamo.Conversions.dynamize(record)
     }
     request(:put_item, data)
