@@ -57,20 +57,33 @@ defmodule ExAws.Config do
     end)
   end
 
-  def namespace(%{TableName: table} = data, :dynamo) do
-    name = prefix([table, Application.get_env(:ex_aws, :ddb_namespace), Mix.env])
-    Map.put(data, :TableName, name)
+
+  defp suffix(items) when is_list(items) do
+    items |> Enum.filter(&(&1)) |> Enum.join("_")
   end
-  def namespace(data, :dynamo), do: data
+
+  ## Dynamo
+  #####################
+
+  def namespace(%{TableName: table} = data, :dynamo) do
+    Map.put(data, :TableName, namespace(table, :dynamo))
+  end
+  def namespace(data = %{}, :dynamo), do: data
+
+  def namespace(name, :dynamo) when is_atom(name) or is_binary(name) do
+    suffix([name, Application.get_env(:ex_aws, :ddb_namespace), Mix.env])
+  end
+
+  ## Kinesis
+  #####################
 
   def namespace(%{StreamName: stream} = data, :kinesis) do
-    name = prefix([stream, Application.get_env(:ex_aws, :kinesis_namespace), Mix.env])
-    Map.put(data, :StreamName, name)
+    Map.put(data, :StreamName, namespace(stream, :kinesis))
   end
-  def namespace(data, :kinesis), do: data
+  def namespace(data = %{}, :kinesis), do: data
 
-  defp prefix(items) when is_list(items) do
-    items |> Enum.filter(&(&1)) |> Enum.join("_")
+  def namespace(name, :kinesis) when is_atom(name) or is_binary(name) do
+    suffix([name, Application.get_env(:ex_aws, :kinesis_namespace), Mix.env])
   end
 
 end
