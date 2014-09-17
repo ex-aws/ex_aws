@@ -23,17 +23,20 @@ defmodule ExAws.Request do
       [_, value, _, _] -> value |> String.to_char_list
       _ -> 'us-east-1'
     end
-    :erlcloud_aws.sign_v4(config, headers, body, region, service_name(service))
+    headers = :erlcloud_aws.sign_v4(config, headers, body, region, service_name(service))
+    [{"content-type", json_version(service)} | headers |> binary_headers ]
   end
 
-  def service_name(:ddb), do: "dynamodb"
-  def service_name(other), do: other |> Atom.to_string
+  defp json_version(:ddb), do: "application/x-amz-json-1.0"
+  defp json_version(:kinesis), do: "application/x-amz-json-1.1"
+
+  def service_name(:ddb), do: 'dynamodb'
+  def service_name(other), do: other |> Atom.to_char_list
 
   def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(service, config, headers, body, {:attempt, attempt}) do
     url = url(service, ExAws.Config.config_map(config))
-    headers = [{"content-type", "application/x-amz-json-1.0"} | headers |> binary_headers]
 
     case HTTPoison.post(url, body, headers) do
       %HTTPoison.Response{status_code: 200, body: body} ->
