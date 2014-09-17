@@ -36,17 +36,22 @@ defmodule ExAws.Dynamo.Conversions do
 
   def coerce(item, struct_module) do
     item
-      |> Enum.map(&undynamize/1)
-      |> Enum.into(%{})
+      |> undynamize
       |> binary_map_to_struct(struct_module)
   end
 
-  def undynamize({key, [{"S", "TRUE"}]}),  do: {key, true}
-  def undynamize({key, [{"S", "FALSE"}]}), do: {key, false}
-  def undynamize({key, [{_, value}]}),     do: {key, value}
+  def undynamize(%{"S" => "TRUE"}),  do: true
+  def undynamize(%{"S" => "FALSE"}), do: false
+  def undynamize(%{"S" => value}),   do: value
+  def undynamize(%{"N" => value}),   do: value
+  def undynamize(item = %{}) do
+    item |> Enum.reduce(%{}, fn({k, v}, map) ->
+      Map.put(map, k, undynamize(v))
+    end)
+  end
 
   def binary_map_to_struct(bmap, module) do
-    struct(module)
+    module.__struct__
       |> Map.from_struct
       |> Enum.reduce(%{}, fn({k, v}, map) ->
         Map.put(map, k, Map.get(bmap, Atom.to_string(k), v))
