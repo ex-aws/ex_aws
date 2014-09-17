@@ -46,14 +46,14 @@ defmodule ExAws.Dynamo do
   ## Records
   ######################
 
-  def scan(table, opts \\ %{}) do
+  def scan(name, opts \\ %{}) do
     data = %{
-      TableName: table
+      TableName: name
     } |> Map.merge(opts)
     request(:scan, data)
   end
 
-  def put_item(%{__struct__: module} = record) do
+  def put_item(name, record) do
     data = %{
       TableName: module,
       Item: Dynamo.Conversions.dynamize(record)
@@ -61,18 +61,18 @@ defmodule ExAws.Dynamo do
     request(:put_item, data)
   end
 
-  def get_item(primary_key, module) do
+  def get_item(name, primary_key) do
     data = %{
-      TableName: module,
-      Key: module.dynamo_key(primary_key)
+      TableName: name,
+      Key: primary_key
     }
     request(:get_item, data)
   end
 
-  def delete_item(%{__struct__: module} = record) do
+  def delete_item(name, primary_key) do
     data = %{
-      TableName: module,
-      Key: module.dynamo_key(record)
+      TableName: name,
+      Key: primary_key
     }
     request(:delete_item, data)
   end
