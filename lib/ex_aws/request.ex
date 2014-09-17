@@ -13,7 +13,6 @@ defmodule ExAws.Request do
 
   def headers(service, config, operation, body) do
     conf = ExAws.Config.config_map(config)
-
     headers = [
       {'host', Map.get(conf, :"#{service}_host")},
       {'x-amz-target', operation |> String.to_char_list},
@@ -24,8 +23,11 @@ defmodule ExAws.Request do
       [_, value, _, _] -> value |> String.to_char_list
       _ -> 'us-east-1'
     end
-    :erlcloud_aws.sign_v4(config, headers, body, region, service |> Atom.to_string)
+    :erlcloud_aws.sign_v4(config, headers, body, region, service_name(service))
   end
+
+  def service_name(:ddb), do: "dynamodb"
+  def service_name(other), do: other |> Atom.to_string
 
   def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
 
