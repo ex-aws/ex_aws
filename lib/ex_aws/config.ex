@@ -50,8 +50,7 @@ defmodule ExAws.Config do
   end
 
 
-  def config_map do
-    config = erlcloud_config
+  def config_map(config) do
     @attrs |> Enum.with_index |> Enum.reduce(%{}, fn({{attr, _}, i}, map) ->
       Map.put(map, attr, elem(config, i + 1))
     end)

@@ -1,19 +1,18 @@
 defmodule ExAws.Request do
-  alias ExAws.Config
   @max_attempts 10
 
-  def request(service, operation, data) do
+  def request(service, config, operation, data) do
     body = case data do
       [] -> "{}"
       _  -> Poison.encode!(data)
     end
 
-    headers = headers(service, operation, body)
-    request_and_retry(service, headers, body, {:attempt, 1})
+    headers = headers(service, config, operation, body)
+    request_and_retry(service, config, headers, body, {:attempt, 1})
   end
 
-  def headers(service, operation, body) do
-    conf = Config.config_map
+  def headers(service, config, operation, body) do
+    conf = ExAws.Config.config_map(config)
 
     headers = [
       {'host', Map.get(conf, :"#{service}_host")},
@@ -25,27 +24,30 @@ defmodule ExAws.Request do
       [_, value, _, _] -> value |> String.to_char_list
       _ -> 'us-east-1'
     end
-    :erlcloud_aws.sign_v4(Config.erlcloud_config, headers, body, region, service |> Atom.to_string)
+    :erlcloud_aws.sign_v4(config, headers, body, region, service |> Atom.to_string)
   end
 
   def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
 
-  def request_and_retry(service, headers, body, {:attempt, attempt}) do
-    url = url(service, Config.config_map)
+  def request_and_retry(service, config, headers, body, {:attempt, attempt}) do
+    url = url(service, ExAws.Config.config_map(config))
     headers = [{'content-type', 'application/x-amz-json-1.1'} | headers] |> binary_headers
 
     case HTTPoison.post(url, body, headers) do
       %HTTPoison.Response{status_code: 200, body: body} ->
-        {:ok, Poison.Parser.parse!(body)}
+        case Poison.Parser.parse(body) do
+          {:ok, result} -> {:ok, result}
+          {:error, _}   -> {:error, body}
+        end
       %HTTPoison.Response{status_code: status} = resp when status >= 400 and status < 500 ->
         case client_error(resp) do
           {:retry, reason} ->
-            request_and_retry(service, headers, body, attempt_again?(attempt, reason))
+            request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
         end
       %HTTPoison.Response{status_code: status, body: body} = resp when status >= 500 ->
         reason = {:http_error, status, body}
-        request_and_retry(service, headers, body, attempt_again?(attempt, reason))
+        request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
       whoknows -> {:error, whoknows}
     end
   end

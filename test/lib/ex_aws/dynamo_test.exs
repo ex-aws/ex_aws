@@ -7,7 +7,7 @@ defmodule ExAws.DynamoTest do
   end
 
   test "#create_table" do
-    assert {:ok, _} = Dynamo.create_table(Foo, :id, %{id: "S"}, 1, 1) |> IO.inspect
+    assert {:ok, _} = Dynamo.create_table(Foo, :id, %{id: "S"}, 1, 1)
   end
 
 end
