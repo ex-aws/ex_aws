@@ -45,7 +45,7 @@ defmodule ExAws.Request do
             request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
         end
-      %HTTPoison.Response{status_code: status, body: body} = resp when status >= 500 ->
+      %HTTPoison.Response{status_code: status, body: body} when status >= 500 ->
         reason = {:http_error, status, body}
         request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
       whoknows -> {:error, whoknows}
