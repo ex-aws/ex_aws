@@ -27,7 +27,7 @@ defmodule ExAws.Kinesis.Lazy do
 
   defp build_shard_stream(initial, request_fun) do
     Stream.resource(fn -> initial end, fn
-      :quit -> nil
+      :quit -> {:halt, nil}
 
       {:error, results} -> {[{:error, results}], :quit}
 
@@ -40,5 +40,5 @@ defmodule ExAws.Kinesis.Lazy do
     end, &pass/1)
   end
 
-  defp pass(x), do: x
+  defp pass(_), do: nil
 end
