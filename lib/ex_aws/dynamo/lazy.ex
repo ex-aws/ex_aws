@@ -17,10 +17,9 @@ defmodule ExAws.Dynamo.Lazy do
 
   defp do_scan({:error, results}, _), do: {:error, results}
   defp do_scan({:ok, results}, request_fun) do
-    {items, meta} = Map.pop(results, "Items")
     stream = build_scan_stream({:ok, results}, request_fun)
 
-    {:ok, Map.put(meta, "Items", stream)}
+    {:ok, Map.put(results, "Items", stream)}
   end
 
   defp build_scan_stream(initial, request_fun) do
