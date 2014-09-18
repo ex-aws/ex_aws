@@ -27,7 +27,7 @@ defmodule ExAws.Dynamo.Lazy do
     Stream.resource(
       fn -> initial end,
       fn
-        :quit             -> {:halt, nil}
+        :quit -> {:halt, nil}
 
         {:error, items} -> {[{:error, items}], :quit}
 
@@ -37,7 +37,6 @@ defmodule ExAws.Dynamo.Lazy do
         {:ok, %{"Items" => items}} ->
           {items, :quit}
       end,
-      &(&1)
-    )
+      &(&1))
   end
 end
