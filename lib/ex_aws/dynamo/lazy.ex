@@ -38,10 +38,4 @@ defmodule ExAws.Dynamo.Lazy do
         {items, :quit}
     end)
   end
-
-  defmodule Conversions do
-    def coerce_collection(items, struct_module)do
-      items |> Stream.map(&coerce(&1, struct_module))
-    end
-  end
 end
