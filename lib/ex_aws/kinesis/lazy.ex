@@ -23,20 +23,17 @@ defmodule ExAws.Kinesis.Lazy do
   end
 
   defp build_stream(initial, request_fun) do
-    Stream.resource(
-      fn -> initial end,
-      fn
-        :quit -> {:halt, nil}
+    Stream.unfold(initial, fn
+      :quit -> nil
 
-        {:error, shards} -> {[{:error, shards}], :quit}
+      {:error, shards} -> {[{:error, shards}], :quit}
 
-        {:ok, %{"StreamDescription" => %{"Shards" => shards, "HasMoreShards" => true}}} ->
-          opts = %{ExclusiveStartShardId: shards |> List.last |> Map.get("ShardId")}
-          {shards, request_fun.(opts)}
+      {:ok, %{"StreamDescription" => %{"Shards" => shards, "HasMoreShards" => true}}} ->
+        opts = %{ExclusiveStartShardId: shards |> List.last |> Map.get("ShardId")}
+        {shards, request_fun.(opts)}
 
-        {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
-          {shards, :quit}
-      end,
-      &(&1))
+      {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
+        {shards, :quit}
+    end)
   end
 end

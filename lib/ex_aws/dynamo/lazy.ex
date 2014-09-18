@@ -23,19 +23,16 @@ defmodule ExAws.Dynamo.Lazy do
   end
 
   defp build_scan_stream(initial, request_fun) do
-    Stream.resource(
-      fn -> initial end,
-      fn
-        :quit -> {:halt, nil}
+    Stream.unfold(initial, fn
+      :quit -> nil
 
-        {:error, items} -> {[{:error, items}], :quit}
+      {:error, items} -> {[{:error, items}], :quit}
 
-        {:ok, %{"Items" => items, "LastEvaluatedKey" => key}} ->
-          {items, request_fun.(%{ExclusiveStartKey: key})}
+      {:ok, %{"Items" => items, "LastEvaluatedKey" => key}} ->
+        {items, request_fun.(%{ExclusiveStartKey: key})}
 
-        {:ok, %{"Items" => items}} ->
-          {items, :quit}
-      end,
-      &(&1))
+      {:ok, %{"Items" => items}} ->
+        {items, :quit}
+    end)
   end
 end
