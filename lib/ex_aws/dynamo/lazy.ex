@@ -15,15 +15,15 @@ defmodule ExAws.Dynamo.Lazy do
       |> do_scan(request_fun)
   end
 
-  def do_scan({:error, results}, _), do: {:error, results}
-  def do_scan({:ok, results}, request_fun) do
+  defp do_scan({:error, results}, _), do: {:error, results}
+  defp do_scan({:ok, results}, request_fun) do
     {items, meta} = Map.pop(results, "Items")
     stream = build_scan_stream({:ok, results}, request_fun)
 
     {:ok, Map.put(meta, "Items", stream)}
   end
 
-  def build_scan_stream(initial, request_fun) do
+  defp build_scan_stream(initial, request_fun) do
     Stream.resource(
       fn -> initial end,
       fn
