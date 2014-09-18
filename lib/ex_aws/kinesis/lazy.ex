@@ -6,6 +6,9 @@ defmodule ExAws.Kinesis.Lazy do
   and will automatically retrieve additional pages as necessary.
   """
 
+  @doc """
+  Returns the normally shaped AWS response, except the Shards key is now a stream
+  """
   def describe_stream(stream, opts \\ %{}) do
     request_fun = fn(fun_opts) ->
       ExAws.Kinesis.describe_stream(stream, Map.merge(opts, fun_opts))
@@ -22,11 +25,11 @@ defmodule ExAws.Kinesis.Lazy do
     {:ok, put_in(results["StreamDescription"], %{"Shards" => stream})}
   end
 
-  defp build_stream(initial, request_fun) do
+  defp build_shard_stream(initial, request_fun) do
     Stream.unfold(initial, fn
       :quit -> nil
 
-      {:error, shards} -> {[{:error, shards}], :quit}
+      {:error, results} -> {[{:error, results}], :quit}
 
       {:ok, %{"StreamDescription" => %{"Shards" => shards, "HasMoreShards" => true}}} ->
         opts = %{ExclusiveStartShardId: shards |> List.last |> Map.get("ShardId")}

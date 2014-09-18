@@ -6,6 +6,9 @@ defmodule ExAws.Dynamo.Lazy do
   and will automatically retrieve additional pages as necessary.
   """
 
+  @doc """
+  Returns the normally shaped scan result, except that the Items key is now a stream.
+  """
   def scan(table, opts \\ %{}) do
     request_fun = fn(fun_opts) ->
       ExAws.Dynamo.scan(table, Map.merge(opts, fun_opts))
