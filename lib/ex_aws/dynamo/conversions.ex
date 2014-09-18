@@ -21,10 +21,14 @@ defmodule ExAws.Dynamo.Conversions do
   def dynamize(%{__struct__: _} = record) do
     record
       |> Map.from_struct
-      |> Enum.reduce(%{}, fn
-        ({k, v}, map) when not is_nil(v) -> Map.put(map, k, dynamize(v))
-        (_, map) -> map
-      end)
+      |> dynamize
+    end
+
+  def dynamize(%{} = map) do
+    map |> Enum.reduce(%{}, fn
+      ({k, v}, map) when not is_nil(v) -> Map.put(map, k, dynamize(v))
+      (_, map) -> map
+    end)
   end
 
   ### Dynamo format to elixir
