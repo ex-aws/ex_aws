@@ -26,7 +26,7 @@ defmodule ExAws.Dynamo.Lazy do
   end
 
   defp build_scan_stream(initial, request_fun) do
-    Stream.unfold(initial, fn
+    Stream.resource(fn -> initial end, fn
       :quit -> nil
 
       {:error, items} -> {[{:error, items}], :quit}
@@ -36,6 +36,8 @@ defmodule ExAws.Dynamo.Lazy do
 
       {:ok, %{"Items" => items}} ->
         {items, :quit}
-    end)
+    end, &pass/1)
   end
+
+  defp pass(x), do: x
 end

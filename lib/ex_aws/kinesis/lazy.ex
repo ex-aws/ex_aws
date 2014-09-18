@@ -26,7 +26,7 @@ defmodule ExAws.Kinesis.Lazy do
   end
 
   defp build_shard_stream(initial, request_fun) do
-    Stream.unfold(initial, fn
+    Stream.resource(fn -> initial end, fn
       :quit -> nil
 
       {:error, results} -> {[{:error, results}], :quit}
@@ -37,6 +37,8 @@ defmodule ExAws.Kinesis.Lazy do
 
       {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
         {shards, :quit}
-    end)
+    end, &pass/1)
+
+    defp pass(x), do: x
   end
 end
