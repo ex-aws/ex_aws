@@ -20,7 +20,7 @@ defmodule ExAws.Kinesis.Lazy do
 
   defp do_describe_stream({:error, results}, _), do: {:error, results}
   defp do_describe_stream({:ok, results}, request_fun) do
-    stream = build_stream({:ok, results}, request_fun)
+    stream = build_shard_stream({:ok, results}, request_fun)
 
     {:ok, put_in(results["StreamDescription"], %{"Shards" => stream})}
   end
