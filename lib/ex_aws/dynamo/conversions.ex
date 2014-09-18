@@ -31,7 +31,7 @@ defmodule ExAws.Dynamo.Conversions do
   ############################
 
   def coerce_collection(items, struct_module)do
-    items |> Enum.map(&coerce(&1, struct_module))
+    items |> Stream.map(&coerce(&1, struct_module))
   end
 
   def coerce(item, struct_module) do
