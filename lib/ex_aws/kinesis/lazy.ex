@@ -38,7 +38,7 @@ defmodule ExAws.Kinesis.Lazy do
       {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
         {shards, :quit}
     end, &pass/1)
-
-    defp pass(x), do: x
   end
+
+  defp pass(x), do: x
 end
