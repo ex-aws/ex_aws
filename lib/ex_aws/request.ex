@@ -39,12 +39,12 @@ defmodule ExAws.Request do
     url = url(service, ExAws.Config.config_map(config))
 
     case HTTPoison.post(url, body, headers) do
-      %HTTPoison.Response{status_code: 200, body: body} ->
+      %HTTPoison.Response{status_code: status, body: body} when status in 200..299 ->
         case Poison.Parser.parse(body) do
           {:ok, result} -> {:ok, result}
           {:error, _}   -> {:error, body}
         end
-      %HTTPoison.Response{status_code: status} = resp when status >= 400 and status < 500 ->
+      %HTTPoison.Response{status_code: status} = resp when status in 400..499 ->
         case client_error(resp) do
           {:retry, reason} ->
             request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
