@@ -1,4 +1,5 @@
 defmodule ExAws.Request do
+  require Logger
   @max_attempts 10
 
   def request(service, config, operation, data) do
@@ -39,6 +40,8 @@ defmodule ExAws.Request do
     url = url(service, ExAws.Config.config_map(config))
 
     case HTTPoison.post(url, body, headers) do
+      %HTTPoison.Response{status_code: status, body: ""} when status in 200..299 ->
+        {:ok, ""}
       %HTTPoison.Response{status_code: status, body: body} when status in 200..299 ->
         case Poison.Parser.parse(body) do
           {:ok, result} -> {:ok, result}
@@ -53,18 +56,21 @@ defmodule ExAws.Request do
       %HTTPoison.Response{status_code: status, body: body} when status >= 500 ->
         reason = {:http_error, status, body}
         request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
-      whoknows -> {:error, whoknows}
+      whoknows ->
+        Logger.info "Unknown response"
+        whoknows |> inspect |> Logger.info
+        {:error, whoknows}
     end
   end
 
   def client_error(%HTTPoison.Response{status_code: status, body: body}) do
     case Poison.Parser.parse(body) do
-      {:ok, %{"__type" => error_type, "Message" => message}} ->
+      {:ok, %{"__type" => error_type, "message" => message} = err} ->
         error_type
           |> String.split("#")
           |> fn
             [_, type] -> handle_aws_error(type, message)
-            _         -> {:error, {:http_error, status, body}}
+            _         -> {:error, {:http_error, status, err}}
           end.()
       _ -> {:error, {:http_error, status, body}}
     end
