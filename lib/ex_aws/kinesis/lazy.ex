@@ -41,4 +41,35 @@ defmodule ExAws.Kinesis.Lazy do
   end
 
   defp pass(_), do: nil
+
+  @doc """
+  Returns a stream of record shard iterator tuples.
+  """
+  def get_records(shard_iterator, opts \\ %{}) do
+    request_fun = fn(fun_opts) ->
+      ExAws.Kinesis.get_records(shard_iterator, Map.merge(opts, fun_opts))
+    end
+
+    ExAws.Kinesis.get_records(shard_iterator, opts)
+      |> do_get_records(request_fun)
+  end
+
+  defp do_get_records({:error, results}, _), do: {:error, results}
+  defp do_get_records(initial, request_fun) do
+    {:ok, build_record_stream(initial, request_fun)}
+  end
+
+  defp build_record_stream(initial, request_fun) do
+    Stream.resource(fn -> initial end, fn
+      :quit -> {:halt, nil}
+
+      {:error, results} -> {[{:error, results}], :quit}
+
+      {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
+        {records, request_fun.(%{"ShardIterator" => shard_iter})}
+
+      {:ok, %{"Records" => records}} ->
+        {records, :quit}
+    end, &pass/1)
+  end
 end
