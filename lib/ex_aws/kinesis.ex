@@ -44,7 +44,7 @@ defmodule ExAws.Kinesis do
   def do_get_records({:ok, %{"Records" => records}}) do
     decoded_records = records
       |> Enum.map(fn(%{"Data" => data} = record) ->
-        %{record | "Data" => Base.decode64!(data)}
+        %{record | "Data" => Base.decode64(data)}
       end)
     {:ok, %{"Records" => decoded_records}}
   end
