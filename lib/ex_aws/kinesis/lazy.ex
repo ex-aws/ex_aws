@@ -48,19 +48,15 @@ defmodule ExAws.Kinesis.Lazy do
   def get_records(shard_iterator, opts \\ %{}) do
     request_fun = fn(fun_opts) ->
       ExAws.Kinesis.get_records(shard_iterator, Map.merge(opts, fun_opts))
-    end
-
-    ExAws.Kinesis.get_records(shard_iterator, opts)
-      |> do_get_records(request_fun)
+    end |> do_get_records
   end
 
-  defp do_get_records({:error, results}, _), do: {:error, results}
-  defp do_get_records(initial, request_fun) do
-    {:ok, build_record_stream(initial, request_fun)}
+  defp do_get_records(request_fun) do
+    {:ok, build_record_stream(request_fun)}
   end
 
-  defp build_record_stream(initial, request_fun) do
-    Stream.resource(fn -> initial end, fn
+  defp build_record_stream(request_fun) do
+    Stream.resource(fn -> request_fun.(%{}) end, fn
       :quit -> {:halt, nil}
 
       {:error, results} -> {[{:error, results}], :quit}
