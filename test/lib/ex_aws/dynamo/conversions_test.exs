@@ -7,7 +7,14 @@ defmodule ExAws.Dynamo.ConversionsTest do
   alias ExAws.Dynamo.Conversions
   alias Test.User
 
+
+  test "undynamize ints works" do
+    assert Conversions.undynamize(%{"N" => "23"}) == 23
+    assert Conversions.undynamize(%{"N" => 23}) == 23
+  end
+
   test "undynamize structs works properly" do
+    user = %User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     user = %User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     duser = Conversions.dynamize(user) |> Poison.encode! |> Poison.Parser.parse!
     cuser = duser |> Conversions.coerce(User)
