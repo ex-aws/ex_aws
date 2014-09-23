@@ -10,8 +10,9 @@ defmodule ExAws.Dynamo.Lazy do
   Returns the normally shaped scan result, except that the Items key is now a stream.
   """
   def scan(table, opts \\ %{}) do
-    request_fun = fn(fun_opts) ->
-      ExAws.Dynamo.scan(table, Map.merge(opts, fun_opts))
+    request_fun = fn
+      {:initial, initial} -> initial
+      fun_opts -> ExAws.Dynamo.scan(table, Map.merge(opts, fun_opts))
     end
 
     ExAws.Dynamo.scan(table, opts)
@@ -20,22 +21,26 @@ defmodule ExAws.Dynamo.Lazy do
 
   defp do_scan({:error, results}, _), do: {:error, results}
   defp do_scan({:ok, results}, request_fun) do
+
     stream = build_scan_stream({:ok, results}, request_fun)
 
     {:ok, Map.put(results, "Items", stream)}
   end
 
   defp build_scan_stream(initial, request_fun) do
-    Stream.resource(fn -> initial end, fn
+    Stream.resource(fn -> {request_fun, {:initial, initial}} end, fn
       :quit -> {:halt, nil}
 
-      {:error, items} -> {[{:error, items}], :quit}
+      {fun, args} -> case fun.(args) do
 
-      {:ok, %{"Items" => items, "LastEvaluatedKey" => key}} ->
-        {items, request_fun.(%{ExclusiveStartKey: key})}
+        {:error, items} -> {[{:error, items}], :quit}
 
-      {:ok, %{"Items" => items}} ->
-        {items, :quit}
+        {:ok, %{"Items" => items, "LastEvaluatedKey" => key}} ->
+          {items, {fun, %{ExclusiveStartKey: key}}}
+
+        {:ok, %{"Items" => items}} ->
+          {items, :quit}
+      end
     end, &pass/1)
   end
 

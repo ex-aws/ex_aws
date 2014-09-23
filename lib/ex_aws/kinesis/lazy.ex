@@ -10,8 +10,9 @@ defmodule ExAws.Kinesis.Lazy do
   Returns the normally shaped AWS response, except the Shards key is now a stream
   """
   def describe_stream(stream, opts \\ %{}) do
-    request_fun = fn(fun_opts) ->
-      ExAws.Kinesis.describe_stream(stream, Map.merge(opts, fun_opts))
+    request_fun = fn
+      {:initial, initial} -> initial
+      fun_opts -> ExAws.Kinesis.describe_stream(stream, Map.merge(opts, fun_opts))
     end
 
     ExAws.Kinesis.describe_stream(stream, opts)
@@ -26,17 +27,19 @@ defmodule ExAws.Kinesis.Lazy do
   end
 
   defp build_shard_stream(initial, request_fun) do
-    Stream.resource(fn -> initial end, fn
+    Stream.resource(fn -> {request_fun, {:initial, initial}} end, fn
       :quit -> {:halt, nil}
+      {fun, args} -> case fun.(args) do
 
-      {:error, results} -> {[{:error, results}], :quit}
+        {:error, results} -> {[{:error, results}], :quit}
 
-      {:ok, %{"StreamDescription" => %{"Shards" => shards, "HasMoreShards" => true}}} ->
-        opts = %{ExclusiveStartShardId: shards |> List.last |> Map.get("ShardId")}
-        {shards, request_fun.(opts)}
+        {:ok, %{"StreamDescription" => %{"Shards" => shards, "HasMoreShards" => true}}} ->
+          opts = %{ExclusiveStartShardId: shards |> List.last |> Map.get("ShardId")}
+          {shards, {fun, opts}}
 
-      {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
-        {shards, :quit}
+        {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
+          {shards, :quit}
+      end
     end, &pass/1)
   end
 
@@ -50,26 +53,23 @@ defmodule ExAws.Kinesis.Lazy do
       ExAws.Kinesis.get_records(shard_iterator, Map.merge(opts, fun_opts))
     end
 
-    ExAws.Kinesis.get_records(shard_iterator, opts)
-      |> do_get_records(request_fun)
+    build_record_stream(request_fun)}
   end
 
-  defp do_get_records({:error, results}, _), do: {:error, results}
-  defp do_get_records(initial, request_fun) do
-    {:ok, build_record_stream(initial, request_fun)}
-  end
-
-  defp build_record_stream(initial, request_fun) do
-    Stream.resource(fn -> initial end, fn
+  defp build_record_stream(request_fun) do
+    Stream.resource(fn -> {request_fun, %{}} end, fn
       :quit -> {:halt, nil}
 
-      {:error, results} -> {[{:error, results}], :quit}
+      {fun, args} -> case fun.(args) do
 
-      {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
-        {records, request_fun.(%{"ShardIterator" => shard_iter})}
+        {:error, results} -> {[{:error, results}], :quit}
 
-      {:ok, %{"Records" => records}} ->
-        {records, :quit}
+        {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
+          {records, %{"ShardIterator" => shard_iter}}
+
+        {:ok, %{"Records" => records}} ->
+          {records, :quit}
+      end
     end, &pass/1)
   end
 end
