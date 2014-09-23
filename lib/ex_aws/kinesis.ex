@@ -61,7 +61,7 @@ defmodule ExAws.Kinesis do
 
   def put_record(stream_name, partition_key, blob, opts) when is_binary(blob) do
     data = %{
-      Data: blob |> Base.encode64!,
+      Data: blob |> Base.encode64,
       PartitionKey: partition_key,
       StreamName: stream_name
     } |> Map.merge(opts)
