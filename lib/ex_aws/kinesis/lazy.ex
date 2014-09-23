@@ -53,7 +53,7 @@ defmodule ExAws.Kinesis.Lazy do
       ExAws.Kinesis.get_records(shard_iterator, Map.merge(opts, fun_opts))
     end
 
-    build_record_stream(request_fun)}
+    build_record_stream(request_fun)
   end
 
   defp build_record_stream(request_fun) do
