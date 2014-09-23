@@ -39,6 +39,12 @@ defmodule ExAws.Request do
   def request_and_retry(service, config, headers, body, {:attempt, attempt}) do
     url = url(service, ExAws.Config.config_map(config))
 
+    if Application.get_env(:ex_aws, :debug_requests) do
+      Logger.debug("Request URL: #{inspect url}")
+      Logger.debug("Request HEADERS: #{inspect headers}")
+      Logger.debug("Request BODY: #{inspect body}")
+    end
+
     case HTTPoison.post(url, body, headers) do
       %HTTPoison.Response{status_code: status, body: ""} when status in 200..299 ->
         {:ok, ""}
