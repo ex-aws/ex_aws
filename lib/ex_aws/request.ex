@@ -42,7 +42,7 @@ defmodule ExAws.Request do
     if Application.get_env(:ex_aws, :debug_requests) do
       Logger.debug("Request URL: #{inspect url}")
       Logger.debug("Request HEADERS: #{inspect headers}")
-      Logger.debug("Request BODY: #{inspect body}")
+      Logger.debug("Request BODY: #{body}")
     end
 
     case HTTPoison.post(url, body, headers) do

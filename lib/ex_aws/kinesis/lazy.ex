@@ -47,10 +47,16 @@ defmodule ExAws.Kinesis.Lazy do
 
   @doc """
   Returns a stream of record shard iterator tuples.
+  NOTE: This stream is basically INFINITE, in that it runs
+  until the shard it is reading from closes, which may be never.
   """
   def get_records(shard_iterator, opts \\ %{}) do
+    sleep_time = Application.get_env(:ex_aws, :kinesis_sleep_between_req_time) || 200
+
     request_fun = fn(fun_opts) ->
-      ExAws.Kinesis.get_records(shard_iterator, Map.merge(opts, fun_opts))
+      :timer.sleep(sleep_time)
+      req_opts = Map.merge(opts, fun_opts)
+      ExAws.Kinesis.get_records(shard_iterator, req_opts)
     end
 
     build_record_stream(request_fun)
@@ -65,7 +71,7 @@ defmodule ExAws.Kinesis.Lazy do
         {:error, results} -> {[{:error, results}], :quit}
 
         {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
-          {records, %{"ShardIterator" => shard_iter}}
+          {records, {fun, %{ShardIterator: shard_iter}}}
 
         {:ok, %{"Records" => records}} ->
           {records, :quit}
