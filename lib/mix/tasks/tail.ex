@@ -35,7 +35,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
 
     stream_name
       |> get_shards
-      |> Enum.map(&Kinesis.get_shard_iterator(stream_name, &1["ShardId"], "TRIM_HORIZON"))
+      |> Enum.map(&Kinesis.get_shard_iterator(stream_name, &1["ShardId"], "LATEST"))
       |> Enum.map(&get_records(&1, sleep_time))
   end
 
@@ -52,7 +52,6 @@ defmodule Mix.Tasks.Kinesis.Tail do
         []  -> :timer.sleep(wait_time * 1000); []
         val -> val
       end)
-      |> Stream.map(fn(value) -> IO.inspect(value); value end)
       |> Stream.map(&format_msg/1)
       |> Stream.run
   end
