@@ -1,7 +1,8 @@
 defmodule ExAws.Kinesis.Lazy do
+  alias ExAws.Kinesis
   @moduledoc """
   Kinesis has a few functions that require paging.
-  These functions operate just like those in ExAws.Kinesis,
+  These functions operate just like those in Kinesis,
   except that they return streams instead of lists that can be iterated through
   and will automatically retrieve additional pages as necessary.
   """
@@ -12,10 +13,10 @@ defmodule ExAws.Kinesis.Lazy do
   def describe_stream(stream, opts \\ %{}) do
     request_fun = fn
       {:initial, initial} -> initial
-      fun_opts -> ExAws.Kinesis.describe_stream(stream, Map.merge(opts, fun_opts))
+      fun_opts -> Kinesis.describe_stream(stream, Map.merge(opts, fun_opts))
     end
 
-    ExAws.Kinesis.describe_stream(stream, opts)
+    Kinesis.describe_stream(stream, opts)
       |> do_describe_stream(request_fun)
   end
 
@@ -56,7 +57,7 @@ defmodule ExAws.Kinesis.Lazy do
     request_fun = fn(fun_opts) ->
       :timer.sleep(sleep_time)
       req_opts = Map.merge(opts, fun_opts)
-      ExAws.Kinesis.get_records(shard_iterator, req_opts)
+      Kinesis.get_records(shard_iterator, req_opts)
     end
 
     build_record_stream(request_fun, fun)
@@ -71,7 +72,10 @@ defmodule ExAws.Kinesis.Lazy do
         {:error, results} -> {iteration_fun.([{:error, results}]), :quit}
 
         {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
-          {iteration_fun.(records), {fun, %{ShardIterator: shard_iter}}}
+          {
+            records |> Kinesis.decode_records |> iteration_fun.(),
+            {fun, %{ShardIterator: shard_iter}}
+          }
 
         {:ok, %{"Records" => records}} ->
           {iteration_fun.(records), :quit}
