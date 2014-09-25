@@ -73,7 +73,7 @@ defmodule ExAws.Kinesis.Lazy do
 
         {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
           {
-            records |> Kinesis.decode_records |> iteration_fun.(),
+            records |> iteration_fun.(),
             {fun, %{ShardIterator: shard_iter}}
           }
 
