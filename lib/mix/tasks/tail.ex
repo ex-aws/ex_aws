@@ -58,9 +58,16 @@ defmodule Mix.Tasks.Kinesis.Tail do
 
   defp format_msg(msg) do
     IO.ANSI.format_fragment([:blue,  msg["PartitionKey"], :bright, " | ",
-                             :reset, msg["Data"] ])
+                             :reset, msg["Data"] |> ensure_new_line ])
     |> IO.chardata_to_string
     |> IO.write
+  end
+
+  defp ensure_new_line(data) do
+    case String.last(data) do
+      "\n" -> data
+      _    -> [data, "\n"]
+    end
   end
 
 end
