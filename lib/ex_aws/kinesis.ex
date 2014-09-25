@@ -1,6 +1,7 @@
 defmodule ExAws.Kinesis do
   alias __MODULE__
   alias ExAws.Config
+  require Logger
 
   ## Streams
   ######################
@@ -47,8 +48,11 @@ defmodule ExAws.Kinesis do
 
   def decode_records(records) do
     records |> Enum.map(fn(%{"Data" => data} = record) ->
-      %{record | "Data" => Base.decode64!(data)}
-    end)
+      case data |> Base.decode64 do
+        {:ok, decoded} -> %{record | "Data" => decoded}
+        :error -> Logger.error("Could not decode data from: #{inspect record}"); nil
+      end
+    end) |> Enum.reject(&is_nil/1)
   end
 
   def do_get_records(result), do: result
