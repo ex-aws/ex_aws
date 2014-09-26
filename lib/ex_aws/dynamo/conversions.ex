@@ -7,7 +7,7 @@ defmodule ExAws.Dynamo.Conversions do
 
   # Basic values to their dynamo format
   def dynamize(val) when is_integer(val) do
-    %{N: val}
+    %{N: val |> Integer.to_string}
   end
 
   def dynamize(val) when is_binary(val) do

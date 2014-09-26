@@ -7,6 +7,9 @@ defmodule ExAws.Dynamo.ConversionsTest do
   alias ExAws.Dynamo.Conversions
   alias Test.User
 
+  test "dynamize converts numbers to binaries" do
+    assert Conversions.dynamize(34) == %{N: "34"}
+  end
 
   test "undynamize ints works" do
     assert Conversions.undynamize(%{"N" => "23"}) == 23
