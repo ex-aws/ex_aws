@@ -6,8 +6,4 @@ defmodule ExAws.KinesisTest do
     assert {:ok, %{"HasMoreStreams" => _, "StreamNames" => _}} = Kinesis.list_streams
   end
 
-  test "#create_stream" do
-    assert {:ok, 1} = Kinesis.create_stream(Foo)
-  end
-
 end

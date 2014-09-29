@@ -56,11 +56,6 @@ defmodule ExAws.Config do
     end)
   end
 
-
-  defp suffix(items) when is_list(items) do
-    items |> Enum.filter(&(&1)) |> Enum.join("_")
-  end
-
   ## Dynamo
   #####################
 
@@ -70,7 +65,7 @@ defmodule ExAws.Config do
   def namespace(data = %{}, :dynamo), do: data
 
   def namespace(name, :dynamo) when is_atom(name) or is_binary(name) do
-    suffix([name | Application.get_env(:ex_aws, :ddb_namespace) || []])
+    [name, Application.get_env(:ex_aws, :ddb_namespace) || ""] |> Enum.join
   end
 
   ## Kinesis
@@ -82,7 +77,7 @@ defmodule ExAws.Config do
   def namespace(data = %{}, :kinesis), do: data
 
   def namespace(name, :kinesis) when is_atom(name) or is_binary(name) do
-    suffix([name | Application.get_env(:ex_aws, :kinesis_namespace) || []])
+    [name, Application.get_env(:ex_aws, :kinesis_namespace) || ""] |> Enum.join
   end
 
 end
