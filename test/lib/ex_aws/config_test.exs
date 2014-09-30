@@ -4,10 +4,14 @@ defmodule ExAws.ConfigTest do
 
   test "#namespace" do
     name = %{TableName: "Foo"} |> Config.namespace(:dynamo)
-    assert name == %{TableName: "Foo-staging"}
+    assert name == %{TableName: "Foo-test"}
   end
 
   test "#namespace atom" do
-    assert Config.namespace(:foo, :dynamo) == "foo-staging"
+    assert Config.namespace(:foo, :dynamo) == "foo-test"
+  end
+
+  test "#namespace Elixir atom" do
+    assert Config.namespace(Foo, :dynamo) == "Elixir.Foo-test"
   end
 end
