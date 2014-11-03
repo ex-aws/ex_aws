@@ -3,7 +3,7 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.0.2",
+     version: "0.0.3",
      elixir: "~> 1.0.0",
      deps: deps]
   end
@@ -28,7 +28,7 @@ defmodule ExAws.Mixfile do
     [
       {:erlcloud, github: "gleber/erlcloud"},
       {:httpoison, github: "edgurgel/httpoison"},
-      {:poison, "~> 1.1.0", [hex_app: :poison]}
+      {:poison, "~> 1.2.0", [hex_app: :poison]}
     ]
   end
 end
