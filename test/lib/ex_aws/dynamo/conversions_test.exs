@@ -8,7 +8,12 @@ defmodule ExAws.Dynamo.ConversionsTest do
   alias Test.User
 
   test "dynamize converts numbers to binaries" do
-    assert Conversions.dynamize(34) == %{N: "34"}
+    assert Conversions.do_dynamize(34) == %{N: "34"}
+  end
+
+  test "dyanmize can handle map values" do
+    result = %{a: 1, b: %{c: 2, d: "asdf"}} |> Conversions.dynamize
+    assert %{a: %{N: "1"}, b: %{M: %{c: %{N: "2"}, d: %{S: "asdf"}}}} == result
   end
 
   test "undynamize ints works" do

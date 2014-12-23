@@ -5,17 +5,21 @@ defmodule ExAws.Dynamo.Conversions do
     end)
   end
 
+  def do_dynamize(true),  do: %{S: "TRUE"}
+  def do_dynamize(false), do: %{S: "FALSE"}
+
+  def do_dynamize(%{} = map) do
+    %{M: map |> dynamize}
+  end
+
   # Basic values to their dynamo format
-  def dynamize(val) when is_integer(val) do
+  def do_dynamize(val) when is_integer(val) do
     %{N: val |> Integer.to_string}
   end
 
-  def dynamize(val) when is_binary(val) do
+  def do_dynamize(val) when is_binary(val) do
     %{S: val}
   end
-
-  def dynamize(true),  do: %{S: "TRUE"}
-  def dynamize(false), do: %{S: "FALSE"}
 
   # Convert structures and their attributes
   def dynamize(%{__struct__: _} = record) do
@@ -26,8 +30,8 @@ defmodule ExAws.Dynamo.Conversions do
 
   def dynamize(%{} = map) do
     map |> Enum.reduce(%{}, fn
-      ({k, v}, map) when not is_nil(v) -> Map.put(map, k, dynamize(v))
-      (_, map) -> map
+      ({_, nil}, map) -> map
+      ({k, v}, map)   -> Map.put(map, k, do_dynamize(v))
     end)
   end
 

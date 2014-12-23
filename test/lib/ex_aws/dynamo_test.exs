@@ -2,6 +2,12 @@ defmodule ExAws.DynamoTest do
   alias ExAws.Dynamo
   use ExUnit.Case
 
+  setup_all do
+    Dynamo.delete_table(User)
+    Dynamo.create_table(User, "email", [email: "S"], 1, 1)
+    :ok
+  end
+
   test "#list_tables" do
     assert {:ok, %{"TableNames" => _}} = Dynamo.list_tables
   end
@@ -13,6 +19,11 @@ defmodule ExAws.DynamoTest do
 
   test "#destroy_table" do
     assert {:ok, _} = Dynamo.delete_table(Foo)
+  end
+
+  test "put item with map values work" do
+    user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
+    assert {:ok, _} = Dynamo.put_item(User, user)
   end
 
 end
