@@ -51,6 +51,7 @@ defmodule ExAws.Dynamo.Conversions do
   def undynamize(%{"S" => "TRUE"}),  do: true
   def undynamize(%{"S" => "FALSE"}), do: false
   def undynamize(%{"S" => value}),   do: value
+  def undynamize(%{"M" => value}),   do: value
   def undynamize(%{"N" => value}) when is_binary(value), do: String.to_integer(value)
   def undynamize(%{"N" => value}) when is_integer(value), do: value
   def undynamize(item = %{}) do

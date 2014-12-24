@@ -21,9 +21,11 @@ defmodule ExAws.DynamoTest do
     assert {:ok, _} = Dynamo.delete_table(Foo)
   end
 
-  test "put item with map values work" do
+  test "put and get item with map values work" do
     user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
     assert {:ok, _} = Dynamo.put_item(User, user)
+    IO.puts "getting item"
+    assert user == Dynamo.get_item(User, user.email)
   end
 
 end
