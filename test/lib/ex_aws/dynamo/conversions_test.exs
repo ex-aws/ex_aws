@@ -16,9 +16,18 @@ defmodule ExAws.Dynamo.ConversionsTest do
     assert %{a: %{N: "1"}, b: %{M: %{c: %{N: "2"}, d: %{S: "asdf"}}}} == result
   end
 
+  test "dynamize can handle floats" do
+    assert Conversions.do_dynamize(0.4) == %{N: "4.00000000000000022204e-01"}
+  end
+
   test "undynamize ints works" do
     assert Conversions.undynamize(%{"N" => "23"}) == 23
     assert Conversions.undynamize(%{"N" => 23}) == 23
+  end
+
+  test "undynamize floats works" do
+    assert Conversions.undynamize(%{"N" => "23.1"}) == 23.1
+    assert Conversions.undynamize(%{"N" => 23.1}) == 23.1
   end
 
   test "undynamize structs works properly" do

@@ -13,8 +13,12 @@ defmodule ExAws.Dynamo.Conversions do
   end
 
   # Basic values to their dynamo format
-  def do_dynamize(val) when is_integer(val) do
+  def do_dynamize(val) when val |> is_integer do
     %{N: val |> Integer.to_string}
+  end
+
+  def do_dynamize(val) when val |> is_float do
+    %{N: val |> Float.to_string}
   end
 
   def do_dynamize(val) when is_binary(val) do
@@ -52,12 +56,20 @@ defmodule ExAws.Dynamo.Conversions do
   def undynamize(%{"S" => "FALSE"}), do: false
   def undynamize(%{"S" => value}),   do: value
   def undynamize(%{"M" => value}),   do: value |> undynamize
-  def undynamize(%{"N" => value}) when is_binary(value), do: String.to_integer(value)
-  def undynamize(%{"N" => value}) when is_integer(value), do: value
+  def undynamize(%{"N" => value}) when is_binary(value), do: binary_to_number(value)
+  def undynamize(%{"N" => value}) when value |> is_integer or value |> is_float, do: value
   def undynamize(item = %{}) do
     item |> Enum.reduce(%{}, fn({k, v}, map) ->
       Map.put(map, k, undynamize(v))
     end)
+  end
+
+  def binary_to_number(binary) do
+    try do
+      String.to_float(binary)
+    rescue
+      e in [ArgumentError] -> String.to_integer(binary)
+    end
   end
 
   def binary_map_to_struct(bmap, module) do
