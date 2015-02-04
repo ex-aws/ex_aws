@@ -27,7 +27,7 @@ defmodule ExAws.Mixfile do
   defp deps do
     [
       {:erlcloud, github: "gleber/erlcloud"},
-      {:httpoison, github: "edgurgel/httpoison"},
+      {:httpoison, "0.6.0"},
       {:poison, "~> 1.2.0", [hex_app: :poison]}
     ]
   end

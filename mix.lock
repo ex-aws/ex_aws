@@ -1,8 +1,9 @@
-%{"erlcloud": {:git, "git://github.com/gleber/erlcloud.git", "4982cc04442d4b1ca795f08d16610a6648125f5d", []},
-  "hackney": {:hex, :hackney, "0.13.1"},
-  "httpoison": {:git, "git://github.com/edgurgel/httpoison.git", "8bae300f2ad9ebf9e984801e632c6922c958c92b", []},
-  "idna": {:hex, :idna, "1.0.1"},
-  "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "507fa4c41db33c81e925ab53f4d789d234aaff2f", [ref: "master"]},
+%{"erlcloud": {:git, "git://github.com/gleber/erlcloud.git", "2018da8040ac8a07308a4a86ebf2e3b046360fe9", []},
+  "hackney": {:hex, :hackney, "1.0.6"},
+  "httpoison": {:hex, :httpoison, "0.6.0"},
+  "idna": {:hex, :idna, "1.0.2"},
+  "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "e751e3324fdfae4b43984650f7c8f4d5ea93da26", [ref: "master"]},
   "lhttpc": {:git, "git://github.com/talko/lhttpc", "2d01a5f9c7543b77bdd57f44c92e72801f46e423", [ref: "master"]},
-  "meck": {:git, "https://github.com/eproxus/meck.git", "b1f313b4cecc3df05a477a93641bf0a24d858590", [ref: "master"]},
-  "poison": {:hex, :poison, "1.2.1"}}
+  "meck": {:git, "https://github.com/eproxus/meck.git", "98cdc40fe6ae7780491ed8d0db691dd15625e9b2", [ref: "master"]},
+  "poison": {:hex, :poison, "1.2.1"},
+  "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.1"}}
