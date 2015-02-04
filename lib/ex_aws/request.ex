@@ -46,21 +46,24 @@ defmodule ExAws.Request do
     end
 
     case HTTPoison.post(url, body, headers) do
-      %HTTPoison.Response{status_code: status, body: ""} when status in 200..299 ->
+      {:ok, %HTTPoison.Response{status_code: status, body: ""}} when status in 200..299 ->
         {:ok, ""}
-      %HTTPoison.Response{status_code: status, body: body} when status in 200..299 ->
+        {:ok, %HTTPoison.Response{status_code: status, body: body}} when status in 200..299 ->
         case Poison.Parser.parse(body) do
           {:ok, result} -> {:ok, result}
           {:error, _}   -> {:error, body}
         end
-      %HTTPoison.Response{status_code: status} = resp when status in 400..499 ->
+      {:ok, %HTTPoison.Response{status_code: status} = resp} when status in 400..499 ->
         case client_error(resp) do
           {:retry, reason} ->
             request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
         end
-      %HTTPoison.Response{status_code: status, body: body} when status >= 500 ->
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} when status >= 500 ->
         reason = {:http_error, status, body}
+        request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.error("ExAws: HTTPOISON ERROR: #{inspect reason}")
         request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
       whoknows ->
         Logger.info "Unknown response"

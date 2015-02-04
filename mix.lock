@@ -1,4 +1,4 @@
-%{"erlcloud": {:git, "git://github.com/gleber/erlcloud.git", "2018da8040ac8a07308a4a86ebf2e3b046360fe9", []},
+%{"erlcloud": {:git, "git://github.com/gleber/erlcloud.git", "4982cc04442d4b1ca795f08d16610a6648125f5d", []},
   "hackney": {:hex, :hackney, "1.0.6"},
   "httpoison": {:hex, :httpoison, "0.6.0"},
   "idna": {:hex, :idna, "1.0.2"},
