@@ -5,6 +5,8 @@ defmodule ExAws.Mixfile do
     [app: :ex_aws,
      version: "0.0.3",
      elixir: "~> 1.0.0",
+     description: "AWS client. Currently supports DynamoDB and Kinesis.",
+     package: package,
      deps: deps]
   end
 
@@ -30,5 +32,13 @@ defmodule ExAws.Mixfile do
       {:httpoison, "0.6.0"},
       {:poison, "~> 1.2.0", [hex_app: :poison]}
     ]
+  end
+
+  defp package do
+    [description: "AWS client. Currently supports DynamoDB and Kinesis.",
+     files: ["lib", "config", "mix.exs", "README*"],
+     contributors: ["Ben Wilson"],
+     licenses: ["MIT"],
+     links: %{github: "https://github.com/CargoSense/ex_aws"}]
   end
 end
