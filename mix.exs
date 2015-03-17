@@ -30,7 +30,7 @@ defmodule ExAws.Mixfile do
     [
       {:erlcloud, "~> 0.9.0"},
       {:httpoison, "0.6.0"},
-      {:poison, "~> 1.2.0", [hex_app: :poison]}
+      {:poison, "~> 1.2.0"}
     ]
   end
 
