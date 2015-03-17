@@ -48,7 +48,7 @@ defmodule ExAws.Request do
     case HTTPoison.post(url, body, headers) do
       {:ok, %HTTPoison.Response{status_code: status, body: ""}} when status in 200..299 ->
         {:ok, ""}
-        {:ok, %HTTPoison.Response{status_code: status, body: body}} when status in 200..299 ->
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} when status in 200..299 ->
         case Poison.Parser.parse(body) do
           {:ok, result} -> {:ok, result}
           {:error, _}   -> {:error, body}
