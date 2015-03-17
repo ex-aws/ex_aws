@@ -45,6 +45,7 @@ defmodule ExAws.Kinesis do
   def do_get_records({:ok, %{"Records" => records} = results}) do
     {:ok, Map.put(results, "Records", decode_records(records))}
   end
+  def do_get_records(result), do: result
 
   def decode_records(records) do
     records |> Enum.map(fn(%{"Data" => data} = record) ->
@@ -54,8 +55,6 @@ defmodule ExAws.Kinesis do
       end
     end) |> Enum.reject(&is_nil/1)
   end
-
-  def do_get_records(result), do: result
 
   def put_record(stream_name, partition_key, blob) do
     put_record(stream_name, partition_key, blob, %{})

@@ -1,39 +1,6 @@
 defmodule ExAws.Config do
   require Record
-  @attrs [
-    as_host: nil,
-    ec2_host: nil,
-    iam_host: nil,
-    sts_host: nil,
-    s3_scheme: nil,
-    s3_host: nil,
-    s3_port: nil,
-    sdb_host: nil,
-    elb_host: nil,
-    ses_host: nil,
-    sqs_host: nil,
-    sns_host: nil,
-    mturk_host: nil,
-    mon_host: nil,
-    mon_port: nil,
-    mon_protocol: nil,
-    ddb_scheme: nil,
-    ddb_host: nil,
-    ddb_port: nil,
-    ddb_retry: nil,
-    kinesis_scheme: nil,
-    kinesis_host: nil,
-    kinesis_port: nil,
-    kinesis_retry: nil,
-    cloudtrail_scheme: nil,
-    cloudtrail_host: nil,
-    cloudtrail_port: nil,
-    access_key_id: nil,
-    secret_access_key: nil,
-    security_token: nil,
-    timeout: nil,
-    cloudtrail_raw_result: nil
-  ]
+  @attrs Record.extract(:aws_config, from_lib: "erlcloud/include/erlcloud_aws.hrl")
   Record.defrecord :aws_config, @attrs
 
   def erlcloud_config do

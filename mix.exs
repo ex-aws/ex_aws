@@ -28,7 +28,7 @@ defmodule ExAws.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:erlcloud, github: "gleber/erlcloud"},
+      {:erlcloud, "~> 0.9.0"},
       {:httpoison, "0.6.0"},
       {:poison, "~> 1.2.0", [hex_app: :poison]}
     ]
