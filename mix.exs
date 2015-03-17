@@ -30,7 +30,9 @@ defmodule ExAws.Mixfile do
     [
       {:erlcloud, "~> 0.9.0"},
       {:httpoison, "0.6.0"},
-      {:poison, "~> 1.2.0"}
+      {:poison, "~> 1.2.0"},
+      {:earmark, "~> 0.1", only: :dev},
+      {:ex_doc, "~> 0.7", only: :dev}
     ]
   end
 

@@ -1,4 +1,6 @@
-%{"erlcloud": {:hex, :erlcloud, "0.9.2"},
+%{"earmark": {:hex, :earmark, "0.1.13"},
+  "erlcloud": {:hex, :erlcloud, "0.9.2"},
+  "ex_doc": {:hex, :ex_doc, "0.7.1"},
   "hackney": {:hex, :hackney, "1.0.6"},
   "httpoison": {:hex, :httpoison, "0.6.0"},
   "idna": {:hex, :idna, "1.0.2"},
