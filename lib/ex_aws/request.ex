@@ -1,43 +1,55 @@
 defmodule ExAws.Request do
   require Logger
+  alias ExAws.Config
   @max_attempts 10
 
-  def request(service, config, operation, data) do
+  def request(service, action) do
+    request(service, action, %{})
+  end
+
+  def request(service, operation, data) do
     body = case data do
       [] -> "{}"
       _  -> Poison.encode!(data)
     end
 
-    headers = headers(service, config, operation, body)
-    request_and_retry(service, config, headers, body, {:attempt, 1})
+    headers = headers(service, Config.for_service(service), operation, body)
+    request_and_retry(service, Config.for_service(service), headers, body, {:attempt, 1})
   end
 
   def headers(service, config, operation, body) do
-    conf = ExAws.Config.config_map(config)
     headers = [
-      {'host', Map.get(conf, :"#{service}_host")},
-      {'x-amz-target', operation |> String.to_char_list},
+      {"host", Keyword.get(config, :host)},
+      {"x-amz-target", operation},
+      {"content-type", json_version(service)}
     ]
 
-    host = Map.get(conf, :"#{service}_host")
-    region = case host |> :string.tokens('.') do
-      [_, value, _, _] -> value
-      _ -> 'us-east-1'
-    end
-    headers = :erlcloud_aws.sign_v4(config, headers, body, region, service_name(service))
-    [{"content-type", json_version(service)} | headers |> binary_headers ]
+    host = Keyword.get(config, :host)
+    region = Keyword.get(config, :region)
+
+    auth_header = AWSAuth.sign_authorization_header(
+      Config.get(:access_key_id),
+      Config.get(:access_key_id),
+      "POST",
+      config |> url,
+      region,
+      service |> service_name,
+      headers |> Enum.into(%{}))
+    |> IO.inspect
+
+    [{"Authorization", auth_header} | headers ]
+    |> IO.inspect
   end
 
-  defp json_version(:ddb), do: "application/x-amz-json-1.0"
+  defp json_version(:dynamodb), do: "application/x-amz-json-1.0"
   defp json_version(:kinesis), do: "application/x-amz-json-1.1"
 
-  def service_name(:ddb), do: 'dynamodb'
-  def service_name(other), do: other |> Atom.to_char_list
+  def service_name(service), do: service |> Atom.to_string
 
   def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(service, config, headers, body, {:attempt, attempt}) do
-    url = url(service, ExAws.Config.config_map(config))
+    url = config |> url
 
     if Application.get_env(:ex_aws, :debug_requests) do
       Logger.debug("Request URL: #{inspect url}")
@@ -76,11 +88,11 @@ defmodule ExAws.Request do
     case Poison.Parser.parse(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
         error_type
-          |> String.split("#")
-          |> fn
-            [_, type] -> handle_aws_error(type, message)
-            _         -> {:error, {:http_error, status, err}}
-          end.()
+        |> String.split("#")
+        |> case do
+          [_, type] -> handle_aws_error(type, message)
+          _         -> {:error, {:http_error, status, err}}
+        end
       _ -> {:error, {:http_error, status, body}}
     end
   end
@@ -107,20 +119,17 @@ defmodule ExAws.Request do
   end
 
   # TODO: make exponential
+  # TODO: add jitter
   def backoff(attempt) do
     :timer.sleep(attempt * 1000)
   end
 
-  def binary_headers(headers) do
-    headers |> Enum.map(fn({k, v}) -> {List.to_string(k), List.to_string(v)} end)
-  end
-
-  defp url(service, config) do
+  defp url(config) do
     [
-      Map.get(config, :"#{service}_scheme"),
-      Map.get(config, :"#{service}_host"),
-      Map.get(config, :"#{service}_port") |> port
-    ] |> Enum.join
+      Keyword.get(config, :scheme),
+      Keyword.get(config, :host),
+      Keyword.get(config, :port) |> port
+    ] |> IO.iodata_to_binary
   end
 
   defp port(80), do: ""

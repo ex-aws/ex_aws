@@ -135,7 +135,7 @@ defmodule ExAws.Kinesis do
   end
 
   def request(action, data) do
-    ExAws.Request.request(:kinesis, ExAws.Config.erlcloud_config, Kinesis.Actions.get(action), Config.namespace(data, :kinesis))
+    ExAws.Request.request(:kinesis, Kinesis.Actions.get(action), data)
   end
 
 end

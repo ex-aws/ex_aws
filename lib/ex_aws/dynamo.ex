@@ -83,7 +83,7 @@ defmodule ExAws.Dynamo do
   end
 
   def request(action, data) do
-    ExAws.Request.request(:ddb, ExAws.Config.erlcloud_config, Dynamo.Actions.get(action), Config.namespace(data, :dynamo))
+    ExAws.Request.request(:dynamodb, Dynamo.Actions.get(action), data)
   end
 
 end

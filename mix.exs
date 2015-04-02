@@ -14,7 +14,7 @@ defmodule ExAws.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger, :erlcloud, :httpoison]]
+    [applications: [:logger, :httpoison]]
   end
 
   # Dependencies can be Hex packages:
@@ -28,8 +28,8 @@ defmodule ExAws.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:erlcloud, "~> 0.9.0"},
-      {:httpoison, "0.6.0"},
+      {:aws_auth, "~> 0.2.2"},
+      {:httpoison, "~> 0.6.0"},
       {:poison, "~> 1.2.0"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.7", only: :dev}
