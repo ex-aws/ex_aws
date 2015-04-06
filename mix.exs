@@ -4,7 +4,7 @@ defmodule ExAws.Mixfile do
   def project do
     [app: :ex_aws,
      version: "0.0.3",
-     elixir: "~> 1.0.0",
+     elixir: "~> 1.0",
      description: "AWS client. Currently supports DynamoDB and Kinesis.",
      package: package,
      deps: deps]
