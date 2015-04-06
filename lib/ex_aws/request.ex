@@ -3,38 +3,37 @@ defmodule ExAws.Request do
   alias ExAws.Config
   @max_attempts 10
 
-  def request(service, action) do
-    request(service, action, %{})
-  end
-
-  def request(service, operation, data) do
+  def request(service, operation, data, config) do
     body = case data do
       [] -> "{}"
       _  -> Poison.encode!(data)
     end
 
-    headers = headers(service, Config.for_service(service), operation, body)
-    request_and_retry(service, Config.for_service(service), headers, body, {:attempt, 1})
+    headers = headers(service, config, operation, body)
+    request_and_retry(service, config, headers, body, {:attempt, 1})
   end
 
   def headers(service, config, operation, body) do
+    now = Timex.Date.now
+    amz_date = Timex.DateFormat.format!(now, "{ISOz}") |> String.replace("-", "") |> String.replace(":", "")
     headers = [
-      {"host", Keyword.get(config, :host)},
+      {"host", config[:host]},
       {"x-amz-target", operation},
-      {"content-type", json_version(service)}
+      {"content-type", json_version(service)},
+      {"X-Amz-Date", amz_date}
     ]
 
-    host = Keyword.get(config, :host)
-    region = Keyword.get(config, :region)
-
+    IO.inspect config
     auth_header = AWSAuth.sign_authorization_header(
-      Config.get(:access_key_id),
-      Config.get(:access_key_id),
+      config[:access_key_id],
+      config[:secret_access_key],
       "POST",
       config |> url,
-      region,
+      config[:region],
       service |> service_name,
-      headers |> Enum.into(%{}))
+      headers |> Enum.into(%{}),
+      body,
+      now)
     |> IO.inspect
 
     [{"Authorization", auth_header} | headers ]

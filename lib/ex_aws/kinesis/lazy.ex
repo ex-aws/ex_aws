@@ -17,7 +17,7 @@ defmodule ExAws.Kinesis.Lazy do
     end
 
     Kinesis.describe_stream(stream, opts)
-      |> do_describe_stream(request_fun)
+    |> do_describe_stream(request_fun)
   end
 
   defp do_describe_stream({:error, results}, _), do: {:error, results}

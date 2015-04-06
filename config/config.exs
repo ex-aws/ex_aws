@@ -11,6 +11,7 @@ config :ex_aws, :dynamodb,
   port: 8000,
   region: "us-east-1"
 
+
 config :logger, :console,
   level: :debug,
   format: "$date $time [$level] $metadata$message\n",
