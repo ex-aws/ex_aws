@@ -18,6 +18,7 @@ defmodule ExAws.Dynamo.Coercion do
   def undynamize(%{"S" => "FALSE"}), do: false
   def undynamize(%{"BOOL" => "true"}),  do: true
   def undynamize(%{"BOOL" => "false"}), do: false
+  def undynamize(%{"B" => value}), do: value
   def undynamize(%{"S" => value}),   do: value
   def undynamize(%{"M" => value}),   do: value |> undynamize
   def undynamize(%{"N" => value}) when is_binary(value), do: binary_to_number(value)

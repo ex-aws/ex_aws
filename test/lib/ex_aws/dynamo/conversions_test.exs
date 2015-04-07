@@ -36,7 +36,8 @@ defmodule ExAws.Dynamo.ConversionTest do
     user = %User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     user = %User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     duser = Conversion.dynamize(user) |> Poison.encode! |> Poison.Parser.parse!
-    |> IO.inspect
+    assert %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},
+      "email" => %{"B" => "foo@bar.com"}, "name" => %{"B" => "Bob"}} = duser
     cuser = duser |> Coercion.coerce(User)
     assert cuser == user
   end
