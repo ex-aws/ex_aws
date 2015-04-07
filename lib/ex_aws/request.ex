@@ -5,7 +5,7 @@ defmodule ExAws.Request do
 
   def request(service, operation, data, config) do
     body = case data do
-      []  -> ""
+      []  -> "{}"
       _   -> Poison.encode!(data)
     end
 
@@ -14,27 +14,37 @@ defmodule ExAws.Request do
   end
 
   def headers(service, config, operation, body) do
-    config |> IO.inspect
-    erl_config = ExAws.Config.erlcloud_config(config)
-    headers = [
-      {"host", config[:host]},
-      {"x-amz-target", operation}
-    ] |> Enum.map(fn({k, v}) -> {String.to_char_list(k), String.to_char_list(v)} end)
+    now = %{Timex.Date.now | ms: 0}
+    amz_date = Timex.DateFormat.format!(now, "{ISOz}")
+    |> String.replace("-", "")
+    |> String.replace(":", "")
 
-    region = config[:region] |> String.to_char_list
-    IO.inspect erl_config
-    IO.inspect headers
-    IO.inspect body
-    IO.inspect region
-    IO.inspect service_name(service)
-    headers = :erlcloud_aws.sign_v4(erl_config, headers, body, region, service_name(service))
-    [{"content-type", json_version(service)} | headers |> binary_headers ]
+    headers = [
+      {"content-type", json_version(service)},
+      {"host", config[:host]},
+      {"x-amz-content-sha256", ""},
+      {"x-amz-date", amz_date},
+      {"x-amz-target", operation}
+    ]
+
+    auth_header = AWSAuth.sign_authorization_header(
+      config[:access_key_id],
+      config[:secret_access_key],
+      "POST",
+      config |> url,
+      config[:region],
+      service |> service_name,
+      headers |> Enum.into(%{}),
+      body,
+      now)
+
+    [{"Authorization", auth_header} | headers ]
   end
 
   defp json_version(:dynamodb), do: "application/x-amz-json-1.0"
   defp json_version(:kinesis), do: "application/x-amz-json-1.1"
 
-  def service_name(service), do: service |> Atom.to_char_list
+  def service_name(service), do: service |> Atom.to_string
 
   def binary_headers(headers) do
     headers |> Enum.map(fn({k, v}) -> {List.to_string(k), List.to_string(v)} end)
@@ -122,6 +132,7 @@ defmodule ExAws.Request do
     [
       Keyword.get(config, :scheme),
       Keyword.get(config, :host),
+      "/",
       Keyword.get(config, :port) |> port
     ] |> IO.iodata_to_binary
   end

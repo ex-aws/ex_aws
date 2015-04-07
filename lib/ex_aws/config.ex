@@ -1,7 +1,4 @@
 defmodule ExAws.Config do
-  require Record
-  @attrs Record.extract(:aws_config, from_lib: "erlcloud/include/erlcloud_aws.hrl")
-  Record.defrecord :aws_config, @attrs
 
   def for_service(service_name) do
     defaults[service_name]
@@ -39,13 +36,6 @@ defmodule ExAws.Config do
         port: 80
       ]
     ]
-  end
-
-  def erlcloud_config(config) do
-    aws_config(
-      access_key_id: config[:access_key_id],
-      secret_access_key: config[:secret_access_key]
-    )
   end
 
 end
