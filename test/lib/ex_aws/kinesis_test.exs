@@ -4,6 +4,7 @@ defmodule ExAws.KinesisTest do
 
   test "#list_streams" do
     assert {:ok, %{"HasMoreStreams" => _, "StreamNames" => _}} = Kinesis.list_streams
+    |> IO.inspect
   end
 
 end

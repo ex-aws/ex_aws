@@ -28,7 +28,7 @@ defmodule ExAws.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:aws_auth, "~> 0.2.2"},
+      {:erlcloud, "0.9.2"},
       {:httpoison, "~> 0.6.0"},
       {:poison, "~> 1.2.0"},
       {:earmark, "~> 0.1", only: :dev},

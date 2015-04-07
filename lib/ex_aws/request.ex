@@ -5,8 +5,8 @@ defmodule ExAws.Request do
 
   def request(service, operation, data, config) do
     body = case data do
-      [] -> "{}"
-      _  -> Poison.encode!(data)
+      []  -> ""
+      _   -> Poison.encode!(data)
     end
 
     headers = headers(service, config, operation, body)
@@ -14,36 +14,31 @@ defmodule ExAws.Request do
   end
 
   def headers(service, config, operation, body) do
-    now = Timex.Date.now
-    amz_date = Timex.DateFormat.format!(now, "{ISOz}") |> String.replace("-", "") |> String.replace(":", "")
+    config |> IO.inspect
+    erl_config = ExAws.Config.erlcloud_config(config)
     headers = [
       {"host", config[:host]},
-      {"x-amz-target", operation},
-      {"content-type", json_version(service)},
-      {"X-Amz-Date", amz_date}
-    ]
+      {"x-amz-target", operation}
+    ] |> Enum.map(fn({k, v}) -> {String.to_char_list(k), String.to_char_list(v)} end)
 
-    IO.inspect config
-    auth_header = AWSAuth.sign_authorization_header(
-      config[:access_key_id],
-      config[:secret_access_key],
-      "POST",
-      config |> url,
-      config[:region],
-      service |> service_name,
-      headers |> Enum.into(%{}),
-      body,
-      now)
-    |> IO.inspect
-
-    [{"Authorization", auth_header} | headers ]
-    |> IO.inspect
+    region = config[:region] |> String.to_char_list
+    IO.inspect erl_config
+    IO.inspect headers
+    IO.inspect body
+    IO.inspect region
+    IO.inspect service_name(service)
+    headers = :erlcloud_aws.sign_v4(erl_config, headers, body, region, service_name(service))
+    [{"content-type", json_version(service)} | headers |> binary_headers ]
   end
 
   defp json_version(:dynamodb), do: "application/x-amz-json-1.0"
   defp json_version(:kinesis), do: "application/x-amz-json-1.1"
 
-  def service_name(service), do: service |> Atom.to_string
+  def service_name(service), do: service |> Atom.to_char_list
+
+  def binary_headers(headers) do
+    headers |> Enum.map(fn({k, v}) -> {List.to_string(k), List.to_string(v)} end)
+  end
 
   def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
 
@@ -60,7 +55,7 @@ defmodule ExAws.Request do
       {:ok, %HTTPoison.Response{status_code: status, body: ""}} when status in 200..299 ->
         {:ok, ""}
       {:ok, %HTTPoison.Response{status_code: status, body: body}} when status in 200..299 ->
-        case Poison.Parser.parse(body) do
+        case Poison.decode(body) do
           {:ok, result} -> {:ok, result}
           {:error, _}   -> {:error, body}
         end

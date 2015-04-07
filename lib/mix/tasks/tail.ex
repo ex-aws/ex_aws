@@ -36,9 +36,8 @@ defmodule Mix.Tasks.Kinesis.Tail do
     end
 
     Application.put_env(:ex_aws, :debug_requests, debug)
-    Application.put_env(:ex_aws, :kinesis_namespace, nil)
 
-    Logger.info "Streaming from #{stream_name |> ExAws.Config.namespace(:kinesis)}"
+    Logger.info "Streaming from #{stream_name}"
 
     stream_name
     |> get_shards
@@ -47,15 +46,15 @@ defmodule Mix.Tasks.Kinesis.Tail do
   end
 
   def get_shards(name) do
-    case Kinesis.Lazy.describe_stream(name) do
+    case Kinesis.describe_stream(name) do
       {:ok, %{"StreamDescription" => %{"Shards" => shards}}} -> shards
-      error -> raise error
+      error -> raise inspect(error)
     end
   end
 
   def get_records({:ok, %{"ShardIterator" => iterator}}, wait_time) do
     iterator
-    |> Kinesis.Lazy.get_records(%{}, fn
+    |> Kinesis.stream_records(%{}, fn
       []  -> :timer.sleep(wait_time * 1000); []
       val -> val
     end)

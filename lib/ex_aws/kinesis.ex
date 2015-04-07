@@ -49,12 +49,16 @@ defmodule ExAws.Kinesis do
   defp do_get_records(result), do: result
 
   defp decode_records(records) do
-    Enum.flat_map(records, fn(%{"Data" => data} = record) ->
+    records
+    |> Enum.reduce([], fn(%{"Data" => data} = record, acc) ->
       case data |> Base.decode64 do
-        {:ok, decoded} -> %{record | "Data" => decoded}
-        :error -> Logger.error("Could not decode data from: #{inspect record}"); []
+        {:ok, decoded} -> [%{record | "Data" => decoded} | acc]
+        :error ->
+          Logger.error("Could not decode data from: #{inspect record}")
+          acc
       end
     end)
+    |> Enum.reverse
   end
 
   def put_record(config, stream_name, partition_key, blob, opts) when is_list(blob) do
