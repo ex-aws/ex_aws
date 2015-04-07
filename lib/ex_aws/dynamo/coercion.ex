@@ -1,46 +1,8 @@
-defmodule ExAws.Dynamo.Conversions do
-  def dynamize_attrs(attrs) do
-    attrs |> Enum.map(fn({name, type}) ->
-      %{AttributeName: name, AttributeType: type}
-    end)
-  end
+defmodule ExAws.Dynamo.Coercion do
 
-  def do_dynamize(true),  do: %{S: "TRUE"}
-  def do_dynamize(false), do: %{S: "FALSE"}
-
-  def do_dynamize(%{} = map) do
-    %{M: map |> dynamize}
-  end
-
-  # Basic values to their dynamo format
-  def do_dynamize(val) when val |> is_integer do
-    %{N: val |> Integer.to_string}
-  end
-
-  def do_dynamize(val) when val |> is_float do
-    %{N: val |> Float.to_string}
-  end
-
-  def do_dynamize(val) when is_binary(val) do
-    %{S: val}
-  end
-
-  # Convert structures and their attributes
-  def dynamize(%{__struct__: _} = record) do
-    record
-      |> Map.from_struct
-      |> dynamize
-    end
-
-  def dynamize(%{} = map) do
-    map |> Enum.reduce(%{}, fn
-      ({_, nil}, map) -> map
-      ({k, v}, map)   -> Map.put(map, k, do_dynamize(v))
-    end)
-  end
-
-  ### Dynamo format to elixir
-  ############################
+  @moduledoc """
+    Converts from the dynamo type spec into more native elixir types
+  """
 
   def coerce_collection(items, struct_module)do
     items |> Stream.map(&coerce(&1, struct_module))
@@ -48,12 +10,14 @@ defmodule ExAws.Dynamo.Conversions do
 
   def coerce(item, struct_module) do
     item
-      |> undynamize
-      |> binary_map_to_struct(struct_module)
+    |> undynamize
+    |> binary_map_to_struct(struct_module)
   end
 
   def undynamize(%{"S" => "TRUE"}),  do: true
   def undynamize(%{"S" => "FALSE"}), do: false
+  def undynamize(%{"BOOL" => "true"}),  do: true
+  def undynamize(%{"BOOL" => "false"}), do: false
   def undynamize(%{"S" => value}),   do: value
   def undynamize(%{"M" => value}),   do: value |> undynamize
   def undynamize(%{"N" => value}) when is_binary(value), do: binary_to_number(value)

@@ -21,7 +21,7 @@ defmodule ExAws.Dynamo do
   def create_table(name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
     data = %{
       TableName: name,
-      AttributeDefinitions: key_definitions |> Conversions.dynamize_attrs,
+      AttributeDefinitions: key_definitions |> dynamize_attrs,
       KeySchema: key_schema,
       ProvisionedThroughput: %{
         ReadCapacityUnits: read_capacity,
@@ -84,6 +84,12 @@ defmodule ExAws.Dynamo do
 
   def request(action, data) do
     ExAws.Request.request(:dynamodb, Dynamo.Actions.get(action), data)
+  end
+
+  def dynamize_attrs(attrs) do
+    attrs |> Enum.map(fn({name, type}) ->
+      %{AttributeName: name, AttributeType: type}
+    end)
   end
 
 end
