@@ -61,17 +61,34 @@ defmodule ExAws.Kinesis do
     |> Enum.reverse
   end
 
-  def put_record(config, stream_name, partition_key, blob, opts) when is_list(blob) do
-    put_record(config, stream_name, partition_key, IO.iodata_to_binary(blob), opts)
+  def put_record(config, stream_name, partition_key, data, opts) when is_list(data) do
+    put_record(config, stream_name, partition_key, IO.iodata_to_binary(data), opts)
   end
 
-  def put_record(config, stream_name, partition_key, blob, opts) when is_binary(blob) do
+  def put_record(config, stream_name, partition_key, data, opts) when is_binary(data) do
     data = %{
-      Data: blob |> Base.encode64,
-      PartitionKey: partition_key,
+      format_record(%{data: data, partition_key: partition_key}) |
       StreamName: stream_name
     } |> Map.merge(opts)
     request(:put_record, data, config)
+  end
+
+  def put_records(config, stream_name, records, opts) when is_list(records) do
+    data = %{
+      Data: records |> Enum.map(&format_record/1),
+      StreamName: stream_name
+    }
+    request(:put_records, data, config)
+  end
+
+  defp format_record(%{data: data, partition_key: partition_key, explicit_hash_key: hash_key}) do
+    %{format_record(%{data: data, partition_key: partition_key}) | ExplicitHashKey: hash_key}
+  end
+  defp format_record(%{data: data, partition_key: partition_key}) do
+    %{
+      Data: data |> Base.encode64,
+      PartitionKey: partition_key
+    }
   end
 
   ## Shards
