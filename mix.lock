@@ -1,11 +1,9 @@
-%{"earmark": {:hex, :earmark, "0.1.13"},
-  "erlcloud": {:hex, :erlcloud, "0.9.2"},
-  "ex_doc": {:hex, :ex_doc, "0.7.1"},
-  "hackney": {:hex, :hackney, "1.0.6"},
-  "httpoison": {:hex, :httpoison, "0.6.0"},
+%{"aws_auth": {:git, "git://github.com/benwilson512/aws_auth.git", "a138addeef2c642d4ea88c308c6dedb1e0b73d1e", []},
+  "earmark": {:hex, :earmark, "0.1.15"},
+  "ex_doc": {:hex, :ex_doc, "0.7.2"},
+  "hackney": {:hex, :hackney, "1.1.0"},
+  "httpoison": {:hex, :httpoison, "0.6.2"},
   "idna": {:hex, :idna, "1.0.2"},
-  "jsx": {:hex, :jsx, "2.1.1"},
-  "lhttpc": {:hex, :lhttpc, "1.3.0"},
-  "meck": {:hex, :meck, "0.8.2"},
   "poison": {:hex, :poison, "1.2.1"},
-  "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.1"}}
+  "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.4"},
+  "timex": {:hex, :timex, "0.13.4"}}

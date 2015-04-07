@@ -1,54 +1,49 @@
 defmodule ExAws.Config do
-  require Record
-  @attrs Record.extract(:aws_config, from_lib: "erlcloud/include/erlcloud_aws.hrl")
-  Record.defrecord :aws_config, @attrs
 
-  def erlcloud_config do
-    conf = Application.get_all_env(:ex_aws)
-      |> Enum.map(fn
-        {k,v} when is_binary(v) -> {k, String.to_char_list(v)}
-        x -> x
-      end)
-
-    :erlcloud_aws.default_config
-      |> aws_config(ddb_scheme: conf[:ddb_scheme])
-      |> aws_config(ddb_host: conf[:ddb_host])
-      |> aws_config(ddb_port: conf[:ddb_port])
+  def for_service(service_name) do
+    defaults[service_name]
   end
 
-
-  def config_map(config) do
-    @attrs |> Enum.with_index |> Enum.reduce(%{}, fn({{attr, _}, i}, map) ->
-      Map.put(map, attr, elem(config, i + 1))
-    end)
+  def get(attr) do
+    Application.get_env(:ex_aws, attr)
   end
 
-  ## Dynamo
-  #####################
-
-  def namespace(%{TableName: table} = data, :dynamo) do
-    Map.put(data, :TableName, namespace(table, :dynamo))
+  def defaults do
+    Mix.env |> defaults
   end
-  def namespace(data = %{}, :dynamo), do: data
-
-  def namespace(name, :dynamo) when is_atom(name) or is_binary(name) do
-    [name, Application.get_env(:ex_aws, :ddb_namespace)]
-      |> Enum.filter(&(&1))
-      |> Enum.join("-")
+  def defaults(:dev) do
+    defaults(:prod)
+    |> Keyword.merge(dynamodb: [
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+      scheme: "https://",
+      host: "kinesis.us-east-1.amazonaws.com",
+      region: "us-east-1",
+      port: 80
+    ])
   end
-
-  ## Kinesis
-  #####################
-
-  def namespace(%{StreamName: stream} = data, :kinesis) do
-    Map.put(data, :StreamName, namespace(stream, :kinesis))
+  def defaults(:test) do
+    defaults(:prod)
   end
-  def namespace(data = %{}, :kinesis), do: data
-
-  def namespace(name, :kinesis) when is_atom(name) or is_binary(name) do
-    [name, Application.get_env(:ex_aws, :kinesis_namespace)]
-      |> Enum.filter(&(&1))
-      |> Enum.join("-")
+  def defaults(:prod) do
+    [
+      kinesis: [
+        access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+        secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+        scheme: "https://",
+        host: "kinesis.us-east-1.amazonaws.com",
+        region: "us-east-1",
+        port: 80
+      ],
+      dynamodb: [
+        access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+        secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+        scheme: "https://",
+        host: "kinesis.us-east-1.amazonaws.com",
+        region: "us-east-1",
+        port: 80
+      ]
+    ]
   end
 
 end

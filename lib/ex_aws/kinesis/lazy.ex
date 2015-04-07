@@ -10,18 +10,18 @@ defmodule ExAws.Kinesis.Lazy do
   @doc """
   Returns the normally shaped AWS response, except the Shards key is now a stream
   """
-  def describe_stream(stream, opts \\ %{}) do
+  def stream_shards(config, stream, opts) do
     request_fun = fn
       {:initial, initial} -> initial
-      fun_opts -> Kinesis.describe_stream(stream, Map.merge(opts, fun_opts))
+      fun_opts -> Kinesis.describe_stream(config, stream, Map.merge(opts, fun_opts))
     end
 
     Kinesis.describe_stream(stream, opts)
-      |> do_describe_stream(request_fun)
+    |> do_stream_shards(request_fun)
   end
 
-  defp do_describe_stream({:error, results}, _), do: {:error, results}
-  defp do_describe_stream({:ok, results}, request_fun) do
+  defp do_stream_shards({:error, results}, _), do: {:error, results}
+  defp do_stream_shards({:ok, results}, request_fun) do
     stream = build_shard_stream({:ok, results}, request_fun)
 
     {:ok, put_in(results["StreamDescription"], %{"Shards" => stream})}
@@ -51,13 +51,13 @@ defmodule ExAws.Kinesis.Lazy do
   NOTE: This stream is basically INFINITE, in that it runs
   until the shard it is reading from closes, which may be never.
   """
-  def get_records(shard_iterator, opts \\ %{}, fun \\ &pass/1) do
+  def stream_records(config, shard_iterator, opts, fun \\ &pass/1) do
     sleep_time = Application.get_env(:ex_aws, :kinesis_sleep_between_req_time) || 200
 
     request_fun = fn(fun_opts) ->
       :timer.sleep(sleep_time)
       req_opts = Map.merge(opts, fun_opts)
-      Kinesis.get_records(shard_iterator, req_opts)
+      Kinesis.get_records(config, shard_iterator, req_opts)
     end
 
     build_record_stream(request_fun, fun)

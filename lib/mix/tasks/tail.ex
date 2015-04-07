@@ -14,9 +14,10 @@ defmodule Mix.Tasks.Kinesis.Tail do
   ## Options
       --poll N   Time in seconds between polling. Default: 5
       --debug    Sets debug_requests: true on ex_aws. Logs all kinesis requests
+      --from     Sequence number to start at. If unspecified, LATEST is used
 
   ## Examples
-      $mix kinesis.tail Elixir.Jetstream.Messages.Timeseries
+      $mix kinesis.tail my-kinesis-stream
       $mix kinesis.tail logs --debug --poll 10
   """
 
@@ -28,32 +29,37 @@ defmodule Mix.Tasks.Kinesis.Tail do
 
     sleep_time = Keyword.get(opts, :poll, "5") |> String.to_integer
     debug      = Keyword.get(opts, :debug, false)
-    Application.put_env(:ex_aws, :debug_requests, debug)
-    Application.put_env(:ex_aws, :kinesis_namespace, nil)
+    seq        = Keyword.get(opts, :from)
+    {shard_type, opts} = case seq do
+      nil -> {"LATEST", %{}}
+      val -> {"AT_SEQUENCE_NUMBER", %{StartingSequenceNumber: val}}
+    end
 
-    Logger.info "Streaming from #{stream_name |> ExAws.Config.namespace(:kinesis)}"
+    Application.put_env(:ex_aws, :debug_requests, debug)
+
+    Logger.info "Streaming from #{stream_name}"
 
     stream_name
-      |> get_shards
-      |> Enum.map(&Kinesis.get_shard_iterator(stream_name, &1["ShardId"], "LATEST"))
-      |> Enum.map(&get_records(&1, sleep_time))
+    |> get_shards
+    |> Enum.map(&Kinesis.get_shard_iterator(stream_name, &1["ShardId"], shard_type, opts))
+    |> Enum.map(&get_records(&1, sleep_time))
   end
 
   def get_shards(name) do
-    case Kinesis.Lazy.describe_stream(name) do
+    case Kinesis.describe_stream(name) do
       {:ok, %{"StreamDescription" => %{"Shards" => shards}}} -> shards
-      error -> raise error
+      error -> raise inspect(error)
     end
   end
 
   def get_records({:ok, %{"ShardIterator" => iterator}}, wait_time) do
     iterator
-      |> Kinesis.Lazy.get_records(%{}, fn
-        []  -> :timer.sleep(wait_time * 1000); []
-        val -> val
-      end)
-      |> Stream.map(&format_msg/1)
-      |> Stream.run
+    |> Kinesis.stream_records(%{}, fn
+      []  -> :timer.sleep(wait_time * 1000); []
+      val -> val
+    end)
+    |> Stream.map(&format_msg/1)
+    |> Stream.run
   end
 
   defp format_msg(msg) do

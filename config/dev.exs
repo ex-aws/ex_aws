@@ -1,9 +1,12 @@
 use Mix.Config
 
 config :ex_aws,
-  ddb_namespace: "staging",
-  kinesis_namespace: "staging",
   debug_requests: true,
-  ddb_scheme: "http://",
-  ddb_host: "localhost",
-  ddb_port: 8000
+  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
+
+config :ex_aws, :dynamodb,
+  scheme: "https://",
+  host: "dynamodb.us-east-1.amazonaws.com",
+  port: 80,
+  region: "us-east-1"
