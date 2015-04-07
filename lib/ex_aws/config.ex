@@ -13,6 +13,14 @@ defmodule ExAws.Config do
   end
   def defaults(:dev) do
     defaults(:prod)
+    |> Keyword.merge(dynamodb: [
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+      scheme: "https://",
+      host: "kinesis.us-east-1.amazonaws.com",
+      region: "us-east-1",
+      port: 80
+    ])
   end
   def defaults(:test) do
     defaults(:prod)

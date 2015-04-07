@@ -52,16 +52,16 @@ defmodule ExAws.Request do
 
   def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
 
-  def request_and_retry(service, config, headers, body, {:attempt, attempt}) do
+  def request_and_retry(service, config, headers, req_body, {:attempt, attempt}) do
     url = config |> url
 
     if Application.get_env(:ex_aws, :debug_requests) do
       Logger.debug("Request URL: #{inspect url}")
       Logger.debug("Request HEADERS: #{inspect headers}")
-      Logger.debug("Request BODY: #{body}")
+      Logger.debug("Request BODY: #{req_body}")
     end
 
-    case HTTPoison.post(url, body, headers) do
+    case HTTPoison.post(url, req_body, headers) do
       {:ok, %HTTPoison.Response{status_code: status, body: ""}} when status in 200..299 ->
         {:ok, ""}
       {:ok, %HTTPoison.Response{status_code: status, body: body}} when status in 200..299 ->
@@ -72,15 +72,15 @@ defmodule ExAws.Request do
       {:ok, %HTTPoison.Response{status_code: status} = resp} when status in 400..499 ->
         case client_error(resp) do
           {:retry, reason} ->
-            request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
+            request_and_retry(service, config, headers, req_body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
         end
       {:ok, %HTTPoison.Response{status_code: status, body: body}} when status >= 500 ->
         reason = {:http_error, status, body}
-        request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
+        request_and_retry(service, config, headers, req_body, attempt_again?(attempt, reason))
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error("ExAws: HTTPOISON ERROR: #{inspect reason}")
-        request_and_retry(service, config, headers, body, attempt_again?(attempt, reason))
+        request_and_retry(service, config, headers, req_body, attempt_again?(attempt, reason))
       whoknows ->
         Logger.info "Unknown response"
         whoknows |> inspect |> Logger.info
@@ -132,8 +132,8 @@ defmodule ExAws.Request do
     [
       Keyword.get(config, :scheme),
       Keyword.get(config, :host),
-      "/",
-      Keyword.get(config, :port) |> port
+      Keyword.get(config, :port) |> port,
+      "/"
     ] |> IO.iodata_to_binary
   end
 

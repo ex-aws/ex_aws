@@ -1,24 +1,25 @@
 defmodule ExAws.Dynamo do
   alias __MODULE__
-  alias Dynamo.Conversions
+  alias Dynamo.Conversion
   alias ExAws.Config
+  use ExAws.Dynamo.Adapter
 
   ## Tables
   ######################
 
-  def list_tables do
-    request(:list_tables)
+  def list_tables(config) do
+    request(:list_tables, %{}, config)
   end
 
-  def create_table(name, primary_key, key_definitions, read_capacity, write_capacity) do
+  def create_table(config, name, primary_key, key_definitions, read_capacity, write_capacity) do
     key_schema = [%{
       AttributeName: primary_key,
       KeyType: "HASH"
     }]
-    create_table(name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
+    create_table(config, name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
   end
 
-  def create_table(name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
+  def create_table(config, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
     data = %{
       TableName: name,
       AttributeDefinitions: key_definitions |> dynamize_attrs,
@@ -36,60 +37,79 @@ defmodule ExAws.Dynamo do
       data = Map.put(data, :LocalSecondaryIndexes, local_indexes)
     end
 
-    request(:create_table, data)
+    request(:create_table, data, config)
   end
 
-  def delete_table(table) do
-    request(:delete_table, %{TableName: table})
+  @doc "Describe table"
+  def describe_table(config, name) do
+    request(:describe_table, %{TableName: name}, config)
+  end
+
+  @doc "Update Table"
+  def update_table(config, name, attributes) do
+    data = %{TableName: name}
+    |> Map.merge(attributes)
+    request(:update_table, data, config)
+  end
+
+  def delete_table(config, table) do
+    request(:delete_table, %{TableName: table}, config)
   end
 
   ## Records
   ######################
 
-  def scan(name, opts \\ %{}) do
+  def scan(config, name, opts) do
     data = %{
       TableName: name
     } |> Map.merge(opts)
-    request(:scan, data)
+    request(:scan, data, config)
   end
 
-  def put_item(name, record) do
+  def batch_get_item(config, data) do
+    request(:batch_get_item, data, config)
+  end
+
+  def put_item(config, name, record) do
     data = %{
       TableName: name,
-      Item: Dynamo.Conversions.dynamize(record)
+      Item: Dynamo.Conversion.dynamize(record)
     }
-    request(:put_item, data)
+    request(:put_item, data, config)
   end
 
-  def get_item(name, primary_key) do
+  def batch_write_item(config, data) do
+    request(:batch_write_item, data, config)
+  end
+
+  def get_item(config, name, primary_key) do
     data = %{
       TableName: name,
       Key: primary_key
     }
-    request(:get_item, data)
+    request(:get_item, data, config)
   end
 
-  def delete_item(name, primary_key) do
+  def delete_item(config, name, primary_key) do
     data = %{
       TableName: name,
       Key: primary_key
     }
-    request(:delete_item, data)
+    request(:delete_item, data, config)
   end
 
-  # These function should be used for everything.
-  def request(action) do
-    request(action, %{})
-  end
-
-  def request(action, data) do
-    ExAws.Request.request(:dynamodb, Dynamo.Actions.get(action), data)
+  def request(action, data, config) do
+    ExAws.Request.request(:dynamodb, Dynamo.Actions.get(action), data, config)
   end
 
   def dynamize_attrs(attrs) do
     attrs |> Enum.map(fn({name, type}) ->
       %{AttributeName: name, AttributeType: type}
     end)
+  end
+
+  def config do
+    ExAws.Config.for_service(:dynamodb)
   end
 
 end

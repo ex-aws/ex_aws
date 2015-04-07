@@ -1,8 +1,3 @@
-defmodule Test.User do
-  @derive [ExAws.Dynamo.Conversion]
-  defstruct [:email, :name, :age, :admin]
-end
-
 defmodule ExAws.Dynamo.ConversionTest do
   use ExUnit.Case, async: true
   alias ExAws.Dynamo.Conversion
@@ -15,7 +10,7 @@ defmodule ExAws.Dynamo.ConversionTest do
 
   test "dyanmize can handle map values" do
     result = %{a: 1, b: %{c: 2, d: "asdf"}} |> Conversion.dynamize
-    assert %{M: %{a: %{N: "1"}, b: %{M: %{c: %{N: "2"}, d: %{B: "asdf"}}}}} == result
+    assert %{M: %{a: %{N: "1"}, b: %{M: %{c: %{N: "2"}, d: %{S: "asdf"}}}}} == result
   end
 
   test "dynamize can handle floats" do
@@ -37,7 +32,7 @@ defmodule ExAws.Dynamo.ConversionTest do
     user = %User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     duser = Conversion.dynamize(user) |> Poison.encode! |> Poison.Parser.parse!
     assert %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},
-      "email" => %{"B" => "foo@bar.com"}, "name" => %{"B" => "Bob"}} = duser
+      "email" => %{"S" => "foo@bar.com"}, "name" => %{"S" => "Bob"}} = duser
     cuser = duser |> Coercion.coerce(User)
     assert cuser == user
   end

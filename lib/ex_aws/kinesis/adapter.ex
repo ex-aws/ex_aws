@@ -33,7 +33,6 @@ defmodule ExAws.Kinesis.Adapter do
       def config do
         [
           kinesis:  [], # kinesis config goes here
-          dynamodb: [], # you get the idea
         ]
       end
     end
@@ -41,6 +40,8 @@ defmodule ExAws.Kinesis.Adapter do
 
     This is in fact how the functions in ExAws.Kinesis that do not require a config work.
     Default config values can be found in ExAws.Config
+
+    http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
   """
 
   ## Streams

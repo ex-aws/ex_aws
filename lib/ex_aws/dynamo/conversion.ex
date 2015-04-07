@@ -48,7 +48,7 @@ end
 
 defimpl ExAws.Dynamo.Conversion, for: BitString do
   def dynamize(val) do
-    %{B: val}
+    %{S: val}
   end
 end
 
