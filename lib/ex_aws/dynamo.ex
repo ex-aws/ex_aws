@@ -6,19 +6,19 @@ defmodule ExAws.Dynamo do
   ## Tables
   ######################
 
-  def list_tables(config) do
-    request(:list_tables, %{}, config)
+  def list_tables(adapter) do
+    request(%{}, :list_tables, adapter)
   end
 
-  def create_table(config, name, primary_key, key_definitions, read_capacity, write_capacity) do
+  def create_table(adapter, name, primary_key, key_definitions, read_capacity, write_capacity) do
     key_schema = [%{
       AttributeName: primary_key,
       KeyType: "HASH"
     }]
-    create_table(config, name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
+    create_table(adapter, name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
   end
 
-  def create_table(config, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
+  def create_table(adapter, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
     data = %{
       TableName: name,
       AttributeDefinitions: key_definitions |> encode_attrs,
@@ -29,87 +29,82 @@ defmodule ExAws.Dynamo do
       }
     }
     if length(global_indexes) > 0 do
-      data = Map.put(data, :GlobalSecondaryIndexes, global_indexes)
+      Map.put(data, :GlobalSecondaryIndexes, global_indexes)
     end
 
     if length(local_indexes) > 0 do
-      data = Map.put(data, :LocalSecondaryIndexes, local_indexes)
+      Map.put(data, :LocalSecondaryIndexes, local_indexes)
     end
 
-    request(:create_table, data, config)
+    request(data, :create_table, adapter)
   end
 
   @doc "Describe table"
-  def describe_table(config, name) do
-    request(:describe_table, %{TableName: name}, config)
+  def describe_table(adapter, name) do
+    %{TableName: name}
+    |> request(:describe_table, adapter)
   end
 
   @doc "Update Table"
-  def update_table(config, name, attributes) do
-    data = %{TableName: name}
+  def update_table(adapter, name, attributes) do
+    %{TableName: name}
     |> Map.merge(attributes)
-    request(:update_table, data, config)
+    |> request(:update_table, adapter)
   end
 
-  def delete_table(config, table) do
-    request(:delete_table, %{TableName: table}, config)
+  def delete_table(adapter, table) do
+    %{TableName: table}
+    |> request(:delete_table, adapter)
   end
 
   ## Records
   ######################
 
-  def scan(config, name, opts) do
-    data = %{
-      TableName: name
-    } |> Map.merge(opts)
-    request(:scan, data, config)
+  def scan(adapter, name, opts) do
+    %{TableName: name}
+    |> Map.merge(opts)
+    |> request(:scan, adapter)
   end
 
-  def query(config, name, key_conditions, opts) do
-    data = %{
-      TableName: name,
-      KeyConditions: key_conditions
-    } |> Map.merge(opts)
-    request(:query, data, config)
+  def query(adapter, name, key_conditions, opts) do
+    %{TableName: name, KeyConditions: key_conditions}
+    |> Map.merge(opts)
+    |> request(:query, adapter)
   end
 
-  def batch_get_item(config, data) do
-    request(:batch_get_item, data, config)
+  def batch_get_item(adapter, data) do
+    request(data, :batch_get_item, adapter)
   end
 
-  def put_item(config, name, record) do
-    data = %{
+  def put_item(adapter, name, record) do
+    %{
       TableName: name,
       Item: Dynamo.Encoder.encode(record)
-    }
-    request(:put_item, data, config)
+    } |> request(:put_item, adapter)
   end
 
-  def batch_write_item(config, data) do
-    request(:batch_write_item, data, config)
+  def batch_write_item(adapter, data) do
+    request(data, :batch_write_item, adapter)
   end
 
-  def get_item(config, name, primary_key) do
-    data = %{
+  def get_item(adapter, name, primary_key) do
+    %{
       TableName: name,
       Key: Dynamo.Encoder.encode_flat(primary_key)
     }
-    request(:get_item, data, config)
+    |> request(:get_item, adapter)
   end
 
-  def delete_item(config, name, primary_key) do
-    data = %{
-      TableName: name,
-      Key: primary_key
-    }
-    request(:delete_item, data, config)
+  def delete_item(adapter, name, primary_key) do
+    %{TableName: name, Key: primary_key}
+    |> request(:delete_item, adapter)
   end
 
-  def request(action, data, config) do
-    ExAws.Request.request(:dynamodb, Dynamo.Actions.get(action), data, config)
+  def request(data, action, adapter) do
+    ExAws.Request.request(data, __MODULE__.Actions.get(action), adapter)
   end
 
-  def encode_attrs(attrs) do
+  defp encode_attrs(attrs) do
     attrs |> Enum.map(fn({name, type}) ->
       %{AttributeName: name, AttributeType: type}
     end)
