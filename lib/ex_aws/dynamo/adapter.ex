@@ -88,6 +88,10 @@ defmodule ExAws.Dynamo.Adapter do
   defcallback stream_scan(table_name :: iodata)
   defcallback stream_scan(table_name :: iodata, opts :: %{})
 
+  @doc "Query Table"
+  defcallback query(table_name :: iodata, key_conditions :: %{})
+  defcallback query(table_name :: iodata, key_conditions :: %{}, opts :: %{})
+
   @doc """
   Get up to 100 items (16mb)
   Map of table names to request parameter maps.
@@ -159,6 +163,11 @@ defmodule ExAws.Dynamo.Adapter do
       @doc false
       def stream_scan(name, opts \\ %{}) do
         Dynamo.Lazy.stream_scan(config, name, opts)
+      end
+
+      @doc false
+      def query(name, key_conditions, opts \\ %{}) do
+        Dynamo.query(config, name, key_conditions, opts)
       end
 
       @doc false

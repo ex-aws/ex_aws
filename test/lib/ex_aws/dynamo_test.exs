@@ -1,17 +1,16 @@
 defmodule ExAws.DynamoTest do
   alias Test.Dynamo
-  alias Test.User
+  alias ExAws.Dynamo.Decoder
   use ExUnit.Case, async: true
 
   setup_all do
-    Dynamo.delete_table(User)
+    Dynamo.delete_table(Test.User)
     Dynamo.delete_table(Foo)
     :ok
   end
 
   test "#list_tables" do
     assert {:ok, %{"TableNames" => _}} = Dynamo.list_tables
-    |> IO.inspect
   end
 
   test "#create and destroy table" do
@@ -21,10 +20,11 @@ defmodule ExAws.DynamoTest do
   end
 
   test "put and get item with map values work" do
-    Dynamo.create_table(User, "email", %{email: "S"}, 1, 1)
+    {:ok, _} = Dynamo.create_table(Test.User, "email", %{email: "S"}, 1, 1)
     user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
-    assert {:ok, _} = Dynamo.put_item(User, user)
-    # assert user == Dynamo.get_item(User, user.email)
+    assert {:ok, _} = Dynamo.put_item(Test.User, user)
+    {:ok, %{"Item" => item}} = Dynamo.get_item(Test.User, %{email: user.email})
+    assert user == item |> ExAws.Dynamo.Decoder.decode(as: Test.User)
   end
 
 end

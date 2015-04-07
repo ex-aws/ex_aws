@@ -1,6 +1,5 @@
 defmodule ExAws.Dynamo do
   alias __MODULE__
-  alias Dynamo.Conversion
   alias ExAws.Config
   use ExAws.Dynamo.Adapter
 
@@ -22,7 +21,7 @@ defmodule ExAws.Dynamo do
   def create_table(config, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
     data = %{
       TableName: name,
-      AttributeDefinitions: key_definitions |> dynamize_attrs,
+      AttributeDefinitions: key_definitions |> encode_attrs,
       KeySchema: key_schema,
       ProvisionedThroughput: %{
         ReadCapacityUnits: read_capacity,
@@ -66,6 +65,14 @@ defmodule ExAws.Dynamo do
     request(:scan, data, config)
   end
 
+  def query(config, name, key_conditions, opts) do
+    data = %{
+      TableName: name,
+      KeyConditions: key_conditions
+    } |> Map.merge(opts)
+    request(:query, data, config)
+  end
+
   def batch_get_item(config, data) do
     request(:batch_get_item, data, config)
   end
@@ -73,7 +80,7 @@ defmodule ExAws.Dynamo do
   def put_item(config, name, record) do
     data = %{
       TableName: name,
-      Item: Dynamo.Conversion.dynamize(record)
+      Item: Dynamo.Encoder.encode(record)
     }
     request(:put_item, data, config)
   end
@@ -85,7 +92,7 @@ defmodule ExAws.Dynamo do
   def get_item(config, name, primary_key) do
     data = %{
       TableName: name,
-      Key: primary_key
+      Key: Dynamo.Encoder.encode_flat(primary_key)
     }
     request(:get_item, data, config)
   end
@@ -102,7 +109,7 @@ defmodule ExAws.Dynamo do
     ExAws.Request.request(:dynamodb, Dynamo.Actions.get(action), data, config)
   end
 
-  def dynamize_attrs(attrs) do
+  def encode_attrs(attrs) do
     attrs |> Enum.map(fn({name, type}) ->
       %{AttributeName: name, AttributeType: type}
     end)
