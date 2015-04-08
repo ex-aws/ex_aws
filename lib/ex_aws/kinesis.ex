@@ -1,6 +1,8 @@
 defmodule ExAws.Kinesis do
-  require Logger
   use ExAws.Kinesis.Adapter
+  require Logger
+
+  @moduledoc "See ExAws.Kinesis.Adapter for documentation"
 
   ## Streams
   ######################

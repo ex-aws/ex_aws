@@ -1,6 +1,8 @@
 defmodule ExAws.Dynamo do
   use ExAws.Dynamo.Adapter
 
+  @moduledoc "See ExAws.Dynamo.Adapter for documentation"
+
   ## Tables
   ######################
 

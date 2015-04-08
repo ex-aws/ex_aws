@@ -52,6 +52,7 @@ defmodule ExAws.Request do
     headers |> Enum.map(fn({k, v}) -> {List.to_string(k), List.to_string(v)} end)
   end
 
+  @doc false
   def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(service, config, headers, req_body, {:attempt, attempt}) do

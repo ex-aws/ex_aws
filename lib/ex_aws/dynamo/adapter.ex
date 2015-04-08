@@ -84,7 +84,11 @@ defmodule ExAws.Dynamo.Adapter do
   defcallback scan(table_name :: iodata)
   defcallback scan(table_name :: iodata, opts :: %{})
 
-  @doc "Same as scan/1,2 but the records are a stream which will automatically handle pagination"
+  @doc """
+  Stream records from table
+
+  Same as scan/1,2 but the records are a stream which will automatically handle pagination
+  """
   defcallback stream_scan(table_name :: iodata)
   defcallback stream_scan(table_name :: iodata, opts :: %{})
 
@@ -94,8 +98,8 @@ defmodule ExAws.Dynamo.Adapter do
 
   @doc """
   Get up to 100 items (16mb)
+  
   Map of table names to request parameter maps.
-
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html
   """
   defcallback batch_get_item(%{String.t => %{}})

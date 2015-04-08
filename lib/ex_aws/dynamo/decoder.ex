@@ -10,6 +10,7 @@ defmodule ExAws.Dynamo.Decoder do
 
   @doc """
     Decodes a dynamo response into a struct.
+
     If Dynamo.Decodable is implimented for the struct it will be called
     after the completion of the coercion.
 
@@ -24,6 +25,8 @@ defmodule ExAws.Dynamo.Decoder do
   end
 
   @doc """
+    Convert dynamo format to elixir
+
     Functions which convert the dynamo style values into normal elixir values.
     Use these if you just want the dynamo result to look more like elixir without
     coercing it into a particular struct.

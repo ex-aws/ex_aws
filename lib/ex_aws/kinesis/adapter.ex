@@ -2,46 +2,46 @@ defmodule ExAws.Kinesis.Adapter do
   use Behaviour
 
   @moduledoc """
-    The purpose of this module is to surface the ExAws.Kinesis API with a single
-    configuration chosen, such that it does not need passed in with every request.
+  The purpose of this module is to surface the ExAws.Kinesis API with a single
+  configuration chosen, such that it does not need passed in with every request.
 
-    Usage:
-    ```
-    defmodule MyApp.Kinesis do
-      use ExAws.Kinesis.Adapter, otp_app: :my_otp_app
+  Usage:
+  ```
+  defmodule MyApp.Kinesis do
+    use ExAws.Kinesis.Adapter, otp_app: :my_otp_app
+  end
+  ```
+
+  In your config
+  ```
+  config :my_otp_app, ExAws,
+    kinesis:  [], # kinesis config goes here
+    dynamodb: [], # you get the idea
+  ```
+
+  You can now use MyApp.Kinesis as the root module for the Kinesis api without needing
+  to pass in a particular configuration.
+  This enables different otp apps to configure their AWS configuration separately.
+
+  The alignment with a particular OTP app however is entirely optional.
+  The following also works:
+
+  ```
+  defmodule MyApp.Kinesis do
+    use ExAws.Kinesis.Adapter
+
+    def config do
+      [
+        kinesis:  [], # kinesis config goes here
+      ]
     end
-    ```
+  end
+  ```
 
-    In your config
-    ```
-    config :my_otp_app, ExAws,
-      kinesis:  [], # kinesis config goes here
-      dynamodb: [], # you get the idea
-    ```
+  This is in fact how the functions in ExAws.Kinesis that do not require a config work.
+  Default config values can be found in ExAws.Config
 
-    You can now use MyApp.Kinesis as the root module for the Kinesis api without needing
-    to pass in a particular configuration.
-    This enables different otp apps to configure their AWS configuration separately.
-
-    The alignment with a particular OTP app however is entirely optional.
-    The following also works:
-
-    ```
-    defmodule MyApp.Kinesis do
-      use ExAws.Kinesis.Adapter
-
-      def config do
-        [
-          kinesis:  [], # kinesis config goes here
-        ]
-      end
-    end
-    ```
-
-    This is in fact how the functions in ExAws.Kinesis that do not require a config work.
-    Default config values can be found in ExAws.Config
-
-    http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
+  http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
   """
 
   ## Streams
