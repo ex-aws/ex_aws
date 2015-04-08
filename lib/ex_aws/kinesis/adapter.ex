@@ -54,8 +54,8 @@ defmodule ExAws.Kinesis.Adapter do
   defcallback describe_stream(stream_name :: iodata, opts :: %{})
 
   @doc """
-    Same as describe_stream/1,2 except the shards key is a stream and will automatically handle pagination
-    Returns the normally shaped AWS response, except the Shards key is now a stream
+  Same as describe_stream/1,2 except the shards key is a stream and will automatically handle pagination
+  Returns the normally shaped AWS response, except the Shards key is now a stream
   """
   defcallback stream_shards(stream_name :: iodata)
   defcallback stream_shards(stream_name :: iodata :: %{})
@@ -74,20 +74,20 @@ defmodule ExAws.Kinesis.Adapter do
   defcallback get_records(stream_name :: iodata, opts :: %{})
 
   @doc """
-    Returns a stream of kinesis records
-    NOTE: This stream is basically INFINITE, in that it runs
-    until the shard it is reading from closes, which may be never.
-    If you want it to take records until there are no more (at the moment), something like
+  Returns a stream of kinesis records
+  NOTE: This stream is basically INFINITE, in that it runs
+  until the shard it is reading from closes, which may be never.
+  If you want it to take records until there are no more (at the moment), something like
 
-    ```
-    Kinesis.stream_records("my-stream")
-    |> Enum.take_while(fn(val) -> !match?(%{"Data" => []}, val))
-    ```
-    ought to do the trick.
+  ```
+  Kinesis.stream_records("my-stream")
+  |> Enum.take_while(fn(val) -> !match?(%{"Data" => []}, val))
+  ```
+  ought to do the trick.
 
-    The optional iterator_fun is a function that is called after every actual AWS request.
-    Generally speaking you won't need this, but it can be handy if you're trying to prevent flooding.
-    See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
+  The optional iterator_fun is a function that is called after every actual AWS request.
+  Generally speaking you won't need this, but it can be handy if you're trying to prevent flooding.
+  See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
   """
   defcallback stream_records(stream_name :: iodata)
   defcallback stream_records(stream_name :: iodata, opts :: %{})
@@ -131,14 +131,14 @@ defmodule ExAws.Kinesis.Adapter do
   defcallback remove_tags_for_stream(name :: iodata , tag_keys :: [binary])
 
   @doc """
-    By default the config is obtained by
-    ```
-    Application.get_env(@otp_app, ExAws)[:kinesis]
-    ```
-    via a function created when ```using ExAws.Kinesis.Adapter```
-    is called.
+  By default the config is obtained by
+  ```
+  Application.get_env(@otp_app, ExAws)[:kinesis]
+  ```
+  via a function created when ```using ExAws.Kinesis.Adapter```
+  is called.
 
-    See ExAws.Kinesis.config/0 for an example that overrides this default
+  See ExAws.Kinesis.config/0 for an example that overrides this default
   """
   defcallback config() :: Keyword.t
 

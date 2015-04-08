@@ -10,8 +10,8 @@ end
 
 Application.ensure_all_started(:httpotion)
 defmodule Test.HTTPotion do
-  def post(url, body, headers) do
-    {:ok, HTTPotion.post(url, [body: body, headers: headers, ibrowse: [headers_as_is: true]])}
+  def request(method, url, body, headers) do
+    {:ok, HTTPotion.request(method, url, [body: body, headers: headers, ibrowse: [headers_as_is: true]])}
   end
 end
 

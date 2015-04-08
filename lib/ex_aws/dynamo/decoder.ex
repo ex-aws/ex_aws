@@ -1,6 +1,6 @@
 defmodule ExAws.Dynamo.Decoder do
   @moduledoc """
-    Converts from the dynamo type spec into more native elixir types
+  Converts from the dynamo type spec into more native elixir types
   """
 
   @doc "Convenience function, see decode/2"
@@ -9,13 +9,13 @@ defmodule ExAws.Dynamo.Decoder do
   end
 
   @doc """
-    Decodes a dynamo response into a struct.
+  Decodes a dynamo response into a struct.
 
-    If Dynamo.Decodable is implimented for the struct it will be called
-    after the completion of the coercion.
+  If Dynamo.Decodable is implimented for the struct it will be called
+  after the completion of the coercion.
 
-    This is important for handling nested maps if you wanted the nested maps
-    to have atom keys.
+  This is important for handling nested maps if you wanted the nested maps
+  to have atom keys.
   """
   def decode(item, as: struct_module) do
     item
@@ -25,11 +25,11 @@ defmodule ExAws.Dynamo.Decoder do
   end
 
   @doc """
-    Convert dynamo format to elixir
+  Convert dynamo format to elixir
 
-    Functions which convert the dynamo style values into normal elixir values.
-    Use these if you just want the dynamo result to look more like elixir without
-    coercing it into a particular struct.
+  Functions which convert the dynamo style values into normal elixir values.
+  Use these if you just want the dynamo result to look more like elixir without
+  coercing it into a particular struct.
   """
   def decode(%{"S" => "TRUE"}),   do: true
   def decode(%{"S" => "FALSE"}),  do: false

@@ -2,7 +2,7 @@ defmodule ExAws.Request do
   require Logger
   @max_attempts 10
 
-  def request(data, operation, adapter) do
+  def request(http_method, data, operation, adapter) do
     config = adapter.config
     service = adapter.service
 
@@ -11,11 +11,11 @@ defmodule ExAws.Request do
       _   -> config[:json_codec].encode!(data)
     end
 
-    headers = headers(service, config, operation, body)
-    request_and_retry(service, config, headers, body, {:attempt, 1})
+    headers = headers(http_method, service, config, operation, body)
+    request_and_retry(http_method, service, config, headers, body, {:attempt, 1})
   end
 
-  def headers(service, config, operation, body) do
+  def headers(http_method, service, config, operation, body) do
     now = %{Timex.Date.now | ms: 0}
     amz_date = Timex.DateFormat.format!(now, "{ISOz}")
     |> String.replace("-", "")
@@ -32,7 +32,7 @@ defmodule ExAws.Request do
     auth_header = AWSAuth.sign_authorization_header(
       config[:access_key_id],
       config[:secret_access_key],
-      "POST",
+      http_method |> method_string,
       config |> url,
       config[:region],
       service |> service_name,
@@ -53,9 +53,9 @@ defmodule ExAws.Request do
   end
 
   @doc false
-  def request_and_retry(_, _, _, {:error, reason}), do: {:error, reason}
+  def request_and_retry(_, _, _, _, {:error, reason}), do: {:error, reason}
 
-  def request_and_retry(service, config, headers, req_body, {:attempt, attempt}) do
+  def request_and_retry(method, service, config, headers, req_body, {:attempt, attempt}) do
     url = config |> url
     json_codec = config[:json_codec]
 
@@ -65,7 +65,7 @@ defmodule ExAws.Request do
       Logger.debug("Request BODY: #{req_body}")
     end
 
-    case config[:http_client].post(url, req_body, headers) do
+    case config[:http_client].request(method, url, req_body, headers) do
       {:ok, %{status_code: status, body: ""}} when status in 200..299 ->
         {:ok, ""}
       {:ok, %{status_code: status, body: body}} when status in 200..299 ->
@@ -143,4 +143,10 @@ defmodule ExAws.Request do
 
   defp port(80), do: ""
   defp port(p),  do: ":#{p}"
+
+  defp method_string(method) do
+    method
+    |> Atom.to_string
+    |> String.upcase
+  end
 end

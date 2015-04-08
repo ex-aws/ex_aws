@@ -1,6 +1,23 @@
 defmodule ExAws.Kinesis do
   use ExAws.Kinesis.Adapter
+  use ExAws.Actions
   require Logger
+
+  @namespace "Kinesis_20131202"
+  @actions [
+    add_tags_to_stream:      :post,
+    create_stream:           :post,
+    delete_stream:           :post,
+    describe_stream:         :post,
+    get_records:             :post,
+    get_shard_iterator:      :post,
+    list_streams:            :post,
+    list_tags_for_stream:    :post,
+    merge_shards:            :post,
+    put_record:              :post,
+    put_records:             :post,
+    remove_tags_from_stream: :post,
+    split_shard:             :post]
 
   @moduledoc "See ExAws.Kinesis.Adapter for documentation"
 
@@ -139,7 +156,8 @@ defmodule ExAws.Kinesis do
   end
 
   def request(data, action, adapter) do
-    ExAws.Request.request(data, __MODULE__.Actions.get(action), adapter)
+    {operation, http_method} = __MODULE__ |> Actions.get(action)
+    ExAws.Request.request(http_method, data, operation, adapter)
   end
 
   def config do

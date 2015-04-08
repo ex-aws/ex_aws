@@ -1,5 +1,22 @@
 defmodule ExAws.Dynamo do
   use ExAws.Dynamo.Adapter
+  use ExAws.Actions
+
+  @namespace "DynamoDB_20120810"
+  @actions [
+    batch_get_item:   :get,
+    batch_write_item: :post,
+    create_table:     :post,
+    delete_item:      :post,
+    delete_table:     :post,
+    describe_table:   :get,
+    get_item:         :get,
+    list_tables:      :get,
+    put_item:         :post,
+    query:            :get,
+    scan:             :get,
+    update_item:      :post,
+    update_table:     :post]
 
   @moduledoc "See ExAws.Dynamo.Adapter for documentation"
 
@@ -101,7 +118,8 @@ defmodule ExAws.Dynamo do
   end
 
   def request(data, action, adapter) do
-    ExAws.Request.request(data, __MODULE__.Actions.get(action), adapter)
+    {operation, http_method} = __MODULE__ |> Actions.get(action)
+    ExAws.Request.request(http_method, data, operation, adapter)
   end
 
   defp encode_attrs(attrs) do

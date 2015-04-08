@@ -17,8 +17,8 @@ end
 defmodule Test.HTTPClient do
   @behaviour ExAws.Request.HttpClient
 
-  def post(url, body, headers) do
-    HTTPoison.post(url, body, headers)
+  def request(method, url, body, headers) do
+    HTTPoison.request(method, url, body, headers)
   end
 end
 
