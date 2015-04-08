@@ -17,13 +17,19 @@ defmodule ExAws.Mixfile do
   defp deps do
     [
       {:aws_auth, github: "benwilson512/aws_auth"},
-      {:httpoison, "~> 0.6.0", only: [:dev, :test]},
-      {:poison, "~> 1.2.0", only: [:dev, :test]},
+      {:earmark, "~> 0.1", only: :dev},
+      {:ex_doc, "~> 0.7", only: :dev} |
+      deps(:test)
+    ]
+  end
+
+  defp deps(:test) do
+    [
+      {:httpoison, "~> 0.6.0", only: :test},
+      {:poison, "~> 1.2.0", only: :test},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1", only: :test},
       {:httpotion, "~> 2.0.0", only: :test},
-      {:jsx, "~> 2.5.2", only: :test},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.7", only: :dev}
+      {:jsx, "~> 2.5.2", only: :test}
     ]
   end
 
