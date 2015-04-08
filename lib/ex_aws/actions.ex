@@ -3,6 +3,7 @@ defmodule ExAws.Actions do
     quote do
       alias unquote(__MODULE__)
       @before_compile unquote(__MODULE__)
+      @after_compile unquote(__MODULE__)
     end
   end
 
@@ -13,6 +14,14 @@ defmodule ExAws.Actions do
         Map.put(actions, action, {"#{@namespace}.#{name}", method})
       end)
       def __actions__, do: @action_map
+    end
+  end
+
+  defmacro __after_compile__(env, _) do
+    env.module
+    |> Module.definitions_in
+    |> IO.inspect
+    quote do
     end
   end
 
