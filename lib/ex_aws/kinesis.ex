@@ -150,9 +150,9 @@ defmodule ExAws.Kinesis do
     |> request(:list_tags_for_stream, adapter)
   end
 
-  def remove_tags_for_stream(adapter, name, tag_keys) when is_list(tag_keys) do
+  def remove_tags_from_stream(adapter, name, tag_keys) when is_list(tag_keys) do
     %{StreamName: name, TagKeys: tag_keys}
-    |> request(:remove_tags_for_stream, adapter)
+    |> request(:remove_tags_from_stream, adapter)
   end
 
   def request(data, action, adapter) do

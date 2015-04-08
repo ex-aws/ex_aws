@@ -112,6 +112,15 @@ defmodule ExAws.Dynamo do
     |> request(:get_item, adapter)
   end
 
+  def update_item(adapter, table_name, primary_key, update_args) do
+    %{
+      TableName: table_name,
+      Key: Dynamo.Encoder.encode_flat(primary_key)
+    }
+    |> Map.merge(update_args)
+    |> request(:update_item, adapter)
+  end
+
   def delete_item(adapter, name, primary_key) do
     %{TableName: name, Key: primary_key}
     |> request(:delete_item, adapter)

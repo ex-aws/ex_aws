@@ -98,7 +98,7 @@ defmodule ExAws.Dynamo.Adapter do
 
   @doc """
   Get up to 100 items (16mb)
-  
+
   Map of table names to request parameter maps.
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html
   """
@@ -117,6 +117,14 @@ defmodule ExAws.Dynamo.Adapter do
 
   @doc "Get item from table"
   defcallback get_item(table_name :: iodata, primary_key_value :: iodata)
+
+  @doc """
+  Update item in table
+
+  For update_args format see
+  http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html
+  """
+  defcallback update_item(table_name :: iodata, primary_key_value :: iodata, update_args :: %{})
 
   @doc "Delete item in table"
   defcallback delete_item(table_name :: iodata, primary_key_value :: iodata)
@@ -192,6 +200,11 @@ defmodule ExAws.Dynamo.Adapter do
       @doc false
       def get_item(name, primary_key) do
         Dynamo.get_item(__MODULE__, name, primary_key)
+      end
+
+      @doc false
+      def update_item(table_name, primary_key, update_args) do
+        Dynamo.update_item(__MODULE__, table_name, primary_key, update_args)
       end
 
       @doc false

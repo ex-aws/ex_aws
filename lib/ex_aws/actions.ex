@@ -1,4 +1,9 @@
 defmodule ExAws.Actions do
+
+  @moduledoc """
+  Ensures listed actions for a service are defined.
+  """
+
   defmacro __using__(_) do
     quote do
       alias unquote(__MODULE__)
@@ -18,11 +23,17 @@ defmodule ExAws.Actions do
   end
 
   defmacro __after_compile__(env, _) do
-    env.module
+    module = env.module
+    defined_actions = module
     |> Module.definitions_in
-    |> IO.inspect
-    quote do
-    end
+    |> Keyword.keys
+    module.__actions__
+    |> Map.keys
+    |> Enum.filter(&(!Enum.member?(defined_actions, &1)))
+    |> Enum.each(fn(action) ->
+      IO.puts "#{Path.relative_to_cwd(env.file)}: Action :#{action} listed but not defined in #{module}"
+    end)
+    nil
   end
 
   def get(module, action) do

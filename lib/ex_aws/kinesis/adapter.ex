@@ -128,7 +128,7 @@ defmodule ExAws.Kinesis.Adapter do
   defcallback list_tags_for_stream(name :: iodata, opts :: %{})
 
   @doc "Remove tags from stream"
-  defcallback remove_tags_for_stream(name :: iodata , tag_keys :: [binary])
+  defcallback remove_tags_from_stream(name :: iodata , tag_keys :: [binary])
 
   @doc """
   By default the config is obtained by
@@ -219,8 +219,8 @@ defmodule ExAws.Kinesis.Adapter do
       end
 
       @doc false
-      def remove_tags_for_stream(name, tag_keys) when is_list(tag_keys) do
-        Kinesis.remove_tags_for_stream(__MODULE__, name, tag_keys)
+      def remove_tags_from_stream(name, tag_keys) when is_list(tag_keys) do
+        Kinesis.remove_tags_from_stream(__MODULE__, name, tag_keys)
       end
 
       @doc false
