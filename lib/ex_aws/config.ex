@@ -1,7 +1,17 @@
 defmodule ExAws.Config do
 
-  def for_service(service_name) do
-    defaults[service_name]
+  @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
+
+  def common do
+    :ex_aws
+    |> Application.get_all_env
+    |> Keyword.take(@common_config)
+  end
+
+  def defaults_for_service(service_name) do
+    defaults
+    |> Keyword.take(@common_config)
+    |> Keyword.merge(Keyword.get(defaults, service_name, []))
   end
 
   def get(attr) do
@@ -12,32 +22,46 @@ defmodule ExAws.Config do
     Mix.env |> defaults
   end
   def defaults(:dev) do
-    defaults(:prod)
-    |> Keyword.merge(dynamodb: [
-      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
-      scheme: "https://",
-      host: "kinesis.us-east-1.amazonaws.com",
-      region: "us-east-1",
-      port: 80
-    ])
-  end
-  def defaults(:test) do
-    defaults(:prod)
-  end
-  def defaults(:prod) do
     [
+      http_client: HTTPoison,
+      json_codec: Poison,
       kinesis: [
-        access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-        secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
         scheme: "https://",
         host: "kinesis.us-east-1.amazonaws.com",
         region: "us-east-1",
         port: 80
       ],
       dynamodb: [
-        access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-        secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+        scheme: "http://",
+        host: "localhost",
+        port: 8000,
+        region: "us-east-1"
+      ]
+    ]
+  end
+  def defaults(:test) do
+    [
+      http_client: HTTPoison,
+      json_codec: Poison,
+      dynamodb: [
+        scheme: "http://",
+        host: "localhost",
+        port: 8000,
+        region: "us-east-1"
+      ]
+    ]
+  end
+  def defaults(:prod) do
+    [
+      http_client: HTTPoison,
+      json_codec: Poison,
+      kinesis: [
+        scheme: "https://",
+        host: "kinesis.us-east-1.amazonaws.com",
+        region: "us-east-1",
+        port: 80
+      ],
+      dynamodb: [
         scheme: "https://",
         host: "kinesis.us-east-1.amazonaws.com",
         region: "us-east-1",

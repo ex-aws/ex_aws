@@ -1,5 +1,4 @@
 defmodule ExAws.Kinesis do
-  alias __MODULE__
   require Logger
   use ExAws.Kinesis.Adapter
 
@@ -138,10 +137,11 @@ defmodule ExAws.Kinesis do
   end
 
   def request(data, action, adapter) do
-    ExAws.Request.request(data, Kinesis.Actions.get(action), adapter)
+    ExAws.Request.request(data, __MODULE__.Actions.get(action), adapter)
   end
 
   def config do
-    ExAws.Config.for_service(:kinesis)
+    ExAws.Config.defaults_for_service(:kinesis)
+    |> Keyword.merge(super)
   end
 end

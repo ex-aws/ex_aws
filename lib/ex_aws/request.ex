@@ -64,7 +64,7 @@ defmodule ExAws.Request do
       Logger.debug("Request BODY: #{req_body}")
     end
 
-    case HTTPoison.post(url, req_body, headers) do
+    case config[:http_client].post(url, req_body, headers) do
       {:ok, %{status_code: status, body: ""}} when status in 200..299 ->
         {:ok, ""}
       {:ok, %{status_code: status, body: body}} when status in 200..299 ->

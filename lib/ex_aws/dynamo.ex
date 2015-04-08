@@ -1,6 +1,4 @@
 defmodule ExAws.Dynamo do
-  alias __MODULE__
-  alias ExAws.Config
   use ExAws.Dynamo.Adapter
 
   ## Tables
@@ -111,7 +109,7 @@ defmodule ExAws.Dynamo do
   end
 
   def config do
-    ExAws.Config.for_service(:dynamodb)
+    ExAws.Config.defaults_for_service(:dynamodb)
+    |> Keyword.merge(super)
   end
-
 end

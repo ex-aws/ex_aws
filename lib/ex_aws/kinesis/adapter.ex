@@ -222,7 +222,10 @@ defmodule ExAws.Kinesis.Adapter do
 
       @doc false
       def config do
-        Application.get_env(@otp_app, ExAws)[service]
+        service_conf = Application.get_env(@otp_app, :ex_aws, [{service, []}])
+        |> Keyword.get(service)
+        ExAws.Config.common
+        |> Keyword.merge(service_conf)
       end
 
       defoverridable config: 0
