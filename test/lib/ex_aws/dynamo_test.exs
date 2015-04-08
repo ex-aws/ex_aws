@@ -24,7 +24,7 @@ defmodule ExAws.DynamoTest do
     user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
     assert {:ok, _} = Dynamo.put_item(Test.User, user)
     {:ok, %{"Item" => item}} = Dynamo.get_item(Test.User, %{email: user.email})
-    assert user == item |> ExAws.Dynamo.Decoder.decode(as: Test.User)
+    assert user == item |> Decoder.decode(as: Test.User)
   end
 
 end

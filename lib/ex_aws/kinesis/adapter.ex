@@ -97,6 +97,9 @@ defmodule ExAws.Kinesis.Adapter do
   defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata)
   defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata, opts :: %{})
 
+  @doc "Put multiple records on a stream"
+  defcallback put_records(stream_name :: iodata, records :: [%{}])
+
   ## Shards
 
   @doc """
@@ -147,77 +150,90 @@ defmodule ExAws.Kinesis.Adapter do
 
       @doc false
       def list_streams do
-        Kinesis.list_streams(config)
+        Kinesis.list_streams(__MODULE__)
       end
 
       @doc false
       def describe_stream(name, opts \\ %{}) do
-        Kinesis.describe_stream(config, name, opts)
+        Kinesis.describe_stream(__MODULE__, name, opts)
       end
 
       @doc false
       def stream_shards(name, opts \\ %{}) do
-        Kinesis.Lazy.stream_shards(config, name, opts)
+        Kinesis.Lazy.stream_shards(__MODULE__, name, opts)
       end
 
       @doc false
       def create_stream(name, shard_count \\ 1) do
-        Kinesis.create_stream(config, name, shard_count)
+        Kinesis.create_stream(__MODULE__, name, shard_count)
       end
 
       @doc false
       def delete_stream(name) do
-        Kinesis.delete_stream(config, name)
+        Kinesis.delete_stream(__MODULE__, name)
       end
 
       @doc false
       def get_records(shard_iterator, opts \\ %{}) do
-        Kinesis.get_records(config, shard_iterator, opts)
+        Kinesis.get_records(__MODULE__, shard_iterator, opts)
       end
 
       @doc false
       def stream_records(shard_iterator, opts \\ %{}, iterator_fun \\ &Kinesis.Lazy.pass/1) do
-        Kinesis.Lazy.stream_records(config, shard_iterator, opts, iterator_fun)
+        Kinesis.Lazy.stream_records(__MODULE__, shard_iterator, opts, iterator_fun)
       end
 
       @doc false
       def put_record(stream_name, partition_key, blob, opts \\ %{}) do
-        Kinesis.put_record(config, stream_name, partition_key, blob, opts)
+        Kinesis.put_record(__MODULE__, stream_name, partition_key, blob, opts)
+      end
+
+      @doc false
+      def put_records(stream_name, records) do
+        Kinesis.put_record(__MODULE__, stream_name, records)
       end
 
       @doc false
       def get_shard_iterator(name, shard_id, shard_iterator_type, opts \\ %{}) do
-        Kinesis.get_shard_iterator(config, name, shard_id, shard_iterator_type, opts)
+        Kinesis.get_shard_iterator(__MODULE__, name, shard_id, shard_iterator_type, opts)
       end
 
       @doc false
       def merge_shards(name, adjacent_shard, shard) do
-        Kinesis.merge_shards(config, name, adjacent_shard, shard)
+        Kinesis.merge_shards(__MODULE__, name, adjacent_shard, shard)
       end
 
       @doc false
       def split_shard(name, shard, new_starting_hash_key) do
-        Kinesis.split_shard(config, name, shard, new_starting_hash_key)
+        Kinesis.split_shard(__MODULE__, name, shard, new_starting_hash_key)
       end
 
       @doc false
       def add_tags_to_stream(name, tags) do
-        Kinesis.add_tags_to_stream(config, name, tags)
+        Kinesis.add_tags_to_stream(__MODULE__, name, tags)
       end
 
       @doc false
       def list_tags_for_stream(name, opts \\ %{}) do
-        Kinesis.list_tags_for_stream(config, name, opts)
+        Kinesis.list_tags_for_stream(__MODULE__, name, opts)
       end
 
       @doc false
       def remove_tags_for_stream(name, tag_keys) when is_list(tag_keys) do
-        Kinesis.remove_tags_for_stream(config, name, tag_keys)
+        Kinesis.remove_tags_for_stream(__MODULE__, name, tag_keys)
+      end
+
+      @doc false
+      def service do
+        :kinesis
       end
 
       @doc false
       def config do
-        Application.get_env(@otp_app, ExAws)[:kinesis]
+        service_conf = Application.get_env(@otp_app, :ex_aws, [{service, []}])
+        |> Keyword.get(service)
+        ExAws.Config.common
+        |> Keyword.merge(service_conf)
       end
 
       defoverridable config: 0

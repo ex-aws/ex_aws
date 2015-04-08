@@ -127,77 +127,85 @@ defmodule ExAws.Dynamo.Adapter do
 
       @doc false
       def list_tables do
-        Dynamo.list_tables(config)
+        Dynamo.list_tables(__MODULE__)
       end
 
       @doc false
       def create_table(name, primary_key, key_definitions, read_capacity, write_capacity) do
-        Dynamo.create_table(config, name, primary_key, key_definitions, read_capacity, write_capacity)
+        Dynamo.create_table(__MODULE__, name, primary_key, key_definitions, read_capacity, write_capacity)
       end
 
       @doc false
       def create_table(name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
-        Dynamo.create_table(config, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes)
+        Dynamo.create_table(__MODULE__, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes)
       end
 
       @doc false
       def describe_table(name) do
-        Dynamo.describe_table(config, name)
+        Dynamo.describe_table(__MODULE__, name)
       end
 
       @doc false
       def update_table(name, attributes) do
-        Dynamo.update_table(config, name, attributes)
+        Dynamo.update_table(__MODULE__, name, attributes)
       end
 
       @doc false
       def delete_table(table) do
-        Dynamo.delete_table(config, table)
+        Dynamo.delete_table(__MODULE__, table)
       end
 
       @doc false
       def scan(name, opts \\ %{}) do
-        Dynamo.scan(config, name, opts)
+        Dynamo.scan(__MODULE__, name, opts)
       end
 
       @doc false
       def stream_scan(name, opts \\ %{}) do
-        Dynamo.Lazy.stream_scan(config, name, opts)
+        Dynamo.Lazy.stream_scan(__MODULE__, name, opts)
       end
 
       @doc false
       def query(name, key_conditions, opts \\ %{}) do
-        Dynamo.query(config, name, key_conditions, opts)
+        Dynamo.query(__MODULE__, name, key_conditions, opts)
       end
 
       @doc false
       def batch_get_item(data) do
-        Dynamo.batch_get_item(config, data)
+        Dynamo.batch_get_item(__MODULE__, data)
       end
 
       @doc false
       def put_item(name, record) do
-        Dynamo.put_item(config, name, record)
+        Dynamo.put_item(__MODULE__, name, record)
       end
 
       @doc false
       def batch_write_item(data) do
-        Dynamo.batch_write_item(config, data)
+        Dynamo.batch_write_item(__MODULE__, data)
       end
 
       @doc false
       def get_item(name, primary_key) do
-        Dynamo.get_item(config, name, primary_key)
+        Dynamo.get_item(__MODULE__, name, primary_key)
       end
 
       @doc false
       def delete_item(name, primary_key) do
-        Dynamo.delete_item(config, name, primary_key)
+        Dynamo.delete_item(__MODULE__, name, primary_key)
+      end
+
+      @doc false
+      def service do
+        :dynamodb
       end
 
       @doc false
       def config do
-        Application.get_env(@otp_app, ExAws)[:dynamodb]
+        service_conf = Application.get_env(@otp_app, :ex_aws, [{service, []}])
+        |> Keyword.get(service)
+        ExAws.Config.common
+        |> Keyword.merge(service_conf)
       end
 
       defoverridable config: 0
