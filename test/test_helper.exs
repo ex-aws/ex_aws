@@ -1,3 +1,6 @@
+Code.require_file("default_helper.exs", __DIR__)
+Code.require_file("alternate_helper.exs", __DIR__)
+
 defmodule Test.User do
   @derive [ExAws.Dynamo.Encodable]
   defstruct [:email, :name, :age, :admin]
@@ -11,30 +14,7 @@ defmodule Test.User do
   end
 end
 
-defmodule Test.Dynamo do
-  use ExAws.Dynamo.Adapter
-
-  def config do
-    Keyword.merge(super, Application.get_env(:ex_aws, :dynamodb))
-  end
-end
-
-defmodule Test.Kinesis do
-  use ExAws.Kinesis.Adapter
-
-  def config do
-    Keyword.merge(super, Application.get_env(:ex_aws, :kinesis))
-  end
-end
-
-defmodule Test.HTTPClient do
-  @behaviour ExAws.Request.HttpClient
-
-  def post(url, body, headers) do
-    HTTPoison.post(url, body, headers)
-  end
-end
-
 Application.ensure_all_started(:httpoison)
+Application.ensure_all_started(:jsx)
 
 ExUnit.start()

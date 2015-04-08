@@ -8,7 +8,7 @@ defmodule ExAws.Request do
 
     body = case data do
       []  -> "{}"
-      _   -> Poison.encode!(data)
+      _   -> config[:json_codec].encode!(data)
     end
 
     headers = headers(service, config, operation, body)
@@ -56,8 +56,9 @@ defmodule ExAws.Request do
 
   def request_and_retry(service, config, headers, req_body, {:attempt, attempt}) do
     url = config |> url
+    json_codec = config[:json_codec]
 
-    if Application.get_env(:ex_aws, :debug_requests) do
+    if config[:debug_requests] do
       Logger.debug("Request URL: #{inspect url}")
       Logger.debug("Request HEADERS: #{inspect headers}")
       Logger.debug("Request BODY: #{req_body}")
@@ -67,12 +68,12 @@ defmodule ExAws.Request do
       {:ok, %{status_code: status, body: ""}} when status in 200..299 ->
         {:ok, ""}
       {:ok, %{status_code: status, body: body}} when status in 200..299 ->
-        case Poison.decode(body) do
+        case json_codec.decode(body) do
           {:ok, result} -> {:ok, result}
           {:error, _}   -> {:error, body}
         end
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
-        case client_error(resp) do
+        case client_error(resp, json_codec) do
           {:retry, reason} ->
             request_and_retry(service, config, headers, req_body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
@@ -90,8 +91,8 @@ defmodule ExAws.Request do
     end
   end
 
-  def client_error(%{status_code: status, body: body}) do
-    case Poison.Parser.parse(body) do
+  def client_error(%{status_code: status, body: body}, json_codec) do
+    case json_codec.decode(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
         error_type
         |> String.split("#")
