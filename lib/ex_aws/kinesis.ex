@@ -69,7 +69,7 @@ defmodule ExAws.Kinesis do
     |> request(:put_record, adapter)
   end
 
-  def put_records(adapter, stream_name, records, opts) when is_list(records) do
+  def put_records(adapter, stream_name, records) when is_list(records) do
     %{
       Data: records |> Enum.map(&format_record/1),
       StreamName: stream_name

@@ -49,7 +49,7 @@ defmodule ExAws.Dynamo.Decoder do
     try do
       String.to_float(binary)
     rescue
-      e in [ArgumentError] -> String.to_integer(binary)
+      ArgumentError -> String.to_integer(binary)
     end
   end
 

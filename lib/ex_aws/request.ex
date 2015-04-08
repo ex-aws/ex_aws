@@ -1,6 +1,5 @@
 defmodule ExAws.Request do
   require Logger
-  alias ExAws.Config
   @max_attempts 10
 
   def request(data, operation, adapter) do

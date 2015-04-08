@@ -97,6 +97,9 @@ defmodule ExAws.Kinesis.Adapter do
   defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata)
   defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata, opts :: %{})
 
+  @doc "Put multiple records on a stream"
+  defcallback put_records(stream_name :: iodata, records :: [%{}])
+
   ## Shards
 
   @doc """
@@ -183,6 +186,11 @@ defmodule ExAws.Kinesis.Adapter do
       @doc false
       def put_record(stream_name, partition_key, blob, opts \\ %{}) do
         Kinesis.put_record(__MODULE__, stream_name, partition_key, blob, opts)
+      end
+
+      @doc false
+      def put_records(stream_name, records) do
+        Kinesis.put_record(__MODULE__, stream_name, records)
       end
 
       @doc false
