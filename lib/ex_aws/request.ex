@@ -2,7 +2,7 @@ defmodule ExAws.Request do
   require Logger
   @max_attempts 10
 
-  def request(http_method, data, operation, adapter) do
+  def request(http_method, path, data, headers, adapter) do
     config = adapter.config
     service = adapter.service
 
@@ -11,11 +11,11 @@ defmodule ExAws.Request do
       _   -> config[:json_codec].encode!(data)
     end
 
-    headers = headers(http_method, service, config, operation, body)
-    request_and_retry(http_method, service, config, headers, body, {:attempt, 1})
+    headers = headers(http_method, path, service, config, headers, body)
+    request_and_retry(http_method, path, service, config, headers, body, {:attempt, 1})
   end
 
-  def headers(http_method, service, config, operation, body) do
+  def headers(http_method, path, service, config, headers, body) do
     now = %{Timex.Date.now | ms: 0}
     amz_date = Timex.DateFormat.format!(now, "{ISOz}")
     |> String.replace("-", "")
@@ -25,15 +25,15 @@ defmodule ExAws.Request do
       {"content-type", json_version(service)},
       {"host", config[:host]},
       {"x-amz-content-sha256", ""},
-      {"x-amz-date", amz_date},
-      {"x-amz-target", operation}
+      {"x-amz-date", amz_date} |
+      headers
     ]
 
     auth_header = AWSAuth.sign_authorization_header(
       config[:access_key_id],
       config[:secret_access_key],
       http_method |> method_string,
-      config |> url,
+      config |> url(path),
       config[:region],
       service |> service_name,
       headers |> Enum.into(%{}),
@@ -53,10 +53,10 @@ defmodule ExAws.Request do
   end
 
   @doc false
-  def request_and_retry(_, _, _, _, {:error, reason}), do: {:error, reason}
+  def request_and_retry(_, _, _, _, _, {:error, reason}), do: {:error, reason}
 
-  def request_and_retry(method, service, config, headers, req_body, {:attempt, attempt}) do
-    url = config |> url
+  def request_and_retry(method, path, service, config, headers, req_body, {:attempt, attempt}) do
+    url = config |> url(path)
     json_codec = config[:json_codec]
 
     if config[:debug_requests] do
@@ -76,15 +76,15 @@ defmodule ExAws.Request do
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
         case client_error(resp, json_codec) do
           {:retry, reason} ->
-            request_and_retry(service, config, headers, req_body, attempt_again?(attempt, reason))
+            request_and_retry(service, path, config, headers, req_body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
         end
       {:ok, %{status_code: status, body: body}} when status >= 500 ->
         reason = {:http_error, status, body}
-        request_and_retry(service, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(service, path, config, headers, req_body, attempt_again?(attempt, reason))
       {:error, %{reason: reason}} ->
         Logger.error("ExAws: HTTP ERROR: #{inspect reason}")
-        request_and_retry(service, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(service, path, config, headers, req_body, attempt_again?(attempt, reason))
       whoknows ->
         Logger.info "Unknown response"
         whoknows |> inspect |> Logger.info
@@ -132,12 +132,12 @@ defmodule ExAws.Request do
     :timer.sleep(attempt * 1000)
   end
 
-  defp url(config) do
+  defp url(config, path) do
     [
       Keyword.get(config, :scheme),
       Keyword.get(config, :host),
       Keyword.get(config, :port) |> port,
-      "/"
+      path
     ] |> IO.iodata_to_binary
   end
 

@@ -128,7 +128,7 @@ defmodule ExAws.Dynamo do
 
   def request(data, action, adapter) do
     {operation, http_method} = __MODULE__ |> Actions.get(action)
-    ExAws.Request.request(http_method, data, operation, adapter)
+    ExAws.Dynamo.Request.request(http_method, data, operation, adapter)
   end
 
   defp encode_attrs(attrs) do

@@ -157,7 +157,7 @@ defmodule ExAws.Kinesis do
 
   def request(data, action, adapter) do
     {operation, http_method} = __MODULE__ |> Actions.get(action)
-    ExAws.Request.request(http_method, data, operation, adapter)
+    ExAws.Kinesis.Request.request(http_method, data, operation, adapter)
   end
 
   def config do
