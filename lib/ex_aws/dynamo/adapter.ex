@@ -62,11 +62,11 @@ defmodule ExAws.Dynamo.Adapter do
   defcallback create_table(
     table_name      :: iodata,
     primary_key     :: iodata,
-    key_definitions :: [Map.t],
+    key_definitions :: [%{}],
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
-    global_indexes  :: Map.t,
-    local_indexes   :: Map.t)
+    global_indexes  :: %{},
+    local_indexes   :: %{})
 
   @doc "Describe table"
   defcallback describe_table(name :: iodata)

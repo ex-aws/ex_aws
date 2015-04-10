@@ -45,11 +45,11 @@ defmodule ExAws.Dynamo do
         WriteCapacityUnits: write_capacity
       }
     }
-    if length(global_indexes) > 0 do
+    _ = if length(global_indexes) > 0 do
       Map.put(data, :GlobalSecondaryIndexes, global_indexes)
     end
 
-    if length(local_indexes) > 0 do
+    _ = if length(local_indexes) > 0 do
       Map.put(data, :LocalSecondaryIndexes, local_indexes)
     end
 
