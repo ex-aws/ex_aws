@@ -22,7 +22,6 @@ defmodule ExAws.Request do
     |> String.replace(":", "")
 
     headers = [
-      {"content-type", json_version(service)},
       {"host", config[:host]},
       {"x-amz-content-sha256", ""},
       {"x-amz-date", amz_date} |
@@ -42,9 +41,6 @@ defmodule ExAws.Request do
 
     [{"Authorization", auth_header} | headers ]
   end
-
-  defp json_version(:dynamodb), do: "application/x-amz-json-1.0"
-  defp json_version(:kinesis), do: "application/x-amz-json-1.1"
 
   def service_name(service), do: service |> Atom.to_string
 
@@ -76,15 +72,15 @@ defmodule ExAws.Request do
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
         case client_error(resp, json_codec) do
           {:retry, reason} ->
-            request_and_retry(service, path, config, headers, req_body, attempt_again?(attempt, reason))
+            request_and_retry(method, path, service, config, headers, req_body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
         end
       {:ok, %{status_code: status, body: body}} when status >= 500 ->
         reason = {:http_error, status, body}
-        request_and_retry(service, path, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(method, path, service, config, headers, req_body, attempt_again?(attempt, reason))
       {:error, %{reason: reason}} ->
         Logger.error("ExAws: HTTP ERROR: #{inspect reason}")
-        request_and_retry(service, path, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(method, path, service, config, headers, req_body, attempt_again?(attempt, reason))
       whoknows ->
         Logger.info "Unknown response"
         whoknows |> inspect |> Logger.info

@@ -1,6 +1,8 @@
 defmodule ExAws.Lambda do
-  use ExAws.Lambda.Adapter
   use ExAws.Actions
+  use ExAws.Lambda.Adapter
+  import ExAws.Lambda.Request
+  require Logger
 
   @namespace "Lambda"
   @actions [
@@ -24,9 +26,9 @@ defmodule ExAws.Lambda do
   ]
 
 
-  def add_permission(adapter, function_name, principal, action, statement_id , opts) do
+  def add_permission(adapter, function_name, principal, action, statement_id, opts) do
     opts
-    |> Map.merge(%{Action: action, Principal: principal})
+    |> Map.merge(%{Action: action, Principal: principal, StatementId: statement_id})
     |> request(:add_permission, "/2015-03-31/functions/#{function_name}/versions/HEAD/policy", adapter)
   end
 
@@ -72,48 +74,53 @@ defmodule ExAws.Lambda do
     request(%{}, :get_policy, "/2015-03-31/functions/#{function_name}/versions/HEAD/policy", adapter)
   end
 
-  # def invoke(adapter, function_name, payload, client_context, opts) do
-  #   json_codec = adapter.config[:json_codec]
-  #   headers = [
-  #     {"X-Amz-Invocation-Type", Keyword.get(opts, :InvocationType, "RequestResponse")},
-  #     {"X-Amz-Log-Type", Keyword.get(opts, :InvocationType, "RequestResponse")},
-  #   ]
-  #   client_context = client_context
-  #   |> json_codec.encode!
-  #   |> Base.encode64
-  #   request(payload, :invoke, "/2015-03-31/functions/#{function_name}/invocations", adapter)
-  # end
-  #
-  # def invoke(adapter, function_name, args) do
-  #   request(data, :invoke, "", adapter)
-  # end
-  #
-  # def list_event_source_mappings(adapter, function_name, event_source_arn, opts) do
-  #   request(data, :list_event_source_mappings, "", adapter)
-  # end
-  #
-  # def list_functions(adapter, opts) do
-  #   request(data, :list_functions, "", adapter)
-  # end
-  #
-  # def remove_permission(adapter, function_name, statement_id) do
-  #   request(data, :remove_permission, "", adapter)
-  # end
-  #
-  # def update_event_source_mapping(adapter, function_name, uuid, attrs_to_update) do
-  #   request(data, :update_event_source_mapping, "", adapter)
-  # end
-  #
-  # def update_function_code(adapter, function_name, zipfile) do
-  #   request(data, :update_function_code, "", adapter)
-  # end
-  #
-  # def update_function_configuration(adapter, function_name, configuration) do
-  #   request(data, :update_function_configuration, "", adapter)
-  # end
-
-  def request(data, action, url, adapter, params \\ [], header \\ []) do
-
+  def invoke(adapter, function_name, payload, client_context, opts) do
+    json_codec = adapter.config[:json_codec]
+    headers = [
+      {"X-Amz-Invocation-Type", Keyword.get(opts, :InvocationType, "RequestResponse")},
+      {"X-Amz-Log-Type", Keyword.get(opts, :InvocationType, "RequestResponse")},
+    ]
+    headers = case client_context do
+      %{} -> headers
+      context ->
+        header = {"X-Amz-Client-Context", context |> json_codec.encode! |> Base.encode64}
+        [header | headers]
+    end
+    request(payload, :invoke, "/2015-03-31/functions/#{function_name}/invocations", adapter, [], headers)
   end
+
+  def invoke_async(adapter, function_name, args) do
+    Logger.info("This API is deprecated. See invoke/5 with the Event value set as invocation type")
+    request(args, :invoke, "/2014-11-13/functions/#{function_name}/invoke-async/", adapter)
+  end
+
+  def list_event_source_mappings(adapter, function_name, event_source_arn, opts) do
+    params = opts
+    |> Keyword.merge([FunctionName: function_name, EventSourceArn: event_source_arn])
+    request(%{}, :list_event_source_mappings, "/2015-03-31/event-source-mappings/", adapter, params)
+  end
+
+  def list_functions(adapter, opts) do
+    request(%{}, :list_functions, "/2015-03-31/functions/", adapter, opts)
+  end
+
+  def remove_permission(adapter, function_name, statement_id) do
+    request(%{}, :remove_permission, "/2015-03-31/functions/#{function_name}/versions/HEAD/policy/#{statement_id}", adapter)
+  end
+
+  def update_event_source_mapping(adapter, uuid, attrs_to_update) do
+    request(attrs_to_update, :update_event_source_mapping, "/2015-03-31/event-source-mappings/#{uuid}", adapter)
+  end
+
+  def update_function_code(adapter, function_name, zipfile) do
+    %{ZipFile: zipfile}
+    |> request(:update_function_code, "/2015-03-31/functions/#{function_name}/versions/HEAD/code", adapter)
+  end
+
+  def update_function_configuration(adapter, function_name, configuration) do
+    request(configuration, :update_function_configuration, "/2015-03-31/functions/#{function_name}/versions/HEAD/configuration", adapter)
+  end
+
+  def config_root, do: Application.get_all_env(:ex_aws)
 
 end

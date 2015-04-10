@@ -1,6 +1,7 @@
 defmodule ExAws.Dynamo do
   use ExAws.Dynamo.Adapter
   use ExAws.Actions
+  import ExAws.Dynamo.Request
 
   @namespace "DynamoDB_20120810"
   @actions [
@@ -123,19 +124,11 @@ defmodule ExAws.Dynamo do
     |> request(:delete_item, adapter)
   end
 
-  def request(data, action, adapter) do
-    {operation, http_method} = __MODULE__ |> Actions.get(action)
-    ExAws.Dynamo.Request.request(http_method, data, operation, adapter)
-  end
-
   defp encode_attrs(attrs) do
     attrs |> Enum.map(fn({name, type}) ->
       %{AttributeName: name, AttributeType: type}
     end)
   end
 
-  def config do
-    ExAws.Config.defaults_for_service(:dynamodb)
-    |> Keyword.merge(super)
-  end
+  def config_root, do: Application.get_all_env(:ex_aws)
 end

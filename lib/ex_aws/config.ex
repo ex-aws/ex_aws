@@ -2,20 +2,17 @@ defmodule ExAws.Config do
 
   @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
 
-  def common do
-    :ex_aws
-    |> Application.get_all_env
+  def get(adapter) do
+    config_root = adapter.config_root
+    config      = adapter.config_root |> Keyword.get(adapter.service, [])
+    common      = defaults
+    |> Keyword.merge(config_root)
     |> Keyword.take(@common_config)
-  end
 
-  def defaults_for_service(service_name) do
     defaults
-    |> Keyword.take(@common_config)
-    |> Keyword.merge(Keyword.get(defaults, service_name, []))
-  end
-
-  def get(attr) do
-    Application.get_env(:ex_aws, attr)
+    |> Keyword.get(adapter.service, [])
+    |> Keyword.merge(common)
+    |> Keyword.merge(config)
   end
 
   def defaults do
@@ -36,6 +33,12 @@ defmodule ExAws.Config do
         host: "localhost",
         port: 8000,
         region: "us-east-1"
+      ],
+      lambda: [
+        host: "lambda.us-east-1.amazonaws.com",
+        scheme: "https://",
+        region: "us-east-1",
+        port: 80
       ]
     ]
   end
@@ -64,6 +67,12 @@ defmodule ExAws.Config do
       dynamodb: [
         scheme: "https://",
         host: "kinesis.us-east-1.amazonaws.com",
+        region: "us-east-1",
+        port: 80
+      ],
+      lambda: [
+        host: "lambda.us-east-1.amazonaws.com",
+        scheme: "https://",
         region: "us-east-1",
         port: 80
       ]

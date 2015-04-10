@@ -16,3 +16,9 @@ config :ex_aws, :dynamodb,
   host: "localhost",
   port: 8000,
   region: "us-east-1"
+
+config :ex_aws, :lambda,
+  host: "lambda.us-east-1.amazonaws.com",
+  scheme: "https://",
+  region: "us-east-1",
+  port: 80

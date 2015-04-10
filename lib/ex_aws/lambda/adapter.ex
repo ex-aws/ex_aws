@@ -82,7 +82,13 @@ defmodule ExAws.Lambda.Adapter do
   @doc "Update a function configuration"
   defcallback update_function_configuration(function_name :: binary, configuration :: %{}) :: %{}
 
-  def __using__(opts) do
+  @doc "Service"
+  defcallback service() :: atom
+
+  @doc "Config"
+  defcallback config() :: %{}
+
+  defmacro __using__(opts) do
     quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
       @otp_app Keyword.get(opts, :otp_app)
       @behaviour behavior_module
@@ -134,17 +140,17 @@ defmodule ExAws.Lambda.Adapter do
 
       @doc false
       def invoke(function_name, client_context, opts \\ %{}) do
-        ExAws.Lambda.invoke(__MODULE__, function_name, client_context, opts \\ %{})
+        ExAws.Lambda.invoke(__MODULE__, function_name, client_context, opts)
       end
 
       @doc false
       def invoke_async(function_name, args) do
-        ExAws.Lambda.invoke(__MODULE__, function_name, args)
+        ExAws.Lambda.invoke_async(__MODULE__, function_name, args)
       end
 
       @doc false
       def list_event_source_mappings(function_name, event_source_arn, opts \\ %{}) do
-        ExAws.Lambda.list_event_source_mappings(__MODULE__, function_name, event_source_arn, opts %{})
+        ExAws.Lambda.list_event_source_mappings(__MODULE__, function_name, event_source_arn, opts)
       end
 
       @doc false
@@ -171,8 +177,22 @@ defmodule ExAws.Lambda.Adapter do
       def update_function_configuration(function_name, configuration) do
         ExAws.Lambda.update_function_configuration(__MODULE__, function_name, configuration)
       end
-    end
 
+      @doc false
+      def service do
+        :lambda
+      end
+
+      @doc false
+      def config_root, do: Application.get_env(@otp_app, :ex_aws)
+
+      @doc false
+      def config do
+        __MODULE__ |> ExAws.Config.get
+      end
+
+      defoverridable config: 0, config_root: 0
+    end
   end
 
 end

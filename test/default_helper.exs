@@ -1,16 +1,16 @@
 defmodule Test.Dynamo do
   use ExAws.Dynamo.Adapter
 
-  def config do
-    Keyword.merge(super, Application.get_env(:ex_aws, :dynamodb))
+  def config_root do
+    Application.get_all_env(:ex_aws)
   end
 end
 
 defmodule Test.Kinesis do
   use ExAws.Kinesis.Adapter
 
-  def config do
-    Keyword.merge(super, Application.get_env(:ex_aws, :kinesis))
+  def config_root do
+    Application.get_all_env(:ex_aws)
   end
 end
 

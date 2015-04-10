@@ -218,14 +218,14 @@ defmodule ExAws.Dynamo.Adapter do
       end
 
       @doc false
+      def config_root, do: Application.get_env(@otp_app, :ex_aws)
+
+      @doc false
       def config do
-        service_conf = Application.get_env(@otp_app, :ex_aws, [{service, []}])
-        |> Keyword.get(service)
-        ExAws.Config.common
-        |> Keyword.merge(service_conf)
+        __MODULE__ |> ExAws.Config.get
       end
 
-      defoverridable config: 0
+      defoverridable config: 0, config_root: 0
     end
   end
 
