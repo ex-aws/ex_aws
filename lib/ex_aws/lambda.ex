@@ -1,4 +1,5 @@
 defmodule ExAws.Lambda do
+  use ExAws.Lambda.Adapter
   use ExAws.Actions
 
   @namespace "Lambda"
@@ -6,12 +7,12 @@ defmodule ExAws.Lambda do
     add_permission:                :post,
     create_event_source_mapping:   :post,
     create_function:               :post,
-    delete_event_source_mapping:   :post,
-    delete_function:               :post,
-    get_event_source_mapping:      :post,
-    get_function:                  :post,
-    get_function_configuration:    :post,
-    get_policy:                    :post,
+    delete_event_source_mapping:   :delete,
+    delete_function:               :delete,
+    get_event_source_mapping:      :get,
+    get_function:                  :get,
+    get_function_configuration:    :get,
+    get_policy:                    :get,
     invoke:                        :post,
     invoke_async:                  :post,
     list_event_source_mappings:    :post,
@@ -21,4 +22,5 @@ defmodule ExAws.Lambda do
     update_function_code:          :post,
     update_function_configuration: :post
   ]
+
 end
