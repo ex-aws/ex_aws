@@ -45,15 +45,12 @@ defmodule ExAws.Dynamo do
         WriteCapacityUnits: write_capacity
       }
     }
-    _ = if length(global_indexes) > 0 do
-      Map.put(data, :GlobalSecondaryIndexes, global_indexes)
-    end
-
-    _ = if length(local_indexes) > 0 do
-      Map.put(data, :LocalSecondaryIndexes, local_indexes)
-    end
-
-    request(data, :create_table, adapter)
+    [GlobalSecondaryIndexes: global_indexes, LocalSecondaryIndexes: local_indexes]
+    |> Enum.reduce(data, fn
+      {_, []}, data -> data
+      {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
+    end)
+    |> request(:create_table, adapter)
   end
 
   @doc "Describe table"

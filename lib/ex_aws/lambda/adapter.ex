@@ -103,8 +103,8 @@ defmodule ExAws.Lambda.Adapter do
       end
 
       @doc false
-      def delete_event_source_mapping(function_name) do
-        ExAws.Lambda.delete_event_source_mapping(__MODULE__, function_name)
+      def delete_event_source_mapping(source_mapping_uuid) do
+        ExAws.Lambda.delete_event_source_mapping(__MODULE__, source_mapping_uuid)
       end
 
       @doc false
