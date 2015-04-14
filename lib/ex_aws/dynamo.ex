@@ -1,6 +1,7 @@
 defmodule ExAws.Dynamo do
   use ExAws.Dynamo.Adapter
   use ExAws.Actions
+  import ExAws.Dynamo.Request
 
   @namespace "DynamoDB_20120810"
   @actions [
@@ -45,15 +46,12 @@ defmodule ExAws.Dynamo do
         WriteCapacityUnits: write_capacity
       }
     }
-    if length(global_indexes) > 0 do
-      Map.put(data, :GlobalSecondaryIndexes, global_indexes)
-    end
-
-    if length(local_indexes) > 0 do
-      Map.put(data, :LocalSecondaryIndexes, local_indexes)
-    end
-
-    request(data, :create_table, adapter)
+    [GlobalSecondaryIndexes: global_indexes, LocalSecondaryIndexes: local_indexes]
+    |> Enum.reduce(data, fn
+      {_, []}, data -> data
+      {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
+    end)
+    |> request(:create_table, adapter)
   end
 
   @doc "Describe table"
@@ -126,19 +124,11 @@ defmodule ExAws.Dynamo do
     |> request(:delete_item, adapter)
   end
 
-  def request(data, action, adapter) do
-    {operation, http_method} = __MODULE__ |> Actions.get(action)
-    ExAws.Request.request(http_method, data, operation, adapter)
-  end
-
   defp encode_attrs(attrs) do
     attrs |> Enum.map(fn({name, type}) ->
       %{AttributeName: name, AttributeType: type}
     end)
   end
 
-  def config do
-    ExAws.Config.defaults_for_service(:dynamodb)
-    |> Keyword.merge(super)
-  end
+  def config_root, do: Application.get_all_env(:ex_aws)
 end

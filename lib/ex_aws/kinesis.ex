@@ -1,6 +1,7 @@
 defmodule ExAws.Kinesis do
   use ExAws.Kinesis.Adapter
   use ExAws.Actions
+  import ExAws.Kinesis.Request
   require Logger
 
   @namespace "Kinesis_20131202"
@@ -155,13 +156,6 @@ defmodule ExAws.Kinesis do
     |> request(:remove_tags_from_stream, adapter)
   end
 
-  def request(data, action, adapter) do
-    {operation, http_method} = __MODULE__ |> Actions.get(action)
-    ExAws.Request.request(http_method, data, operation, adapter)
-  end
+  def config_root, do: Application.get_all_env(:ex_aws)
 
-  def config do
-    ExAws.Config.defaults_for_service(:kinesis)
-    |> Keyword.merge(super)
-  end
 end

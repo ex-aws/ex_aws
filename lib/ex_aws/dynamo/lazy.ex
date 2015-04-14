@@ -9,13 +9,13 @@ defmodule ExAws.Dynamo.Lazy do
   @doc """
   Returns the normally shaped scan result, except that the Items key is now a stream.
   """
-  def stream_scan(table, opts) do
+  def stream_scan(adapter, table, opts) do
     request_fun = fn
       {:initial, initial} -> initial
-      fun_opts -> ExAws.Dynamo.scan(table, Map.merge(opts, fun_opts))
+      fun_opts -> ExAws.Dynamo.scan(adapter, table, Map.merge(opts, fun_opts))
     end
 
-    ExAws.Dynamo.scan(table, opts)
+    ExAws.Dynamo.scan(adapter, table, opts)
       |> do_scan(request_fun)
   end
 
