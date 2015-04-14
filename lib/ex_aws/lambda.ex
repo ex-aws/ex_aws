@@ -77,8 +77,8 @@ defmodule ExAws.Lambda do
   def invoke(adapter, function_name, payload, client_context, opts) do
     json_codec = adapter.config[:json_codec]
     headers = [
-      {"X-Amz-Invocation-Type", Keyword.get(opts, :InvocationType, "RequestResponse")},
-      {"X-Amz-Log-Type", Keyword.get(opts, :InvocationType, "RequestResponse")},
+      {"X-Amz-Invocation-Type", Map.get(opts, :InvocationType, "RequestResponse")},
+      {"X-Amz-Log-Type", Map.get(opts, :InvocationType, "RequestResponse")},
     ]
     headers = case client_context do
       %{} -> headers
@@ -96,7 +96,7 @@ defmodule ExAws.Lambda do
 
   def list_event_source_mappings(adapter, function_name, event_source_arn, opts) do
     params = opts
-    |> Keyword.merge([FunctionName: function_name, EventSourceArn: event_source_arn])
+    |> Map.merge(%{FunctionName: function_name, EventSourceArn: event_source_arn})
     request(%{}, :list_event_source_mappings, "/2015-03-31/event-source-mappings/", adapter, params)
   end
 

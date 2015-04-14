@@ -6,8 +6,8 @@ defmodule ExAws.Lambda.Adapter do
 
   Action pattern: (lambda:[*]|lambda:[a-zA-Z]+|[*])
   """
-  defcallback add_permission(function_name :: binary, principal :: binary, action :: binary, statement_id :: binary) :: %{}
-  defcallback add_permission(function_name :: binary, principal :: binary, action :: binary, statement_id :: binary, opts :: %{}) :: %{}
+  defcallback add_permission(function_name :: binary, principal :: binary, action :: binary, statement_id :: binary) :: ExAws.Request.response_t
+  defcallback add_permission(function_name :: binary, principal :: binary, action :: binary, statement_id :: binary, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Creates a stream based event source for a function
@@ -15,12 +15,12 @@ defmodule ExAws.Lambda.Adapter do
   defcallback create_event_source_mapping(
     function_name     :: binary,
     event_source_arn  :: binary,
-    starting_position :: binary | :trim_horizon | :latest) :: %{}
+    starting_position :: binary | :trim_horizon | :latest) :: ExAws.Request.response_t
   defcallback create_event_source_mapping(
     function_name     :: binary,
     event_source_arn  :: binary,
     starting_position :: binary | :trim_horizon | :latest,
-    opts              :: %{}) :: %{}
+    opts              :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Create a function.
@@ -30,63 +30,63 @@ defmodule ExAws.Lambda.Adapter do
   defcallback create_function(
     function_name :: binary,
     handler       :: binary,
-    zipfile       :: File.Stat.t) :: %{}
+    zipfile       :: File.Stat.t) :: ExAws.Request.response_t
   defcallback create_function(
     function_name :: binary,
     handler       :: binary,
     zipfile       :: File.Stat.t,
-    opts          :: %{}) :: %{}
+    opts          :: %{}) :: ExAws.Request.response_t
 
   @doc "Delete an event source mapping"
-  defcallback delete_event_source_mapping(source_mapping_uuid :: binary) :: %{}
+  defcallback delete_event_source_mapping(source_mapping_uuid :: binary) :: ExAws.Request.response_t
 
   @doc "Delete a lambda function"
-  defcallback delete_function(function_name :: binary) :: %{}
+  defcallback delete_function(function_name :: binary) :: ExAws.Request.response_t
 
   @doc "Get an event source mapping"
-  defcallback get_event_source_mapping(source_mapping_uuid :: binary) :: %{}
+  defcallback get_event_source_mapping(source_mapping_uuid :: binary) :: ExAws.Request.response_t
 
   @doc "Get a function"
-  defcallback get_function(function_name :: binary) :: %{}
+  defcallback get_function(function_name :: binary) :: ExAws.Request.response_t
 
   @doc "Get a function configuration"
-  defcallback get_function_configuration(function_name :: binary) :: %{}
+  defcallback get_function_configuration(function_name :: binary) :: ExAws.Request.response_t
 
   @doc "Get a function access policy"
-  defcallback get_policy(function_name :: binary) :: %{}
+  defcallback get_policy(function_name :: binary) :: ExAws.Request.response_t
 
   @doc "Invoke a lambda function"
-  defcallback invoke(function_name :: binary, client_context :: %{}) :: %{}
-  defcallback invoke(function_name :: binary, client_context :: %{}, opts :: %{}) :: %{}
+  defcallback invoke(function_name :: binary, payload :: %{}, client_context :: %{}) :: ExAws.Request.response_t
+  defcallback invoke(function_name :: binary, payload :: %{}, client_context :: %{}, opts :: %{}) :: ExAws.Request.response_t
 
   @doc "Invoke a lambda function asynchronously"
-  defcallback invoke_async(function_name :: binary, args :: %{}) :: %{}
+  defcallback invoke_async(function_name :: binary, args :: %{}) :: ExAws.Request.response_t
 
   @doc "List event source mappings"
-  defcallback list_event_source_mappings(function_name :: binary, event_source_arn :: binary) :: %{}
-  defcallback list_event_source_mappings(function_name :: binary, event_source_arn :: binary, opts :: %{}) :: %{}
+  defcallback list_event_source_mappings(function_name :: binary, event_source_arn :: binary) :: ExAws.Request.response_t
+  defcallback list_event_source_mappings(function_name :: binary, event_source_arn :: binary, opts :: %{}) :: ExAws.Request.response_t
 
   @doc "List functions"
-  defcallback list_functions() :: %{}
-  defcallback list_functions(opts :: %{}) :: %{}
+  defcallback list_functions() :: ExAws.Request.response_t
+  defcallback list_functions(opts :: %{}) :: ExAws.Request.response_t
 
   @doc "Remove individual permissions from an function's access policy"
-  defcallback remove_permission(function_name :: binary, statement_id :: binary) :: %{}
+  defcallback remove_permission(function_name :: binary, statement_id :: binary) :: ExAws.Request.response_t
 
   @doc "Update event source mapping"
-  defcallback update_event_source_mapping(function_name :: binary, uuid :: binary, attrs_to_update :: %{}) :: %{}
+  defcallback update_event_source_mapping(uuid :: binary, attrs_to_update :: %{}) :: ExAws.Request.response_t
 
   @doc "Update function code"
-  defcallback update_function_code(function_name :: binary, zipfile :: File.Stat.t) :: %{}
+  defcallback update_function_code(function_name :: binary, zipfile :: File.Stat.t) :: ExAws.Request.response_t
 
   @doc "Update a function configuration"
-  defcallback update_function_configuration(function_name :: binary, configuration :: %{}) :: %{}
+  defcallback update_function_configuration(function_name :: binary, configuration :: %{}) :: ExAws.Request.response_t
 
   @doc "Service"
   defcallback service() :: atom
 
   @doc "Config"
-  defcallback config() :: %{}
+  defcallback config() :: Keyword.t
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
@@ -139,8 +139,8 @@ defmodule ExAws.Lambda.Adapter do
       end
 
       @doc false
-      def invoke(function_name, client_context, opts \\ %{}) do
-        ExAws.Lambda.invoke(__MODULE__, function_name, client_context, opts)
+      def invoke(function_name, payload, client_context, opts \\ %{}) do
+        ExAws.Lambda.invoke(__MODULE__, function_name, payload, client_context, opts)
       end
 
       @doc false
@@ -164,8 +164,8 @@ defmodule ExAws.Lambda.Adapter do
       end
 
       @doc false
-      def update_event_source_mapping(function_name, uuid, attrs_to_update) do
-        ExAws.Lambda.update_event_source_mapping(__MODULE__, function_name, uuid, attrs_to_update)
+      def update_event_source_mapping(uuid, attrs_to_update) do
+        ExAws.Lambda.update_event_source_mapping(__MODULE__, uuid, attrs_to_update)
       end
 
       @doc false

@@ -47,31 +47,31 @@ defmodule ExAws.Kinesis.Adapter do
   ## Streams
 
   @doc "Lists streams"
-  defcallback list_streams()
+  defcallback list_streams() :: ExAws.Request.response_t
 
   @doc "Describe Stream"
-  defcallback describe_stream(stream_name :: iodata)
-  defcallback describe_stream(stream_name :: iodata, opts :: %{})
+  defcallback describe_stream(stream_name :: iodata) :: ExAws.Request.response_t
+  defcallback describe_stream(stream_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Same as describe_stream/1,2 except the shards key is a stream and will automatically handle pagination
   Returns the normally shaped AWS response, except the Shards key is now a stream
   """
-  defcallback stream_shards(stream_name :: iodata)
-  defcallback stream_shards(stream_name :: iodata :: %{})
+  defcallback stream_shards(stream_name :: iodata) :: ExAws.Request.response_t
+  defcallback stream_shards(stream_name :: iodata :: %{}) :: ExAws.Request.response_t
 
   @doc "Creates stream"
-  defcallback create_stream(stream_name :: iodata)
-  defcallback create_stream(stream_name :: iodata, shard_count :: pos_integer)
+  defcallback create_stream(stream_name :: iodata) :: ExAws.Request.response_t
+  defcallback create_stream(stream_name :: iodata, shard_count :: pos_integer) :: ExAws.Request.response_t
 
   @doc "Deletes stream"
-  defcallback delete_stream(stream_name :: iodata)
+  defcallback delete_stream(stream_name :: iodata) :: ExAws.Request.response_t
 
   ## Records
 
   @doc "Get stream records"
-  defcallback get_records(stream_name :: iodata)
-  defcallback get_records(stream_name :: iodata, opts :: %{})
+  defcallback get_records(stream_name :: iodata) :: ExAws.Request.response_t
+  defcallback get_records(stream_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Returns a stream of kinesis records
@@ -89,16 +89,16 @@ defmodule ExAws.Kinesis.Adapter do
   Generally speaking you won't need this, but it can be handy if you're trying to prevent flooding.
   See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
   """
-  defcallback stream_records(stream_name :: iodata)
-  defcallback stream_records(stream_name :: iodata, opts :: %{})
-  defcallback stream_records(stream_name :: iodata, opts :: %{}, iterator_fun :: Fun)
+  defcallback stream_records(stream_name :: iodata)# :: Stream.t
+  defcallback stream_records(stream_name :: iodata, opts :: %{})# :: Stream.t
+  defcallback stream_records(stream_name :: iodata, opts :: %{}, iterator_fun :: Fun)# :: Stream.t
 
   @doc "Puts a record on a stream"
-  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata)
-  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata, opts :: %{})
+  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata) :: ExAws.Request.response_t
+  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc "Put multiple records on a stream"
-  defcallback put_records(stream_name :: iodata, records :: [%{}])
+  defcallback put_records(stream_name :: iodata, records :: [%{}]) :: ExAws.Request.response_t
 
   ## Shards
 
@@ -109,26 +109,26 @@ defmodule ExAws.Kinesis.Adapter do
     | "TRIM_HORIZON"
     | "LATEST"
   """
-  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata)
-  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata, opts :: %{})
+  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata) :: ExAws.Request.response_t
+  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc "Merge adjacent shards"
-  defcallback merge_shards(stream_name :: iodata, adjacent_shard_id :: iodata, shard_id :: iodata)
+  defcallback merge_shards(stream_name :: iodata, adjacent_shard_id :: iodata, shard_id :: iodata) :: ExAws.Request.response_t
 
   @doc "Split a shard"
-  defcallback split_shard(name :: iodata, shard :: iodata, new_starting_hash_key :: iodata)
+  defcallback split_shard(name :: iodata, shard :: iodata, new_starting_hash_key :: iodata) :: ExAws.Request.response_t
 
   ## Tags
 
   @doc "Add tags to stream"
-  defcallback add_tags_to_stream(name :: iodata, tags :: %{})
+  defcallback add_tags_to_stream(name :: iodata, tags :: %{}) :: ExAws.Request.response_t
 
   @doc "Add tags to stream"
   defcallback list_tags_for_stream(name :: iodata)
-  defcallback list_tags_for_stream(name :: iodata, opts :: %{})
+  defcallback list_tags_for_stream(name :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc "Remove tags from stream"
-  defcallback remove_tags_from_stream(name :: iodata , tag_keys :: [binary])
+  defcallback remove_tags_from_stream(name :: iodata , tag_keys :: [binary]) :: ExAws.Request.response_t
 
   @doc """
   By default the config is obtained by

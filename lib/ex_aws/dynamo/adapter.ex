@@ -48,7 +48,7 @@ defmodule ExAws.Dynamo.Adapter do
   ######################
 
   @doc "List tables"
-  defcallback list_tables()
+  defcallback list_tables() :: ExAws.Request.response_t
 
   @doc "Create table"
   defcallback create_table(
@@ -56,7 +56,7 @@ defmodule ExAws.Dynamo.Adapter do
     primary_key     :: iodata,
     key_definitions :: Keyword.t,
     read_capacity   :: pos_integer,
-    write_capacity  :: pos_integer)
+    write_capacity  :: pos_integer) :: ExAws.Request.response_t
 
   @doc "Create table with indices"
   defcallback create_table(
@@ -66,35 +66,35 @@ defmodule ExAws.Dynamo.Adapter do
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
     global_indexes  :: %{},
-    local_indexes   :: %{})
+    local_indexes   :: %{}) :: ExAws.Request.response_t
 
   @doc "Describe table"
-  defcallback describe_table(name :: iodata)
+  defcallback describe_table(name :: iodata) :: ExAws.Request.response_t
 
   @doc "Update Table"
-  defcallback update_table(name :: iodata, attributes :: %{})
+  defcallback update_table(name :: iodata, attributes :: %{}) :: ExAws.Request.response_t
 
   @doc "Delete Table"
-  defcallback delete_table(table :: iodata)
+  defcallback delete_table(table :: iodata) :: ExAws.Request.response_t
 
   ## Records
   ######################
 
   @doc "Scan table"
-  defcallback scan(table_name :: iodata)
-  defcallback scan(table_name :: iodata, opts :: %{})
+  defcallback scan(table_name :: iodata) :: ExAws.Request.response_t
+  defcallback scan(table_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Stream records from table
 
   Same as scan/1,2 but the records are a stream which will automatically handle pagination
   """
-  defcallback stream_scan(table_name :: iodata)
-  defcallback stream_scan(table_name :: iodata, opts :: %{})
+  defcallback stream_scan(table_name :: iodata) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc "Query Table"
-  defcallback query(table_name :: iodata, key_conditions :: %{})
-  defcallback query(table_name :: iodata, key_conditions :: %{}, opts :: %{})
+  defcallback query(table_name :: iodata, key_conditions :: %{}) :: ExAws.Request.response_t
+  defcallback query(table_name :: iodata, key_conditions :: %{}, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Get up to 100 items (16mb)
@@ -102,7 +102,7 @@ defmodule ExAws.Dynamo.Adapter do
   Map of table names to request parameter maps.
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html
   """
-  defcallback batch_get_item(%{String.t => %{}})
+  defcallback batch_get_item(%{String.t => %{}}) :: ExAws.Request.response_t
 
   @doc """
   Put or delete up to 25 items (16mb)
@@ -110,13 +110,13 @@ defmodule ExAws.Dynamo.Adapter do
   Map of table names to request parameter maps.
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html
   """
-  defcallback batch_write_item(%{String.t => %{}})
+  defcallback batch_write_item(%{String.t => %{}}) :: ExAws.Request.response_t
 
   @doc "Put item in table"
-  defcallback put_item(table_name :: iodata, record :: %{})
+  defcallback put_item(table_name :: iodata, record :: %{}) :: ExAws.Request.response_t
 
   @doc "Get item from table"
-  defcallback get_item(table_name :: iodata, primary_key_value :: iodata)
+  defcallback get_item(table_name :: iodata, primary_key_value :: iodata) :: ExAws.Request.response_t
 
   @doc """
   Update item in table
@@ -124,10 +124,10 @@ defmodule ExAws.Dynamo.Adapter do
   For update_args format see
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html
   """
-  defcallback update_item(table_name :: iodata, primary_key_value :: iodata, update_args :: %{})
+  defcallback update_item(table_name :: iodata, primary_key_value :: iodata, update_args :: %{}) :: ExAws.Request.response_t
 
   @doc "Delete item in table"
-  defcallback delete_item(table_name :: iodata, primary_key_value :: iodata)
+  defcallback delete_item(table_name :: iodata, primary_key_value :: iodata) :: ExAws.Request.response_t
 
   defcallback config() :: Keyword.t
 

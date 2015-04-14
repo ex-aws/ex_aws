@@ -58,9 +58,7 @@ end
 
 defimpl ExAws.Dynamo.Encodable, for: List do
   alias ExAws.Dynamo.Encodable
-  def encode([]) do
-    raise Encodable.TypeError, "cannot have an empty set"
-  end
+  def encode([]), do: []
 
   @doc """
     Dynamodb offers typed sets and L, a generic list of typed attributes.
