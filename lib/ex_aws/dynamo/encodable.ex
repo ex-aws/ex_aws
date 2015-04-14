@@ -61,14 +61,14 @@ defimpl ExAws.Dynamo.Encodable, for: List do
   def encode([]), do: []
 
   @doc """
-    Dynamodb offers typed sets and L, a generic list of typed attributes.
+  Dynamodb offers typed sets and L, a generic list of typed attributes.
 
-    If all items in the list have the same dynamo type, This will return the
-    corrosponding Dynamo type set ie
-    [%{"N" => 1},%{"N" => 2}] #=> %{"NS" => [1,2]}
+  If all items in the list have the same dynamo type, This will return the
+  corrosponding Dynamo type set ie
+  [%{"N" => 1},%{"N" => 2}] #=> %{"NS" => [1,2]}
 
-    Otherwise, it will use the generic list type ie
-    [%{"N" => 1},%{"S" => "Foo"}] #=> %{"L" => [%{"N" => 1},%{"S" => "Foo"}]}
+  Otherwise, it will use the generic list type ie
+  [%{"N" => 1},%{"S" => "Foo"}] #=> %{"L" => [%{"N" => 1},%{"S" => "Foo"}]}
   """
   def encode(list) do
     typed_values = list
