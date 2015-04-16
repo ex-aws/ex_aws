@@ -1,7 +1,9 @@
 ExAws
 =====
 
+As a heads up, this library is currently undergoing a massive re-write. I'd recommend against production use at this time, as the API tends to change.
 
+I expect I will be done soon however!
 
 ## License
 
