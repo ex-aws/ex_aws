@@ -20,8 +20,9 @@ defmodule ExAws.S3.Adapter do
 
   # Get
   defcallback list_buckets() :: ExAws.Request.response_t
+  defcallback list_buckets(opts :: %{}) :: ExAws.Request.response_t
 
-  defcallback get_bucket_objects(bucket :: binary) :: ExAws.Request.response_t
+  defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
 
   defcallback get_bucket_acl(bucket :: binary) :: ExAws.Request.response_t
 
@@ -124,8 +125,8 @@ defmodule ExAws.S3.Adapter do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
-  defcallback put_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback put_object(bucket :: binary, object :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
+  defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: %{}) :: ExAws.Request.response_t
 
   defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
 
@@ -206,12 +207,12 @@ defmodule ExAws.S3.Adapter do
         ExAws.S3.Impl.delete_bucket_website(__MODULE__, bucket)
       end
 
-      def list_buckets() do
-        ExAws.S3.Impl.list_buckets(__MODULE__)
+      def list_buckets(opts \\ %{}) do
+        ExAws.S3.Impl.list_buckets(__MODULE__, opts)
       end
 
-      def get_bucket_objects(bucket) do
-        ExAws.S3.Impl.get_bucket_objects(__MODULE__, bucket)
+      def list_objects(bucket) do
+        ExAws.S3.Impl.list_objects(__MODULE__, bucket)
       end
 
       def get_bucket_acl(bucket) do
@@ -360,8 +361,8 @@ defmodule ExAws.S3.Adapter do
         ExAws.S3.Impl.post_object_restore(__MODULE__, bucket, object, version_id, number_of_days)
       end
 
-      def put_object(bucket, object, opts \\ %{}) do
-        ExAws.S3.Impl.put_object(__MODULE__, bucket, object, opts)
+      def put_object(bucket, object, body, opts \\ %{}) do
+        ExAws.S3.Impl.put_object(__MODULE__, bucket, object, body, opts)
       end
 
       def put_object_acl(bucket, object, acl) do
