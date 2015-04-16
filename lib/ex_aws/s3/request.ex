@@ -1,7 +1,11 @@
 defmodule ExAws.S3.Request do
-  def request(adapter, http_method, bucket, path, params \\ [], headers \\ []) do
-    body = ""
+  def request(adapter, http_method, bucket, path, body \\ "", params \\ [], headers \\ []) do
     url = url(adapter.config, bucket, path)
+    hashed_payload = AWSAuth.Utils.hash_sha256(body)
+    headers = [
+      {"x-amz-content-sha256", hashed_payload} |
+      headers
+    ]
     ExAws.Request.request(http_method, url, body, headers, adapter)
   end
 

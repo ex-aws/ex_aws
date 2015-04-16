@@ -17,6 +17,7 @@ defmodule ExAws.Mixfile do
   defp deps do
     [
       {:aws_auth, github: "benwilson512/aws_auth"},
+      {:sweet_xml, "~> 0.2.1"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.7", only: :dev} |
       deps(:test)

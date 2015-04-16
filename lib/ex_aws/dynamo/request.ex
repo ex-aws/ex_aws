@@ -3,13 +3,22 @@ defmodule ExAws.Dynamo.Request do
     {operation, http_method} = ExAws.Dynamo.Impl |> ExAws.Actions.get(action)
     headers = [
       {"x-amz-target", operation},
-      {"content-type", "application/x-amz-json-1.0"}
+      {"content-type", "application/x-amz-json-1.0"},
+      {"x-amz-content-sha256", ""}
     ]
-    ExAws.Request.request(http_method, adapter |> url, data, headers, adapter)
+    ExAws.Request.request(http_method, adapter.config |> url, data, headers, adapter)
+    |> parse(adapter.config)
   end
 
-  defp url(adapter) do
-    config = adapter.config
+  def parse({:error, result}, _), do: {:error, result}
+  def parse({:ok, body}, config) do
+    case config[:json_codec].decode(body) do
+      {:ok, result} -> {:ok, result}
+      {:error, _}   -> {:error, body}
+    end
+  end
+
+  defp url(config) do
     [
       Keyword.get(config, :scheme),
       Keyword.get(config, :host),

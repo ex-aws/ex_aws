@@ -2,7 +2,7 @@ defmodule ExAws.Request do
   require Logger
   @max_attempts 10
 
-  @type response_t :: {:ok, %{}} | {:error, {:http_error, pos_integer, binary}}
+  @type response_t :: {:ok, any} | {:error, {:http_error, pos_integer, binary}}
 
   def request(http_method, url, data, headers, adapter) do
     config = adapter.config
@@ -26,7 +26,6 @@ defmodule ExAws.Request do
 
     headers = [
       {"host", config[:host]},
-      {"x-amz-content-sha256", ""},
       {"x-amz-date", amz_date} |
       headers
     ]
@@ -55,8 +54,6 @@ defmodule ExAws.Request do
   def request_and_retry(_, _, _, _, _, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
-    json_codec = config[:json_codec]
-
     if config[:debug_requests] do
       Logger.debug("Request URL: #{inspect url}")
       Logger.debug("Request HEADERS: #{inspect headers}")
@@ -64,15 +61,10 @@ defmodule ExAws.Request do
     end
 
     case config[:http_client].request(method, url, req_body, headers) do
-      {:ok, %{status_code: status, body: ""}} when status in 200..299 ->
-        {:ok, ""}
       {:ok, %{status_code: status, body: body}} when status in 200..299 ->
-        case json_codec.decode(body) do
-          {:ok, result} -> {:ok, result}
-          {:error, _}   -> {:error, body}
-        end
+        {:ok, body}
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
-        case client_error(resp, json_codec) do
+        case client_error(resp, config[:json_codec]) do
           {:retry, reason} ->
             request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
