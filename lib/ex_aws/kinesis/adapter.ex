@@ -223,17 +223,13 @@ defmodule ExAws.Kinesis.Adapter do
       end
 
       @doc false
-      def service do
-        :kinesis
-      end
+      def service, do: :kinesis
 
       @doc false
       def config_root, do: Application.get_env(@otp_app, :ex_aws)
 
       @doc false
-      def config do
-        __MODULE__ |> ExAws.Config.get
-      end
+      def config, do: __MODULE__ |> ExAws.Config.get
 
       defoverridable config: 0, config_root: 0
     end
