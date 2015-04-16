@@ -51,6 +51,11 @@ defmodule ExAws.Config do
         host: "localhost",
         port: 8000,
         region: "us-east-1"
+      ],
+      s3: [
+        scheme: "https://",
+        host: "s3.amazonaws.com",
+        region: "us-east-1"
       ]
     ]
   end

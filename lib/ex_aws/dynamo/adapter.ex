@@ -135,41 +135,40 @@ defmodule ExAws.Dynamo.Adapter do
     quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
       @otp_app Keyword.get(opts, :otp_app)
       @behaviour behavior_module
-      alias ExAws.Dynamo
 
       @doc false
       def list_tables do
-        Dynamo.list_tables(__MODULE__)
+        ExAws.Dynamo.Impl.list_tables(__MODULE__)
       end
 
       @doc false
       def create_table(name, primary_key, key_definitions, read_capacity, write_capacity) do
-        Dynamo.create_table(__MODULE__, name, primary_key, key_definitions, read_capacity, write_capacity)
+        ExAws.Dynamo.Impl.create_table(__MODULE__, name, primary_key, key_definitions, read_capacity, write_capacity)
       end
 
       @doc false
       def create_table(name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
-        Dynamo.create_table(__MODULE__, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes)
+        ExAws.Dynamo.Impl.create_table(__MODULE__, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes)
       end
 
       @doc false
       def describe_table(name) do
-        Dynamo.describe_table(__MODULE__, name)
+        ExAws.Dynamo.Impl.describe_table(__MODULE__, name)
       end
 
       @doc false
       def update_table(name, attributes) do
-        Dynamo.update_table(__MODULE__, name, attributes)
+        ExAws.Dynamo.Impl.update_table(__MODULE__, name, attributes)
       end
 
       @doc false
       def delete_table(table) do
-        Dynamo.delete_table(__MODULE__, table)
+        ExAws.Dynamo.Impl.delete_table(__MODULE__, table)
       end
 
       @doc false
       def scan(name, opts \\ %{}) do
-        Dynamo.scan(__MODULE__, name, opts)
+        ExAws.Dynamo.Impl.scan(__MODULE__, name, opts)
       end
 
       @doc false
@@ -179,37 +178,37 @@ defmodule ExAws.Dynamo.Adapter do
 
       @doc false
       def query(name, key_conditions, opts \\ %{}) do
-        Dynamo.query(__MODULE__, name, key_conditions, opts)
+        ExAws.Dynamo.Impl.query(__MODULE__, name, key_conditions, opts)
       end
 
       @doc false
       def batch_get_item(data) do
-        Dynamo.batch_get_item(__MODULE__, data)
+        ExAws.Dynamo.Impl.batch_get_item(__MODULE__, data)
       end
 
       @doc false
       def put_item(name, record) do
-        Dynamo.put_item(__MODULE__, name, record)
+        ExAws.Dynamo.Impl.put_item(__MODULE__, name, record)
       end
 
       @doc false
       def batch_write_item(data) do
-        Dynamo.batch_write_item(__MODULE__, data)
+        ExAws.Dynamo.Impl.batch_write_item(__MODULE__, data)
       end
 
       @doc false
       def get_item(name, primary_key) do
-        Dynamo.get_item(__MODULE__, name, primary_key)
+        ExAws.Dynamo.Impl.get_item(__MODULE__, name, primary_key)
       end
 
       @doc false
       def update_item(table_name, primary_key, update_args) do
-        Dynamo.update_item(__MODULE__, table_name, primary_key, update_args)
+        ExAws.Dynamo.Impl.update_item(__MODULE__, table_name, primary_key, update_args)
       end
 
       @doc false
       def delete_item(name, primary_key) do
-        Dynamo.delete_item(__MODULE__, name, primary_key)
+        ExAws.Dynamo.Impl.delete_item(__MODULE__, name, primary_key)
       end
 
       @doc false

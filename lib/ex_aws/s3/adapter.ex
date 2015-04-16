@@ -377,6 +377,21 @@ defmodule ExAws.S3.Adapter do
         ExAws.S3.Impl.list_parts(__MODULE__, bucket)
       end
 
+      @doc false
+      def service do
+        :s3
+      end
+
+      @doc false
+      def config_root, do: Application.get_env(@otp_app, :ex_aws)
+
+      @doc false
+      def config do
+        __MODULE__ |> ExAws.Config.get
+      end
+
+      defoverridable config: 0, config_root: 0
+
     end
   end
 

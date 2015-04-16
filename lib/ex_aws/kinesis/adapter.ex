@@ -146,16 +146,15 @@ defmodule ExAws.Kinesis.Adapter do
     quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
       @otp_app Keyword.get(opts, :otp_app)
       @behaviour behavior_module
-      alias ExAws.Kinesis
 
       @doc false
       def list_streams do
-        Kinesis.list_streams(__MODULE__)
+        ExAws.Kinesis.Impl.list_streams(__MODULE__)
       end
 
       @doc false
       def describe_stream(name, opts \\ %{}) do
-        Kinesis.describe_stream(__MODULE__, name, opts)
+        ExAws.Kinesis.Impl.describe_stream(__MODULE__, name, opts)
       end
 
       @doc false
@@ -165,17 +164,17 @@ defmodule ExAws.Kinesis.Adapter do
 
       @doc false
       def create_stream(name, shard_count \\ 1) do
-        Kinesis.create_stream(__MODULE__, name, shard_count)
+        ExAws.Kinesis.Impl.create_stream(__MODULE__, name, shard_count)
       end
 
       @doc false
       def delete_stream(name) do
-        Kinesis.delete_stream(__MODULE__, name)
+        ExAws.Kinesis.Impl.delete_stream(__MODULE__, name)
       end
 
       @doc false
       def get_records(shard_iterator, opts \\ %{}) do
-        Kinesis.get_records(__MODULE__, shard_iterator, opts)
+        ExAws.Kinesis.Impl.get_records(__MODULE__, shard_iterator, opts)
       end
 
       @doc false
@@ -185,42 +184,42 @@ defmodule ExAws.Kinesis.Adapter do
 
       @doc false
       def put_record(stream_name, partition_key, blob, opts \\ %{}) do
-        Kinesis.put_record(__MODULE__, stream_name, partition_key, blob, opts)
+        ExAws.Kinesis.Impl.put_record(__MODULE__, stream_name, partition_key, blob, opts)
       end
 
       @doc false
       def put_records(stream_name, records) do
-        Kinesis.put_record(__MODULE__, stream_name, records)
+        ExAws.Kinesis.Impl.put_record(__MODULE__, stream_name, records)
       end
 
       @doc false
       def get_shard_iterator(name, shard_id, shard_iterator_type, opts \\ %{}) do
-        Kinesis.get_shard_iterator(__MODULE__, name, shard_id, shard_iterator_type, opts)
+        ExAws.Kinesis.Impl.get_shard_iterator(__MODULE__, name, shard_id, shard_iterator_type, opts)
       end
 
       @doc false
       def merge_shards(name, adjacent_shard, shard) do
-        Kinesis.merge_shards(__MODULE__, name, adjacent_shard, shard)
+        ExAws.Kinesis.Impl.merge_shards(__MODULE__, name, adjacent_shard, shard)
       end
 
       @doc false
       def split_shard(name, shard, new_starting_hash_key) do
-        Kinesis.split_shard(__MODULE__, name, shard, new_starting_hash_key)
+        ExAws.Kinesis.Impl.split_shard(__MODULE__, name, shard, new_starting_hash_key)
       end
 
       @doc false
       def add_tags_to_stream(name, tags) do
-        Kinesis.add_tags_to_stream(__MODULE__, name, tags)
+        ExAws.Kinesis.Impl.add_tags_to_stream(__MODULE__, name, tags)
       end
 
       @doc false
       def list_tags_for_stream(name, opts \\ %{}) do
-        Kinesis.list_tags_for_stream(__MODULE__, name, opts)
+        ExAws.Kinesis.Impl.list_tags_for_stream(__MODULE__, name, opts)
       end
 
       @doc false
       def remove_tags_from_stream(name, tag_keys) when is_list(tag_keys) do
-        Kinesis.remove_tags_from_stream(__MODULE__, name, tag_keys)
+        ExAws.Kinesis.Impl.remove_tags_from_stream(__MODULE__, name, tag_keys)
       end
 
       @doc false
