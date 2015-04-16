@@ -185,22 +185,16 @@ defmodule ExAws.S3.Impl do
     request(adapter, :put, bucket, "/")
   end
 
-  def delete_object(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, "/")
+  ## Objects
+  ###########
+
+  def delete_object(adapter, bucket, object) do
+    request(adapter, :delete, bucket, object)
   end
 
   def delete_multiple_objects(adapter, bucket, _objects) do
     raise "not yet implimented"
     request(adapter, :post, bucket, "/")
-  end
-
-  ## Objects
-  ###########
-
-  def delete_object(adapter, bucket, object) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, object)
   end
 
   def get_object(adapter, bucket, object, _opts) do
@@ -238,9 +232,12 @@ defmodule ExAws.S3.Impl do
     request(adapter, :get, bucket, object)
   end
 
-  def put_object(adapter, bucket, object, _opts) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, object)
+  def put_object(adapter, bucket, object, body, opts) do
+    headers = [
+      {"Content-Type", "binary/octet-stream"} |
+      opts |> Map.to_list
+    ]
+    request(adapter, :get, bucket, object, body, [], headers)
   end
 
   def put_object_acl(adapter, bucket, object, _acl) do

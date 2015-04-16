@@ -11,6 +11,14 @@ defmodule ExAws.Mixfile do
   end
 
   def application do
+    Mix.env |> application
+  end
+
+  def application(:dev) do
+    [applications: [:logger, :httpoison]]
+  end
+
+  def application(_) do
     [applications: [:logger]]
   end
 
@@ -20,14 +28,14 @@ defmodule ExAws.Mixfile do
       {:sweet_xml, "~> 0.2.1"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.7", only: :dev} |
-      deps(:test)
+      deps(:test_dev)
     ]
   end
 
-  defp deps(:test) do
+  defp deps(:test_dev) do
     [
-      {:httpoison, "~> 0.6.0", only: :test},
-      {:poison, "~> 1.2.0", only: :test},
+      {:httpoison, "~> 0.6.0", only: [:test, :dev]},
+      {:poison, "~> 1.2.0", only: [:test, :dev]},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1", only: :test},
       {:httpotion, "~> 2.0.0", only: :test},
       {:jsx, "~> 2.5.2", only: :test}

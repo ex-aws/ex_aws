@@ -325,7 +325,7 @@ defmodule ExAws.S3.Adapter do
       end
 
       def delete_object(bucket, object) do
-        ExAws.S3.Impl.delete_object(__MODULE__, bucket)
+        ExAws.S3.Impl.delete_object(__MODULE__, bucket, object)
       end
 
       def delete_multiple_objects(bucket, objects) do

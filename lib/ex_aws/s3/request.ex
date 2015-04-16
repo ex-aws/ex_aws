@@ -12,9 +12,15 @@ defmodule ExAws.S3.Request do
   def url(config, bucket, path) do
     [
       config |> Keyword.get(:scheme),
-      bucket,
+      bucket |> bucket?,
       config |> Keyword.get(:host),
-      path
+      path   |> ensure_slash
     ] |> IO.iodata_to_binary
   end
+
+  defp ensure_slash("/" <> _ = path), do: path
+  defp ensure_slash(path), do:  "/" <> path
+
+  defp bucket?(""), do: ""
+  defp bucket?(bucket), do: bucket <> "."
 end

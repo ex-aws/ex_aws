@@ -39,6 +39,11 @@ defmodule ExAws.Config do
         scheme: "https://",
         region: "us-east-1",
         port: 80
+      ],
+      s3: [
+        scheme: "https://",
+        host: "s3.amazonaws.com",
+        region: "us-east-1"
       ]
     ]
   end
@@ -80,6 +85,11 @@ defmodule ExAws.Config do
         scheme: "https://",
         region: "us-east-1",
         port: 80
+      ],
+      s3: [
+        scheme: "https://",
+        host: "s3.amazonaws.com",
+        region: "us-east-1"
       ]
     ]
   end

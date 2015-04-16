@@ -25,7 +25,7 @@ defmodule ExAws.Request do
     |> String.replace(":", "")
 
     headers = [
-      {"host", config[:host]},
+      {"host", URI.parse(url).host},
       {"x-amz-date", amz_date} |
       headers
     ]
