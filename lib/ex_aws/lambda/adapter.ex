@@ -95,87 +95,87 @@ defmodule ExAws.Lambda.Adapter do
 
       @doc false
       def add_permission(function_name, principal, action, statement_id, opts \\ %{}) do
-        ExAws.Lambda.add_permission(__MODULE__, function_name, principal, action, statement_id , opts)
+        ExAws.Lambda.Impl.add_permission(__MODULE__, function_name, principal, action, statement_id , opts)
       end
 
       @doc false
       def create_event_source_mapping(function_name, event_source_arn, starting_position, opts \\ %{}) do
-        ExAws.Lambda.create_event_source_mapping(__MODULE__, function_name, event_source_arn, starting_position, opts)
+        ExAws.Lambda.Impl.create_event_source_mapping(__MODULE__, function_name, event_source_arn, starting_position, opts)
       end
 
       @doc false
       def create_function(function_name, handler, zipfile, opts \\ %{}) do
-        ExAws.Lambda.create_function(__MODULE__, function_name, handler, zipfile, opts)
+        ExAws.Lambda.Impl.create_function(__MODULE__, function_name, handler, zipfile, opts)
       end
 
       @doc false
       def delete_event_source_mapping(source_mapping_uuid) do
-        ExAws.Lambda.delete_event_source_mapping(__MODULE__, source_mapping_uuid)
+        ExAws.Lambda.Impl.delete_event_source_mapping(__MODULE__, source_mapping_uuid)
       end
 
       @doc false
       def delete_function(function_name) do
-        ExAws.Lambda.delete_function(__MODULE__, function_name)
+        ExAws.Lambda.Impl.delete_function(__MODULE__, function_name)
       end
 
       @doc false
       def get_event_source_mapping(source_mapping_uuid) do
-        ExAws.Lambda.get_event_source_mapping(__MODULE__, source_mapping_uuid)
+        ExAws.Lambda.Impl.get_event_source_mapping(__MODULE__, source_mapping_uuid)
       end
 
       @doc false
       def get_function(function_name) do
-        ExAws.Lambda.get_function(__MODULE__, function_name)
+        ExAws.Lambda.Impl.get_function(__MODULE__, function_name)
       end
 
       @doc false
       def get_function_configuration(function_name) do
-        ExAws.Lambda.get_function_configuration(__MODULE__, function_name)
+        ExAws.Lambda.Impl.get_function_configuration(__MODULE__, function_name)
       end
 
       @doc false
       def get_policy(function_name) do
-        ExAws.Lambda.get_policy(__MODULE__, function_name)
+        ExAws.Lambda.Impl.get_policy(__MODULE__, function_name)
       end
 
       @doc false
       def invoke(function_name, payload, client_context, opts \\ %{}) do
-        ExAws.Lambda.invoke(__MODULE__, function_name, payload, client_context, opts)
+        ExAws.Lambda.Impl.invoke(__MODULE__, function_name, payload, client_context, opts)
       end
 
       @doc false
       def invoke_async(function_name, args) do
-        ExAws.Lambda.invoke_async(__MODULE__, function_name, args)
+        ExAws.Lambda.Impl.invoke_async(__MODULE__, function_name, args)
       end
 
       @doc false
       def list_event_source_mappings(function_name, event_source_arn, opts \\ %{}) do
-        ExAws.Lambda.list_event_source_mappings(__MODULE__, function_name, event_source_arn, opts)
+        ExAws.Lambda.Impl.list_event_source_mappings(__MODULE__, function_name, event_source_arn, opts)
       end
 
       @doc false
       def list_functions(opts \\ %{}) do
-        ExAws.Lambda.list_functions(__MODULE__, opts)
+        ExAws.Lambda.Impl.list_functions(__MODULE__, opts)
       end
 
       @doc false
       def remove_permission(function_name, statement_id) do
-        ExAws.Lambda.remove_permission(__MODULE__, function_name, statement_id)
+        ExAws.Lambda.Impl.remove_permission(__MODULE__, function_name, statement_id)
       end
 
       @doc false
       def update_event_source_mapping(uuid, attrs_to_update) do
-        ExAws.Lambda.update_event_source_mapping(__MODULE__, uuid, attrs_to_update)
+        ExAws.Lambda.Impl.update_event_source_mapping(__MODULE__, uuid, attrs_to_update)
       end
 
       @doc false
       def update_function_code(function_name, zipfile) do
-        ExAws.Lambda.update_function_code(__MODULE__, function_name, zipfile)
+        ExAws.Lambda.Impl.update_function_code(__MODULE__, function_name, zipfile)
       end
 
       @doc false
       def update_function_configuration(function_name, configuration) do
-        ExAws.Lambda.update_function_configuration(__MODULE__, function_name, configuration)
+        ExAws.Lambda.Impl.update_function_configuration(__MODULE__, function_name, configuration)
       end
 
       @doc false
