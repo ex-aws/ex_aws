@@ -169,8 +169,8 @@ defmodule ExAws.S3.Impl do
   ## Objects
   ###########
 
-  def delete_object(adapter, bucket, object) do
-    request(adapter, :delete, bucket, object)
+  def delete_object(adapter, bucket, object, opts) do
+    request(adapter, :delete, bucket, object, headers: opts)
   end
 
   def delete_multiple_objects(adapter, bucket, objects) do
@@ -178,29 +178,31 @@ defmodule ExAws.S3.Impl do
     request(adapter, :post, bucket, "/?delete")
   end
 
-  def get_object(adapter, bucket, object, _opts) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, object)
+  def get_object(adapter, bucket, object, opts) do
+    response_opts = opts
+    |> Map.take(["response-content-type", "response-content-language", "response-expires", "response-cache-control", "response-content-disposition", "response-content-encoding"])
+    request(adapter, :get, bucket, object, headers: headers, params: response_opts)
   end
 
-  def get_object_acl(adapter, bucket, object, _opts) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, object)
+  def get_object_acl(adapter, bucket, object, opts) do
+    request(adapter, :get, bucket, object, resource: "acl", headers: opts)
   end
 
   def get_object_torrent(adapter, bucket, object) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, object)
+    request(adapter, :get, bucket, object, resource: "torrent")
   end
 
-  def head_object(adapter, bucket, object, _opts) do
-    raise "not yet implimented"
-    request(adapter, :head, bucket, object)
+  def head_object(adapter, bucket, object, _pts) do
+    request(adapter, :head, bucket, object, headers: opts)
   end
 
-  def options_object(adapter, bucket, object, _origin, _request_method, _request_headers) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, object)
+  def options_object(adapter, bucket, object, origin, request_method, request_headers) do
+    headers = [
+      {"Origin", origin},
+      {"Access-Control-Request-Method", request_method},
+      {"Access-Control-Request-Headers", request_headers |> Enum.join(",")},
+    ]
+    request(adapter, :options, bucket, object, headers: headers)
   end
 
   def post_object(adapter, bucket, object) do
@@ -256,9 +258,10 @@ defmodule ExAws.S3.Impl do
     request(adapter, :get, bucket, object)
   end
 
-  def list_parts(adapter, bucket, object) do
-    raise "not yet implimented"
-    request(adapter, :ge, bucket, object)
+  def list_parts(adapter, bucket, object, upload_id, opts) do
+    params = %{"uploadId" => upload_id}
+    |> Map.merge(opts)
+    request(adapter, :get, bucket, object, params: params)
   end
 
 end

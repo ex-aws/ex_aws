@@ -326,8 +326,8 @@ defmodule ExAws.S3.Adapter do
         ExAws.S3.Impl.put_bucket_website(__MODULE__, bucket, website_config)
       end
 
-      def delete_object(bucket, object) do
-        ExAws.S3.Impl.delete_object(__MODULE__, bucket, object)
+      def delete_object(bucket, object, opts \\ %{}) do
+        ExAws.S3.Impl.delete_object(__MODULE__, bucket, object, opts)
       end
 
       def delete_multiple_objects(bucket, objects) do

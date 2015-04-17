@@ -30,6 +30,7 @@ defmodule ExAws.S3.Request do
   end
 
   def add_query(url, "", ""),          do: url
+  def add_query(url, "", query),       do: url <> "?" <> query
   def add_query(url, resource, ""),    do: url <> "?" <> resource
   def add_query(url, resource, query), do: url <> "?" <> resource <> "&" <> query
 
