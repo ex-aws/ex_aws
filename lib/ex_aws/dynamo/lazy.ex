@@ -12,10 +12,10 @@ defmodule ExAws.Dynamo.Lazy do
   def stream_scan(client, table, opts) do
     request_fun = fn
       {:initial, initial} -> initial
-      fun_opts -> ExAws.Dynamo.scan(client, table, Map.merge(opts, fun_opts))
+      fun_opts -> ExAws.Dynamo.Impl.scan(client, table, Map.merge(opts, fun_opts))
     end
 
-    ExAws.Dynamo.scan(client, table, opts)
+    ExAws.Dynamo.Impl.scan(client, table, opts)
       |> do_scan(request_fun)
   end
 
