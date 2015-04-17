@@ -159,7 +159,7 @@ defmodule ExAws.Kinesis.Client do
 
       @doc false
       def stream_shards(name, opts \\ %{}) do
-        Kinesis.Lazy.stream_shards(__MODULE__, name, opts)
+        ExAws.Kinesis.Lazy.stream_shards(__MODULE__, name, opts)
       end
 
       @doc false
@@ -178,8 +178,8 @@ defmodule ExAws.Kinesis.Client do
       end
 
       @doc false
-      def stream_records(shard_iterator, opts \\ %{}, iterator_fun \\ &Kinesis.Lazy.pass/1) do
-        Kinesis.Lazy.stream_records(__MODULE__, shard_iterator, opts, iterator_fun)
+      def stream_records(shard_iterator, opts \\ %{}, iterator_fun \\ &ExAws.Kinesis.Lazy.pass/1) do
+        ExAws.Kinesis.Lazy.stream_records(__MODULE__, shard_iterator, opts, iterator_fun)
       end
 
       @doc false
