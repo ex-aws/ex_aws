@@ -6,127 +6,109 @@ defmodule ExAws.S3.Impl do
   ## Buckets
   #############
 
-  def list_buckets(adapter) do
-    request(adapter, :get, "", "/")
+  def list_buckets(adapter, opts) do
+    request(adapter, :get, "", "/", params: opts)
   end
 
   def delete_bucket(adapter, bucket) do
-    raise "not yet implimented"
     request(adapter, :delete, bucket, "/")
   end
 
   def delete_bucket_cors(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, "/")
+    request(adapter, :delete, bucket, "/", resource: "cors")
   end
 
   def delete_bucket_lifecycle(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, "/")
+    request(adapter, :delete, bucket, "/", resource: "lifecycle")
   end
 
   def delete_bucket_policy(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, "/")
+    request(adapter, :delete, bucket, "/", resource: "policy")
   end
 
   def delete_bucket_replication(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, "/")
+    request(adapter, :delete, bucket, "/", resource: "replication")
   end
 
   def delete_bucket_tagging(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, "/")
+    request(adapter, :delete, bucket, "/", resource: "tagging")
   end
 
   def delete_bucket_website(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :delete, bucket, "/")
+    request(adapter, :delete, bucket, "/", resource: "website")
   end
 
-  def list_objects(adapter, bucket, _opts) do
-    request(adapter, :get, bucket, "/")
+  def list_objects(adapter, bucket, opts) do
+    request(adapter, :get, bucket, "/", params: opts)
   end
 
   def get_bucket_acl(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "acl")
   end
 
   def get_bucket_cors(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "cors")
   end
 
   def get_bucket_lifecycle(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "lifecycle")
   end
 
   def get_bucket_policy(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "policy")
   end
 
   def get_bucket_location(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "location")
   end
 
   def get_bucket_logging(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "logging")
   end
 
   def get_bucket_notification(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "notification")
   end
 
   def get_bucket_replication(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "replication")
   end
 
   def get_bucket_tagging(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "tagging")
   end
 
-  def get_bucket_object_versions(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+  def get_bucket_object_versions(adapter, bucket, opts) do
+    request(adapter, :get, bucket, "/", resource: "versions", params: opts)
   end
 
   def get_bucket_request_payment(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "requestPayment")
   end
 
   def get_bucket_versioning(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "versioning")
   end
 
   def get_bucket_website(adapter, bucket) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+    request(adapter, :get, bucket, "/", resource: "website")
   end
 
   def head_bucket(adapter, bucket) do
-    raise "not yet implimented"
     request(adapter, :head, bucket, "/")
   end
 
-  def list_multipart_uploads(adapter, bucket, _opts) do
-    raise "not yet implimented"
-    request(adapter, :get, bucket, "/")
+  def list_multipart_uploads(adapter, bucket, opts) do
+    request(adapter, :get, bucket, "/", resource: "uploads", params: opts)
   end
 
-  def put_bucket(adapter, bucket, _region) do
-    raise "not yet implimented"
-    request(adapter, :put, bucket, "/")
+  def put_bucket(adapter, bucket, region, opts) do
+    body = """
+    <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+      <LocationConstraint>#{region}</LocationConstraint>
+    </CreateBucketConfiguration>
+    """
+    request(adapter, :put, bucket, "/", body: body, headers: opts)
   end
 
   def put_bucket_acl(adapter, bucket, _owner_id, _owner_email, _grants) do
@@ -236,7 +218,7 @@ defmodule ExAws.S3.Impl do
       {"Content-Type", "binary/octet-stream"} |
       opts |> Map.to_list
     ]
-    request(adapter, :put, bucket, object, body, [], headers)
+    request(adapter, :put, bucket, object, body: body, headers: headers)
   end
 
   def put_object_acl(adapter, bucket, object, _acl) do

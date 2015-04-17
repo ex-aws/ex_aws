@@ -43,6 +43,7 @@ defmodule ExAws.S3.Adapter do
   defcallback get_bucket_tagging(bucket :: binary) :: ExAws.Request.response_t
 
   defcallback get_bucket_object_versions(bucket :: binary) :: ExAws.Request.response_t
+  defcallback get_bucket_object_versions(bucket :: binary, opts :: %{}) :: ExAws.Request.response_t
 
   defcallback get_bucket_request_payment(bucket :: binary) :: ExAws.Request.response_t
 
@@ -251,8 +252,8 @@ defmodule ExAws.S3.Adapter do
         ExAws.S3.Impl.get_bucket_tagging(__MODULE__, bucket)
       end
 
-      def get_bucket_object_versions(bucket) do
-        ExAws.S3.Impl.get_bucket_object_versions(__MODULE__, bucket)
+      def get_bucket_object_versions(bucket, opts \\ %{}) do
+        ExAws.S3.Impl.get_bucket_object_versions(__MODULE__, bucket, opts)
       end
 
       def get_bucket_request_payment(bucket) do
