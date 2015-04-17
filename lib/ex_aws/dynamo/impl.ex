@@ -5,17 +5,17 @@ defmodule ExAws.Dynamo.Impl do
 
   @namespace "DynamoDB_20120810"
   @actions [
-    batch_get_item:   :get,
+    batch_get_item:   :post,
     batch_write_item: :post,
     create_table:     :post,
     delete_item:      :post,
     delete_table:     :post,
-    describe_table:   :get,
-    get_item:         :get,
-    list_tables:      :get,
+    describe_table:   :post,
+    get_item:         :post,
+    list_tables:      :post,
     put_item:         :post,
-    query:            :get,
-    scan:             :get,
+    query:            :post,
+    scan:             :post,
     update_item:      :post,
     update_table:     :post]
 
