@@ -25,7 +25,7 @@ defmodule ExAws.Dynamo.Impl do
   ######################
 
   def list_tables(adapter) do
-    request(%{}, :list_tables, adapter)
+    adapter.request(%{}, :list_tables)
   end
 
   def create_table(adapter, name, primary_key, key_definitions, read_capacity, write_capacity) do
@@ -51,25 +51,25 @@ defmodule ExAws.Dynamo.Impl do
       {_, []}, data -> data
       {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
     end)
-    |> request(:create_table, adapter)
+    |> adapter.request(:create_table)
   end
 
   @doc "Describe table"
   def describe_table(adapter, name) do
     %{TableName: name}
-    |> request(:describe_table, adapter)
+    |> adapter.request(:describe_table)
   end
 
   @doc "Update Table"
   def update_table(adapter, name, attributes) do
     %{TableName: name}
     |> Map.merge(attributes)
-    |> request(:update_table, adapter)
+    |> adapter.request(:update_table)
   end
 
   def delete_table(adapter, table) do
     %{TableName: table}
-    |> request(:delete_table, adapter)
+    |> adapter.request(:delete_table)
   end
 
   ## Records
@@ -78,28 +78,28 @@ defmodule ExAws.Dynamo.Impl do
   def scan(adapter, name, opts) do
     %{TableName: name}
     |> Map.merge(opts)
-    |> request(:scan, adapter)
+    |> adapter.request(:scan)
   end
 
   def query(adapter, name, key_conditions, opts) do
     %{TableName: name, KeyConditions: key_conditions}
     |> Map.merge(opts)
-    |> request(:query, adapter)
+    |> adapter.request(:query)
   end
 
   def batch_get_item(adapter, data) do
-    request(data, :batch_get_item, adapter)
+    adapter.request(data, :batch_get_item)
   end
 
   def put_item(adapter, name, record) do
     %{
       TableName: name,
       Item: Dynamo.Encoder.encode(record)
-    } |> request(:put_item, adapter)
+    } |> adapter.request(:put_item)
   end
 
   def batch_write_item(adapter, data) do
-    request(data, :batch_write_item, adapter)
+    adapter.request(data, :batch_write_item)
   end
 
   def get_item(adapter, name, primary_key) do
@@ -107,7 +107,7 @@ defmodule ExAws.Dynamo.Impl do
       TableName: name,
       Key: Dynamo.Encoder.encode_flat(primary_key)
     }
-    |> request(:get_item, adapter)
+    |> adapter.request(:get_item)
   end
 
   def update_item(adapter, table_name, primary_key, update_args) do
@@ -116,12 +116,12 @@ defmodule ExAws.Dynamo.Impl do
       Key: Dynamo.Encoder.encode_flat(primary_key)
     }
     |> Map.merge(update_args)
-    |> request(:update_item, adapter)
+    |> adapter.request(:update_item)
   end
 
   def delete_item(adapter, name, primary_key) do
     %{TableName: name, Key: primary_key}
-    |> request(:delete_item, adapter)
+    |> adapter.request(:delete_item)
   end
 
   defp encode_attrs(attrs) do

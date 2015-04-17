@@ -223,6 +223,11 @@ defmodule ExAws.Kinesis.Adapter do
       end
 
       @doc false
+      def request(data, action) do
+        ExAws.Kinesis.Request.request(__MODULE__, action, data)
+      end
+
+      @doc false
       def service, do: :kinesis
 
       @doc false
@@ -231,7 +236,7 @@ defmodule ExAws.Kinesis.Adapter do
       @doc false
       def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0
+      defoverridable config: 0, config_root: 0, request: 2
     end
   end
 end

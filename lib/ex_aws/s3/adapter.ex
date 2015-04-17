@@ -175,6 +175,15 @@ defmodule ExAws.S3.Adapter do
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: %{}) :: ExAws.Request.response_t
 
+  @doc """
+  Enables custom request handling.
+
+  By default this just forwards the request to the ExAws.S3.Request.request/4.
+  However, this can be overriden in your adapter to provide pre-request adjustments to headers, params, etc.
+  """
+  defcallback request(http_method :: atom, bucket :: binary, path :: binary) :: ExAws.Request.response_t
+  defcallback request(http_method :: atom, bucket :: binary, path :: binary, data :: Keyword.t) :: ExAws.Request.response_t
+
   defmacro __using__(using_opts) do
     quote bind_quoted: [using_opts: using_opts, behavior_module: __MODULE__] do
       @otp_app Keyword.get(using_opts, :otp_app)
@@ -398,6 +407,10 @@ defmodule ExAws.S3.Adapter do
         ExAws.S3.Impl.list_parts(__MODULE__, bucket, object, upload_id, opts)
       end
 
+      def request(http_method, bucket, path, data \\ []) do
+        ExAws.S3.Request.request(__MODULE__, http_method, bucket, path, data)
+      end
+
       @doc false
       def service, do: :s3
 
@@ -407,7 +420,7 @@ defmodule ExAws.S3.Adapter do
       @doc false
       def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0
+      defoverridable config: 0, config_root: 0, request: 3, request: 4
 
     end
   end

@@ -1,5 +1,5 @@
 defmodule ExAws.Dynamo.Request do
-  def request(data, action, adapter) do
+  def request(adapter, action, data) do
     {operation, http_method} = ExAws.Dynamo.Impl |> ExAws.Actions.get(action)
     headers = [
       {"x-amz-target", operation},

@@ -25,13 +25,13 @@ defmodule ExAws.Kinesis.Impl do
   ######################
 
   def list_streams(adapter) do
-    request(%{}, :list_streams, adapter)
+    adapter.request(%{}, :list_streams)
   end
 
   def describe_stream(adapter, name, opts) do
     %{StreamName: name}
     |> Map.merge(opts)
-    |> request(:describe_stream, adapter)
+    |> adapter.request(:describe_stream)
   end
 
   def create_stream(adapter, name, shard_count) do
@@ -39,12 +39,12 @@ defmodule ExAws.Kinesis.Impl do
       ShardCount: shard_count,
       StreamName: name
     }
-    |> request(:create_stream, adapter)
+    |> adapter.request(:create_stream)
   end
 
   def delete_stream(adapter, name) do
     %{StreamName: name}
-    |> request(:delete_stream, adapter)
+    |> adapter.request(:delete_stream)
   end
 
   ## Records
@@ -53,7 +53,7 @@ defmodule ExAws.Kinesis.Impl do
   def get_records(adapter, shard_iterator, opts) do
     %{ShardIterator: shard_iterator}
     |> Map.merge(opts)
-    |> request(:get_records, adapter)
+    |> adapter.request(:get_records)
     |> do_get_records
   end
 
@@ -85,7 +85,7 @@ defmodule ExAws.Kinesis.Impl do
       StreamName: stream_name
     }
     |> Map.merge(opts)
-    |> request(:put_record, adapter)
+    |> adapter.request(:put_record)
   end
 
   def put_records(adapter, stream_name, records) when is_list(records) do
@@ -93,7 +93,7 @@ defmodule ExAws.Kinesis.Impl do
       Data: records |> Enum.map(&format_record/1),
       StreamName: stream_name
     }
-    |> request(:put_records, adapter)
+    |> adapter.request(:put_records)
   end
 
   defp format_record(%{data: data, partition_key: partition_key, explicit_hash_key: hash_key}) do
@@ -115,7 +115,7 @@ defmodule ExAws.Kinesis.Impl do
       ShardId: shard_id,
       ShardIteratorType: shard_iterator_type
     } |> Map.merge(opts)
-    |> request(:get_shard_iterator, adapter)
+    |> adapter.request(:get_shard_iterator)
   end
 
   def merge_shards(adapter, name, adjacent_shard, shard) do
@@ -124,7 +124,7 @@ defmodule ExAws.Kinesis.Impl do
       AdjacentShardToMerge: adjacent_shard,
       ShardToMerge: shard
     }
-    |> request(:merge_shards, adapter)
+    |> adapter.request(:merge_shards)
   end
 
   def split_shard(adapter, name, shard, new_starting_hash_key) do
@@ -133,7 +133,7 @@ defmodule ExAws.Kinesis.Impl do
       ShardToSplit: shard,
       NewStartingHashKey: new_starting_hash_key
     }
-    |> request(:split_shard, adapter)
+    |> adapter.request(:split_shard)
   end
 
   ## Tags
@@ -141,17 +141,17 @@ defmodule ExAws.Kinesis.Impl do
 
   def add_tags_to_stream(adapter, name, tags) do
     %{StreamName: name, Tags: tags}
-    |> request(:add_tags_to_stream, adapter)
+    |> adapter.request(:add_tags_to_stream)
   end
 
   def list_tags_for_stream(adapter, name, opts) do
     %{StreamName: name}
     |> Map.merge(opts)
-    |> request(:list_tags_for_stream, adapter)
+    |> adapter.request(:list_tags_for_stream)
   end
 
   def remove_tags_from_stream(adapter, name, tag_keys) when is_list(tag_keys) do
     %{StreamName: name, TagKeys: tag_keys}
-    |> request(:remove_tags_from_stream, adapter)
+    |> adapter.request(:remove_tags_from_stream)
   end
 end

@@ -82,6 +82,16 @@ defmodule ExAws.Lambda.Adapter do
   @doc "Update a function configuration"
   defcallback update_function_configuration(function_name :: binary, configuration :: %{}) :: ExAws.Request.response_t
 
+  @doc """
+  Enables custom request handling.
+
+  By default this just forwards the request to the ExAws.Lambda.Request.request/4.
+  However, this can be overriden in your adapter to provide pre-request adjustments to headers, params, etc.
+  """
+  defcallback request(data :: %{}, action :: atom, path :: binary)
+  defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t)
+  defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t, headers :: [{binary, binary}, ...])
+
   @doc "Service"
   defcallback service() :: atom
 
@@ -179,6 +189,11 @@ defmodule ExAws.Lambda.Adapter do
       end
 
       @doc false
+      def request(data, action, path, params \\ [], headers \\ []) do
+        ExAws.Lambda.Request.request(__MODULE__, action, path, data, params, headers)
+      end
+
+      @doc false
       def service, do: :lambda
 
       @doc false
@@ -187,7 +202,7 @@ defmodule ExAws.Lambda.Adapter do
       @doc false
       def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0
+      defoverridable config: 0, config_root: 0, request: 3, request: 4, request: 5
     end
   end
 

@@ -1,5 +1,5 @@
 defmodule ExAws.Lambda.Request do
-  def request(data, action, path, adapter, params \\ [], headers \\ []) do
+  def request(adapter, action, path, data, params \\ [], headers \\ []) do
     {_, http_method} = ExAws.Lambda.Impl |> ExAws.Actions.get(action)
     path = [path, params |> URI.encode_query] |> IO.iodata_to_binary
 
