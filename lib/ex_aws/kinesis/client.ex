@@ -70,8 +70,8 @@ defmodule ExAws.Kinesis.Client do
   ## Records
 
   @doc "Get stream records"
-  defcallback get_records(stream_name :: iodata) :: ExAws.Request.response_t
-  defcallback get_records(stream_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback get_records(shard_iterator :: iodata) :: ExAws.Request.response_t
+  defcallback get_records(shard_iterator :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Returns a stream of kinesis records
@@ -89,9 +89,9 @@ defmodule ExAws.Kinesis.Client do
   Generally speaking you won't need this, but it can be handy if you're trying to prevent flooding.
   See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
   """
-  defcallback stream_records(stream_name :: iodata)# :: Stream.t
-  defcallback stream_records(stream_name :: iodata, opts :: %{})# :: Stream.t
-  defcallback stream_records(stream_name :: iodata, opts :: %{}, iterator_fun :: Fun)# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata)# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata, opts :: %{})# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata, opts :: %{}, iterator_fun :: Fun)# :: Stream.t
 
   @doc "Puts a record on a stream"
   defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata) :: ExAws.Request.response_t
