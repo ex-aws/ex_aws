@@ -1,4 +1,4 @@
-defmodule ExAws.Lambda.Adapter do
+defmodule ExAws.Lambda.Client do
   use Behaviour
 
   @doc """
@@ -86,7 +86,7 @@ defmodule ExAws.Lambda.Adapter do
   Enables custom request handling.
 
   By default this just forwards the request to the ExAws.Lambda.Request.request/4.
-  However, this can be overriden in your adapter to provide pre-request adjustments to headers, params, etc.
+  However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
   defcallback request(data :: %{}, action :: atom, path :: binary)
   defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t)

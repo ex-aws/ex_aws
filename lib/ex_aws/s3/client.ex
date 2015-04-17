@@ -1,4 +1,4 @@
-defmodule ExAws.S3.Adapter do
+defmodule ExAws.S3.Client do
   use Behaviour
 
   ## Bucket functions
@@ -179,7 +179,7 @@ defmodule ExAws.S3.Adapter do
   Enables custom request handling.
 
   By default this just forwards the request to the ExAws.S3.Request.request/4.
-  However, this can be overriden in your adapter to provide pre-request adjustments to headers, params, etc.
+  However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
   defcallback request(http_method :: atom, bucket :: binary, path :: binary) :: ExAws.Request.response_t
   defcallback request(http_method :: atom, bucket :: binary, path :: binary, data :: Keyword.t) :: ExAws.Request.response_t

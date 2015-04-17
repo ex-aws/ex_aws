@@ -2,15 +2,15 @@ defmodule ExAws.Config do
 
   @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
 
-  def get(adapter) do
-    config_root = adapter.config_root
-    config      = adapter.config_root |> Keyword.get(adapter.service, [])
+  def get(client) do
+    config_root = client.config_root
+    config      = client.config_root |> Keyword.get(client.service, [])
     common      = defaults
     |> Keyword.merge(config_root)
     |> Keyword.take(@common_config)
 
     defaults
-    |> Keyword.get(adapter.service, [])
+    |> Keyword.get(client.service, [])
     |> Keyword.merge(common)
     |> Keyword.merge(config)
   end

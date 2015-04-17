@@ -4,9 +4,9 @@ defmodule ExAws.Request do
 
   @type response_t :: {:ok, any} | {:error, {:http_error, pos_integer, binary}}
 
-  def request(http_method, url, data, headers, adapter) do
-    config = adapter.config
-    service = adapter.service
+  def request(http_method, url, data, headers, client) do
+    config = client.config
+    service = client.service
 
     body = case data do
       []  -> "{}"

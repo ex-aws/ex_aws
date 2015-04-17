@@ -1,19 +1,19 @@
-## Adapters
+## Clients
 
 defmodule Test.Dynamo do
-  use ExAws.Dynamo.Adapter
+  use ExAws.Dynamo.Client
 
   def config_root, do: Application.get_all_env(:ex_aws)
 end
 
 defmodule Test.Kinesis do
-  use ExAws.Kinesis.Adapter
+  use ExAws.Kinesis.Client
 
   def config_root, do: Application.get_all_env(:ex_aws)
 end
 
 defmodule Test.S3 do
-  use ExAws.S3.Adapter
+  use ExAws.S3.Client
 
   def config_root, do: Application.get_all_env(:ex_aws)
 end

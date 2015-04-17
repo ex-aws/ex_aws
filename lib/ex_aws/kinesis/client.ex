@@ -1,4 +1,4 @@
-defmodule ExAws.Kinesis.Adapter do
+defmodule ExAws.Kinesis.Client do
   use Behaviour
 
   @moduledoc """
@@ -8,7 +8,7 @@ defmodule ExAws.Kinesis.Adapter do
   Usage:
   ```
   defmodule MyApp.Kinesis do
-    use ExAws.Kinesis.Adapter, otp_app: :my_otp_app
+    use ExAws.Kinesis.Client, otp_app: :my_otp_app
   end
   ```
 
@@ -28,7 +28,7 @@ defmodule ExAws.Kinesis.Adapter do
 
   ```
   defmodule MyApp.Kinesis do
-    use ExAws.Kinesis.Adapter
+    use ExAws.Kinesis.Client
 
     def config do
       [
@@ -135,7 +135,7 @@ defmodule ExAws.Kinesis.Adapter do
   ```
   Application.get_env(@otp_app, ExAws)[:kinesis]
   ```
-  via a function created when ```using ExAws.Kinesis.Adapter```
+  via a function created when ```using ExAws.Kinesis.Client```
   is called.
 
   See ExAws.Kinesis.config/0 for an example that overrides this default

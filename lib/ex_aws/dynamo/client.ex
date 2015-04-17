@@ -1,4 +1,4 @@
-defmodule ExAws.Dynamo.Adapter do
+defmodule ExAws.Dynamo.Client do
   use Behaviour
 
   @moduledoc """
@@ -8,7 +8,7 @@ defmodule ExAws.Dynamo.Adapter do
   Usage:
   ```
   defmodule MyApp.Dynamo do
-    use ExAws.Dynamo.Adapter, otp_app: :my_otp_app
+    use ExAws.Dynamo.Client, otp_app: :my_otp_app
   end
   ```
 
@@ -28,7 +28,7 @@ defmodule ExAws.Dynamo.Adapter do
 
   ```
   defmodule MyApp.Dynamo do
-    use ExAws.Dynamo.Adapter
+    use ExAws.Dynamo.Client
 
     def config do
       [

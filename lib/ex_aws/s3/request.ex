@@ -1,12 +1,12 @@
 defmodule ExAws.S3.Request do
-  def request(adapter, http_method, bucket, path, data \\ []) do
+  def request(client, http_method, bucket, path, data \\ []) do
     body     = data |> Keyword.get(:body, "")
     resource = data |> Keyword.get(:resource, "")
     query    = data |> Keyword.get(:params, []) |> URI.encode_query
     headers  = data |> Keyword.get(:headers, [])
 
 
-    url = adapter.config
+    url = client.config
     |> url(bucket, path)
     |> add_query(resource, query)
 
@@ -17,7 +17,7 @@ defmodule ExAws.S3.Request do
       headers
     ]
 
-    ExAws.Request.request(http_method, url, body, headers, adapter)
+    ExAws.Request.request(http_method, url, body, headers, client)
   end
 
   def url(config, bucket, path) do

@@ -1,5 +1,5 @@
 defmodule ExAws.Lambda.Request do
-  def request(adapter, action, path, data, params \\ [], headers \\ []) do
+  def request(client, action, path, data, params \\ [], headers \\ []) do
     {_, http_method} = ExAws.Lambda.Impl |> ExAws.Actions.get(action)
     path = [path, params |> URI.encode_query] |> IO.iodata_to_binary
 
@@ -8,8 +8,8 @@ defmodule ExAws.Lambda.Request do
       {"x-amz-content-sha256", ""} |
       headers
     ]
-    ExAws.Request.request(http_method, adapter.config |> url(path), data, headers , adapter)
-    |> parse(adapter.config)
+    ExAws.Request.request(http_method, client.config |> url(path), data, headers , client)
+    |> parse(client.config)
   end
 
   def parse({:error, result}, _), do: {:error, result}
