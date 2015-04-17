@@ -16,7 +16,7 @@ defmodule ExAws.Kinesis.Lazy do
       fun_opts -> Kinesis.Impl.describe_stream(client, stream, Map.merge(opts, fun_opts))
     end
 
-    Kinesis.Impl.describe_stream(stream, opts)
+    Kinesis.Impl.describe_stream(client, stream, opts)
     |> do_stream_shards(request_fun)
   end
 
