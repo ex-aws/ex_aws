@@ -4,7 +4,9 @@ defmodule ExAws.Config do
 
   def get(client) do
     config_root = client.config_root
-    config      = client.config_root |> Keyword.get(client.service, [])
+    unless config_root, do: raise "A valid configuration root is required in your #{client.service} client"
+
+    config      = config_root |> Keyword.get(client.service, [])
     common      = defaults
     |> Keyword.merge(config_root)
     |> Keyword.take(@common_config)
