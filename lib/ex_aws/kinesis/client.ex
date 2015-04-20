@@ -189,7 +189,7 @@ defmodule ExAws.Kinesis.Client do
 
       @doc false
       def put_records(stream_name, records) do
-        ExAws.Kinesis.Impl.put_record(__MODULE__, stream_name, records)
+        ExAws.Kinesis.Impl.put_records(__MODULE__, stream_name, records)
       end
 
       @doc false

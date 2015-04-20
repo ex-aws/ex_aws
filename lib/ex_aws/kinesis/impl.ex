@@ -81,7 +81,8 @@ defmodule ExAws.Kinesis.Impl do
 
   def put_record(client, stream_name, partition_key, data, opts) when is_binary(data) do
     %{
-      format_record(%{data: data, partition_key: partition_key}) |
+      Data: data |> Base.encode64,
+      PartitionKey: partition_key,
       StreamName: stream_name
     }
     |> Map.merge(opts)
@@ -90,20 +91,18 @@ defmodule ExAws.Kinesis.Impl do
 
   def put_records(client, stream_name, records) when is_list(records) do
     %{
-      Data: records |> Enum.map(&format_record/1),
+      Records: records |> Enum.map(&format_record/1),
       StreamName: stream_name
     }
     |> client.request(:put_records)
   end
 
-  defp format_record(%{data: data, partition_key: partition_key, explicit_hash_key: hash_key}) do
-    %{format_record(%{data: data, partition_key: partition_key}) | ExplicitHashKey: hash_key}
-  end
-  defp format_record(%{data: data, partition_key: partition_key}) do
-    %{
-      Data: data |> Base.encode64,
-      PartitionKey: partition_key
-    }
+  defp format_record(%{data: data, partition_key: partition_key} = record) do
+    formatted = %{Data: data |> Base.encode64, PartitionKey: partition_key}
+    case record do
+      %{explicit_hash_key: hash_key} -> formatted |> Map.put(:ExplicitHashKey, hash_key)
+      _ -> formatted
+    end
   end
 
   ## Shards
