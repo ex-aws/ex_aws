@@ -50,16 +50,16 @@ defmodule ExAws.Dynamo.Client do
 
   @doc "Create table"
   defcallback create_table(
-    table_name      :: iodata,
-    primary_key     :: iodata,
+    table_name      :: binary,
+    primary_key     :: binary,
     key_definitions :: Keyword.t,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer) :: ExAws.Request.response_t
 
   @doc "Create table with indices"
   defcallback create_table(
-    table_name      :: iodata,
-    primary_key     :: iodata,
+    table_name      :: binary,
+    primary_key     :: binary,
     key_definitions :: [%{}],
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
@@ -67,32 +67,32 @@ defmodule ExAws.Dynamo.Client do
     local_indexes   :: %{}) :: ExAws.Request.response_t
 
   @doc "Describe table"
-  defcallback describe_table(name :: iodata) :: ExAws.Request.response_t
+  defcallback describe_table(name :: binary) :: ExAws.Request.response_t
 
   @doc "Update Table"
-  defcallback update_table(name :: iodata, attributes :: %{}) :: ExAws.Request.response_t
+  defcallback update_table(name :: binary, attributes :: %{}) :: ExAws.Request.response_t
 
   @doc "Delete Table"
-  defcallback delete_table(table :: iodata) :: ExAws.Request.response_t
+  defcallback delete_table(table :: binary) :: ExAws.Request.response_t
 
   ## Records
   ######################
 
   @doc "Scan table"
-  defcallback scan(table_name :: iodata) :: ExAws.Request.response_t
-  defcallback scan(table_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback scan(table_name :: binary) :: ExAws.Request.response_t
+  defcallback scan(table_name :: binary, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Stream records from table
 
   Same as scan/1,2 but the records are a stream which will automatically handle pagination
   """
-  defcallback stream_scan(table_name :: iodata) :: ExAws.Request.response_t
-  defcallback stream_scan(table_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: binary) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: binary, opts :: %{}) :: ExAws.Request.response_t
 
   @doc "Query Table"
-  defcallback query(table_name :: iodata, key_conditions :: %{}) :: ExAws.Request.response_t
-  defcallback query(table_name :: iodata, key_conditions :: %{}, opts :: %{}) :: ExAws.Request.response_t
+  defcallback query(table_name :: binary, key_conditions :: %{}) :: ExAws.Request.response_t
+  defcallback query(table_name :: binary, key_conditions :: %{}, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Get up to 100 items (16mb)
@@ -111,13 +111,13 @@ defmodule ExAws.Dynamo.Client do
   defcallback batch_write_item(%{String.t => %{}}) :: ExAws.Request.response_t
 
   @doc "Put item in table"
-  defcallback put_item(table_name :: iodata, record :: %{}) :: ExAws.Request.response_t
+  defcallback put_item(table_name :: binary, record :: %{}) :: ExAws.Request.response_t
 
   @doc "Get item from table"
-  defcallback get_item(table_name :: iodata, primary_key_value :: iodata) :: ExAws.Request.response_t
+  defcallback get_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
 
   @doc "Get an item from a dynamo table, and raise if it does not exist or there is an error"
-  defcallback get_item!(table_name :: iodata, primary_key_value :: iodata) :: %{}
+  defcallback get_item!(table_name :: binary, primary_key_value :: binary) :: %{}
 
   @doc """
   Update item in table
@@ -125,10 +125,10 @@ defmodule ExAws.Dynamo.Client do
   For update_args format see
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html
   """
-  defcallback update_item(table_name :: iodata, primary_key_value :: iodata, update_args :: %{}) :: ExAws.Request.response_t
+  defcallback update_item(table_name :: binary, primary_key_value :: binary, update_args :: %{}) :: ExAws.Request.response_t
 
   @doc "Delete item in table"
-  defcallback delete_item(table_name :: iodata, primary_key_value :: iodata) :: ExAws.Request.response_t
+  defcallback delete_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
 
   defcallback request(data :: %{}, action :: atom)
 
