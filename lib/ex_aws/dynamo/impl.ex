@@ -110,6 +110,16 @@ defmodule ExAws.Dynamo.Impl do
     |> client.request(:get_item)
   end
 
+  def get_item!(client, name, primary_key) do
+    {:ok, %{"Item" => item}} = %{
+      TableName: name,
+      Key: Dynamo.Encoder.encode_flat(primary_key)
+    }
+    |> client.request(:get_item)
+
+    item
+  end
+
   def update_item(client, table_name, primary_key, update_args) do
     %{
       TableName: table_name,

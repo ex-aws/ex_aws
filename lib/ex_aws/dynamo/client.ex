@@ -2,7 +2,7 @@ defmodule ExAws.Dynamo.Client do
   use Behaviour
 
   @moduledoc """
-  The purpose of this module is to surface the ExAws.Dynamo API with a single
+  The purpose of this module is to surface the ExAws.Dynamo API tied to a single
   configuration chosen, such that it does not need passed in with every request.
 
   Usage:
@@ -15,15 +15,14 @@ defmodule ExAws.Dynamo.Client do
   In your config
   ```
   config :my_otp_app, ExAws,
-    kinesis:  [], # kinesis config goes here
-    dynamodb: [], # you get the idea
+    dynamodb: [], # Dynamo config goes here
   ```
 
   You can now use MyApp.Dynamo as the root module for the Dynamo api without needing
   to pass in a particular configuration.
   This enables different otp apps to configure their AWS configuration separately.
 
-  The alignment with a particular OTP app however is entirely optional.
+  The alignment with a particular OTP app while convenient is however entirely optional.
   The following also works:
 
   ```
@@ -39,7 +38,8 @@ defmodule ExAws.Dynamo.Client do
   ```
 
   This is in fact how the functions in ExAws.Dynamo that do not require a config work.
-  Default config values can be found in ExAws.Config
+  Default config values can be found in ExAws.Config. The default configuration is always used,
+  and then the configuration of a particular client is merged in and overrides the defaults.
 
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations.html
   """
@@ -117,6 +117,9 @@ defmodule ExAws.Dynamo.Client do
 
   @doc "Get item from table"
   defcallback get_item(table_name :: iodata, primary_key_value :: iodata) :: ExAws.Request.response_t
+
+  @doc "Get an item from a dynamo table, and raise if it does not exist or there is an error"
+  defcallback get_item!(table_name :: iodata, primary_key_value :: iodata) :: %{}
 
   @doc """
   Update item in table
@@ -201,6 +204,11 @@ defmodule ExAws.Dynamo.Client do
       @doc false
       def get_item(name, primary_key) do
         ExAws.Dynamo.Impl.get_item(__MODULE__, name, primary_key)
+      end
+
+      @doc false
+      def get_item!(name, primary_key) do
+        ExAws.Dynamo.Impl.get_item!(__MODULE__, name, primary_key)
       end
 
       @doc false
