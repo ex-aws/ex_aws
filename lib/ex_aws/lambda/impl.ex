@@ -1,7 +1,11 @@
 defmodule ExAws.Lambda.Impl do
   use ExAws.Actions
-  import ExAws.Lambda.Request
   require Logger
+
+  @moduledoc false
+  # Implimentation of the AWS Kinesis API.
+  #
+  # See ExAws.Kinesis.Client for usage.
 
   @namespace "Lambda"
   @actions [
@@ -23,7 +27,6 @@ defmodule ExAws.Lambda.Impl do
     update_function_code:          :put,
     update_function_configuration: :put
   ]
-
 
   def add_permission(client, function_name, principal, action, statement_id, opts) do
     opts

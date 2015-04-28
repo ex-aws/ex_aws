@@ -1,6 +1,46 @@
 defmodule ExAws.Lambda.Client do
   use Behaviour
 
+  @moduledoc """
+  The purpose of this module is to surface the ExAws.Lambda API with a single
+  configuration chosen, such that it does not need passed in with every request.
+
+  Usage:
+  ```
+  defmodule MyApp.Lambda do
+    use ExAws.Lambda.Client, otp_app: :my_otp_app
+  end
+  ```
+
+  In your config
+  ```
+  config :my_otp_app, ExAws,
+    lambda: [], # lambda config goes here
+  ```
+
+  You can now use MyApp.Lambda as the module for the Lambda api without needing
+  to pass in a particular configuration.
+  This enables different otp apps to configure their AWS configuration separately.
+
+  The alignment with a particular OTP app however is entirely optional.
+  The following also works:
+
+  ```
+  defmodule MyApp.Lambda do
+    use ExAws.Lambda.Client
+
+    def config do
+      [
+        lambda:  [], # lambda config goes here
+      ]
+    end
+  end
+  ```
+  Default config values can be found in ExAws.Config
+
+  http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
+  """
+
   @doc """
   Adds a permission to the access policy associated with the specified AWS Lambda function
 
@@ -102,6 +142,8 @@ defmodule ExAws.Lambda.Client do
     quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
       @otp_app Keyword.get(opts, :otp_app)
       @behaviour behavior_module
+
+      @moduledoc false
 
       @doc false
       def add_permission(function_name, principal, action, statement_id, opts \\ %{}) do

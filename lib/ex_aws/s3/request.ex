@@ -1,4 +1,7 @@
 defmodule ExAws.S3.Request do
+  @moduledoc false
+  # S3 specific request logic.
+
   def request(client, http_method, bucket, path, data \\ []) do
     body     = data |> Keyword.get(:body, "")
     resource = data |> Keyword.get(:resource, "")

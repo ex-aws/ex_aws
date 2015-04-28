@@ -1,7 +1,9 @@
 defmodule ExAws.S3.Impl do
-  import ExAws.S3.Request
 
-  @moduledoc "See ExAws.S3.Client for documentation"
+  @moduledoc false
+  # Implimentation of the AWS S3 API.
+  #
+  # See ExAws.S3.Client for usage.
 
   ## Buckets
   #############

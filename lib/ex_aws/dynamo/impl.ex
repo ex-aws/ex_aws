@@ -1,5 +1,4 @@
 defmodule ExAws.Dynamo.Impl do
-  import ExAws.Dynamo.Request
   alias ExAws.Dynamo
   use ExAws.Actions
 
@@ -19,7 +18,10 @@ defmodule ExAws.Dynamo.Impl do
     update_item:      :post,
     update_table:     :post]
 
-  @moduledoc "See ExAws.Dynamo.Client for documentation"
+  @moduledoc false
+  # Implimentation of the AWS Dynamo API.
+  #
+  # See ExAws.Dynamo.Client for usage.
 
   ## Tables
   ######################

@@ -1,4 +1,6 @@
 defmodule ExAws.Dynamo.Request do
+  @moduledoc false
+
   def request(client, action, data) do
     {operation, http_method} = ExAws.Dynamo.Impl |> ExAws.Actions.get(action)
     headers = [

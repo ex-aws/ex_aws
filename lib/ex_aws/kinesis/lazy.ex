@@ -1,15 +1,8 @@
 defmodule ExAws.Kinesis.Lazy do
   alias ExAws.Kinesis
-  @moduledoc """
-  Kinesis has a few functions that require paging.
-  These functions operate just like those in Kinesis,
-  except that they return streams instead of lists that can be iterated through
-  and will automatically retrieve additional pages as necessary.
-  """
+  @moduledoc false
+  # Implimentation of lazy functions surfaced by ExAws.Kinesis.Client
 
-  @doc """
-  Returns the normally shaped AWS response, except the Shards key is now a stream
-  """
   def stream_shards(client, stream, opts) do
     request_fun = fn
       {:initial, initial} -> initial

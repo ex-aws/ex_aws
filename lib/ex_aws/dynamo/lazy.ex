@@ -1,22 +1,16 @@
 defmodule ExAws.Dynamo.Lazy do
-  @moduledoc """
-  Dynamo has a few functions that require paging.
-  These functions operate just like those in ExAws.Dynamo,
-  Except that they return streams instead of lists that can be iterated through
-  and will automatically retrieve additional pages as necessary.
-  """
+  @moduledoc false
+  ## Implimentation of the lazy functions surfaced by ExAws.Dynamo.Client
 
-  @doc """
-  Returns the normally shaped scan result, except that the Items key is now a stream.
-  """
   def stream_scan(client, table, opts) do
     request_fun = fn
       {:initial, initial} -> initial
       fun_opts -> ExAws.Dynamo.Impl.scan(client, table, Map.merge(opts, fun_opts))
     end
 
-    ExAws.Dynamo.Impl.scan(client, table, opts)
-      |> do_scan(request_fun)
+    client
+    |> ExAws.Dynamo.Impl.scan(table, opts)
+    |> do_scan(request_fun)
   end
 
   defp do_scan({:error, results}, _), do: {:error, results}
@@ -44,5 +38,5 @@ defmodule ExAws.Dynamo.Lazy do
     end, &pass/1)
   end
 
-  defp pass(_), do: nil
+  defp pass(val), do: val
 end

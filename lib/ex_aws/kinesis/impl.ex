@@ -1,7 +1,11 @@
 defmodule ExAws.Kinesis.Impl do
   use ExAws.Actions
-  import ExAws.Kinesis.Request
   require Logger
+
+  @moduledoc false
+  # Implimentation of the AWS Kinesis API.
+  #
+  # See ExAws.Kinesis.Client for usage.
 
   @namespace "Kinesis_20131202"
   @actions [
@@ -18,8 +22,6 @@ defmodule ExAws.Kinesis.Impl do
     put_records:             :post,
     remove_tags_from_stream: :post,
     split_shard:             :post]
-
-  @moduledoc "See ExAws.Kinesis.Client for documentation"
 
   ## Streams
   ######################

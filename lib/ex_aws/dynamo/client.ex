@@ -37,9 +37,7 @@ defmodule ExAws.Dynamo.Client do
   end
   ```
 
-  This is in fact how the functions in ExAws.Dynamo that do not require a config work.
-  Default config values can be found in ExAws.Config. The default configuration is always used,
-  and then the configuration of a particular client is merged in and overrides the defaults.
+  Default config values can be found in ExAws.Config.
 
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations.html
   """
@@ -140,6 +138,8 @@ defmodule ExAws.Dynamo.Client do
     quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
       @otp_app Keyword.get(opts, :otp_app)
       @behaviour behavior_module
+
+      @moduledoc false
 
       @doc false
       def list_tables do

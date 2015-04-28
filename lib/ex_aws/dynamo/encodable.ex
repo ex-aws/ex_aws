@@ -1,11 +1,3 @@
-defmodule ExAws.Dynamo.Encodable.TypeError do
-  defexception [:message]
-
-  def exception(msg) do
-    %__MODULE__{message: msg}
-  end
-end
-
 defprotocol ExAws.Dynamo.Encodable do
   @doc "Converts an elixir value into a map tagging the value with its dynamodb type"
   def encode(value)
@@ -78,13 +70,13 @@ defimpl ExAws.Dynamo.Encodable, for: List do
       {type, value} = item
       |> Map.to_list
       |> hd
-      {[type | types], [value, values]}
+      {[type | types], [value | values]}
     end)
 
     case types |> Enum.uniq do
-      ["B"] -> %{"BS" => values}
-      ["N"] -> %{"NS" => values}
-      ["S"] -> %{"SS" => values}
+      ["B"] -> %{"BS" => values |> Enum.reverse}
+      ["N"] -> %{"NS" => values |> Enum.reverse}
+      ["S"] -> %{"SS" => values |> Enum.reverse}
       _     -> %{"L"  => typed_values}
     end
   end

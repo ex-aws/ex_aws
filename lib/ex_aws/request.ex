@@ -2,6 +2,8 @@ defmodule ExAws.Request do
   require Logger
   @max_attempts 10
 
+  @moduledoc false
+
   @type response_t :: {:ok, any} | {:error, {:http_error, pos_integer, binary}}
 
   def request(http_method, url, data, headers, client) do

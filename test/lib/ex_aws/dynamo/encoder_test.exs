@@ -20,4 +20,8 @@ defmodule ExAws.Dynamo.EncoderTest do
     assert %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},
       "email" => %{"S" => "foo@bar.com"}, "name" => %{"S" => "Bob"}} = Encoder.encode(user)
   end
+
+  test "encoder handles lists properly" do
+    %{"NS" => ["3", ["2", ["1", []]]]}
+  end
 end

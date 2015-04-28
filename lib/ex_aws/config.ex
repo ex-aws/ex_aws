@@ -1,5 +1,12 @@
 defmodule ExAws.Config do
 
+  @moduledoc false
+
+  # Generates the configuration for a client.
+  # It starts with the defaults for a given environment
+  # and then merges in the common config from the ex_aws config root,
+  # and then finally any config specified for the particular service
+
   @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
 
   def get(client) do
