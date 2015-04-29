@@ -6,6 +6,8 @@ defmodule ExAws.Mixfile do
      version: "0.0.4",
      elixir: "~> 1.0",
      description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
+     name: "ExAws",
+     source_url: "https://github.com/cargosense/ex_aws",
      package: package,
      deps: deps]
   end
