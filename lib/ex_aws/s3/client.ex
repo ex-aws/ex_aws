@@ -29,12 +29,16 @@ defmodule ExAws.S3.Client do
   defmodule MyApp.S3 do
     use ExAws.S3.Client
 
-    def config do
-      [
-        s3: [], # Config goes here
-      ]
+    def config_root do
+      Application.get_all_env(:my_aws_config_root)
     end
   end
+  ```
+  ExAws now expects the config for that S3 client to live under
+
+  ```elixir
+  config :my_aws_config_root
+    s3: [] # S3 config goes here
   ```
 
   This is in fact how the functions in ExAws.S3 that do not require a config work.
@@ -284,6 +288,15 @@ defmodule ExAws.S3.Client do
   """
   defcallback request(http_method :: atom, bucket :: binary, path :: binary) :: ExAws.Request.response_t
   defcallback request(http_method :: atom, bucket :: binary, path :: binary, data :: Keyword.t) :: ExAws.Request.response_t
+
+  @doc "Service"
+  defcallback service() :: atom
+
+  @doc "Retrieves the root AWS config for this client"
+  defcallback config_root() :: Keyword.t
+
+  @doc "Returns the canonical configuration for this service"
+  defcallback config() :: Keyword.t
 
   defmacro __using__(using_opts) do
     quote bind_quoted: [using_opts: using_opts, behavior_module: __MODULE__] do
@@ -578,7 +591,7 @@ defmodule ExAws.S3.Client do
       @doc false
       def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0, request: 3, request: 4
+      defoverridable config_root: 0, request: 3, request: 4
 
     end
   end

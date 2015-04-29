@@ -2,8 +2,7 @@ defmodule ExAws.Kinesis.Client do
   use Behaviour
 
   @moduledoc """
-  The purpose of this module is to surface the ExAws.Kinesis API with a single
-  configuration chosen, such that it does not need passed in with every request.
+  Defines a Kinesis client.
 
   Usage:
   ```
@@ -14,7 +13,7 @@ defmodule ExAws.Kinesis.Client do
 
   In your config
   ```
-  config :my_otp_app, ExAws,
+  config :my_otp_app, :ex_aws,
     kinesis:  [], # kinesis config goes here
     dynamodb: [], # you get the idea
   ```
@@ -30,13 +29,18 @@ defmodule ExAws.Kinesis.Client do
   defmodule MyApp.Kinesis do
     use ExAws.Kinesis.Client
 
-    def config do
-      [
-        kinesis:  [], # kinesis config goes here
-      ]
+    def config_root do
+      Application.get_all_env(:my_aws_config_root)
     end
   end
   ```
+  ExAws now expects the config for that kinesis client to live under
+
+  ```elixir
+  config :my_aws_config_root
+    kinesis: [] # Kinesis config goes here
+  ```
+
   Default config values can be found in ExAws.Config
 
   http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
@@ -129,15 +133,20 @@ defmodule ExAws.Kinesis.Client do
   defcallback remove_tags_from_stream(name :: iodata , tag_keys :: [binary]) :: ExAws.Request.response_t
 
   @doc """
-  By default the config is obtained by
-  ```
-  Application.get_env(@otp_app, ExAws)[:kinesis]
-  ```
-  via a function created when ```using ExAws.Kinesis.Client```
-  is called.
+  Enables custom request handling.
 
-  See ExAws.Kinesis.config/0 for an example that overrides this default
+  By default this just forwards the request to the `ExAws.Kinesis.Request.request/2`.
+  However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
+  defcallback request(data :: %{}, action :: atom)
+
+  @doc "Service"
+  defcallback service() :: atom
+
+  @doc "Retrieves the root AWS config for this client"
+  defcallback config_root() :: Keyword.t
+
+  @doc "Returns the canonical configuration for this service"
   defcallback config() :: Keyword.t
 
   defmacro __using__(opts) do
@@ -236,7 +245,7 @@ defmodule ExAws.Kinesis.Client do
       @doc false
       def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0, request: 2
+      defoverridable config_root: 0, request: 2
     end
   end
 end

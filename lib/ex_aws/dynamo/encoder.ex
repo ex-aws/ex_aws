@@ -2,11 +2,13 @@ defmodule ExAws.Dynamo.Encoder do
   @moduledoc """
   Takes an elixir value and converts it into a dynamo style map.
 
+  ```elixir
   [1,2,3] |> #{__MODULE__}.encode
   #=> %{"NS" => ["1", "2", "3"]}
 
   "bubba" |> ExAws.Dynamo.Encoder.encode
   #=> %{"S" => "bubba"}
+  ```
 
   This is handled via the ExAws.Dynamo.Encodable protocol.
   """

@@ -29,13 +29,18 @@ defmodule ExAws.Lambda.Client do
   defmodule MyApp.Lambda do
     use ExAws.Lambda.Client
 
-    def config do
-      [
-        lambda:  [], # lambda config goes here
-      ]
+    def config_root do
+      Application.get_all_env(:my_aws_config_root)
     end
   end
   ```
+  ExAws now expects the config for that lambda client to live under
+
+  ```elixir
+  config :my_aws_config_root
+    lambda: [] # Lambda config goes here
+  ```
+
   Default config values can be found in ExAws.Config
 
   http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
@@ -135,7 +140,10 @@ defmodule ExAws.Lambda.Client do
   @doc "Service"
   defcallback service() :: atom
 
-  @doc "Config"
+  @doc "Retrieves the root AWS config for this client"
+  defcallback config_root() :: Keyword.t
+
+  @doc "Returns the canonical configuration for this service"
   defcallback config() :: Keyword.t
 
   defmacro __using__(opts) do
@@ -244,7 +252,7 @@ defmodule ExAws.Lambda.Client do
       @doc false
       def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0, request: 3, request: 4, request: 5
+      defoverridable config_root: 0, request: 3, request: 4, request: 5
     end
   end
 
