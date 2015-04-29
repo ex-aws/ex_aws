@@ -3,9 +3,9 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.0.3",
+     version: "0.0.4",
      elixir: "~> 1.0",
-     description: "AWS client. Currently supports DynamoDB and Kinesis.",
+     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
      package: package,
      deps: deps]
   end
@@ -43,7 +43,7 @@ defmodule ExAws.Mixfile do
   end
 
   defp package do
-    [description: "AWS client. Currently supports DynamoDB and Kinesis.",
+    [description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
      files: ["lib", "config", "mix.exs", "README*"],
      contributors: ["Ben Wilson"],
      licenses: ["MIT"],
