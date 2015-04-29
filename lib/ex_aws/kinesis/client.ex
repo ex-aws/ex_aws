@@ -1,20 +1,19 @@
-defmodule ExAws.Kinesis.Adapter do
+defmodule ExAws.Kinesis.Client do
   use Behaviour
 
   @moduledoc """
-  The purpose of this module is to surface the ExAws.Kinesis API with a single
-  configuration chosen, such that it does not need passed in with every request.
+  Defines a Kinesis client.
 
   Usage:
   ```
   defmodule MyApp.Kinesis do
-    use ExAws.Kinesis.Adapter, otp_app: :my_otp_app
+    use ExAws.Kinesis.Client, otp_app: :my_otp_app
   end
   ```
 
   In your config
   ```
-  config :my_otp_app, ExAws,
+  config :my_otp_app, :ex_aws,
     kinesis:  [], # kinesis config goes here
     dynamodb: [], # you get the idea
   ```
@@ -28,17 +27,20 @@ defmodule ExAws.Kinesis.Adapter do
 
   ```
   defmodule MyApp.Kinesis do
-    use ExAws.Kinesis.Adapter
+    use ExAws.Kinesis.Client
 
-    def config do
-      [
-        kinesis:  [], # kinesis config goes here
-      ]
+    def config_root do
+      Application.get_all_env(:my_aws_config_root)
     end
   end
   ```
+  ExAws now expects the config for that kinesis client to live under
 
-  This is in fact how the functions in ExAws.Kinesis that do not require a config work.
+  ```elixir
+  config :my_aws_config_root
+    kinesis: [] # Kinesis config goes here
+  ```
+
   Default config values can be found in ExAws.Config
 
   http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
@@ -70,8 +72,8 @@ defmodule ExAws.Kinesis.Adapter do
   ## Records
 
   @doc "Get stream records"
-  defcallback get_records(stream_name :: iodata) :: ExAws.Request.response_t
-  defcallback get_records(stream_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback get_records(shard_iterator :: iodata) :: ExAws.Request.response_t
+  defcallback get_records(shard_iterator :: iodata, opts :: %{}) :: ExAws.Request.response_t
 
   @doc """
   Returns a stream of kinesis records
@@ -89,9 +91,9 @@ defmodule ExAws.Kinesis.Adapter do
   Generally speaking you won't need this, but it can be handy if you're trying to prevent flooding.
   See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
   """
-  defcallback stream_records(stream_name :: iodata)# :: Stream.t
-  defcallback stream_records(stream_name :: iodata, opts :: %{})# :: Stream.t
-  defcallback stream_records(stream_name :: iodata, opts :: %{}, iterator_fun :: Fun)# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata)# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata, opts :: %{})# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata, opts :: %{}, iterator_fun :: Fun)# :: Stream.t
 
   @doc "Puts a record on a stream"
   defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata) :: ExAws.Request.response_t
@@ -131,112 +133,119 @@ defmodule ExAws.Kinesis.Adapter do
   defcallback remove_tags_from_stream(name :: iodata , tag_keys :: [binary]) :: ExAws.Request.response_t
 
   @doc """
-  By default the config is obtained by
-  ```
-  Application.get_env(@otp_app, ExAws)[:kinesis]
-  ```
-  via a function created when ```using ExAws.Kinesis.Adapter```
-  is called.
+  Enables custom request handling.
 
-  See ExAws.Kinesis.config/0 for an example that overrides this default
+  By default this just forwards the request to the `ExAws.Kinesis.Request.request/2`.
+  However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
+  defcallback request(data :: %{}, action :: atom)
+
+  @doc "Service"
+  defcallback service() :: atom
+
+  @doc "Retrieves the root AWS config for this client"
+  defcallback config_root() :: Keyword.t
+
+  @doc "Returns the canonical configuration for this service"
   defcallback config() :: Keyword.t
 
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
       @otp_app Keyword.get(opts, :otp_app)
       @behaviour behavior_module
-      alias ExAws.Kinesis
+
+      @moduledoc false
 
       @doc false
       def list_streams do
-        Kinesis.list_streams(__MODULE__)
+        ExAws.Kinesis.Impl.list_streams(__MODULE__)
       end
 
       @doc false
       def describe_stream(name, opts \\ %{}) do
-        Kinesis.describe_stream(__MODULE__, name, opts)
+        ExAws.Kinesis.Impl.describe_stream(__MODULE__, name, opts)
       end
 
       @doc false
       def stream_shards(name, opts \\ %{}) do
-        Kinesis.Lazy.stream_shards(__MODULE__, name, opts)
+        ExAws.Kinesis.Lazy.stream_shards(__MODULE__, name, opts)
       end
 
       @doc false
       def create_stream(name, shard_count \\ 1) do
-        Kinesis.create_stream(__MODULE__, name, shard_count)
+        ExAws.Kinesis.Impl.create_stream(__MODULE__, name, shard_count)
       end
 
       @doc false
       def delete_stream(name) do
-        Kinesis.delete_stream(__MODULE__, name)
+        ExAws.Kinesis.Impl.delete_stream(__MODULE__, name)
       end
 
       @doc false
       def get_records(shard_iterator, opts \\ %{}) do
-        Kinesis.get_records(__MODULE__, shard_iterator, opts)
+        ExAws.Kinesis.Impl.get_records(__MODULE__, shard_iterator, opts)
       end
 
       @doc false
-      def stream_records(shard_iterator, opts \\ %{}, iterator_fun \\ &Kinesis.Lazy.pass/1) do
-        Kinesis.Lazy.stream_records(__MODULE__, shard_iterator, opts, iterator_fun)
+      def stream_records(shard_iterator, opts \\ %{}, iterator_fun \\ &ExAws.Kinesis.Lazy.pass/1) do
+        ExAws.Kinesis.Lazy.stream_records(__MODULE__, shard_iterator, opts, iterator_fun)
       end
 
       @doc false
       def put_record(stream_name, partition_key, blob, opts \\ %{}) do
-        Kinesis.put_record(__MODULE__, stream_name, partition_key, blob, opts)
+        ExAws.Kinesis.Impl.put_record(__MODULE__, stream_name, partition_key, blob, opts)
       end
 
       @doc false
       def put_records(stream_name, records) do
-        Kinesis.put_record(__MODULE__, stream_name, records)
+        ExAws.Kinesis.Impl.put_records(__MODULE__, stream_name, records)
       end
 
       @doc false
       def get_shard_iterator(name, shard_id, shard_iterator_type, opts \\ %{}) do
-        Kinesis.get_shard_iterator(__MODULE__, name, shard_id, shard_iterator_type, opts)
+        ExAws.Kinesis.Impl.get_shard_iterator(__MODULE__, name, shard_id, shard_iterator_type, opts)
       end
 
       @doc false
       def merge_shards(name, adjacent_shard, shard) do
-        Kinesis.merge_shards(__MODULE__, name, adjacent_shard, shard)
+        ExAws.Kinesis.Impl.merge_shards(__MODULE__, name, adjacent_shard, shard)
       end
 
       @doc false
       def split_shard(name, shard, new_starting_hash_key) do
-        Kinesis.split_shard(__MODULE__, name, shard, new_starting_hash_key)
+        ExAws.Kinesis.Impl.split_shard(__MODULE__, name, shard, new_starting_hash_key)
       end
 
       @doc false
       def add_tags_to_stream(name, tags) do
-        Kinesis.add_tags_to_stream(__MODULE__, name, tags)
+        ExAws.Kinesis.Impl.add_tags_to_stream(__MODULE__, name, tags)
       end
 
       @doc false
       def list_tags_for_stream(name, opts \\ %{}) do
-        Kinesis.list_tags_for_stream(__MODULE__, name, opts)
+        ExAws.Kinesis.Impl.list_tags_for_stream(__MODULE__, name, opts)
       end
 
       @doc false
       def remove_tags_from_stream(name, tag_keys) when is_list(tag_keys) do
-        Kinesis.remove_tags_from_stream(__MODULE__, name, tag_keys)
+        ExAws.Kinesis.Impl.remove_tags_from_stream(__MODULE__, name, tag_keys)
       end
 
       @doc false
-      def service do
-        :kinesis
+      def request(data, action) do
+        ExAws.Kinesis.Request.request(__MODULE__, action, data)
       end
+
+      @doc false
+      def service, do: :kinesis
 
       @doc false
       def config_root, do: Application.get_env(@otp_app, :ex_aws)
 
       @doc false
-      def config do
-        __MODULE__ |> ExAws.Config.get
-      end
+      def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0
+      defoverridable config_root: 0, request: 2
     end
   end
 end

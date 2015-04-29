@@ -1,10 +1,10 @@
 defmodule Test.KinesisAlt do
-  use ExAws.Kinesis.Adapter
+  use ExAws.Kinesis.Client
 
   def config_root do
     Application.get_all_env(:ex_aws)
-    |> Keyword.put(:http_client, Test.HTTPotion)
-    |> Keyword.put(:json_codec, Test.JSXCodec)
+    |> Keyword.put(:http_client, ExAws.Request.HTTPotion)
+    |> Keyword.put(:json_codec, ExAws.JSON.JSX)
   end
 end
 

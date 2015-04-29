@@ -1,8 +1,9 @@
 defmodule ExAws.Actions do
 
-  @moduledoc """
-  Ensures listed actions for a service are defined.
-  """
+  @moduledoc false
+
+  # Ensures listed actions for a service are defined.
+  # Really only used by Kinesis and Dynamo, may be refactored.
 
   defmacro __using__(_) do
     quote do

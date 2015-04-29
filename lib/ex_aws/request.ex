@@ -2,30 +2,32 @@ defmodule ExAws.Request do
   require Logger
   @max_attempts 10
 
-  @type response_t :: {:ok, %{}} | {:error, {:http_error, pos_integer, binary}}
+  @moduledoc false
 
-  def request(http_method, path, data, headers, adapter) do
-    config = adapter.config
-    service = adapter.service
+  @type response_t :: {:ok, any} | {:error, {:http_error, pos_integer, binary}}
+
+  def request(http_method, url, data, headers, client) do
+    config = client.config
+    service = client.service
 
     body = case data do
       []  -> "{}"
+      d when is_binary(d) -> d
       _   -> config[:json_codec].encode!(data)
     end
 
-    headers = headers(http_method, path, service, config, headers, body)
-    request_and_retry(http_method, path, service, config, headers, body, {:attempt, 1})
+    headers = headers(http_method, url, service, config, headers, body)
+    request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
   end
 
-  def headers(http_method, path, service, config, headers, body) do
+  def headers(http_method, url, service, config, headers, body) do
     now = %{Timex.Date.now | ms: 0}
     amz_date = Timex.DateFormat.format!(now, "{ISOz}")
     |> String.replace("-", "")
     |> String.replace(":", "")
 
     headers = [
-      {"host", config[:host]},
-      {"x-amz-content-sha256", ""},
+      {"host", URI.parse(url).host},
       {"x-amz-date", amz_date} |
       headers
     ]
@@ -34,7 +36,7 @@ defmodule ExAws.Request do
       config[:access_key_id],
       config[:secret_access_key],
       http_method |> method_string,
-      config |> url(path),
+      url,
       config[:region],
       service |> service_name,
       headers |> Enum.into(%{}),
@@ -53,10 +55,7 @@ defmodule ExAws.Request do
   @doc false
   def request_and_retry(_, _, _, _, _, {:error, reason}), do: {:error, reason}
 
-  def request_and_retry(method, path, service, config, headers, req_body, {:attempt, attempt}) do
-    url = config |> url(path)
-    json_codec = config[:json_codec]
-
+  def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
     if config[:debug_requests] do
       Logger.debug("Request URL: #{inspect url}")
       Logger.debug("Request HEADERS: #{inspect headers}")
@@ -64,25 +63,20 @@ defmodule ExAws.Request do
     end
 
     case config[:http_client].request(method, url, req_body, headers) do
-      {:ok, %{status_code: status, body: ""}} when status in 200..299 ->
-        {:ok, ""}
       {:ok, %{status_code: status, body: body}} when status in 200..299 ->
-        case json_codec.decode(body) do
-          {:ok, result} -> {:ok, result}
-          {:error, _}   -> {:error, body}
-        end
+        {:ok, body}
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
-        case client_error(resp, json_codec) do
+        case client_error(resp, config[:json_codec]) do
           {:retry, reason} ->
-            request_and_retry(method, path, service, config, headers, req_body, attempt_again?(attempt, reason))
+            request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
           {:error, reason} -> {:error, reason}
         end
       {:ok, %{status_code: status, body: body}} when status >= 500 ->
         reason = {:http_error, status, body}
-        request_and_retry(method, path, service, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
       {:error, %{reason: reason}} ->
         Logger.error("ExAws: HTTP ERROR: #{inspect reason}")
-        request_and_retry(method, path, service, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
       whoknows ->
         Logger.info "Unknown response"
         whoknows |> inspect |> Logger.info
@@ -129,18 +123,6 @@ defmodule ExAws.Request do
   def backoff(attempt) do
     :timer.sleep(attempt * 1000)
   end
-
-  defp url(config, path) do
-    [
-      Keyword.get(config, :scheme),
-      Keyword.get(config, :host),
-      Keyword.get(config, :port) |> port,
-      path
-    ] |> IO.iodata_to_binary
-  end
-
-  defp port(80), do: ""
-  defp port(p),  do: ":#{p}"
 
   defp method_string(method) do
     method

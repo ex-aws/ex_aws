@@ -1,16 +1,25 @@
 defmodule ExAws.Config do
 
+  @moduledoc false
+
+  # Generates the configuration for a client.
+  # It starts with the defaults for a given environment
+  # and then merges in the common config from the ex_aws config root,
+  # and then finally any config specified for the particular service
+
   @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
 
-  def get(adapter) do
-    config_root = adapter.config_root
-    config      = adapter.config_root |> Keyword.get(adapter.service, [])
+  def get(client) do
+    config_root = client.config_root
+    unless config_root, do: raise "A valid configuration root is required in your #{client.service} client"
+
+    config      = config_root |> Keyword.get(client.service, [])
     common      = defaults
     |> Keyword.merge(config_root)
     |> Keyword.take(@common_config)
 
     defaults
-    |> Keyword.get(adapter.service, [])
+    |> Keyword.get(client.service, [])
     |> Keyword.merge(common)
     |> Keyword.merge(config)
   end
@@ -39,6 +48,11 @@ defmodule ExAws.Config do
         scheme: "https://",
         region: "us-east-1",
         port: 80
+      ],
+      s3: [
+        scheme: "https://",
+        host: "s3.amazonaws.com",
+        region: "us-east-1"
       ]
     ]
   end
@@ -66,7 +80,7 @@ defmodule ExAws.Config do
       ],
       dynamodb: [
         scheme: "https://",
-        host: "kinesis.us-east-1.amazonaws.com",
+        host: "dynamodb.us-east-1.amazonaws.com",
         region: "us-east-1",
         port: 80
       ],
@@ -75,6 +89,11 @@ defmodule ExAws.Config do
         scheme: "https://",
         region: "us-east-1",
         port: 80
+      ],
+      s3: [
+        scheme: "https://",
+        host: "s3.amazonaws.com",
+        region: "us-east-1"
       ]
     ]
   end

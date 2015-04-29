@@ -1,5 +1,50 @@
-defmodule ExAws.Lambda.Adapter do
+defmodule ExAws.Lambda.Client do
   use Behaviour
+
+  @moduledoc """
+  The purpose of this module is to surface the ExAws.Lambda API with a single
+  configuration chosen, such that it does not need passed in with every request.
+
+  Usage:
+  ```
+  defmodule MyApp.Lambda do
+    use ExAws.Lambda.Client, otp_app: :my_otp_app
+  end
+  ```
+
+  In your config
+  ```
+  config :my_otp_app, ExAws,
+    lambda: [], # lambda config goes here
+  ```
+
+  You can now use MyApp.Lambda as the module for the Lambda api without needing
+  to pass in a particular configuration.
+  This enables different otp apps to configure their AWS configuration separately.
+
+  The alignment with a particular OTP app however is entirely optional.
+  The following also works:
+
+  ```
+  defmodule MyApp.Lambda do
+    use ExAws.Lambda.Client
+
+    def config_root do
+      Application.get_all_env(:my_aws_config_root)
+    end
+  end
+  ```
+  ExAws now expects the config for that lambda client to live under
+
+  ```elixir
+  config :my_aws_config_root
+    lambda: [] # Lambda config goes here
+  ```
+
+  Default config values can be found in ExAws.Config
+
+  http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
+  """
 
   @doc """
   Adds a permission to the access policy associated with the specified AWS Lambda function
@@ -82,10 +127,23 @@ defmodule ExAws.Lambda.Adapter do
   @doc "Update a function configuration"
   defcallback update_function_configuration(function_name :: binary, configuration :: %{}) :: ExAws.Request.response_t
 
+  @doc """
+  Enables custom request handling.
+
+  By default this just forwards the request to the ExAws.Lambda.Request.request/4.
+  However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
+  """
+  defcallback request(data :: %{}, action :: atom, path :: binary)
+  defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t)
+  defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t, headers :: [{binary, binary}, ...])
+
   @doc "Service"
   defcallback service() :: atom
 
-  @doc "Config"
+  @doc "Retrieves the root AWS config for this client"
+  defcallback config_root() :: Keyword.t
+
+  @doc "Returns the canonical configuration for this service"
   defcallback config() :: Keyword.t
 
   defmacro __using__(opts) do
@@ -93,105 +151,108 @@ defmodule ExAws.Lambda.Adapter do
       @otp_app Keyword.get(opts, :otp_app)
       @behaviour behavior_module
 
+      @moduledoc false
+
       @doc false
       def add_permission(function_name, principal, action, statement_id, opts \\ %{}) do
-        ExAws.Lambda.add_permission(__MODULE__, function_name, principal, action, statement_id , opts)
+        ExAws.Lambda.Impl.add_permission(__MODULE__, function_name, principal, action, statement_id , opts)
       end
 
       @doc false
       def create_event_source_mapping(function_name, event_source_arn, starting_position, opts \\ %{}) do
-        ExAws.Lambda.create_event_source_mapping(__MODULE__, function_name, event_source_arn, starting_position, opts)
+        ExAws.Lambda.Impl.create_event_source_mapping(__MODULE__, function_name, event_source_arn, starting_position, opts)
       end
 
       @doc false
       def create_function(function_name, handler, zipfile, opts \\ %{}) do
-        ExAws.Lambda.create_function(__MODULE__, function_name, handler, zipfile, opts)
+        ExAws.Lambda.Impl.create_function(__MODULE__, function_name, handler, zipfile, opts)
       end
 
       @doc false
       def delete_event_source_mapping(source_mapping_uuid) do
-        ExAws.Lambda.delete_event_source_mapping(__MODULE__, source_mapping_uuid)
+        ExAws.Lambda.Impl.delete_event_source_mapping(__MODULE__, source_mapping_uuid)
       end
 
       @doc false
       def delete_function(function_name) do
-        ExAws.Lambda.delete_function(__MODULE__, function_name)
+        ExAws.Lambda.Impl.delete_function(__MODULE__, function_name)
       end
 
       @doc false
       def get_event_source_mapping(source_mapping_uuid) do
-        ExAws.Lambda.get_event_source_mapping(__MODULE__, source_mapping_uuid)
+        ExAws.Lambda.Impl.get_event_source_mapping(__MODULE__, source_mapping_uuid)
       end
 
       @doc false
       def get_function(function_name) do
-        ExAws.Lambda.get_function(__MODULE__, function_name)
+        ExAws.Lambda.Impl.get_function(__MODULE__, function_name)
       end
 
       @doc false
       def get_function_configuration(function_name) do
-        ExAws.Lambda.get_function_configuration(__MODULE__, function_name)
+        ExAws.Lambda.Impl.get_function_configuration(__MODULE__, function_name)
       end
 
       @doc false
       def get_policy(function_name) do
-        ExAws.Lambda.get_policy(__MODULE__, function_name)
+        ExAws.Lambda.Impl.get_policy(__MODULE__, function_name)
       end
 
       @doc false
       def invoke(function_name, payload, client_context, opts \\ %{}) do
-        ExAws.Lambda.invoke(__MODULE__, function_name, payload, client_context, opts)
+        ExAws.Lambda.Impl.invoke(__MODULE__, function_name, payload, client_context, opts)
       end
 
       @doc false
       def invoke_async(function_name, args) do
-        ExAws.Lambda.invoke_async(__MODULE__, function_name, args)
+        ExAws.Lambda.Impl.invoke_async(__MODULE__, function_name, args)
       end
 
       @doc false
       def list_event_source_mappings(function_name, event_source_arn, opts \\ %{}) do
-        ExAws.Lambda.list_event_source_mappings(__MODULE__, function_name, event_source_arn, opts)
+        ExAws.Lambda.Impl.list_event_source_mappings(__MODULE__, function_name, event_source_arn, opts)
       end
 
       @doc false
       def list_functions(opts \\ %{}) do
-        ExAws.Lambda.list_functions(__MODULE__, opts)
+        ExAws.Lambda.Impl.list_functions(__MODULE__, opts)
       end
 
       @doc false
       def remove_permission(function_name, statement_id) do
-        ExAws.Lambda.remove_permission(__MODULE__, function_name, statement_id)
+        ExAws.Lambda.Impl.remove_permission(__MODULE__, function_name, statement_id)
       end
 
       @doc false
       def update_event_source_mapping(uuid, attrs_to_update) do
-        ExAws.Lambda.update_event_source_mapping(__MODULE__, uuid, attrs_to_update)
+        ExAws.Lambda.Impl.update_event_source_mapping(__MODULE__, uuid, attrs_to_update)
       end
 
       @doc false
       def update_function_code(function_name, zipfile) do
-        ExAws.Lambda.update_function_code(__MODULE__, function_name, zipfile)
+        ExAws.Lambda.Impl.update_function_code(__MODULE__, function_name, zipfile)
       end
 
       @doc false
       def update_function_configuration(function_name, configuration) do
-        ExAws.Lambda.update_function_configuration(__MODULE__, function_name, configuration)
+        ExAws.Lambda.Impl.update_function_configuration(__MODULE__, function_name, configuration)
       end
 
       @doc false
-      def service do
-        :lambda
+      def request(data, action, path, params \\ [], headers \\ []) do
+        ExAws.Lambda.Request.request(__MODULE__, action, path, data, params, headers)
       end
+
+      @doc false
+      def service, do: :lambda
 
       @doc false
       def config_root, do: Application.get_env(@otp_app, :ex_aws)
 
       @doc false
-      def config do
-        __MODULE__ |> ExAws.Config.get
-      end
+      def config, do: __MODULE__ |> ExAws.Config.get
 
-      defoverridable config: 0, config_root: 0
+      defoverridable config_root: 0, request: 3, request: 4, request: 5
     end
   end
 

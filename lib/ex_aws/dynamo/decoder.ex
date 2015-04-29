@@ -48,6 +48,7 @@ defmodule ExAws.Dynamo.Decoder do
     end)
   end
 
+  @doc "Attempts to convert a number to a float, and then an integer"
   def binary_to_number(binary) do
     try do
       String.to_float(binary)
@@ -56,6 +57,7 @@ defmodule ExAws.Dynamo.Decoder do
     end
   end
 
+  @doc "Converts a map with binary keys to the specified struct"
   def binary_map_to_struct(bmap, module) do
     module.__struct__
     |> Map.from_struct
