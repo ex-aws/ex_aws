@@ -5,8 +5,9 @@ defmodule ExAws.JSON.Codec do
   Defines the specification for a JSON codec.
 
   ExAws supports the use of your favorite JSON codec provided it fulfills this specification.
+  Poison fulfills this spec without modification, and is the default.
 
-  See the contents of `ExAws.JSON.JSX` for an example.
+  See the contents of `ExAws.JSON.JSX` for an example of an alternative implementation.
   """
 
   defcallback encode!(%{}) :: String.t

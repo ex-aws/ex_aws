@@ -7,17 +7,18 @@ defmodule ExAws.Request.HttpClient do
   ExAws allows you to use your http client of choice, provided that
   it can be coerced into complying with this module's specification.
 
+  HTTPoison fits this spec without modification, and is also the default.
   Here for example is the code required to make HTTPotion comply with this spec.
 
   In your config you would do:
 
   ```elixir
   config :ex_aws,
-    http_client: ExAws.HTTPotionClient
+    http_client: ExAws.Request.HTTPotion
   ```
 
   ```elixir
-  defmodule ExAws.HTTPotionClient do
+  defmodule ExAws.Request.HTTPotion do
     @behaviour ExAws.Request.HttpClient
     def request(method, url, body, headers) do
       {:ok, HTTPotion.request(method, url, [body: body, headers: headers, ibrowse: [headers_as_is: true]])}

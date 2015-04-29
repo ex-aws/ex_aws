@@ -1,4 +1,4 @@
-defmodule ExAws.HTTPotionClient do
+defmodule ExAws.Request.HTTPotion do
   @behaviour ExAws.Request.HttpClient
 
   @moduledoc false

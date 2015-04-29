@@ -159,11 +159,11 @@ config :my_other_ex_aws,
 
 ## Why not erlcloud?
 
-Erlcloud is great, and at present supports a much larger set of APIs than ExAws (although we hope to change that). However, ExAws has a number of distinct advantages over erlcloud in addition to its general features:
+Erlcloud is great, and at present supports a much larger set of APIs than ExAws (although we hope to change that). However, in addition to its unique features, ExAws has a number of advantages over erlcloud in particular:
 
 - Easier configuration. Erlcloud requires you to pass in the configuration with every request as an optional last parameter. If you forget, it will use the default configuration which may have unintended consequences. With ExAws clients you set the configuration once and then never worry about it again.
 
-- Binaries and Maps. ExAws always uses binaries over char lists, and returns maps instead of proplists from many API endpoints.
+- Binaries and Maps. ExAws always uses binaries over char lists, and returns maps instead of proplists.
 
 - No built in dependencies. Already using Poison? No need to add jsx as a dependency.
 

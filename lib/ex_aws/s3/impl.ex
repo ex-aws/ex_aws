@@ -175,7 +175,7 @@ defmodule ExAws.S3.Impl do
     client.request(:delete, bucket, object, headers: opts)
   end
 
-  def delete_multiple_objects(client, bucket, objects) do
+  def delete_multiple_objects(client, bucket, _objects) do
     raise "not yet implimented"
     client.request(:post, bucket, "/?delete")
   end
