@@ -20,7 +20,6 @@ Add ex_aws to your mix.exs, along with your json parser and http client of choic
 - Lambda: json
 - S3: xml
 
-See the configuration section for how to specify alternate codecs and clients.
 
 ```elixir
 def deps do
@@ -31,6 +30,9 @@ def deps do
   ]
 end
 ```
+Don't forget to add :httpoison to your applications list if that's in fact the http client you choose.
+
+See the configuration section for how to specify alternate codecs and clients.
 
 In your config:
 
