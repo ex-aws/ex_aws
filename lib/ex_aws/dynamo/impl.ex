@@ -125,12 +125,12 @@ defmodule ExAws.Dynamo.Impl do
     item
   end
 
-  def update_item(client, table_name, primary_key, update_args) do
+  def update_item(client, table_name, primary_key, update_attrs) do
     %{
       TableName: table_name,
-      Key: Dynamo.Encoder.encode_flat(primary_key)
+      Key: Dynamo.Encoder.encode_flat(primary_key),
+      AttributeUpdates: Dynamo.Encoder.encode_flat(update_attrs)
     }
-    |> Map.merge(update_args)
     |> client.request(:update_item)
   end
 
