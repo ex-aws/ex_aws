@@ -149,7 +149,7 @@ defmodule ExAws.Dynamo.Impl do
   defp atom_to_dynamo_type(:integer), do: "N"
   defp atom_to_dynamo_type(:float),   do: "N"
   defp atom_to_dynamo_type(value) do
-    raise ArgumentError, "Unknown dynamo type"
+    raise ArgumentError, "Unknown dynamo type for value: #{inspect value}"
   end
 
 end

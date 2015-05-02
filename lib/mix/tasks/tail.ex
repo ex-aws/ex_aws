@@ -45,7 +45,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
     |> Enum.map(&get_records(&1, sleep_time))
   end
 
-  def get_shards(name) do
+  defp get_shards(name) do
     case Kinesis.describe_stream(name) do
       {:ok, %{"StreamDescription" => %{"Shards" => shards}}} -> shards
       error -> raise inspect(error)
