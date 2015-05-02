@@ -1,14 +1,16 @@
 defmodule ExAws.Client do
   @moduledoc false
 
+  # Generates boilerplate for client configuration and implementation.
+
   def generate_boilerplate(client, opts) do
     config_boilerplate = create_config_boilerplate(client, opts)
 
     impl_module = impl_module(client)
-    functions = impl_module.__info__(:functions)
+    functions   = impl_module.__info__(:functions)
 
     generated_functions = functions
-    |> Enum.sort_by(fn {_, var_count} -> var_count end)
+    |> Enum.sort_by(&elem(&1, 1))
     |> Enum.map(&generate_function(&1, impl_module))
 
     {:__block__, [], [config_boilerplate | generated_functions]}
@@ -31,18 +33,21 @@ defmodule ExAws.Client do
   ## This generates a function that looks like the following for a client named
   # `ExAws.Example.Client`
   # @doc false
-  # def function_name(arg1, arg2) do
-  #   ExAws.Example.Impl.function_name(__MODULE__, arg1, arg2)
+  # def function_name(arg1, arg2, ...) do
+  #   ExAws.Example.Impl.function_name(__MODULE__, arg1, arg2, ....)
   # end
   def generate_function({name, var_count}, impl_module) do
-    {:def, [], [{name, [], build_variables(var_count - 1)}, [do: {
+    arguments = build_arguments(var_count - 1)
+    {:def, [], [{name, [], arguments}, [do: {
       # Function call to the Impl.function_name
       {:., [], [impl_module, name]}, [],
-      # Function args
-      [{:__MODULE__, [], Elixir} | build_variables(var_count - 1)]
+      # Append __MODULE__ to the function arguments passed to
+      # The implementation function.
+      [{:__MODULE__, [], Elixir} | arguments]
     }]]}
   end
 
+  # ExAws.Dynamo.Client #=> ExAws.Dynamo.Impl
   def impl_module(client) do
     client
     |> Atom.to_string
@@ -50,7 +55,7 @@ defmodule ExAws.Client do
     |> String.to_existing_atom
   end
 
-  def build_variables(n) do
+  def build_arguments(n) do
     0..1000
     |> Stream.map(&("arg#{&1}"))
     |> Stream.map(&String.to_atom/1)

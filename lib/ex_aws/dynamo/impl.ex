@@ -141,8 +141,15 @@ defmodule ExAws.Dynamo.Impl do
 
   defp encode_attrs(attrs) do
     attrs |> Enum.map(fn({name, type}) ->
-      %{AttributeName: name, AttributeType: type}
+      %{AttributeName: name, AttributeType: type |> atom_to_dynamo_type}
     end)
+  end
+
+  defp atom_to_dynamo_type(:string),  do: "S"
+  defp atom_to_dynamo_type(:integer), do: "N"
+  defp atom_to_dynamo_type(:float),   do: "N"
+  defp atom_to_dynamo_type(value) do
+    raise ArgumentError, "Unknown dynamo type"
   end
 
 end

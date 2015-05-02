@@ -42,14 +42,14 @@ config :ex_aws,
   secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
 ```
 
-That's it! ExAws ships with a default client for each API. Examples:
+That's it! ExAws ships with a default client for each API:
+`[ExAws.Dynamo, ExAws.Kinesis, ExAws.Lambda, ExAws.S3]`
 
-```elixir
-ExAws.Dynamo.list_tables
-ExAws.Kinesis.list_streams
-ExAws.Lambda.list_functions
-ExAws.S3.list_buckets
-```
+For particular usage instructions, please consult the client definition for your desired service.
+- [ExAws.Dynamo.Client](http://hexdocs.pm/ex_aws/ExAws.Dynamo.Client.html)
+- [ExAws.Kinesis.Client](http://hexdocs.pm/ex_aws/ExAws.Kinesis.Client.html)
+- [ExAws.Lambda.Client](http://hexdocs.pm/ex_aws/ExAws.Lambda.Client.html)
+- [ExAws.S3.Client](http://hexdocs.pm/ex_aws/ExAws.S3.Client.html)
 
 Dynamo usage example:
 
@@ -63,7 +63,7 @@ alias ExAws.Dynamo
 
 # Create a users table with a primary key of email [String]
 # and 1 unit of read and write capacity
-Dynamo.create_table("Users", "email", %{email: "S"}, 1, 1)
+Dynamo.create_table("Users", "email", %{email: :string}, 1, 1)
 
 user = %User{email: "bubba@foo.com", name: "Bubba", age: 23, admin: false}
 # Save the user
@@ -157,15 +157,21 @@ config :my_other_ex_aws,
   dynamo: [] # Other Dynamo config here
 ```
 
-## Why not erlcloud?
+## ExAws vs. Erlcloud
 
-Erlcloud is great, and at present supports a much larger set of APIs than ExAws (although we hope to change that). However, in addition to its unique features, ExAws has a number of advantages over erlcloud in particular:
+In addition to its unique features, ExAws has a number of advantages over erlcloud in particular:
 
-- Easier configuration. Erlcloud requires you to pass in the configuration with every request as an optional last parameter. If you forget, it will use the default configuration which may have unintended consequences. With ExAws clients you set the configuration once and then never worry about it again.
+- Easier configuration. ExAws uses your normal mix config, erlcloud requires you to separately generate a configuration record.
+
+- Guaranteed configuration. Erlcloud requires you to pass in the configuration with every request as an optional last parameter. If you forget, it will use the default configuration which may have unintended consequences. With ExAws clients you set the configuration once and then never worry about it again.
 
 - Binaries and Maps. ExAws always uses binaries over char lists, and returns maps instead of proplists.
 
 - No built in dependencies. Already using Poison? No need to add jsx as a dependency.
+
+- Lambda support
+
+It's worth noting however that erlcloud supports a substantially larger set of AWS services at this time.
 
 ## License
 

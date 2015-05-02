@@ -4,7 +4,9 @@ defmodule ExAws.Dynamo.Client do
   @moduledoc """
   Defines a Dynamo Client
 
-  Usage:
+  By default you can use ExAws.Dynamo
+
+  ## Usage
   ```
   defmodule MyApp.Dynamo do
     use ExAws.Dynamo.Client, otp_app: :my_otp_app
@@ -41,6 +43,31 @@ defmodule ExAws.Dynamo.Client do
   ```
 
   Default config values can be found in ExAws.Config.
+
+  ## Examples
+
+  ```elixir
+  defmodule User do
+    @derive [ExAws.Dynamo.Encodable]
+    defstruct [:email, :name, :age, :admin]
+  end
+
+  alias ExAws.Dynamo
+
+  # Create a users table with a primary key of email [String]
+  # and 1 unit of read and write capacity
+  Dynamo.create_table("Users", "email", %{email: :string}, 1, 1)
+
+  user = %User{email: "bubba@foo.com", name: "Bubba", age: 23, admin: false}
+  # Save the user
+  Dynamo.put_item("Users", user)
+
+  # Retrieve the user by email and decode it as a User struct.
+  result = Dynamo.get_item!("Users", %{email: user.email})
+  |> Dynamo.Decoder.decode(as: User)
+
+  assert user == result
+  ```
 
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations.html
   """

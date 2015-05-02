@@ -114,57 +114,57 @@ defmodule ExAws.S3.Impl do
   end
 
   def put_bucket_acl(client, bucket, _owner_id, _owner_email, _grants) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_cors(client, bucket, _cors_config) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_lifecycle(client, bucket, _livecycle_config) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_policy(client, bucket, _policy) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_logging(client, bucket, _logging_config) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_notification(client, bucket, _notification_config) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_replication(client, bucket, _replication_config) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_tagging(client, bucket, _tags) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_requestpayment(client, bucket, _payer) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_versioning(client, bucket, _version_config) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
   def put_bucket_website(client, bucket, _website_config) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:put, bucket, "/")
   end
 
@@ -176,7 +176,7 @@ defmodule ExAws.S3.Impl do
   end
 
   def delete_multiple_objects(client, bucket, _objects) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:post, bucket, "/?delete")
   end
 
@@ -210,12 +210,12 @@ defmodule ExAws.S3.Impl do
   end
 
   def post_object(client, bucket, object, _opts \\ %{}) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, bucket, object)
   end
 
   def post_object_restore(client, bucket, object, _version_id, _number_of_days) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, bucket, object)
   end
 
@@ -228,37 +228,37 @@ defmodule ExAws.S3.Impl do
   end
 
   def put_object_acl(client, bucket, object, _acl) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, bucket, object)
   end
 
   def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, dest_bucket, dest_object)
   end
 
   def initiate_multipart_upload(client, bucket, object, _opts \\ %{}) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, bucket, object)
   end
 
   def upload_part(client, bucket, object, _upload_id, _part_number) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, bucket, object)
   end
 
   def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, dest_bucket, dest_object)
   end
 
   def complete_multipart_upload(client, bucket, object, _upload_id, _parts) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, bucket, object)
   end
 
   def abort_multipart_upload(client, bucket, object, _upload_id) do
-    raise "not yet implimented"
+    raise "not yet implemented"
     client.request(:get, bucket, object)
   end
 
