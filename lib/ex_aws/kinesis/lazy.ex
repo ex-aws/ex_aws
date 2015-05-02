@@ -44,7 +44,7 @@ defmodule ExAws.Kinesis.Lazy do
   NOTE: This stream is basically INFINITE, in that it runs
   until the shard it is reading from closes, which may be never.
   """
-  def stream_records(client, shard_iterator, opts, fun \\ &pass/1) do
+  def stream_records(client, shard_iterator, opts \\ %{}, fun \\ &pass/1) do
     sleep_time = Application.get_env(:ex_aws, :kinesis_sleep_between_req_time) || 200
 
     request_fun = fn(fun_opts) ->

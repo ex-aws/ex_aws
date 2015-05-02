@@ -8,6 +8,8 @@ defmodule ExAws.Request.HttpClient do
   it can be coerced into complying with this module's specification.
 
   HTTPoison fits this spec without modification, and is also the default.
+
+  ## Example
   Here for example is the code required to make HTTPotion comply with this spec.
 
   In your config you would do:

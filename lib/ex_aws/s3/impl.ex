@@ -1,14 +1,14 @@
 defmodule ExAws.S3.Impl do
 
   @moduledoc false
-  # Implimentation of the AWS S3 API.
+  # Implementation of the AWS S3 API.
   #
   # See ExAws.S3.Client for usage.
 
   ## Buckets
   #############
 
-  def list_buckets(client, opts) do
+  def list_buckets(client, opts \\ %{}) do
     client.request(:get, "", "/", params: opts)
   end
 
@@ -40,7 +40,7 @@ defmodule ExAws.S3.Impl do
     client.request(:delete, bucket, "/", resource: "website")
   end
 
-  def list_objects(client, bucket, opts) do
+  def list_objects(client, bucket, opts \\ %{}) do
     client.request(:get, bucket, "/", params: opts)
   end
 
@@ -80,7 +80,7 @@ defmodule ExAws.S3.Impl do
     client.request(:get, bucket, "/", resource: "tagging")
   end
 
-  def get_bucket_object_versions(client, bucket, opts) do
+  def get_bucket_object_versions(client, bucket, opts \\ %{}) do
     client.request(:get, bucket, "/", resource: "versions", params: opts)
   end
 
@@ -100,11 +100,11 @@ defmodule ExAws.S3.Impl do
     client.request(:head, bucket, "/")
   end
 
-  def list_multipart_uploads(client, bucket, opts) do
+  def list_multipart_uploads(client, bucket, opts \\ %{}) do
     client.request(:get, bucket, "/", resource: "uploads", params: opts)
   end
 
-  def put_bucket(client, bucket, region, opts) do
+  def put_bucket(client, bucket, region, opts \\ %{}) do
     body = """
     <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
       <LocationConstraint>#{region}</LocationConstraint>
@@ -171,7 +171,7 @@ defmodule ExAws.S3.Impl do
   ## Objects
   ###########
 
-  def delete_object(client, bucket, object, opts) do
+  def delete_object(client, bucket, object, opts \\ %{}) do
     client.request(:delete, bucket, object, headers: opts)
   end
 
@@ -180,7 +180,7 @@ defmodule ExAws.S3.Impl do
     client.request(:post, bucket, "/?delete")
   end
 
-  def get_object(client, bucket, object, opts) do
+  def get_object(client, bucket, object, opts \\ %{}) do
     param_keys = ["response-content-type", "response-content-language", "response-expires", "response-cache-control", "response-content-disposition", "response-content-encoding"]
     response_opts = opts
     |> Map.take(param_keys)
@@ -188,7 +188,7 @@ defmodule ExAws.S3.Impl do
     client.request(:get, bucket, object, headers: headers, params: response_opts)
   end
 
-  def get_object_acl(client, bucket, object, opts) do
+  def get_object_acl(client, bucket, object, opts \\ %{}) do
     client.request(:get, bucket, object, resource: "acl", headers: opts)
   end
 
@@ -196,11 +196,11 @@ defmodule ExAws.S3.Impl do
     client.request(:get, bucket, object, resource: "torrent")
   end
 
-  def head_object(client, bucket, object, opts) do
+  def head_object(client, bucket, object, opts \\ %{}) do
     client.request(:head, bucket, object, headers: opts)
   end
 
-  def options_object(client, bucket, object, origin, request_method, request_headers) do
+  def options_object(client, bucket, object, origin, request_method, request_headers \\ []) do
     headers = [
       {"Origin", origin},
       {"Access-Control-Request-Method", request_method},
@@ -209,7 +209,7 @@ defmodule ExAws.S3.Impl do
     client.request(:options, bucket, object, headers: headers)
   end
 
-  def post_object(client, bucket, object) do
+  def post_object(client, bucket, object, _opts \\ %{}) do
     raise "not yet implimented"
     client.request(:get, bucket, object)
   end
@@ -219,7 +219,7 @@ defmodule ExAws.S3.Impl do
     client.request(:get, bucket, object)
   end
 
-  def put_object(client, bucket, object, body, opts) do
+  def put_object(client, bucket, object, body, opts \\ %{}) do
     headers = [
       {"Content-Type", "binary/octet-stream"} |
       opts |> Map.to_list
@@ -232,12 +232,12 @@ defmodule ExAws.S3.Impl do
     client.request(:get, bucket, object)
   end
 
-  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts) do
+  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
     raise "not yet implimented"
     client.request(:get, dest_bucket, dest_object)
   end
 
-  def initiate_multipart_upload(client, bucket, object) do
+  def initiate_multipart_upload(client, bucket, object, _opts \\ %{}) do
     raise "not yet implimented"
     client.request(:get, bucket, object)
   end
@@ -247,7 +247,7 @@ defmodule ExAws.S3.Impl do
     client.request(:get, bucket, object)
   end
 
-  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts) do
+  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
     raise "not yet implimented"
     client.request(:get, dest_bucket, dest_object)
   end
@@ -257,12 +257,12 @@ defmodule ExAws.S3.Impl do
     client.request(:get, bucket, object)
   end
 
-  def abort_multipart_upload(client, bucket, object) do
+  def abort_multipart_upload(client, bucket, object, _upload_id) do
     raise "not yet implimented"
     client.request(:get, bucket, object)
   end
 
-  def list_parts(client, bucket, object, upload_id, opts) do
+  def list_parts(client, bucket, object, upload_id, opts \\ %{}) do
     params = %{"uploadId" => upload_id}
     |> Map.merge(opts)
     client.request(:get, bucket, object, params: params)

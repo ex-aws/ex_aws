@@ -147,96 +147,16 @@ defmodule ExAws.Lambda.Client do
   defcallback config() :: Keyword.t
 
   defmacro __using__(opts) do
-    quote bind_quoted: [opts: opts, behavior_module: __MODULE__] do
-      @otp_app Keyword.get(opts, :otp_app)
-      @behaviour behavior_module
+    boilerplate = __MODULE__
+    |> ExAws.Client.generate_boilerplate
+
+    quote do
+      @otp_app Keyword.get(unquote(opts), :otp_app)
+      @behaviour unquote(__MODULE__)
 
       @moduledoc false
 
-      @doc false
-      def add_permission(function_name, principal, action, statement_id, opts \\ %{}) do
-        ExAws.Lambda.Impl.add_permission(__MODULE__, function_name, principal, action, statement_id , opts)
-      end
-
-      @doc false
-      def create_event_source_mapping(function_name, event_source_arn, starting_position, opts \\ %{}) do
-        ExAws.Lambda.Impl.create_event_source_mapping(__MODULE__, function_name, event_source_arn, starting_position, opts)
-      end
-
-      @doc false
-      def create_function(function_name, handler, zipfile, opts \\ %{}) do
-        ExAws.Lambda.Impl.create_function(__MODULE__, function_name, handler, zipfile, opts)
-      end
-
-      @doc false
-      def delete_event_source_mapping(source_mapping_uuid) do
-        ExAws.Lambda.Impl.delete_event_source_mapping(__MODULE__, source_mapping_uuid)
-      end
-
-      @doc false
-      def delete_function(function_name) do
-        ExAws.Lambda.Impl.delete_function(__MODULE__, function_name)
-      end
-
-      @doc false
-      def get_event_source_mapping(source_mapping_uuid) do
-        ExAws.Lambda.Impl.get_event_source_mapping(__MODULE__, source_mapping_uuid)
-      end
-
-      @doc false
-      def get_function(function_name) do
-        ExAws.Lambda.Impl.get_function(__MODULE__, function_name)
-      end
-
-      @doc false
-      def get_function_configuration(function_name) do
-        ExAws.Lambda.Impl.get_function_configuration(__MODULE__, function_name)
-      end
-
-      @doc false
-      def get_policy(function_name) do
-        ExAws.Lambda.Impl.get_policy(__MODULE__, function_name)
-      end
-
-      @doc false
-      def invoke(function_name, payload, client_context, opts \\ %{}) do
-        ExAws.Lambda.Impl.invoke(__MODULE__, function_name, payload, client_context, opts)
-      end
-
-      @doc false
-      def invoke_async(function_name, args) do
-        ExAws.Lambda.Impl.invoke_async(__MODULE__, function_name, args)
-      end
-
-      @doc false
-      def list_event_source_mappings(function_name, event_source_arn, opts \\ %{}) do
-        ExAws.Lambda.Impl.list_event_source_mappings(__MODULE__, function_name, event_source_arn, opts)
-      end
-
-      @doc false
-      def list_functions(opts \\ %{}) do
-        ExAws.Lambda.Impl.list_functions(__MODULE__, opts)
-      end
-
-      @doc false
-      def remove_permission(function_name, statement_id) do
-        ExAws.Lambda.Impl.remove_permission(__MODULE__, function_name, statement_id)
-      end
-
-      @doc false
-      def update_event_source_mapping(uuid, attrs_to_update) do
-        ExAws.Lambda.Impl.update_event_source_mapping(__MODULE__, uuid, attrs_to_update)
-      end
-
-      @doc false
-      def update_function_code(function_name, zipfile) do
-        ExAws.Lambda.Impl.update_function_code(__MODULE__, function_name, zipfile)
-      end
-
-      @doc false
-      def update_function_configuration(function_name, configuration) do
-        ExAws.Lambda.Impl.update_function_configuration(__MODULE__, function_name, configuration)
-      end
+      unquote(boilerplate)
 
       @doc false
       def request(data, action, path, params \\ [], headers \\ []) do
