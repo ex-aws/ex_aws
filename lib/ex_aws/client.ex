@@ -1,4 +1,6 @@
 defmodule ExAws.Client do
+  @moduledoc false
+
   def generate_boilerplate(client) do
     impl_module = impl_module(client)
 
@@ -11,16 +13,19 @@ defmodule ExAws.Client do
     {:__block__, [], [{:@, [], [{:doc, [], [false]}]}, generated_functions]}
   end
 
+  ## This generates a function that looks like the following for a client named
+  # `ExAws.Example.Client`
+  # @doc false
+  # def function_name(arg1, arg2) do
+  #   ExAws.Example.Impl.function_name(__MODULE__, arg1, arg2)
+  # end
   def generate_function({name, var_count}, impl_module) do
-    {:def, [context: Elixir, import: Kernel],
-      [
-        {name, [context: Elixir], build_variables(var_count - 1)},
-        [do: {
-          {:., [], [impl_module, name]}, [],
-          [{:__MODULE__, [], Elixir} | build_variables(var_count - 1)]
-        }]
-      ]
-    }
+    {:def, [], [{name, [], build_variables(var_count - 1)}, [do: {
+      # Function call to the Impl.function_name
+      {:., [], [impl_module, name]}, [],
+      # Function args
+      [{:__MODULE__, [], Elixir} | build_variables(var_count - 1)]
+    }]]}
   end
 
   def impl_module(client) do
@@ -31,7 +36,9 @@ defmodule ExAws.Client do
   end
 
   def build_variables(n) do
-    [:a, :b, :c, :d, :e, :f, :g, :h, :i, :j, :k, :l, :m, :n]
+    0..1000
+    |> Stream.map(&("arg#{&1}"))
+    |> Stream.map(&String.to_atom/1)
     |> Enum.take(n)
     |> Enum.map(fn(var) -> {var, [], Elixir} end)
   end
