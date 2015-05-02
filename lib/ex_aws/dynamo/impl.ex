@@ -2,6 +2,9 @@ defmodule ExAws.Dynamo.Impl do
   alias ExAws.Dynamo
   use ExAws.Actions
 
+  defdelegate stream_scan(client, name), to: ExAws.Dynamo.Lazy
+  defdelegate stream_scan(client, name, opts), to: ExAws.Dynamo.Lazy
+
   @namespace "DynamoDB_20120810"
   @actions [
     batch_get_item:   :post,
@@ -77,13 +80,13 @@ defmodule ExAws.Dynamo.Impl do
   ## Records
   ######################
 
-  def scan(client, name, opts) do
+  def scan(client, name, opts \\ %{}) do
     %{TableName: name}
     |> Map.merge(opts)
     |> client.request(:scan)
   end
 
-  def query(client, name, key_conditions, opts) do
+  def query(client, name, key_conditions, opts \\ %{}) do
     %{TableName: name, KeyConditions: key_conditions}
     |> Map.merge(opts)
     |> client.request(:query)
@@ -141,4 +144,5 @@ defmodule ExAws.Dynamo.Impl do
       %{AttributeName: name, AttributeType: type}
     end)
   end
+
 end

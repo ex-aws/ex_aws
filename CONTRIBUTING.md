@@ -25,9 +25,7 @@ houses the functions that correspond to a particular action in the AWS service. 
 
 ### ExAws.ServiceName.Client
 
-This module serves several  rolls. The first is to hold all of the callbacks that must be implemented by a given client. The second is to define a __using__ macro that implements all of the aforementioned callbacks. The body of each function ought to consist exclusively of simply calling the corresponding function in the Impl module with `__MODULE__` as the first argument. The macro should also include a request function that simply passes the arguments to the function in the Request module. This indirection exists so that users with custom clients can specify custom behaviour around a request by overriding this function in their client module.
-
-Finally, this module specifies the default way in which configuration is to be found. This is basically the same for every service. Why not meta-program away the repetition? I figured two layers of macros ought to be avoided, particularly since this isn't very much code. See any of the existing clients for details.
+This module serves several  rolls. The first is to hold all of the callbacks that must be implemented by a given client. The second is to define a __using__ macro that implements all of the aforementioned callbacks. Most of this is done automatically via macros in the ExAws.Client module. However, the client author is responsible for a request function that simply passes the arguments to the function in the Request module. This indirection exists so that users with custom clients can specify custom behaviour around a request by overriding this function in their client module.
 
 ### ExAws.ServiceName
 Finally, the bare ExAws.ServiceName ought to simply consist of the following.
@@ -49,21 +47,12 @@ ExAws.Dynamo.Client specifies the callback
 defcallback describe_table(name :: binary) :: ExAws.Request.response_t
 ```
 
-Additionally, it defines a __using__ macro that implements this function (shown here truncated) and also a request function
+The `ExAws.Client` boilerplate generation functions generate functions like within the `__using__/1` macro
 ```elixir
-defmacro __using__(_) do
-  quote do
-    def describe_table(name) do
-      ExAws.Dynamo.Impl.describe_table(__MODULE__, name)
-    end
-
-    def request(data, action) do
-      ExAws.Dynamo.Request.request(__MODULE__, action, data)
-    end
-  end
+def describe_table(name) do
+  ExAws.Dynamo.Impl.describe_table(__MODULE__, name)
 end
 ```
-The macro ought never to do more than call the corresponding function in Impl with __MODULE__ added as the first argument. Lots of logic inside macros can become rapidly challenging to test.
 
 Now we hop over to the `ExAws.Dynamo.Impl` module where we actually format the request:
 ```elixir
@@ -72,6 +61,29 @@ def describe_table(client, name) do
   |> client.request(:describe_table)
 end
 ```
+
+The client author is responsible for the following.
+```elixir
+defmacro __using__(opts) do
+  boilerplate = __MODULE__
+  |> ExAws.Client.generate_boilerplate(opts)
+
+  quote do
+    unquote(boilerplate)
+
+    @doc false
+    def request(data, action) do
+      ExAws.Dynamo.Request.request(__MODULE__, action, data)
+    end
+
+    @doc false
+    def service, do: :dynamodb
+
+    defoverridable config_root: 0, request: 2
+  end
+end
+```
+
 You're probably wondering, why are we going to the effort of calling client.request when all it does is just pass things along to ExAws.Dynamo.Request? Good question! This pattern bestows some very useful abilities upon custom clients. Suppose for example you had staging and production Dynamo tables such that you had a Users-staging and Users-production table, and some STAGE environment variable to tell the app what stage it's in. Instead of the tedious and bug prone `"Users-#{System.get_env("STAGE")}" |> Dynamo.describe_table`, you can just override the request function in a custom client. For example:
 
 ```elixir

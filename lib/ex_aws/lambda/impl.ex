@@ -28,13 +28,13 @@ defmodule ExAws.Lambda.Impl do
     update_function_configuration: :put
   ]
 
-  def add_permission(client, function_name, principal, action, statement_id, opts) do
+  def add_permission(client, function_name, principal, action, statement_id, opts \\ %{}) do
     opts
     |> Map.merge(%{Action: action, Principal: principal, StatementId: statement_id})
     |> client.request(:add_permission, "/2015-03-31/functions/#{function_name}/versions/HEAD/policy")
   end
 
-  def create_event_source_mapping(client, function_name, event_source_arn, starting_position, opts) do
+  def create_event_source_mapping(client, function_name, event_source_arn, starting_position, opts \\ %{}) do
     opts
     |> Map.merge(%{
       FunctionName:     function_name,
@@ -43,7 +43,7 @@ defmodule ExAws.Lambda.Impl do
     |> client.request(:create_event_source_mapping, "/2015-03-31/event-source-mappings/")
   end
 
-  def create_function(client, function_name, handler, zipfile, opts) do
+  def create_function(client, function_name, handler, zipfile, opts \\ %{}) do
     opts
     |> Map.merge(%{
       FunctionName: function_name,
@@ -76,7 +76,7 @@ defmodule ExAws.Lambda.Impl do
     client.request(%{}, :get_policy, "/2015-03-31/functions/#{function_name}/versions/HEAD/policy")
   end
 
-  def invoke(client, function_name, payload, client_context, opts) do
+  def invoke(client, function_name, payload, client_context, opts \\ %{}) do
     json_codec = client.config[:json_codec]
     headers = [
       {"X-Amz-Invocation-Type", Map.get(opts, :InvocationType, "RequestResponse")},
@@ -96,13 +96,13 @@ defmodule ExAws.Lambda.Impl do
     client.request(args, :invoke, "/2014-11-13/functions/#{function_name}/invoke-async/")
   end
 
-  def list_event_source_mappings(client, function_name, event_source_arn, opts) do
+  def list_event_source_mappings(client, function_name, event_source_arn, opts \\ %{}) do
     params = opts
     |> Map.merge(%{FunctionName: function_name, EventSourceArn: event_source_arn})
     client.request(%{}, :list_event_source_mappings, "/2015-03-31/event-source-mappings/", params)
   end
 
-  def list_functions(client, opts) do
+  def list_functions(client, opts \\ %{}) do
     client.request(%{}, :list_functions, "/2015-03-31/functions/", opts)
   end
 

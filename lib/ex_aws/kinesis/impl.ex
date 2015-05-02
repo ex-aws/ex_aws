@@ -2,6 +2,13 @@ defmodule ExAws.Kinesis.Impl do
   use ExAws.Actions
   require Logger
 
+  defdelegate stream_shards(client, name), to: ExAws.Kinesis.Lazy
+  defdelegate stream_shards(client, name, opts), to: ExAws.Kinesis.Lazy
+
+  defdelegate stream_records(client, shard_iterator), to: ExAws.Kinesis.Lazy
+  defdelegate stream_records(client, shard_iterator, opts), to: ExAws.Kinesis.Lazy
+  defdelegate stream_records(client, shard_iterator, opts, iterator_fun), to: ExAws.Kinesis.Lazy
+
   @moduledoc false
   # Implimentation of the AWS Kinesis API.
   #
@@ -30,13 +37,13 @@ defmodule ExAws.Kinesis.Impl do
     client.request(%{}, :list_streams)
   end
 
-  def describe_stream(client, name, opts) do
+  def describe_stream(client, name, opts \\ %{}) do
     %{StreamName: name}
     |> Map.merge(opts)
     |> client.request(:describe_stream)
   end
 
-  def create_stream(client, name, shard_count) do
+  def create_stream(client, name, shard_count \\ 1) do
     %{
       ShardCount: shard_count,
       StreamName: name
@@ -52,7 +59,7 @@ defmodule ExAws.Kinesis.Impl do
   ## Records
   ######################
 
-  def get_records(client, shard_iterator, opts) do
+  def get_records(client, shard_iterator, opts \\ %{}) do
     %{ShardIterator: shard_iterator}
     |> Map.merge(opts)
     |> client.request(:get_records)
@@ -77,11 +84,7 @@ defmodule ExAws.Kinesis.Impl do
     |> Enum.reverse
   end
 
-  def put_record(client, stream_name, partition_key, data, opts) when is_list(data) do
-    put_record(client, stream_name, partition_key, IO.iodata_to_binary(data), opts)
-  end
-
-  def put_record(client, stream_name, partition_key, data, opts) when is_binary(data) do
+  def put_record(client, stream_name, partition_key, data, opts \\ %{}) do
     %{
       Data: data |> Base.encode64,
       PartitionKey: partition_key,
@@ -110,7 +113,7 @@ defmodule ExAws.Kinesis.Impl do
   ## Shards
   ######################
 
-  def get_shard_iterator(client, name, shard_id, shard_iterator_type, opts) do
+  def get_shard_iterator(client, name, shard_id, shard_iterator_type, opts \\ %{}) do
     %{
       StreamName: name,
       ShardId: shard_id,
@@ -145,7 +148,7 @@ defmodule ExAws.Kinesis.Impl do
     |> client.request(:add_tags_to_stream)
   end
 
-  def list_tags_for_stream(client, name, opts) do
+  def list_tags_for_stream(client, name, opts \\ %{}) do
     %{StreamName: name}
     |> Map.merge(opts)
     |> client.request(:list_tags_for_stream)
