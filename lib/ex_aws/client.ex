@@ -2,14 +2,20 @@ defmodule ExAws.Client do
   @moduledoc false
 
   # Generates boilerplate for client configuration and implementation.
+  # It uses the functions in Impl as the list to generate from, so that
+  # the built in behaviour checking logic can operate normally.
+  #
+  # However, the impl list is filtered according to the callback list
 
   def generate_boilerplate(client, opts) do
     config_boilerplate = create_config_boilerplate(client, opts)
 
+    callbacks   = client.__behaviour__(:callbacks) |> Keyword.keys
     impl_module = impl_module(client)
     functions   = impl_module.__info__(:functions)
 
     generated_functions = functions
+    |> Keyword.take(callbacks -- [:config, :config_root, :request, :service])
     |> Enum.sort_by(&elem(&1, 1))
     |> Enum.map(&generate_function(&1, impl_module))
 

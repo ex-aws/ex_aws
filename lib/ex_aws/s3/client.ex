@@ -129,11 +129,7 @@ defmodule ExAws.S3.Client do
   defcallback put_bucket(bucket :: binary, region :: binary) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket bucket access control"
-  defcallback put_bucket_acl(
-    bucket      :: binary,
-    owner_id    :: binary,
-    owner_email :: binary,
-    grants      :: %{}) :: ExAws.Request.response_t
+  defcallback put_bucket_acl(bucket :: binary, grants :: %{}) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket CORS policy"
   defcallback put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Request.response_t
