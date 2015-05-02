@@ -1,7 +1,8 @@
 defmodule ExAws.Client do
   @moduledoc false
 
-  def generate_boilerplate(client) do
+  def generate_boilerplate(client, opts) do
+    config_boilerplate = create_config_boilerplate(client, opts)
     impl_module = impl_module(client)
 
     functions = impl_module.__info__(:functions)
@@ -10,7 +11,21 @@ defmodule ExAws.Client do
     |> Enum.sort_by(fn {_, var_count} -> var_count end)
     |> Enum.map(&generate_function(&1, impl_module))
 
-    {:__block__, [], [{:@, [], [{:doc, [], [false]}]}, generated_functions]}
+    {:__block__, [], [general_boilplate | generated_functions]}
+  end
+
+  def create_config_boilerplate(client, opts) do
+    quote do
+      @moduledoc false
+      @otp_app Keyword.get(unquote(opts), :otp_app)
+      @behaviour unquote(client)
+
+      @doc false
+      def config_root, do: Application.get_env(@otp_app, :ex_aws)
+
+      @doc false
+      def config, do: __MODULE__ |> ExAws.Config.get
+    end
   end
 
   ## This generates a function that looks like the following for a client named

@@ -148,14 +148,9 @@ defmodule ExAws.Lambda.Client do
 
   defmacro __using__(opts) do
     boilerplate = __MODULE__
-    |> ExAws.Client.generate_boilerplate
+    |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
-      @otp_app Keyword.get(unquote(opts), :otp_app)
-      @behaviour unquote(__MODULE__)
-
-      @moduledoc false
-
       unquote(boilerplate)
 
       @doc false
@@ -165,12 +160,6 @@ defmodule ExAws.Lambda.Client do
 
       @doc false
       def service, do: :lambda
-
-      @doc false
-      def config_root, do: Application.get_env(@otp_app, :ex_aws)
-
-      @doc false
-      def config, do: __MODULE__ |> ExAws.Config.get
 
       defoverridable config_root: 0, request: 3, request: 4, request: 5
     end

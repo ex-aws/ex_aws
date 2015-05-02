@@ -152,14 +152,9 @@ defmodule ExAws.Dynamo.Client do
 
   defmacro __using__(opts) do
     boilerplate = __MODULE__
-    |> ExAws.Client.generate_boilerplate
+    |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
-      @otp_app Keyword.get(unquote(opts), :otp_app)
-      @behaviour unquote(__MODULE__)
-
-      @moduledoc false
-
       unquote(boilerplate)
 
       @doc false
@@ -169,12 +164,6 @@ defmodule ExAws.Dynamo.Client do
 
       @doc false
       def service, do: :dynamodb
-
-      @doc false
-      def config_root, do: Application.get_env(@otp_app, :ex_aws)
-
-      @doc false
-      def config, do: __MODULE__ |> ExAws.Config.get
 
       defoverridable config_root: 0, request: 2
     end
