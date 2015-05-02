@@ -3,15 +3,15 @@ defmodule ExAws.Client do
 
   def generate_boilerplate(client, opts) do
     config_boilerplate = create_config_boilerplate(client, opts)
-    impl_module = impl_module(client)
 
+    impl_module = impl_module(client)
     functions = impl_module.__info__(:functions)
 
     generated_functions = functions
     |> Enum.sort_by(fn {_, var_count} -> var_count end)
     |> Enum.map(&generate_function(&1, impl_module))
 
-    {:__block__, [], [general_boilplate | generated_functions]}
+    {:__block__, [], [config_boilerplate | generated_functions]}
   end
 
   def create_config_boilerplate(client, opts) do
