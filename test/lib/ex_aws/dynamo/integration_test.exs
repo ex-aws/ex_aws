@@ -15,7 +15,7 @@ defmodule ExAws.DynamoIntegrationTest do
 
   test "#create and destroy table" do
     assert {:ok, %{"TableDescription" => %{"TableName" => "Elixir.Foo"}}} =
-      Dynamo.create_table(Foo, "shard_id", %{shard_id: :string}, 1, 1)
+      Dynamo.create_table(Foo, :shard_id, [shard_id: :string], 1, 1)
     assert {:ok, _} = Dynamo.delete_table(Foo)
   end
 
