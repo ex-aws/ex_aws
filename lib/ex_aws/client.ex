@@ -55,12 +55,14 @@ defmodule ExAws.Client do
     |> String.to_existing_atom
   end
 
-  def build_arguments(n) do
-    Stream.iterate(0, &(&1+1))
+  def build_arguments(n) when n > 0 do
+    Stream.iterate(0, &(&1 + 1))
     |> Stream.map(&("arg#{&1}"))
     |> Stream.map(&String.to_atom/1)
     |> Enum.take(n)
     |> Enum.map(fn(var) -> {var, [], Elixir} end)
   end
+
+  def build_arguments(_), do: []
 
 end
