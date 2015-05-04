@@ -117,7 +117,17 @@ defmodule ExAws.Dynamo.Impl do
 
   def batch_get_item(client, data) do
     data
-    client.request(data, :batch_get_item)
+    |> Enum.reduce(%{}, fn {table_name, table_query}, query ->
+      keys = table_query
+      |> Map.get(:keys)
+      |> encode_values
+
+      dynamized_table_query = table_query
+      |> camelize_keys
+      |> Map.put
+      Map.put(query, table_name, table_query)
+    end)
+    |> client.request(:batch_get_item)
   end
 
   def put_item(client, name, record) do
@@ -180,8 +190,8 @@ defmodule ExAws.Dynamo.Impl do
   end
   defp build_expression_attribute_values(data, _), do: data
 
-  defp encode_values(map) do
-    Enum.reduce(map, %{}, fn {attr, value}, attribute_values ->
+  defp encode_values(dict) do
+    Enum.reduce(dict, %{}, fn {attr, value}, attribute_values ->
       Map.put(attribute_values, attr, Dynamo.Encoder.encode(value))
     end)
   end
