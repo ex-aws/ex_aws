@@ -56,7 +56,7 @@ defmodule ExAws.Client do
   end
 
   def build_arguments(n) do
-    0..1000
+    Stream.iterate(0, &(&1+1))
     |> Stream.map(&("arg#{&1}"))
     |> Stream.map(&String.to_atom/1)
     |> Enum.take(n)
