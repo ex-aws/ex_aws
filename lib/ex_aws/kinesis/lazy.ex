@@ -3,7 +3,7 @@ defmodule ExAws.Kinesis.Lazy do
   @moduledoc false
   # Implimentation of lazy functions surfaced by ExAws.Kinesis.Client
 
-  def stream_shards(client, stream, opts) do
+  def stream_shards(client, stream, opts \\ %{}) do
     request_fun = fn
       {:initial, initial} -> initial
       fun_opts -> Kinesis.Impl.describe_stream(client, stream, Map.merge(opts, fun_opts))
