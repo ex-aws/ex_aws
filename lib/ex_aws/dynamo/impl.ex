@@ -152,8 +152,9 @@ defmodule ExAws.Dynamo.Impl do
     data
     |> Enum.reduce(%{}, fn {table_name, table_query}, query ->
       keys = table_query
+      |> Enum.into(%{})
       |> Map.get(:keys)
-      |> encode_values
+      |> Enum.map(&encode_values/1)
 
       dynamized_table_query = table_query
       |> camelize_keys
@@ -222,6 +223,7 @@ defmodule ExAws.Dynamo.Impl do
   defp build_expression_attribute_names(data, %{expression_attribute_names: names}) do
     Map.put(data, "ExpressionAttributeNames", names |> Enum.into(%{}))
   end
+  defp build_expression_attribute_names(data, _), do: data
 
   defp build_expression_attribute_values(data, %{expression_attribute_values: values}) do
     Map.put(data, "ExpressionAttributeValues", values |> encode_values)

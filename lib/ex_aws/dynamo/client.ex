@@ -44,6 +44,32 @@ defmodule ExAws.Dynamo.Client do
 
   Default config values can be found in ExAws.Config.
 
+  ## General notes
+  All options are handled as underscored atoms instead of camelcased binaries as specified
+  in the Dynamo API. IE `IndexName` would be `:index_name`. Anywhere in the API that requires
+  dynamo type annotation (`{"S":"mystring"}`) is handled for you automatically. IE
+
+  ```elixir
+  ExAws.Dynamo.scan("Users", expression_attribute_values: [api_key: "foo"])
+  ```
+  Transforms into a query of
+  ```elixir
+  %{"ExpressionAttributeValues" => %{api_key: %{"S" => "foo"}}, "TableName" => "Users"}
+  ```
+
+  Consult the function documentation to see precisely which options are handled this way.
+
+  If you wish to avoid this kind of automatic behaviour you are free to specify the types yourself.
+  IE:
+  ```elixir
+  ExAws.Dynamo.scan("Users", expression_attribute_values: [api_key: %{"B" => "Treated as binary"}])
+  ```
+  Becomes:
+  ```elixir
+  %{"ExpressionAttributeValues" => %{api_key: %{"B" => "Treated as binary"}}, "TableName" => "Users"}
+  ```
+  Alternatively, if what's being encoded is a struct, you're always free to implement ExAws.Dynamo.Encodable for that struct.
+
   ## Examples
 
   ```elixir
@@ -108,7 +134,14 @@ defmodule ExAws.Dynamo.Client do
   ## Records
   ######################
 
-  @doc "Scan table"
+  @doc """
+  Scan table
+
+  Please read http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:exclusive_start_key, :expression_attribute_names]`
+  """
   defcallback scan(table_name :: binary) :: ExAws.Request.response_t
   defcallback scan(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
@@ -116,11 +149,23 @@ defmodule ExAws.Dynamo.Client do
   Stream records from table
 
   Same as scan/1,2 but the records are a stream which will automatically handle pagination
+
+  ```elixir
+  {:ok, %{"Items" => items}} = Dynamo.stream_scan("Users")
+  items |> Enum.to_list #=> Returns every item in the Users table.
+  ```
   """
   defcallback stream_scan(table_name :: binary) :: ExAws.Request.response_t
   defcallback stream_scan(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
-  @doc "Query Table"
+  @doc """
+  Query Table
+
+  Please read: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:exclusive_start_key, :expression_attribute_names]`
+  """
   defcallback query(table_name :: binary) :: ExAws.Request.response_t
   defcallback query(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
@@ -129,6 +174,30 @@ defmodule ExAws.Dynamo.Client do
 
   Map of table names to request parameter maps.
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:keys]`
+
+  ```elixir
+  Dynamo.batch_get_item(%{
+    "Users" => [
+      consistent_read: true,
+      keys: [
+        [api_key: "key1"],
+        [api_key: "api_key2"]
+      ]
+    ],
+    "Subscriptions" => %{
+      keys: [
+        %{id: "id1"}
+      ]
+    }
+  })
+  ```
+  As you see you're largely free to use either keyword args or maps in the body. A map
+  is required for the argument itself because the table names are most often binaries, and I refuse
+  to inflict proplists on anyone.
+
   """
   defcallback batch_get_item(%{String.t => %{}}) :: ExAws.Request.response_t
 
@@ -137,6 +206,9 @@ defmodule ExAws.Dynamo.Client do
 
   Map of table names to request parameter maps.
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:keys]`
   """
   defcallback batch_write_item(%{String.t => %{}}) :: ExAws.Request.response_t
 
