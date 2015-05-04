@@ -6,7 +6,7 @@ defmodule ExAws.Client do
   def generate_boilerplate(client, opts) do
     config_boilerplate = create_config_boilerplate(client, opts)
 
-    impl_module = impl_module(client)
+    {:module, impl_module} = impl_module(client)
     functions   = impl_module.__info__(:functions)
 
     generated_functions = functions
@@ -52,7 +52,8 @@ defmodule ExAws.Client do
     client
     |> Atom.to_string
     |> String.replace("Client", "Impl")
-    |> String.to_existing_atom
+    |> String.to_atom
+    |> Code.ensure_compiled
   end
 
   def build_arguments(n) when n > 0 do
