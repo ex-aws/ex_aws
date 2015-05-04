@@ -53,7 +53,7 @@ defmodule ExAws.Kinesis.Client do
 
   @doc "Describe Stream"
   defcallback describe_stream(stream_name :: iodata) :: ExAws.Request.response_t
-  defcallback describe_stream(stream_name :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback describe_stream(stream_name :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc """
   Same as describe_stream/1,2 except the shards key is a stream and will automatically handle pagination
@@ -73,7 +73,7 @@ defmodule ExAws.Kinesis.Client do
 
   @doc "Get stream records"
   defcallback get_records(shard_iterator :: iodata) :: ExAws.Request.response_t
-  defcallback get_records(shard_iterator :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback get_records(shard_iterator :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc """
   Returns a stream of kinesis records
@@ -92,12 +92,12 @@ defmodule ExAws.Kinesis.Client do
   See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
   """
   defcallback stream_records(shard_iterator :: iodata)# :: Stream.t
-  defcallback stream_records(shard_iterator :: iodata, opts :: %{})# :: Stream.t
-  defcallback stream_records(shard_iterator :: iodata, opts :: %{}, iterator_fun :: Fun)# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata, opts :: Keyword.t)# :: Stream.t
+  defcallback stream_records(shard_iterator :: iodata, opts :: Keyword.t, iterator_fun :: Fun)# :: Stream.t
 
   @doc "Puts a record on a stream"
   defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata) :: ExAws.Request.response_t
-  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Put multiple records on a stream"
   defcallback put_records(stream_name :: iodata, records :: [%{}]) :: ExAws.Request.response_t
@@ -112,7 +112,7 @@ defmodule ExAws.Kinesis.Client do
     | "LATEST"
   """
   defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata) :: ExAws.Request.response_t
-  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Merge adjacent shards"
   defcallback merge_shards(stream_name :: iodata, adjacent_shard_id :: iodata, shard_id :: iodata) :: ExAws.Request.response_t
@@ -127,7 +127,7 @@ defmodule ExAws.Kinesis.Client do
 
   @doc "Add tags to stream"
   defcallback list_tags_for_stream(name :: iodata)
-  defcallback list_tags_for_stream(name :: iodata, opts :: %{}) :: ExAws.Request.response_t
+  defcallback list_tags_for_stream(name :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Remove tags from stream"
   defcallback remove_tags_from_stream(name :: iodata , tag_keys :: [binary]) :: ExAws.Request.response_t

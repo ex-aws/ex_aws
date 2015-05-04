@@ -32,6 +32,12 @@ end
 ```
 Don't forget to add :httpoison to your applications list if that's in fact the http client you choose.
 
+```elixir
+def application() do
+  [applications: [:httpoison]]
+end
+```
+
 See the configuration section for how to specify alternate codecs and clients.
 
 In your config:

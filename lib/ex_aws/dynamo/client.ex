@@ -110,7 +110,7 @@ defmodule ExAws.Dynamo.Client do
 
   @doc "Scan table"
   defcallback scan(table_name :: binary) :: ExAws.Request.response_t
-  defcallback scan(table_name :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback scan(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc """
   Stream records from table
@@ -118,11 +118,11 @@ defmodule ExAws.Dynamo.Client do
   Same as scan/1,2 but the records are a stream which will automatically handle pagination
   """
   defcallback stream_scan(table_name :: binary) :: ExAws.Request.response_t
-  defcallback stream_scan(table_name :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Query Table"
   defcallback query(table_name :: binary, key_conditions :: %{}) :: ExAws.Request.response_t
-  defcallback query(table_name :: binary, key_conditions :: %{}, opts :: %{}) :: ExAws.Request.response_t
+  defcallback query(table_name :: binary, key_conditions :: %{}, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc """
   Get up to 100 items (16mb)

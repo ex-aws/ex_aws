@@ -52,7 +52,7 @@ defmodule ExAws.Lambda.Client do
   Action pattern: (lambda:[*]|lambda:[a-zA-Z]+|[*])
   """
   defcallback add_permission(function_name :: binary, principal :: binary, action :: binary, statement_id :: binary) :: ExAws.Request.response_t
-  defcallback add_permission(function_name :: binary, principal :: binary, action :: binary, statement_id :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback add_permission(function_name :: binary, principal :: binary, action :: binary, statement_id :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc """
   Creates a stream based event source for a function
@@ -102,18 +102,18 @@ defmodule ExAws.Lambda.Client do
 
   @doc "Invoke a lambda function"
   defcallback invoke(function_name :: binary, payload :: %{}, client_context :: %{}) :: ExAws.Request.response_t
-  defcallback invoke(function_name :: binary, payload :: %{}, client_context :: %{}, opts :: %{}) :: ExAws.Request.response_t
+  defcallback invoke(function_name :: binary, payload :: %{}, client_context :: %{}, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Invoke a lambda function asynchronously"
   defcallback invoke_async(function_name :: binary, args :: %{}) :: ExAws.Request.response_t
 
   @doc "List event source mappings"
   defcallback list_event_source_mappings(function_name :: binary, event_source_arn :: binary) :: ExAws.Request.response_t
-  defcallback list_event_source_mappings(function_name :: binary, event_source_arn :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback list_event_source_mappings(function_name :: binary, event_source_arn :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "List functions"
   defcallback list_functions() :: ExAws.Request.response_t
-  defcallback list_functions(opts :: %{}) :: ExAws.Request.response_t
+  defcallback list_functions(opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Remove individual permissions from an function's access policy"
   defcallback remove_permission(function_name :: binary, statement_id :: binary) :: ExAws.Request.response_t

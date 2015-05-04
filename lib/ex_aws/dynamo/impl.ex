@@ -1,5 +1,6 @@
 defmodule ExAws.Dynamo.Impl do
   alias ExAws.Dynamo
+  import ExAws.Utils, only: [camelize_opts: 1]
   use ExAws.Actions
 
   defdelegate stream_scan(client, name), to: ExAws.Dynamo.Lazy
@@ -68,7 +69,7 @@ defmodule ExAws.Dynamo.Impl do
   @doc "Update Table"
   def update_table(client, name, attributes) do
     %{TableName: name}
-    |> Map.merge(attributes)
+    |> Map.merge(camelize_opts(attributes))
     |> client.request(:update_table)
   end
 
@@ -80,15 +81,15 @@ defmodule ExAws.Dynamo.Impl do
   ## Records
   ######################
 
-  def scan(client, name, opts \\ %{}) do
+  def scan(client, name, opts \\ []) do
     %{TableName: name}
-    |> Map.merge(opts)
+    |> Map.merge(camelize_opts(opts))
     |> client.request(:scan)
   end
 
-  def query(client, name, key_conditions, opts \\ %{}) do
+  def query(client, name, key_conditions, opts \\ []) do
     %{TableName: name, KeyConditions: key_conditions}
-    |> Map.merge(opts)
+    |> Map.merge(camelize_opts(opts))
     |> client.request(:query)
   end
 
@@ -130,7 +131,7 @@ defmodule ExAws.Dynamo.Impl do
       TableName: table_name,
       Key: Dynamo.Encoder.encode_flat(primary_key)
     }
-    |> Map.merge(update_args)
+    |> Map.merge(camelize_opts(update_args))
     |> client.request(:update_item)
   end
 

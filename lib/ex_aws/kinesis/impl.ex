@@ -1,5 +1,6 @@
 defmodule ExAws.Kinesis.Impl do
   use ExAws.Actions
+  import ExAws.Utils, only: [camelize_opts: 1]
   require Logger
 
   defdelegate stream_shards(client, name), to: ExAws.Kinesis.Lazy
@@ -37,9 +38,9 @@ defmodule ExAws.Kinesis.Impl do
     client.request(%{}, :list_streams)
   end
 
-  def describe_stream(client, name, opts \\ %{}) do
+  def describe_stream(client, name, opts \\ []) do
     %{StreamName: name}
-    |> Map.merge(opts)
+    |> Map.merge(camelize_opts(opts))
     |> client.request(:describe_stream)
   end
 
@@ -59,9 +60,9 @@ defmodule ExAws.Kinesis.Impl do
   ## Records
   ######################
 
-  def get_records(client, shard_iterator, opts \\ %{}) do
+  def get_records(client, shard_iterator, opts \\ []) do
     %{ShardIterator: shard_iterator}
-    |> Map.merge(opts)
+    |> Map.merge(camelize_opts(opts))
     |> client.request(:get_records)
     |> do_get_records
   end
@@ -84,13 +85,13 @@ defmodule ExAws.Kinesis.Impl do
     |> Enum.reverse
   end
 
-  def put_record(client, stream_name, partition_key, data, opts \\ %{}) do
+  def put_record(client, stream_name, partition_key, data, opts \\ []) do
     %{
       Data: data |> Base.encode64,
       PartitionKey: partition_key,
       StreamName: stream_name
     }
-    |> Map.merge(opts)
+    |> Map.merge(camelize_opts(opts))
     |> client.request(:put_record)
   end
 
@@ -113,12 +114,12 @@ defmodule ExAws.Kinesis.Impl do
   ## Shards
   ######################
 
-  def get_shard_iterator(client, name, shard_id, shard_iterator_type, opts \\ %{}) do
+  def get_shard_iterator(client, name, shard_id, shard_iterator_type, opts \\ []) do
     %{
       StreamName: name,
       ShardId: shard_id,
       ShardIteratorType: shard_iterator_type
-    } |> Map.merge(opts)
+    } |> Map.merge(camelize_opts(opts))
     |> client.request(:get_shard_iterator)
   end
 
@@ -148,9 +149,9 @@ defmodule ExAws.Kinesis.Impl do
     |> client.request(:add_tags_to_stream)
   end
 
-  def list_tags_for_stream(client, name, opts \\ %{}) do
+  def list_tags_for_stream(client, name, opts \\ []) do
     %{StreamName: name}
-    |> Map.merge(opts)
+    |> Map.merge(camelize_opts(opts))
     |> client.request(:list_tags_for_stream)
   end
 
