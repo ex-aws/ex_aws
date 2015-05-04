@@ -24,4 +24,9 @@ defmodule ExAws.Dynamo.EncoderTest do
   test "encoder handles lists properly" do
     %{"NS" => ["3", ["2", ["1", []]]]}
   end
+
+  test "encoder is idempotent" do
+    value = %{foo: 1, bar: %{baz: 2, zounds: "asdf"}}
+    assert value |> Encoder.encode ==  value |> Encoder.encode |> Encoder.encode
+  end
 end

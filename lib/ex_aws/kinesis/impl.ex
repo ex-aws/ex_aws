@@ -1,6 +1,6 @@
 defmodule ExAws.Kinesis.Impl do
   use ExAws.Actions
-  import ExAws.Utils, only: [camelize_opts: 1]
+  import ExAws.Utils, only: [camelize_keys: 1]
   require Logger
 
   defdelegate stream_shards(client, name), to: ExAws.Kinesis.Lazy
@@ -40,7 +40,7 @@ defmodule ExAws.Kinesis.Impl do
 
   def describe_stream(client, name, opts \\ []) do
     %{StreamName: name}
-    |> Map.merge(camelize_opts(opts))
+    |> Map.merge(camelize_keys(opts))
     |> client.request(:describe_stream)
   end
 
@@ -62,7 +62,7 @@ defmodule ExAws.Kinesis.Impl do
 
   def get_records(client, shard_iterator, opts \\ []) do
     %{ShardIterator: shard_iterator}
-    |> Map.merge(camelize_opts(opts))
+    |> Map.merge(camelize_keys(opts))
     |> client.request(:get_records)
     |> do_get_records
   end
@@ -91,7 +91,7 @@ defmodule ExAws.Kinesis.Impl do
       PartitionKey: partition_key,
       StreamName: stream_name
     }
-    |> Map.merge(camelize_opts(opts))
+    |> Map.merge(camelize_keys(opts))
     |> client.request(:put_record)
   end
 
@@ -119,7 +119,7 @@ defmodule ExAws.Kinesis.Impl do
       StreamName: name,
       ShardId: shard_id,
       ShardIteratorType: shard_iterator_type
-    } |> Map.merge(camelize_opts(opts))
+    } |> Map.merge(camelize_keys(opts))
     |> client.request(:get_shard_iterator)
   end
 
@@ -151,7 +151,7 @@ defmodule ExAws.Kinesis.Impl do
 
   def list_tags_for_stream(client, name, opts \\ []) do
     %{StreamName: name}
-    |> Map.merge(camelize_opts(opts))
+    |> Map.merge(camelize_keys(opts))
     |> client.request(:list_tags_for_stream)
   end
 

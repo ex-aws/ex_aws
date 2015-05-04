@@ -1,6 +1,6 @@
 defmodule ExAws.Lambda.Impl do
   use ExAws.Actions
-  import ExAws.Utils, only: [camelize_opts: 1]
+  import ExAws.Utils, only: [camelize_keys: 1]
   require Logger
 
   @moduledoc false
@@ -135,7 +135,7 @@ defmodule ExAws.Lambda.Impl do
   defp normalize_opts(opts) do
     opts
     |> Enum.into(%{})
-    |> camelize_opts
+    |> camelize_keys
   end
 
 end

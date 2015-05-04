@@ -2,10 +2,10 @@ defmodule ExAws.Dynamo.Lazy do
   @moduledoc false
   ## Implimentation of the lazy functions surfaced by ExAws.Dynamo.Client
 
-  def stream_scan(client, table, opts) do
+  def stream_scan(client, table, opts \\ []) do
     request_fun = fn
       {:initial, initial} -> initial
-      fun_opts -> ExAws.Dynamo.Impl.scan(client, table, Map.merge(opts, fun_opts))
+      fun_opts -> ExAws.Dynamo.Impl.scan(client, table, Keyword.merge(opts, fun_opts |> Enum.to_list))
     end
 
     client
@@ -30,7 +30,7 @@ defmodule ExAws.Dynamo.Lazy do
         {:error, items} -> {[{:error, items}], :quit}
 
         {:ok, %{"Items" => items, "LastEvaluatedKey" => key}} ->
-          {items, {fun, %{ExclusiveStartKey: key}}}
+          {items, {fun, %{exclusive_start_key: key}}}
 
         {:ok, %{"Items" => items}} ->
           {items, :quit}

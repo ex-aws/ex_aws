@@ -93,14 +93,14 @@ defmodule ExAws.Dynamo.Client do
     key_definitions :: [%{}],
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
-    global_indexes  :: %{},
-    local_indexes   :: %{}) :: ExAws.Request.response_t
+    global_indexes  :: Keyword.t,
+    local_indexes   :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Describe table"
   defcallback describe_table(name :: binary) :: ExAws.Request.response_t
 
   @doc "Update Table"
-  defcallback update_table(name :: binary, attributes :: %{}) :: ExAws.Request.response_t
+  defcallback update_table(name :: binary, attributes :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Delete Table"
   defcallback delete_table(table :: binary) :: ExAws.Request.response_t
@@ -121,8 +121,8 @@ defmodule ExAws.Dynamo.Client do
   defcallback stream_scan(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Query Table"
-  defcallback query(table_name :: binary, key_conditions :: %{}) :: ExAws.Request.response_t
-  defcallback query(table_name :: binary, key_conditions :: %{}, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback query(table_name :: binary) :: ExAws.Request.response_t
+  defcallback query(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc """
   Get up to 100 items (16mb)
