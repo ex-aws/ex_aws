@@ -45,14 +45,14 @@ defmodule ExAws.Dynamo.Impl do
   end
 
   def create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity) when is_list(key_schema) do
-    create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity)
+    create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
   end
 
   def create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
     data = %{
       "TableName" => name,
       "AttributeDefinitions" => key_definitions |> encode_key_definitions,
-      "KeySchema" => key_schema |> camelize_keys,
+      "KeySchema" => key_schema |> Enum.map(&camelize_keys/1),
       "ProvisionedThroughput" => %{
         "ReadCapacityUnits"  => read_capacity,
         "WriteCapacityUnits" => write_capacity
@@ -62,7 +62,7 @@ defmodule ExAws.Dynamo.Impl do
       "GlobalSecondaryIndexes" => global_indexes |> camelize_keys(deep: true),
       "LocalSecondaryIndexes"  => local_indexes  |> camelize_keys(deep: true)
     } |> Enum.reduce(data, fn
-      {_, []}, data -> data
+      ({_, indices = %{}}, data) when map_size(indices) == 0 -> data
       {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
     end)
     |> client.request(:create_table)
@@ -164,7 +164,19 @@ defmodule ExAws.Dynamo.Impl do
     |> client.request(:batch_get_item)
   end
 
-  def put_item(client, name, record) do
+  @opts [
+    :condition_expression,
+    :conditional_operator,
+    :expression_attribute_names,
+    :expression_attribute_values,
+    :return_consumed_capacity,
+    :return_item_collection_metrics,
+    :return_values
+  ]
+  def put_item(client, name, record, opts \\ []) do
+    opts
+    |> Enum.into(%{})
+
     %{
       "TableName" => name,
       "Item" => Dynamo.Encoder.encode(record)

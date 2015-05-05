@@ -77,10 +77,6 @@ defmodule ExAws.Request do
       {:error, %{reason: reason}} ->
         Logger.error("ExAws: HTTP ERROR: #{inspect reason}")
         request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
-      whoknows ->
-        Logger.info "Unknown response"
-        whoknows |> inspect |> Logger.info
-        {:error, whoknows}
     end
   end
 

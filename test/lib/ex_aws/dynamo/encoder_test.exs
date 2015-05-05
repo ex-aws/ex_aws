@@ -2,6 +2,11 @@ defmodule ExAws.Dynamo.EncoderTest do
   use ExUnit.Case, async: true
   alias ExAws.Dynamo.Encoder
 
+  test "encoding works with derived structs" do
+    assert %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
+    |> Encoder.encode
+  end
+
   test "Encoder converts numbers to binaries" do
     assert Encoder.encode(34) == %{"N" => "34"}
   end

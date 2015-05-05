@@ -61,4 +61,13 @@ defmodule ExAws.DynamoTest do
     })
     assert request == expected
   end
+
+  test "put item" do
+    expected = %{"Item" => %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},
+      "email" => %{"S" => "foo@bar.com"},
+      "name" => %{"M" => %{"first" => %{"S" => "bob"},
+        "last" => %{"S" => "bubba"}}}}, "TableName" => "Users"}
+    user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
+    assert Dynamo.put_item("Users", user) == expected
+  end
 end
