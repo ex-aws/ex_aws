@@ -10,6 +10,8 @@ defmodule ExAws.Dynamo.Impl do
 
   defdelegate stream_scan(client, name), to: ExAws.Dynamo.Lazy
   defdelegate stream_scan(client, name, opts), to: ExAws.Dynamo.Lazy
+  defdelegate stream_query(client, name), to: ExAws.Dynamo.Lazy
+  defdelegate stream_query(client, name, opts), to: ExAws.Dynamo.Lazy
 
   @namespace "DynamoDB_20120810"
   @actions [
@@ -208,7 +210,12 @@ defmodule ExAws.Dynamo.Impl do
   defp build_expression_attribute_names(data, _), do: data
 
   defp build_expression_attribute_values(data, %{expression_attribute_values: values}) do
-    Map.put(data, "ExpressionAttributeValues", values |> encode_values)
+    values = values
+    |> encode_values
+    |> Enum.reduce(%{}, fn {k ,v}, map ->
+      Map.put(map, ":#{k}", v)
+    end)
+    Map.put(data, "ExpressionAttributeValues", values)
   end
   defp build_expression_attribute_values(data, _), do: data
 

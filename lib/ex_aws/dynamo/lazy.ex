@@ -10,18 +10,18 @@ defmodule ExAws.Dynamo.Lazy do
 
     client
     |> ExAws.Dynamo.Impl.scan(table, opts)
-    |> do_scan(request_fun)
+    |> do_request(request_fun)
   end
 
-  defp do_scan({:error, results}, _), do: {:error, results}
-  defp do_scan({:ok, results}, request_fun) do
+  defp do_request({:error, results}, _), do: {:error, results}
+  defp do_request({:ok, results}, request_fun) do
 
-    stream = build_scan_stream({:ok, results}, request_fun)
+    stream = build_request_stream({:ok, results}, request_fun)
 
     {:ok, Map.put(results, "Items", stream)}
   end
 
-  defp build_scan_stream(initial, request_fun) do
+  defp build_request_stream(initial, request_fun) do
     Stream.resource(fn -> {request_fun, {:initial, initial}} end, fn
       :quit -> {:halt, nil}
 
@@ -38,5 +38,16 @@ defmodule ExAws.Dynamo.Lazy do
     end, &pass/1)
   end
 
+
+  def stream_query(client, table, opts \\ []) do
+    request_fun = fn
+      {:initial, initial} -> initial
+      fun_opts -> ExAws.Dynamo.Impl.query(client, table, Keyword.merge(opts, fun_opts |> Enum.to_list))
+    end
+
+    client
+    |> ExAws.Dynamo.Impl.query(table, opts)
+    |> do_request(request_fun)
+  end
   defp pass(val), do: val
 end

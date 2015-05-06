@@ -192,7 +192,7 @@ defmodule ExAws.Dynamo.Client do
     {:expression_attribute_values, expression_attribute_values} |
     {:filter_expression, binary} |
     {:index_name, binary} |
-    {:key_conditions_expression, binary} |
+    {:key_condition_expression, binary} |
     {:limit, pos_integer} |
     {:projection_expression, binary} |
     {:return_consumed_capacity, return_consumed_capacity} |
@@ -200,6 +200,19 @@ defmodule ExAws.Dynamo.Client do
     {:select, :all_attributes | :all_projected_attributes | :specific_attributes | :count}]
   defcallback query(table_name :: binary) :: ExAws.Request.response_t
   defcallback query(table_name :: binary, opts :: query_opts) :: ExAws.Request.response_t
+
+  @doc """
+  Stream records from table
+
+  Same as query/1,2 but the records are a stream which will automatically handle pagination
+
+  ```elixir
+  {:ok, %{"Items" => items}} = Dynamo.stream_query("Users")
+  items |> Enum.to_list #=> Returns every item in the Users table.
+  ```
+  """
+  defcallback stream_query(table_name :: binary) :: ExAws.Request.response_t
+  defcallback stream_query(table_name :: binary, opts :: query_opts) :: ExAws.Request.response_t
 
   @doc """
   Get up to 100 items (16mb)
