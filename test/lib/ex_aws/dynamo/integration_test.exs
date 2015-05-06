@@ -1,7 +1,7 @@
 defmodule ExAws.DynamoIntegrationTest do
   alias Test.Dynamo
   alias ExAws.Dynamo.Decoder
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   setup_all do
     Dynamo.delete_table("Users")

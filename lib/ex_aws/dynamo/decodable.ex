@@ -4,7 +4,6 @@ defprotocol ExAws.Dynamo.Decodable do
   @moduledoc """
   Allows custom decoding logic for your struct.
   """
-
   def decode(value)
 end
 

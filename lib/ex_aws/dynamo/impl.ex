@@ -3,6 +3,10 @@ defmodule ExAws.Dynamo.Impl do
   import ExAws.Utils, only: [camelize_keys: 1, camelize_keys: 2]
   use ExAws.Actions
 
+  @nested_opts [:exclusive_start_key, :expression_attribute_values, :expression_attribute_names]
+  @upcase_opts [:return_values, :return_item_collection_metrics, :select, :total_segments]
+  @special_opts @nested_opts ++ @upcase_opts
+
 
   defdelegate stream_scan(client, name), to: ExAws.Dynamo.Lazy
   defdelegate stream_scan(client, name, opts), to: ExAws.Dynamo.Lazy
@@ -86,24 +90,8 @@ defmodule ExAws.Dynamo.Impl do
 
   ## Records
   ######################
-  @opts [
-    :exclusive_start_key,
-    :expression_attribute_names,
-    :expression_attribute_values,
-    :filter_expression,
-    :index_name,
-    :limit,
-    :projection_expression,
-    :return_consumed_capacity,
-    :segment,
-    :select,
-    :total_segments
-  ]
-  @special_opts [:exclusive_start_key, :expression_attribute_values, :expression_attribute_names]
   def scan(client, name, opts \\ []) do
-    opts = opts
-    |> Enum.into(%{})
-    |> Map.take(@opts)
+    opts = opts |> Enum.into(%{})
 
     regular_opts = opts
     |> Map.drop(@special_opts)
@@ -113,29 +101,14 @@ defmodule ExAws.Dynamo.Impl do
     |> build_exclusive_start_key(opts)
     |> build_expression_attribute_names(opts)
     |> build_expression_attribute_values(opts)
+    |> build_total_segments(opts)
     |> Map.merge(regular_opts)
     |> client.request(:scan)
   end
 
-  @opts [
-    :consistent_read,
-    :exclusive_start_key,
-    :expression_attribute_names,
-    :expression_attribute_values,
-    :filter_expression,
-    :index_name,
-    :key_conditions_expression,
-    :limit,
-    :projection_expression,
-    :return_consumed_capacity,
-    :scan_index_forward,
-    :select
-  ]
-  @special_opts [:exclusive_start_key, :expression_attribute_values, :expression_attribute_names]
   def query(client, name, opts \\ []) do
     opts = opts
     |> Enum.into(%{})
-    |> Map.take(@opts)
 
     regular_opts = opts
     |> Map.drop(@special_opts)
@@ -144,6 +117,7 @@ defmodule ExAws.Dynamo.Impl do
     %{"TableName" => name}
     |> build_exclusive_start_key(opts)
     |> build_expression_attribute_values(opts)
+    |> build_select(opts)
     |> Map.merge(regular_opts)
     |> client.request(:query)
   end
@@ -164,23 +138,18 @@ defmodule ExAws.Dynamo.Impl do
     |> client.request(:batch_get_item)
   end
 
-  @opts [
-    :condition_expression,
-    :conditional_operator,
-    :expression_attribute_names,
-    :expression_attribute_values,
-    :return_consumed_capacity,
-    :return_item_collection_metrics,
-    :return_values
-  ]
   def put_item(client, name, record, opts \\ []) do
     opts
     |> Enum.into(%{})
-
-    %{
+    |> Map.drop(@special_opts)
+    |> build_exclusive_start_key(opts)
+    |> build_expression_attribute_values(opts)
+    |> build_return_item_collection_metrics(opts)
+    |> build_return_values(opts)
+    |> Map.merge(%{
       "TableName" => name,
       "Item" => Dynamo.Encoder.encode(record)
-    } |> client.request(:put_item)
+    }) |> client.request(:put_item)
   end
 
   def batch_write_item(client, data) do
@@ -225,12 +194,13 @@ defmodule ExAws.Dynamo.Impl do
     end)
   end
 
-  # Expects exclusive_start_key shape like
+  ## Builders for special options
+  ###################
+
   defp build_exclusive_start_key(data, %{exclusive_start_key: start_key}) do
     Map.put(data, "ExclusiveStartKey", start_key |> encode_values)
   end
   defp build_exclusive_start_key(data, _), do: data
-
 
   defp build_expression_attribute_names(data, %{expression_attribute_names: names}) do
     Map.put(data, "ExpressionAttributeNames", names |> Enum.into(%{}))
@@ -241,6 +211,41 @@ defmodule ExAws.Dynamo.Impl do
     Map.put(data, "ExpressionAttributeValues", values |> encode_values)
   end
   defp build_expression_attribute_values(data, _), do: data
+
+  ## TODO: metaprogram these upcase ones.
+
+  defp build_total_segments(data, %{total_segments: segments}) do
+    Map.put(data, "TotalSegments", segments |> upcase)
+  end
+  defp build_total_segments(data, _), do: data
+
+  defp build_return_item_collection_metrics(data, %{return_item_collection_metrics: metrics}) do
+    Map.put(data, "ReturnItemCollectionMetrics", metrics |> upcase)
+  end
+  defp build_return_item_collection_metrics(data, _), do: data
+
+  defp build_select(data, %{select: select}) do
+    Map.put(data, "Select", select |> upcase)
+  end
+  defp build_select(data, _), do: data
+
+  defp build_return_values(data, %{return_values: return_values}) do
+    Map.put(data, "ReturnValues", return_values |> upcase)
+  end
+  defp build_return_values(data, _), do: data
+
+  ## Various other helpers
+  ################
+
+  defp upcase(value) when is_atom(value) do
+    value
+    |> Atom.to_string
+    |> String.upcase
+  end
+
+  defp upcase(value) when is_binary(value) do
+    String.upcase(value)
+  end
 
   defp encode_values(dict) do
     Enum.reduce(dict, %{}, fn {attr, value}, attribute_values ->

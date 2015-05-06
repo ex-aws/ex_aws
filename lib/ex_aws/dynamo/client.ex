@@ -101,6 +101,12 @@ defmodule ExAws.Dynamo.Client do
   ## Tables
   ######################
 
+  @type exclusive_start_key         :: [{atom, binary}] | %{atom => binary}
+  @type expression_attribute_names  :: %{binary => binary}
+  @type expression_attribute_values :: [{atom, binary}] | %{atom => binary}
+  @type return_consumed_capacity    :: :none | :total | :indexes
+
+
   @doc "List tables"
   defcallback list_tables() :: ExAws.Request.response_t
 
@@ -142,8 +148,21 @@ defmodule ExAws.Dynamo.Client do
   Parameters with keys that are automatically annotated with dynamo types are:
   `[:exclusive_start_key, :expression_attribute_names]`
   """
+  @type scan_opts :: [
+    {:exclusive_start_key, exclusive_start_key} |
+    {:expression_attribute_names, expression_attribute_names} |
+    {:expression_attribute_values, expression_attribute_values} |
+    {:filter_expression, binary} |
+    {:index_name, binary} |
+    {:limit, pos_integer} |
+    {:projection_expression, binary} |
+    {:return_consumed_capacity, return_consumed_capacity} |
+    {:segment, non_neg_integer} |
+    {:select, any} |
+    {:total_segments, :all_attributes | :count | :specific_attributes}]
   defcallback scan(table_name :: binary) :: ExAws.Request.response_t
-  defcallback scan(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback scan(table_name :: binary, opts :: scan_opts) :: ExAws.Request.response_t
+
 
   @doc """
   Stream records from table
@@ -156,7 +175,7 @@ defmodule ExAws.Dynamo.Client do
   ```
   """
   defcallback stream_scan(table_name :: binary) :: ExAws.Request.response_t
-  defcallback stream_scan(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: binary, opts :: scan_opts) :: ExAws.Request.response_t
 
   @doc """
   Query Table
@@ -166,8 +185,21 @@ defmodule ExAws.Dynamo.Client do
   Parameters with keys that are automatically annotated with dynamo types are:
   `[:exclusive_start_key, :expression_attribute_names]`
   """
+  @type query_opts :: [
+    {:consistent_read, boolean} |
+    {:exclusive_start_key, exclusive_start_key} |
+    {:expression_attribute_names, expression_attribute_names} |
+    {:expression_attribute_values, expression_attribute_values} |
+    {:filter_expression, binary} |
+    {:index_name, binary} |
+    {:key_conditions_expression, binary} |
+    {:limit, pos_integer} |
+    {:projection_expression, binary} |
+    {:return_consumed_capacity, return_consumed_capacity} |
+    {:scan_index_forward, boolean} |
+    {:select, :all_attributes | :all_projected_attributes | :specific_attributes | :count}]
   defcallback query(table_name :: binary) :: ExAws.Request.response_t
-  defcallback query(table_name :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback query(table_name :: binary, opts :: query_opts) :: ExAws.Request.response_t
 
   @doc """
   Get up to 100 items (16mb)
@@ -213,7 +245,16 @@ defmodule ExAws.Dynamo.Client do
   defcallback batch_write_item(%{String.t => %{}}) :: ExAws.Request.response_t
 
   @doc "Put item in table"
+  @type put_item_opts :: [
+    {:condition_expression, binary} |
+    {:expression_attribute_names, expression_attribute_names} |
+    {:expression_attribute_values, expression_attribute_values} |
+    {:return_consumed_capacity, return_consumed_capacity} |
+    {:return_item_collection_metrics, :size | :none } |
+    {:return_values, :none | :all_old | :updated_old | :all_new | :updated_new}
+  ]
   defcallback put_item(table_name :: binary, record :: %{}) :: ExAws.Request.response_t
+  defcallback put_item(table_name :: binary, record :: %{}, opts :: put_item_opts) :: ExAws.Request.response_t
 
   @doc "Get item from table"
   defcallback get_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t

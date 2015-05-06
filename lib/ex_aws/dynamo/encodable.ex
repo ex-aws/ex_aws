@@ -1,4 +1,7 @@
 defprotocol ExAws.Dynamo.Encodable do
+
+  @type t :: any
+
   @doc "Converts an elixir value into a map tagging the value with its dynamodb type"
   def encode(value)
 end
