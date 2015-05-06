@@ -80,47 +80,30 @@ defmodule ExAws.Dynamo.Impl do
   end
 
   def update_table(client, name, attributes) do
-    %{"TableName" => name}
-    |> Map.merge(camelize_keys(attributes, deep: true))
+    attributes
+    |> camelize_keys(deep: true)
+    |> Map.merge(%{"TableName" => name})
     |> client.request(:update_table)
   end
 
   def delete_table(client, table) do
-    %{TableName: table}
+    %{"TableName" => table}
     |> client.request(:delete_table)
   end
 
   ## Records
   ######################
   def scan(client, name, opts \\ []) do
-    opts = opts |> Enum.into(%{})
-
-    regular_opts = opts
-    |> Map.drop(@special_opts)
-    |> camelize_keys
-
-    %{"TableName" => name}
-    |> build_exclusive_start_key(opts)
-    |> build_expression_attribute_names(opts)
-    |> build_expression_attribute_values(opts)
-    |> build_total_segments(opts)
-    |> Map.merge(regular_opts)
+    opts
+    |> build_opts
+    |> Map.merge(%{"TableName" => name})
     |> client.request(:scan)
   end
 
   def query(client, name, opts \\ []) do
-    opts = opts
-    |> Enum.into(%{})
-
-    regular_opts = opts
-    |> Map.drop(@special_opts)
-    |> camelize_keys
-
-    %{"TableName" => name}
-    |> build_exclusive_start_key(opts)
-    |> build_expression_attribute_values(opts)
-    |> build_select(opts)
-    |> Map.merge(regular_opts)
+    opts
+    |> build_opts
+    |> Map.merge(%{"TableName" => name})
     |> client.request(:query)
   end
 
@@ -142,12 +125,7 @@ defmodule ExAws.Dynamo.Impl do
 
   def put_item(client, name, record, opts \\ []) do
     opts
-    |> Enum.into(%{})
-    |> Map.drop(@special_opts)
-    |> build_exclusive_start_key(opts)
-    |> build_expression_attribute_values(opts)
-    |> build_return_item_collection_metrics(opts)
-    |> build_return_values(opts)
+    |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Item" => Dynamo.Encoder.encode(record)
@@ -160,10 +138,7 @@ defmodule ExAws.Dynamo.Impl do
 
   def get_item(client, name, primary_key, opts \\ []) do
     opts
-    |> Enum.into(%{})
-    |> Map.drop(@special_opts)
-    |> build_expression_attribute_names(opts)
-    |> build_return_consumed_capacity(opts)
+    |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Key" => Dynamo.Encoder.encode_flat(primary_key)
@@ -184,19 +159,38 @@ defmodule ExAws.Dynamo.Impl do
     |> client.request(:update_item)
   end
 
-  def delete_item(client, name, primary_key) do
-    %{"TableName" => name, Key: primary_key}
+  def delete_item(client, name, primary_key, opts \\ []) do
+    opts
+    |> build_opts
+    |> Map.merge(%{"TableName" => name, Key: primary_key})
     |> client.request(:delete_item)
   end
 
-  defp encode_key_definitions(attrs) do
-    attrs |> Enum.map(fn({name, type}) ->
-      %{"AttributeName" => name, "AttributeType" => type |> Dynamo.Encoder.atom_to_dynamo_type}
-    end)
+  ## Options builder
+  ###################
+  defp build_opts(opts) do
+    opts = opts |> Enum.into(%{})
+
+    opts
+    |> Map.drop(@special_opts)
+    |> camelize_keys
+    |> build_special_opts(opts)
   end
 
   ## Builders for special options
   ################################
+
+  defp build_special_opts(data, opts) do
+    data
+    |> build_exclusive_start_key(opts)
+    |> build_expression_attribute_names(opts)
+    |> build_expression_attribute_values(opts)
+    |> build_total_segments(opts)
+    |> build_return_item_collection_metrics(opts)
+    |> build_select(opts)
+    |> build_return_values(opts)
+    |> build_return_consumed_capacity(opts)
+  end
 
   defp build_exclusive_start_key(data, %{exclusive_start_key: start_key}) do
     Map.put(data, "ExclusiveStartKey", start_key |> encode_values)
@@ -264,5 +258,12 @@ defmodule ExAws.Dynamo.Impl do
       Map.put(attribute_values, attr, Dynamo.Encoder.encode(value))
     end)
   end
+
+  defp encode_key_definitions(attrs) do
+    attrs |> Enum.map(fn({name, type}) ->
+      %{"AttributeName" => name, "AttributeType" => type |> Dynamo.Encoder.atom_to_dynamo_type}
+    end)
+  end
+
 
 end

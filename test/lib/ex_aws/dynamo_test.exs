@@ -11,13 +11,9 @@ defmodule ExAws.DynamoTest do
   alias Test.Dummy.Dynamo
 
   test "#scan" do
-    expected = %{
-      "ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}},
-      "ExpressionAttributeNames" => %{api_key: "#api_key"},
-      "ExpressionAttributeValues" => %{api_key: %{"S" => "asdfasdfasdf"},
-        name: %{"S" => "bubba"}},
-      "FilterExpression" => "ApiKey = #api_key and Name = :name", "Limit" => 12,
-        "TableName" => "Users"}
+    expected = %{"ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}}, "ExpressionAttributeNames" => %{api_key: "#api_key"},
+      "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},
+      "FilterExpression" => "ApiKey = #api_key and Name = :name", "Limit" => 12, "TableName" => "Users"}
 
     assert Dynamo.scan("Users",
       limit: 12,
@@ -28,13 +24,9 @@ defmodule ExAws.DynamoTest do
   end
 
   test "#query" do
-    expected = %{
-      "ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}},
-      "ExpressionAttributeNames" => %{api_key: "#api_key"},
-      "ExpressionAttributeValues" => %{api_key: %{"S" => "asdfasdfasdf"},
-        name: %{"S" => "bubba"}},
-      "FilterExpression" => "ApiKey = #api_key and Name = :name", "Limit" => 12,
-        "TableName" => "Users"}
+    expected = %{"ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}}, "ExpressionAttributeNames" => %{api_key: "#api_key"},
+      "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},
+      "FilterExpression" => "ApiKey = #api_key and Name = :name", "Limit" => 12, "TableName" => "Users"}
 
     assert Dynamo.scan("Users",
       limit: 12,

@@ -105,8 +105,10 @@ defmodule ExAws.Dynamo.Client do
   @type expression_attribute_names_vals  :: %{binary => binary}
   @type expression_attribute_values_vals :: [{atom, binary}] | %{atom => binary}
   @type return_consumed_capacity_vals    :: :none | :total | :indexes
-  @type select_vals                :: :all_attributes | :all_projected_attributes | :specific_attributes | :count
+  @type select_vals                      :: :all_attributes | :all_projected_attributes | :specific_attributes | :count
+  @type return_values_vals               :: :none | :all_old | :updated_old | :all_new | :updated_new
 
+  @type return_item_collection_metrics_vals :: :size | :none
 
   @doc "List tables"
   defcallback list_tables() :: ExAws.Request.response_t
@@ -264,8 +266,8 @@ defmodule ExAws.Dynamo.Client do
     {:expression_attribute_names, expression_attribute_names_vals} |
     {:expression_attribute_values, expression_attribute_values_vals} |
     {:return_consumed_capacity, return_consumed_capacity_vals} |
-    {:return_item_collection_metrics, :size | :none } |
-    {:return_values, :none | :all_old | :updated_old | :all_new | :updated_new}
+    {:return_item_collection_metrics, return_item_collection_metrics_vals } |
+    {:return_values, return_values_vals}
   ]
   defcallback put_item(table_name :: binary, record :: %{}) :: ExAws.Request.response_t
   defcallback put_item(table_name :: binary, record :: %{}, opts :: put_item_opts) :: ExAws.Request.response_t
@@ -293,7 +295,16 @@ defmodule ExAws.Dynamo.Client do
   defcallback update_item(table_name :: binary, primary_key_value :: binary, update_args :: %{}) :: ExAws.Request.response_t
 
   @doc "Delete item in table"
+  @type delete_item_opts :: [
+    {:condition_expression, binary} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:return_item_collection_metrics, return_item_collection_metrics_vals } |
+    {:return_values, return_values_vals}
+  ]
   defcallback delete_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
+  defcallback delete_item(table_name :: binary, primary_key_value :: binary, opts :: delete_item_opts) :: ExAws.Request.response_t
 
   @doc """
   Enables custom request handling.
