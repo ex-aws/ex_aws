@@ -101,10 +101,11 @@ defmodule ExAws.Dynamo.Client do
   ## Tables
   ######################
 
-  @type exclusive_start_key         :: [{atom, binary}] | %{atom => binary}
-  @type expression_attribute_names  :: %{binary => binary}
-  @type expression_attribute_values :: [{atom, binary}] | %{atom => binary}
-  @type return_consumed_capacity    :: :none | :total | :indexes
+  @type exclusive_start_key_vals         :: [{atom, binary}] | %{atom => binary}
+  @type expression_attribute_names_vals  :: %{binary => binary}
+  @type expression_attribute_values_vals :: [{atom, binary}] | %{atom => binary}
+  @type return_consumed_capacity_vals    :: :none | :total | :indexes
+  @type select_vals                :: :all_attributes | :all_projected_attributes | :specific_attributes | :count
 
 
   @doc "List tables"
@@ -149,17 +150,17 @@ defmodule ExAws.Dynamo.Client do
   `[:exclusive_start_key, :expression_attribute_names]`
   """
   @type scan_opts :: [
-    {:exclusive_start_key, exclusive_start_key} |
-    {:expression_attribute_names, expression_attribute_names} |
-    {:expression_attribute_values, expression_attribute_values} |
+    {:exclusive_start_key, exclusive_start_key_vals} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
     {:filter_expression, binary} |
     {:index_name, binary} |
     {:limit, pos_integer} |
     {:projection_expression, binary} |
-    {:return_consumed_capacity, return_consumed_capacity} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
     {:segment, non_neg_integer} |
-    {:select, any} |
-    {:total_segments, :all_attributes | :count | :specific_attributes}]
+    {:select, select_vals} |
+    {:total_segments, pos_integer}]
   defcallback scan(table_name :: binary) :: ExAws.Request.response_t
   defcallback scan(table_name :: binary, opts :: scan_opts) :: ExAws.Request.response_t
 
@@ -187,17 +188,17 @@ defmodule ExAws.Dynamo.Client do
   """
   @type query_opts :: [
     {:consistent_read, boolean} |
-    {:exclusive_start_key, exclusive_start_key} |
-    {:expression_attribute_names, expression_attribute_names} |
-    {:expression_attribute_values, expression_attribute_values} |
+    {:exclusive_start_key, exclusive_start_key_vals} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
     {:filter_expression, binary} |
     {:index_name, binary} |
     {:key_condition_expression, binary} |
     {:limit, pos_integer} |
     {:projection_expression, binary} |
-    {:return_consumed_capacity, return_consumed_capacity} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
     {:scan_index_forward, boolean} |
-    {:select, :all_attributes | :all_projected_attributes | :specific_attributes | :count}]
+    {:select, select_vals}]
   defcallback query(table_name :: binary) :: ExAws.Request.response_t
   defcallback query(table_name :: binary, opts :: query_opts) :: ExAws.Request.response_t
 
@@ -207,8 +208,8 @@ defmodule ExAws.Dynamo.Client do
   Same as query/1,2 but the records are a stream which will automatically handle pagination
 
   ```elixir
-  {:ok, %{"Items" => items}} = Dynamo.stream_query("Users")
-  items |> Enum.to_list #=> Returns every item in the Users table.
+  {:ok, %{"Items" => items}} = Dynamo.stream_query("Users", filter_expression: "api_key = :api_key", expression_attribute_values: [api_key: "api_key_i_want"])
+  items |> Enum.to_list #=> Returns every item in the Users table with an api_key == "api_key_i_want".
   ```
   """
   defcallback stream_query(table_name :: binary) :: ExAws.Request.response_t
@@ -260,9 +261,9 @@ defmodule ExAws.Dynamo.Client do
   @doc "Put item in table"
   @type put_item_opts :: [
     {:condition_expression, binary} |
-    {:expression_attribute_names, expression_attribute_names} |
-    {:expression_attribute_values, expression_attribute_values} |
-    {:return_consumed_capacity, return_consumed_capacity} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
     {:return_item_collection_metrics, :size | :none } |
     {:return_values, :none | :all_old | :updated_old | :all_new | :updated_new}
   ]
@@ -270,7 +271,14 @@ defmodule ExAws.Dynamo.Client do
   defcallback put_item(table_name :: binary, record :: %{}, opts :: put_item_opts) :: ExAws.Request.response_t
 
   @doc "Get item from table"
+  @type get_item_opts :: [
+    {:consistent_read, boolean} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:projection_expression, binary} |
+    {:return_consumed_capacity, return_consumed_capacity_vals}
+  ]
   defcallback get_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
+  defcallback get_item(table_name :: binary, primary_key_value :: binary, opts :: get_item_opts) :: ExAws.Request.response_t
 
   @doc "Get an item from a dynamo table, and raise if it does not exist or there is an error"
   defcallback get_item!(table_name :: binary, primary_key_value :: binary) :: %{}

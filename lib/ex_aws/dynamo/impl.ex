@@ -158,12 +158,16 @@ defmodule ExAws.Dynamo.Impl do
     client.request(data, :batch_write_item)
   end
 
-  def get_item(client, name, primary_key) do
-    %{
+  def get_item(client, name, primary_key, opts \\ []) do
+    opts
+    |> Enum.into(%{})
+    |> Map.drop(@special_opts)
+    |> build_expression_attribute_names(opts)
+    |> build_return_consumed_capacity(opts)
+    |> Map.merge(%{
       "TableName" => name,
       "Key" => Dynamo.Encoder.encode_flat(primary_key)
-    }
-    |> client.request(:get_item)
+    }) |> client.request(:get_item)
   end
 
   def get_item!(client, name, primary_key) do
@@ -197,7 +201,7 @@ defmodule ExAws.Dynamo.Impl do
   end
 
   ## Builders for special options
-  ###################
+  ################################
 
   defp build_exclusive_start_key(data, %{exclusive_start_key: start_key}) do
     Map.put(data, "ExclusiveStartKey", start_key |> encode_values)
@@ -219,7 +223,7 @@ defmodule ExAws.Dynamo.Impl do
   end
   defp build_expression_attribute_values(data, _), do: data
 
-  ## TODO: metaprogram these upcase ones.
+  ## TODO: metaprogram these upcase functions. Very predictable format
 
   defp build_total_segments(data, %{total_segments: segments}) do
     Map.put(data, "TotalSegments", segments |> upcase)
@@ -240,6 +244,12 @@ defmodule ExAws.Dynamo.Impl do
     Map.put(data, "ReturnValues", return_values |> upcase)
   end
   defp build_return_values(data, _), do: data
+
+  defp build_return_consumed_capacity(data, %{return_consumed_capacity: return}) do
+    Map.put(data, "ReturnConsumedCapacity", return |> upcase)
+  end
+  defp build_return_consumed_capacity(data, _), do: data
+
 
   ## Various other helpers
   ################
