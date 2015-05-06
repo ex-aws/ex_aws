@@ -107,19 +107,26 @@ defmodule ExAws.Dynamo.Impl do
     |> client.request(:query)
   end
 
-  def batch_get_item(client, data) do
-    data
+  def batch_get_item(client, data, opts \\ []) do
+    request_items = data
     |> Enum.reduce(%{}, fn {table_name, table_query}, query ->
       keys = table_query
-      |> Enum.into(%{})
-      |> Map.get(:keys)
+      |> Dict.get(:keys)
       |> Enum.map(&encode_values/1)
 
       dynamized_table_query = table_query
+      |> Enum.into(%{})
+      |> Map.drop(@special_opts ++ [:keys])
       |> camelize_keys
+      |> build_expression_attribute_names(table_query)
       |> Map.put("Keys", keys)
+
       Map.put(query, table_name, dynamized_table_query)
     end)
+
+    opts
+    |> camelize_keys
+    |> Map.merge(%{"RequestItems" => request_items})
     |> client.request(:batch_get_item)
   end
 
@@ -132,8 +139,23 @@ defmodule ExAws.Dynamo.Impl do
     }) |> client.request(:put_item)
   end
 
-  def batch_write_item(client, data) do
-    client.request(data, :batch_write_item)
+  def batch_write_item(client, data, opts \\ []) do
+    request_items = data
+    |> Enum.reduce(%{}, fn {table_name, table_queries}, query ->
+      queries = table_queries
+      |> Enum.map(fn
+        {:delete_request, [key: primary_key]} ->
+          %{"DeleteRequest" => %{"Key" => primary_key |> Dynamo.Encoder.encode_flat}}
+        {:put_request, [item: item]} ->
+          %{"PutRequest" => %{"Item" => Dynamo.Encoder.encode(item)}}
+      end)
+      Map.put(query, table_name, queries)
+    end)
+
+    opts
+    |> camelize_keys
+    |> Map.merge(%{"RequestItems" => request_items})
+    |> client.request(:batch_write_item)
   end
 
   def get_item(client, name, primary_key, opts \\ []) do

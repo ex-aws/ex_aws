@@ -37,9 +37,8 @@ defmodule ExAws.DynamoTest do
   end
 
   test "#batch_get_item" do
-    expected = %{"Subscriptions" => %{"Keys" => [%{id: %{"S" => "id1"}}]},
-      "Users" => %{"ConsistentRead" => true,
-      "Keys"  => [%{api_key: %{"S" => "key1"}}, %{api_key: %{"S" => "api_key2"}}]}}
+    expected = %{"RequestItems" => %{"Subscriptions" => %{"Keys" => [%{id: %{"S" => "id1"}}]},
+      "Users" => %{"ConsistentRead" => true, "Keys" => [%{api_key: %{"S" => "key1"}}, %{api_key: %{"S" => "api_key2"}}]}}}
 
     request = Dynamo.batch_get_item(%{
       "Users" => [
@@ -52,6 +51,17 @@ defmodule ExAws.DynamoTest do
       "Subscriptions" => %{keys: [%{id: "id1"}]}
     })
     assert request == expected
+  end
+
+  test "#batch_write_item" do
+    user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
+    Dynamo.batch_write_item(%{
+      "Users" => [
+        [delete_request: [key: "api_key1"]],
+        [put_request: [item: user]]
+      ]
+    })
+    |> IO.inspect
   end
 
   test "put item" do
