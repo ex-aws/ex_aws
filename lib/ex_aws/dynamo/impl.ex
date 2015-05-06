@@ -144,9 +144,9 @@ defmodule ExAws.Dynamo.Impl do
     |> Enum.reduce(%{}, fn {table_name, table_queries}, query ->
       queries = table_queries
       |> Enum.map(fn
-        {:delete_request, [key: primary_key]} ->
-          %{"DeleteRequest" => %{"Key" => primary_key |> Dynamo.Encoder.encode_flat}}
-        {:put_request, [item: item]} ->
+        [delete_request: [key: primary_key]] ->
+          %{"DeleteRequest" => %{"Key" => primary_key |> Dynamo.Encoder.encode}}
+        [put_request: [item: item]] ->
           %{"PutRequest" => %{"Item" => Dynamo.Encoder.encode(item)}}
       end)
       Map.put(query, table_name, queries)

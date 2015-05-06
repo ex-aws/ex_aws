@@ -54,14 +54,18 @@ defmodule ExAws.DynamoTest do
   end
 
   test "#batch_write_item" do
+    expected = %{"RequestItems" => %{"Users" => [%{"DeleteRequest" => %{"Key" => %{"S" => "api_key1"}}},
+     %{"PutRequest" => %{"Item" => %{"admin" => %{"BOOL" => "false"},
+     "age" => %{"N" => "23"}, "email" => %{"S" => "foo@bar.com"},
+     "name" => %{"M" => %{"first" => %{"S" => "bob"}, "last" => %{"S" => "bubba"}}}}}}]}}
+
     user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
-    Dynamo.batch_write_item(%{
+    assert Dynamo.batch_write_item(%{
       "Users" => [
         [delete_request: [key: "api_key1"]],
         [put_request: [item: user]]
       ]
-    })
-    |> IO.inspect
+    }) == expected
   end
 
   test "put item" do
