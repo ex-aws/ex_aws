@@ -141,7 +141,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
-      "Key" => Dynamo.Encoder.encode_flat(primary_key)
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
     }) |> client.request(:get_item)
   end
 
@@ -150,19 +150,21 @@ defmodule ExAws.Dynamo.Impl do
     item
   end
 
-  def update_item(client, table_name, primary_key, update_args) do
-    %{
+  def update_item(client, table_name, primary_key, update_opts) do
+    update_opts
+    |> build_opts
+    |> Map.merge(%{
       "TableName" => table_name,
-      "Key" => Dynamo.Encoder.encode_flat(primary_key)
-    }
-    |> Map.merge(camelize_keys(update_args))
-    |> client.request(:update_item)
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
+    }) |> client.request(:update_item)
   end
 
   def delete_item(client, name, primary_key, opts \\ []) do
     opts
     |> build_opts
-    |> Map.merge(%{"TableName" => name, Key: primary_key})
+    |> Map.merge(%{
+      "TableName" => name,
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat})
     |> client.request(:delete_item)
   end
 

@@ -279,12 +279,12 @@ defmodule ExAws.Dynamo.Client do
     {:projection_expression, binary} |
     {:return_consumed_capacity, return_consumed_capacity_vals}
   ]
-  defcallback get_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
-  defcallback get_item(table_name :: binary, primary_key_value :: binary, opts :: get_item_opts) :: ExAws.Request.response_t
+  defcallback get_item(table_name :: binary, primary_key :: Keyword.t) :: ExAws.Request.response_t
+  defcallback get_item(table_name :: binary, primary_key :: Keyword.t, opts :: get_item_opts) :: ExAws.Request.response_t
 
   @doc "Get an item from a dynamo table, and raise if it does not exist or there is an error"
-  defcallback get_item!(table_name :: binary, primary_key_value :: binary) :: %{}
-  defcallback get_item!(table_name :: binary, primary_key_value :: binary, opts :: get_item_opts) :: %{}
+  defcallback get_item!(table_name :: binary, primary_key :: Keyword.t) :: %{}
+  defcallback get_item!(table_name :: binary, primary_key :: Keyword.t, opts :: get_item_opts) :: %{}
 
   @doc """
   Update item in table
@@ -292,7 +292,16 @@ defmodule ExAws.Dynamo.Client do
   For update_args format see
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html
   """
-  defcallback update_item(table_name :: binary, primary_key_value :: binary, update_args :: %{}) :: ExAws.Request.response_t
+  @type update_item_opts :: [
+    {:condition_expression, binary} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:return_item_collection_metrics, return_item_collection_metrics_vals } |
+    {:return_values, return_values_vals } |
+    {:update_expression, binary}
+  ]
+  defcallback update_item(table_name :: binary, primary_key :: Keyword.t, opts :: update_item_opts) :: ExAws.Request.response_t
 
   @doc "Delete item in table"
   @type delete_item_opts :: [
@@ -303,8 +312,8 @@ defmodule ExAws.Dynamo.Client do
     {:return_item_collection_metrics, return_item_collection_metrics_vals } |
     {:return_values, return_values_vals}
   ]
-  defcallback delete_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
-  defcallback delete_item(table_name :: binary, primary_key_value :: binary, opts :: delete_item_opts) :: ExAws.Request.response_t
+  defcallback delete_item(table_name :: binary, primary_key :: Keyword.t) :: ExAws.Request.response_t
+  defcallback delete_item(table_name :: binary, primary_key :: Keyword.t, opts :: delete_item_opts) :: ExAws.Request.response_t
 
   @doc """
   Enables custom request handling.
