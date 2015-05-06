@@ -282,6 +282,7 @@ defmodule ExAws.Dynamo.Client do
 
   @doc "Get an item from a dynamo table, and raise if it does not exist or there is an error"
   defcallback get_item!(table_name :: binary, primary_key_value :: binary) :: %{}
+  defcallback get_item!(table_name :: binary, primary_key_value :: binary, opts :: get_item_opts) :: %{}
 
   @doc """
   Update item in table
