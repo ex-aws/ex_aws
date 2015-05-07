@@ -1,6 +1,6 @@
 defmodule ExAws.Lambda.Impl do
   use ExAws.Actions
-  import ExAws.Utils, only: [camelize_keys: 1]
+  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
   require Logger
 
   @moduledoc false
@@ -45,7 +45,7 @@ defmodule ExAws.Lambda.Impl do
     |> Map.merge(%{
       "FunctionName"     => function_name,
       "EventSourceArn"   => event_source_arn,
-      "StartingPosition" => starting_position})
+      "StartingPosition" => starting_position |> upcase})
     |> client.request(:create_event_source_mapping, "/2015-03-31/event-source-mappings/")
   end
 
@@ -84,16 +84,20 @@ defmodule ExAws.Lambda.Impl do
   end
 
   def invoke(client, function_name, payload, client_context, opts \\ []) do
-    opts = normalize_opts(opts)
-    json_codec = client.config[:json_codec]
-    headers = [
-      {"X-Amz-Invocation-Type", Map.get(opts, :InvocationType, "RequestResponse")},
-      {"X-Amz-Log-Type", Map.get(opts, :InvocationType, "RequestResponse")},
-    ]
+    opts = Enum.into(opts, %{})
+
+    headers = [invocation_type: "X-Amz-Invocation-Type", log_type: "X-Amz-Log-Type"]
+    |> Enum.reduce([], fn({opt, header}, headers) ->
+      case Map.get(opts, opt) do
+        nil -> headers
+        value -> [{header, value} |headers]
+      end
+    end)
+
     headers = case client_context do
       %{} -> headers
       context ->
-        header = {"X-Amz-Client-Context", context |> json_codec.encode! |> Base.encode64}
+        header = {"X-Amz-Client-Context", context |> client.config[:json_codec].encode! |> Base.encode64}
         [header | headers]
     end
     client.request(payload, :invoke, "/2015-03-31/functions/#{function_name}/invocations", [], headers)
@@ -104,10 +108,10 @@ defmodule ExAws.Lambda.Impl do
     client.request(args |> normalize_opts, :invoke, "/2014-11-13/functions/#{function_name}/invoke-async/")
   end
 
-  def list_event_source_mappings(client, function_name, event_source_arn, opts \\ []) do
+  def list_event_source_mappings(client, opts \\ []) do
     params = opts
     |> normalize_opts
-    |> Map.merge(%{"FunctionName" => function_name, "EventSourceArn" => event_source_arn})
+
     client.request(%{}, :list_event_source_mappings, "/2015-03-31/event-source-mappings/", params)
   end
 
@@ -124,7 +128,7 @@ defmodule ExAws.Lambda.Impl do
   end
 
   def update_function_code(client, function_name, zipfile) do
-    %{ZipFile: zipfile}
+    %{"ZipFile" => zipfile}
     |> client.request(:update_function_code, "/2015-03-31/functions/#{function_name}/versions/HEAD/code")
   end
 

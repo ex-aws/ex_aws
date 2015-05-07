@@ -28,7 +28,9 @@ defmodule ExAws.Actions do
     defined_actions = module
     |> Module.definitions_in
     |> Keyword.keys
-    module.__actions__
+
+    module
+    |> apply(:__actions__, [])
     |> Map.keys
     |> Enum.filter(&(!Enum.member?(defined_actions, &1)))
     |> Enum.each(fn(action) ->
@@ -38,6 +40,6 @@ defmodule ExAws.Actions do
   end
 
   def get(module, action) do
-    module.__actions__ |> Map.get(action)
+    module |> apply(:__actions__, []) |> Map.get(action)
   end
 end
