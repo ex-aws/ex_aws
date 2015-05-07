@@ -1,6 +1,6 @@
 defmodule ExAws.Dynamo.Impl do
   alias ExAws.Dynamo
-  import ExAws.Utils, only: [camelize_keys: 1, camelize_keys: 2]
+  import ExAws.Utils, only: [camelize_keys: 1, camelize_keys: 2, upcase: 1]
   use ExAws.Actions
 
   @nested_opts [:exclusive_start_key, :expression_attribute_values, :expression_attribute_names]
@@ -197,6 +197,11 @@ defmodule ExAws.Dynamo.Impl do
 
     opts
     |> Map.drop(@special_opts)
+    |> add_upcased_opt(opts, :total_segments)
+    |> add_upcased_opt(opts, :return_item_collection_metrics)
+    |> add_upcased_opt(opts, :select)
+    |> add_upcased_opt(opts, :return_values)
+    |> add_upcased_opt(opts, :return_consumed_capacity)
     |> camelize_keys
     |> build_special_opts(opts)
   end
@@ -209,11 +214,6 @@ defmodule ExAws.Dynamo.Impl do
     |> build_exclusive_start_key(opts)
     |> build_expression_attribute_names(opts)
     |> build_expression_attribute_values(opts)
-    |> build_total_segments(opts)
-    |> build_return_item_collection_metrics(opts)
-    |> build_select(opts)
-    |> build_return_values(opts)
-    |> build_return_consumed_capacity(opts)
   end
 
   defp build_exclusive_start_key(data, %{exclusive_start_key: start_key}) do
@@ -236,45 +236,15 @@ defmodule ExAws.Dynamo.Impl do
   end
   defp build_expression_attribute_values(data, _), do: data
 
-  ## TODO: metaprogram these upcase functions. Very predictable format
-
-  defp build_total_segments(data, %{total_segments: segments}) do
-    Map.put(data, "TotalSegments", segments |> upcase)
-  end
-  defp build_total_segments(data, _), do: data
-
-  defp build_return_item_collection_metrics(data, %{return_item_collection_metrics: metrics}) do
-    Map.put(data, "ReturnItemCollectionMetrics", metrics |> upcase)
-  end
-  defp build_return_item_collection_metrics(data, _), do: data
-
-  defp build_select(data, %{select: select}) do
-    Map.put(data, "Select", select |> upcase)
-  end
-  defp build_select(data, _), do: data
-
-  defp build_return_values(data, %{return_values: return_values}) do
-    Map.put(data, "ReturnValues", return_values |> upcase)
-  end
-  defp build_return_values(data, _), do: data
-
-  defp build_return_consumed_capacity(data, %{return_consumed_capacity: return}) do
-    Map.put(data, "ReturnConsumedCapacity", return |> upcase)
-  end
-  defp build_return_consumed_capacity(data, _), do: data
-
-
   ## Various other helpers
   ################
 
-  defp upcase(value) when is_atom(value) do
-    value
-    |> Atom.to_string
-    |> String.upcase
-  end
-
-  defp upcase(value) when is_binary(value) do
-    String.upcase(value)
+  defp add_upcased_opt(data, opts, key) do
+    case Map.get(opts, key) do
+      nil -> data
+      value ->
+        Map.put(data, key, value |> upcase)
+    end
   end
 
   defp encode_values(dict) do
@@ -288,6 +258,5 @@ defmodule ExAws.Dynamo.Impl do
       %{"AttributeName" => name, "AttributeType" => type |> Dynamo.Encoder.atom_to_dynamo_type}
     end)
   end
-
 
 end

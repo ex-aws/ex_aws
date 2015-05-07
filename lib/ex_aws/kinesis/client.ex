@@ -48,32 +48,42 @@ defmodule ExAws.Kinesis.Client do
 
   ## Streams
 
+  @type stream_name :: binary
+
   @doc "Lists streams"
   defcallback list_streams() :: ExAws.Request.response_t
 
   @doc "Describe Stream"
-  defcallback describe_stream(stream_name :: iodata) :: ExAws.Request.response_t
-  defcallback describe_stream(stream_name :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
+  @type describe_stream_opts :: [
+    {:limit, pos_integer} |
+    {:exclusive_start_shard_id, binary}
+  ]
+  defcallback describe_stream(stream_name :: stream_name) :: ExAws.Request.response_t
+  defcallback describe_stream(stream_name :: stream_name, opts :: describe_stream_opts) :: ExAws.Request.response_t
 
   @doc """
   Same as describe_stream/1,2 except the shards key is a stream and will automatically handle pagination
   Returns the normally shaped AWS response, except the Shards key is now a stream
   """
-  defcallback stream_shards(stream_name :: iodata) :: ExAws.Request.response_t
-  defcallback stream_shards(stream_name :: iodata :: %{}) :: ExAws.Request.response_t
+  @doc "Stream Shards"
+  defcallback stream_shards(stream_name :: stream_name) :: ExAws.Request.response_t
+  defcallback stream_shards(stream_name :: stream_name, opts :: describe_stream_opts) :: ExAws.Request.response_t
 
   @doc "Creates stream"
-  defcallback create_stream(stream_name :: iodata) :: ExAws.Request.response_t
-  defcallback create_stream(stream_name :: iodata, shard_count :: pos_integer) :: ExAws.Request.response_t
+  defcallback create_stream(stream_name :: stream_name) :: ExAws.Request.response_t
+  defcallback create_stream(stream_name :: stream_name, shard_count :: pos_integer) :: ExAws.Request.response_t
 
   @doc "Deletes stream"
-  defcallback delete_stream(stream_name :: iodata) :: ExAws.Request.response_t
+  defcallback delete_stream(stream_name :: stream_name) :: ExAws.Request.response_t
 
   ## Records
 
   @doc "Get stream records"
-  defcallback get_records(shard_iterator :: iodata) :: ExAws.Request.response_t
-  defcallback get_records(shard_iterator :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
+  @type get_records_opts :: [
+    {:limit, pos_integer}
+  ]
+  defcallback get_records(shard_iterator :: binary) :: ExAws.Request.response_t
+  defcallback get_records(shard_iterator :: binary, opts :: get_records_opts) :: ExAws.Request.response_t
 
   @doc """
   Returns a stream of kinesis records
@@ -91,46 +101,70 @@ defmodule ExAws.Kinesis.Client do
   Generally speaking you won't need this, but it can be handy if you're trying to prevent flooding.
   See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
   """
-  defcallback stream_records(shard_iterator :: iodata)# :: Stream.t
-  defcallback stream_records(shard_iterator :: iodata, opts :: Keyword.t)# :: Stream.t
-  defcallback stream_records(shard_iterator :: iodata, opts :: Keyword.t, iterator_fun :: Fun)# :: Stream.t
+  defcallback stream_records(shard_iterator :: binary)# :: Stream.t
+  defcallback stream_records(shard_iterator :: binary, opts :: get_records_opts)# :: Stream.t
+  defcallback stream_records(shard_iterator :: binary, opts :: get_records_opts, iterator_fun :: Fun)# :: Stream.t
 
   @doc "Puts a record on a stream"
-  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata) :: ExAws.Request.response_t
-  defcallback put_record(stream_name :: iodata, partition_key :: iodata, blob :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
+  @type put_record_opts :: [
+    {:explicit_hash_key, binary} |
+    {:sequence_number_for_ordering, binary}
+  ]
+  defcallback put_record(stream_name :: stream_name, partition_key :: binary, blob :: binary) :: ExAws.Request.response_t
+  defcallback put_record(stream_name :: stream_name, partition_key :: binary, blob :: binary, opts :: put_record_opts) :: ExAws.Request.response_t
 
   @doc "Put multiple records on a stream"
-  defcallback put_records(stream_name :: iodata, records :: [%{}]) :: ExAws.Request.response_t
+  @type put_records_record :: [
+    {:data, %{}} |
+    {:explicit_hash_key, binary}
+  ]
+  defcallback put_records(stream_name :: stream_name, records :: [put_records_record]) :: ExAws.Request.response_t
 
   ## Shards
 
   @doc """
   Get a shard iterator
-  @type shard_iterator_types :: "AT_SEQUENCE_NUMBER"
-    | "AFTER_SEQUENCE_NUMBER"
-    | "TRIM_HORIZON"
-    | "LATEST"
   """
-  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata) :: ExAws.Request.response_t
-  defcallback get_shard_iterator(stream_name :: iodata, shard_id :: iodata, shard_iterator_type :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
+  @type shard_iterator_types ::
+    :at_sequence_number |
+    :after_sequence_number |
+    :trim_horizon |
+    :latest
+  @type get_shard_iterator_opts :: [
+    {:starting_sequence_number, binary}
+  ]
+  defcallback get_shard_iterator(
+    stream_name :: stream_name,
+    shard_id :: binary,
+    shard_iterator_type :: shard_iterator_types) :: ExAws.Request.response_t
+  defcallback get_shard_iterator(
+    stream_name :: stream_name,
+    shard_id :: binary,
+    shard_iterator_type :: shard_iterator_types,
+    opts :: get_shard_iterator_opts) :: ExAws.Request.response_t
 
   @doc "Merge adjacent shards"
-  defcallback merge_shards(stream_name :: iodata, adjacent_shard_id :: iodata, shard_id :: iodata) :: ExAws.Request.response_t
+  defcallback merge_shards(stream_name :: stream_name, adjacent_shard_id :: binary, shard_id :: binary) :: ExAws.Request.response_t
 
   @doc "Split a shard"
-  defcallback split_shard(name :: iodata, shard :: iodata, new_starting_hash_key :: iodata) :: ExAws.Request.response_t
+  defcallback split_shard(stream_name :: binary, shard :: binary, new_starting_hash_key :: binary) :: ExAws.Request.response_t
 
   ## Tags
 
   @doc "Add tags to stream"
-  defcallback add_tags_to_stream(name :: iodata, tags :: %{}) :: ExAws.Request.response_t
+  @type stream_tags :: [{atom, binary} | {binary, binary}]
+  defcallback add_tags_to_stream(stream_name :: binary, tags :: stream_tags) :: ExAws.Request.response_t
 
   @doc "Add tags to stream"
-  defcallback list_tags_for_stream(name :: iodata)
-  defcallback list_tags_for_stream(name :: iodata, opts :: Keyword.t) :: ExAws.Request.response_t
+  @type list_tags_for_stream_opts :: [
+    {:limit, pos_integer} |
+    {:exclusive_start_tag_key, binary}
+  ]
+  defcallback list_tags_for_stream(stream_name :: binary)
+  defcallback list_tags_for_stream(stream_name :: binary, opts :: list_tags_for_stream_opts) :: ExAws.Request.response_t
 
   @doc "Remove tags from stream"
-  defcallback remove_tags_from_stream(name :: iodata , tag_keys :: [binary]) :: ExAws.Request.response_t
+  defcallback remove_tags_from_stream(stream_name :: binary, tag_keys :: [binary]) :: ExAws.Request.response_t
 
   @doc """
   Enables custom request handling.

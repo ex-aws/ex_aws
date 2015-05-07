@@ -37,4 +37,14 @@ defmodule ExAws.Utils do
   defp camelize_key(key) when is_binary(key) do
     key |> Mix.Utils.camelize
   end
+
+  def upcase(value) when is_atom(value) do
+    value
+    |> Atom.to_string
+    |> String.upcase
+  end
+
+  def upcase(value) when is_binary(value) do
+    String.upcase(value)
+  end
 end

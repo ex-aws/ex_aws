@@ -101,16 +101,29 @@ defmodule ExAws.Dynamo.Client do
   ## Tables
   ######################
 
-  @type table_name                       :: binary
-  @type primary_key                      :: [{atom, binary}] | %{atom => binary}
-  @type exclusive_start_key_vals         :: [{atom, binary}] | %{atom => binary}
-  @type expression_attribute_names_vals  :: %{binary => binary}
+  @type table_name :: binary
+  @type primary_key :: [{atom, binary}] | %{atom => binary}
+  @type exclusive_start_key_vals :: [{atom, binary}] | %{atom => binary}
+  @type expression_attribute_names_vals :: %{binary => binary}
   @type expression_attribute_values_vals :: [{atom, binary}] | %{atom => binary}
-  @type return_consumed_capacity_vals    :: :none | :total | :indexes
-  @type select_vals                      :: :all_attributes | :all_projected_attributes | :specific_attributes | :count
-  @type return_values_vals               :: :none | :all_old | :updated_old | :all_new | :updated_new
-
-  @type return_item_collection_metrics_vals :: :size | :none
+  @type return_consumed_capacity_vals ::
+    :none |
+    :total |
+    :indexes
+  @type select_vals ::
+    :all_attributes |
+    :all_projected_attributes |
+    :specific_attributes |
+    :count
+  @type return_values_vals ::
+    :none |
+    :all_old |
+    :updated_old |
+    :all_new |
+    :updated_new
+  @type return_item_collection_metrics_vals ::
+    :size |
+    :none
 
   @doc "List tables"
   defcallback list_tables() :: ExAws.Request.response_t
