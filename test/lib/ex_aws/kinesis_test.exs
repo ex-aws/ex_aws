@@ -1,12 +1,29 @@
+defmodule Test.Dummy.Kinesis do
+  use ExAws.Kinesis.Client
+
+  def config_root, do: Application.get_all_env(:ex_aws)
+
+  def request(data, _action), do: data
+end
+
 defmodule ExAws.KinesisTest do
   use ExUnit.Case, async: true
+  alias Test.Dummy.Kinesis
 
-  test "#list_streams" do
-    assert {:ok, %{"HasMoreStreams" => _, "StreamNames" => _}} = Test.Kinesis.list_streams
+  test "#put_records" do
+    records = [
+      %{data: "asdfasdfasdf", partition_key: "foo"},
+      %{data: "foobar", partition_key: "bar", explicit_hash_key: "wuff"}
+    ]
+    assert Kinesis.put_records("logs", records) ==
+      %{"Records" => [%{"Data" => "YXNkZmFzZGZhc2Rm", "PartitionKey" => "foo"},
+        %{"Data" => "Zm9vYmFy", "ExplicitHashKey" => "wuff", "PartitionKey" => "bar"}], "StreamName" => "logs"}
   end
 
-  test "#list_streams with jsx and httpotion" do
-    assert {:ok, %{"HasMoreStreams" => _, "StreamNames" => _}} = Test.KinesisAlt.list_streams
+  test "#get_shard_iterator" do
+    assert Kinesis.get_shard_iterator("logs", "shard-0000", :after_sequence_number) ==
+      %{"ShardId" => "shard-0000", "ShardIteratorType" => "AFTER_SEQUENCE_NUMBER",
+        "StreamName" => "logs"}
   end
 
 end

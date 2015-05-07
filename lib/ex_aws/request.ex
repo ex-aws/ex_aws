@@ -53,7 +53,7 @@ defmodule ExAws.Request do
   end
 
   @doc false
-  def request_and_retry(_, _, _, _, _, {:error, reason}), do: {:error, reason}
+  def request_and_retry(_method, _url, _service, _config, _headers, _req_body, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
     if config[:debug_requests] do
@@ -77,10 +77,6 @@ defmodule ExAws.Request do
       {:error, %{reason: reason}} ->
         Logger.error("ExAws: HTTP ERROR: #{inspect reason}")
         request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
-      whoknows ->
-        Logger.info "Unknown response"
-        whoknows |> inspect |> Logger.info
-        {:error, whoknows}
     end
   end
 
@@ -109,6 +105,9 @@ defmodule ExAws.Request do
     {:error, {type, message}}
   end
 
+  def attempt_again?(_, {:http_error, _, _} = reason) do
+    {:error, reason}
+  end
   def attempt_again?(attempt, reason) when attempt >= @max_attempts do
     {:error, reason}
   end

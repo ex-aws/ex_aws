@@ -10,8 +10,7 @@ defmodule ExAws.Client do
   def generate_boilerplate(client, opts) do
     config_boilerplate = create_config_boilerplate(client, opts)
 
-    callbacks   = client.__behaviour__(:callbacks) |> Keyword.keys
-    impl_module = impl_module(client)
+    {:module, impl_module} = impl_module(client)
     functions   = impl_module.__info__(:functions)
 
     generated_functions = functions
@@ -58,15 +57,18 @@ defmodule ExAws.Client do
     client
     |> Atom.to_string
     |> String.replace("Client", "Impl")
-    |> String.to_existing_atom
+    |> String.to_atom
+    |> Code.ensure_compiled
   end
 
-  def build_arguments(n) do
-    0..1000
+  def build_arguments(n) when n > 0 do
+    Stream.iterate(0, &(&1 + 1))
     |> Stream.map(&("arg#{&1}"))
     |> Stream.map(&String.to_atom/1)
     |> Enum.take(n)
     |> Enum.map(fn(var) -> {var, [], Elixir} end)
   end
+
+  def build_arguments(_), do: []
 
 end

@@ -1,30 +1,79 @@
+defmodule Test.Dummy.Dynamo do
+  use ExAws.Dynamo.Client
+
+  def config_root, do: Application.get_all_env(:ex_aws)
+
+  def request(data, _action), do: data
+end
+
 defmodule ExAws.DynamoTest do
-  alias Test.Dynamo
-  alias ExAws.Dynamo.Decoder
   use ExUnit.Case, async: true
+  alias Test.Dummy.Dynamo
 
-  setup_all do
-    Dynamo.delete_table(Test.User)
-    Dynamo.delete_table(Foo)
-    :ok
+  test "#scan" do
+    expected = %{"ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}}, "ExpressionAttributeNames" => %{api_key: "#api_key"},
+      "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},
+      "FilterExpression" => "ApiKey = #api_key and Name = :name", "Limit" => 12, "TableName" => "Users"}
+
+    assert Dynamo.scan("Users",
+      limit: 12,
+      exclusive_start_key: [api_key: "api_key"],
+      expression_attribute_names: [api_key: "#api_key"],
+      expression_attribute_values: [api_key: "asdfasdfasdf", name: "bubba"],
+      filter_expression: "ApiKey = #api_key and Name = :name") == expected
   end
 
-  test "#list_tables" do
-    assert {:ok, %{"TableNames" => _}} = Dynamo.list_tables
+  test "#query" do
+    expected = %{"ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}}, "ExpressionAttributeNames" => %{api_key: "#api_key"},
+      "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},
+      "FilterExpression" => "ApiKey = #api_key and Name = :name", "Limit" => 12, "TableName" => "Users"}
+
+    assert Dynamo.scan("Users",
+      limit: 12,
+      exclusive_start_key: [api_key: "api_key"],
+      expression_attribute_names: [api_key: "#api_key"],
+      expression_attribute_values: [api_key: "asdfasdfasdf", name: "bubba"],
+      filter_expression: "ApiKey = #api_key and Name = :name") == expected
   end
 
-  test "#create and destroy table" do
-    assert {:ok, %{"TableDescription" => %{"TableName" => "Elixir.Foo"}}} =
-      Dynamo.create_table(Foo, "shard_id", %{shard_id: :string}, 1, 1)
-    assert {:ok, _} = Dynamo.delete_table(Foo)
+  test "#batch_get_item" do
+    expected = %{"RequestItems" => %{"Subscriptions" => %{"Keys" => [%{id: %{"S" => "id1"}}]},
+      "Users" => %{"ConsistentRead" => true, "Keys" => [%{api_key: %{"S" => "key1"}}, %{api_key: %{"S" => "api_key2"}}]}}}
+
+    request = Dynamo.batch_get_item(%{
+      "Users" => [
+        consistent_read: true,
+        keys: [
+          [api_key: "key1"],
+          [api_key: "api_key2"]
+        ]
+      ],
+      "Subscriptions" => %{keys: [%{id: "id1"}]}
+    })
+    assert request == expected
   end
 
-  test "put and get item with map values work" do
-    {:ok, _} = Dynamo.create_table(Test.User, "email", %{email: :string}, 1, 1)
+  test "#batch_write_item" do
+    expected = %{"RequestItems" => %{"Users" => [%{"DeleteRequest" => %{"Key" => %{"S" => "api_key1"}}},
+     %{"PutRequest" => %{"Item" => %{"admin" => %{"BOOL" => "false"},
+     "age" => %{"N" => "23"}, "email" => %{"S" => "foo@bar.com"},
+     "name" => %{"M" => %{"first" => %{"S" => "bob"}, "last" => %{"S" => "bubba"}}}}}}]}}
+
     user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
-    assert {:ok, _} = Dynamo.put_item(Test.User, user)
-    {:ok, %{"Item" => item}} = Dynamo.get_item(Test.User, %{email: user.email})
-    assert user == item |> Decoder.decode(as: Test.User)
+    assert Dynamo.batch_write_item(%{
+      "Users" => [
+        [delete_request: [key: "api_key1"]],
+        [put_request: [item: user]]
+      ]
+    }) == expected
   end
 
+  test "put item" do
+    expected = %{"Item" => %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},
+      "email" => %{"S" => "foo@bar.com"},
+      "name" => %{"M" => %{"first" => %{"S" => "bob"},
+        "last" => %{"S" => "bubba"}}}}, "TableName" => "Users"}
+    user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
+    assert Dynamo.put_item("Users", user) == expected
+  end
 end

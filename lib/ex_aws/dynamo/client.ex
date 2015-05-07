@@ -44,6 +44,32 @@ defmodule ExAws.Dynamo.Client do
 
   Default config values can be found in ExAws.Config.
 
+  ## General notes
+  All options are handled as underscored atoms instead of camelcased binaries as specified
+  in the Dynamo API. IE `IndexName` would be `:index_name`. Anywhere in the API that requires
+  dynamo type annotation (`{"S":"mystring"}`) is handled for you automatically. IE
+
+  ```elixir
+  ExAws.Dynamo.scan("Users", expression_attribute_values: [api_key: "foo"])
+  ```
+  Transforms into a query of
+  ```elixir
+  %{"ExpressionAttributeValues" => %{api_key: %{"S" => "foo"}}, "TableName" => "Users"}
+  ```
+
+  Consult the function documentation to see precisely which options are handled this way.
+
+  If you wish to avoid this kind of automatic behaviour you are free to specify the types yourself.
+  IE:
+  ```elixir
+  ExAws.Dynamo.scan("Users", expression_attribute_values: [api_key: %{"B" => "Treated as binary"}])
+  ```
+  Becomes:
+  ```elixir
+  %{"ExpressionAttributeValues" => %{api_key: %{"B" => "Treated as binary"}}, "TableName" => "Users"}
+  ```
+  Alternatively, if what's being encoded is a struct, you're always free to implement ExAws.Dynamo.Encodable for that struct.
+
   ## Examples
 
   ```elixir
@@ -75,6 +101,30 @@ defmodule ExAws.Dynamo.Client do
   ## Tables
   ######################
 
+  @type table_name :: binary
+  @type primary_key :: [{atom, binary}] | %{atom => binary}
+  @type exclusive_start_key_vals :: [{atom, binary}] | %{atom => binary}
+  @type expression_attribute_names_vals :: %{binary => binary}
+  @type expression_attribute_values_vals :: [{atom, binary}] | %{atom => binary}
+  @type return_consumed_capacity_vals ::
+    :none |
+    :total |
+    :indexes
+  @type select_vals ::
+    :all_attributes |
+    :all_projected_attributes |
+    :specific_attributes |
+    :count
+  @type return_values_vals ::
+    :none |
+    :all_old |
+    :updated_old |
+    :all_new |
+    :updated_new
+  @type return_item_collection_metrics_vals ::
+    :size |
+    :none
+
   @doc "List tables"
   defcallback list_tables() :: ExAws.Request.response_t
 
@@ -93,14 +143,14 @@ defmodule ExAws.Dynamo.Client do
     key_definitions :: [%{}],
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
-    global_indexes  :: %{},
-    local_indexes   :: %{}) :: ExAws.Request.response_t
+    global_indexes  :: Keyword.t,
+    local_indexes   :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Describe table"
   defcallback describe_table(name :: binary) :: ExAws.Request.response_t
 
   @doc "Update Table"
-  defcallback update_table(name :: binary, attributes :: %{}) :: ExAws.Request.response_t
+  defcallback update_table(name :: binary, attributes :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Delete Table"
   defcallback delete_table(table :: binary) :: ExAws.Request.response_t
@@ -108,46 +158,165 @@ defmodule ExAws.Dynamo.Client do
   ## Records
   ######################
 
-  @doc "Scan table"
-  defcallback scan(table_name :: binary) :: ExAws.Request.response_t
-  defcallback scan(table_name :: binary, opts :: %{}) :: ExAws.Request.response_t
+  @doc """
+  Scan table
+
+  Please read http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:exclusive_start_key, :expression_attribute_names]`
+  """
+  @type scan_opts :: [
+    {:exclusive_start_key, exclusive_start_key_vals} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:filter_expression, binary} |
+    {:index_name, binary} |
+    {:limit, pos_integer} |
+    {:projection_expression, binary} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:segment, non_neg_integer} |
+    {:select, select_vals} |
+    {:total_segments, pos_integer}]
+  defcallback scan(table_name :: table_name) :: ExAws.Request.response_t
+  defcallback scan(table_name :: table_name, opts :: scan_opts) :: ExAws.Request.response_t
+
 
   @doc """
   Stream records from table
 
   Same as scan/1,2 but the records are a stream which will automatically handle pagination
-  """
-  defcallback stream_scan(table_name :: binary) :: ExAws.Request.response_t
-  defcallback stream_scan(table_name :: binary, opts :: %{}) :: ExAws.Request.response_t
 
-  @doc "Query Table"
-  defcallback query(table_name :: binary, key_conditions :: %{}) :: ExAws.Request.response_t
-  defcallback query(table_name :: binary, key_conditions :: %{}, opts :: %{}) :: ExAws.Request.response_t
+  ```elixir
+  {:ok, %{"Items" => items}} = Dynamo.stream_scan("Users")
+  items |> Enum.to_list #=> Returns every item in the Users table.
+  ```
+  """
+  defcallback stream_scan(table_name :: table_name) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: table_name, opts :: scan_opts) :: ExAws.Request.response_t
+
+  @doc """
+  Query Table
+
+  Please read: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:exclusive_start_key, :expression_attribute_names]`
+  """
+  @type query_opts :: [
+    {:consistent_read, boolean} |
+    {:exclusive_start_key, exclusive_start_key_vals} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:filter_expression, binary} |
+    {:index_name, binary} |
+    {:key_condition_expression, binary} |
+    {:limit, pos_integer} |
+    {:projection_expression, binary} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:scan_index_forward, boolean} |
+    {:select, select_vals}]
+  defcallback query(table_name :: table_name) :: ExAws.Request.response_t
+  defcallback query(table_name :: table_name, opts :: query_opts) :: ExAws.Request.response_t
+
+  @doc """
+  Stream records from table
+
+  Same as query/1,2 but the records are a stream which will automatically handle pagination
+
+  ```elixir
+  {:ok, %{"Items" => items}} = Dynamo.stream_query("Users", filter_expression: "api_key = :api_key", expression_attribute_values: [api_key: "api_key_i_want"])
+  items |> Enum.to_list #=> Returns every item in the Users table with an api_key == "api_key_i_want".
+  ```
+  """
+  defcallback stream_query(table_name :: table_name) :: ExAws.Request.response_t
+  defcallback stream_query(table_name :: table_name, opts :: query_opts) :: ExAws.Request.response_t
 
   @doc """
   Get up to 100 items (16mb)
 
   Map of table names to request parameter maps.
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:keys]`
+
+  ```elixir
+  Dynamo.batch_get_item(%{
+    "Users" => [
+      consistent_read: true,
+      keys: [
+        [api_key: "key1"],
+        [api_key: "api_key2"]
+      ]
+    ],
+    "Subscriptions" => %{
+      keys: [
+        %{id: "id1"}
+      ]
+    }
+  })
+  ```
+  As you see you're largely free to use either keyword args or maps in the body. A map
+  is required for the argument itself because the table names are most often binaries, and I refuse
+  to inflict proplists on anyone.
+
   """
-  defcallback batch_get_item(%{String.t => %{}}) :: ExAws.Request.response_t
+  @type batch_get_item_opts :: [
+    {:return_consumed_capacity, return_consumed_capacity_vals}
+  ]
+  @type get_item :: [
+    {:consistent_read, boolean} |
+    {:keys, [primary_key]}
+  ]
+  defcallback batch_get_item(%{table_name => get_item}) :: ExAws.Request.response_t
+  defcallback batch_get_item(%{table_name => get_item}, opts :: batch_get_item_opts) :: ExAws.Request.response_t
 
   @doc """
   Put or delete up to 25 items (16mb)
 
   Map of table names to request parameter maps.
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html
+
+  Parameters with keys that are automatically annotated with dynamo types are:
+  `[:keys]`
   """
-  defcallback batch_write_item(%{String.t => %{}}) :: ExAws.Request.response_t
+  @type write_item :: [
+    [delete_request: [key: primary_key]] |
+    [put_request: [item: %{}]]
+  ]
+  @type batch_write_item_opts :: [
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:return_item_collection_metrics, return_item_collection_metrics_vals}
+  ]
+  defcallback batch_write_item(%{table_name => [write_item]}) :: ExAws.Request.response_t
+  defcallback batch_write_item(%{table_name => [write_item]}, opts :: batch_write_item_opts) :: ExAws.Request.response_t
 
   @doc "Put item in table"
-  defcallback put_item(table_name :: binary, record :: %{}) :: ExAws.Request.response_t
+  @type put_item_opts :: [
+    {:condition_expression, binary} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:return_item_collection_metrics, return_item_collection_metrics_vals } |
+    {:return_values, return_values_vals}
+  ]
+  defcallback put_item(table_name :: table_name, record :: %{}) :: ExAws.Request.response_t
+  defcallback put_item(table_name :: table_name, record :: %{}, opts :: put_item_opts) :: ExAws.Request.response_t
 
   @doc "Get item from table"
-  defcallback get_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
+  @type get_item_opts :: [
+    {:consistent_read, boolean} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:projection_expression, binary} |
+    {:return_consumed_capacity, return_consumed_capacity_vals}
+  ]
+  defcallback get_item(table_name :: table_name, primary_key :: primary_key) :: ExAws.Request.response_t
+  defcallback get_item(table_name :: table_name, primary_key :: primary_key, opts :: get_item_opts) :: ExAws.Request.response_t
 
   @doc "Get an item from a dynamo table, and raise if it does not exist or there is an error"
-  defcallback get_item!(table_name :: binary, primary_key_value :: binary) :: %{}
+  defcallback get_item!(table_name :: table_name, primary_key :: primary_key) :: %{}
+  defcallback get_item!(table_name :: table_name, primary_key :: primary_key, opts :: get_item_opts) :: %{}
 
   @doc """
   Update item in table
@@ -155,10 +324,28 @@ defmodule ExAws.Dynamo.Client do
   For update_args format see
   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html
   """
-  defcallback update_item(table_name :: binary, primary_key_value :: binary, update_args :: %{}) :: ExAws.Request.response_t
+  @type update_item_opts :: [
+    {:condition_expression, binary} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:return_item_collection_metrics, return_item_collection_metrics_vals } |
+    {:return_values, return_values_vals } |
+    {:update_expression, binary}
+  ]
+  defcallback update_item(table_name :: table_name, primary_key :: primary_key, opts :: update_item_opts) :: ExAws.Request.response_t
 
   @doc "Delete item in table"
-  defcallback delete_item(table_name :: binary, primary_key_value :: binary) :: ExAws.Request.response_t
+  @type delete_item_opts :: [
+    {:condition_expression, binary} |
+    {:expression_attribute_names, expression_attribute_names_vals} |
+    {:expression_attribute_values, expression_attribute_values_vals} |
+    {:return_consumed_capacity, return_consumed_capacity_vals} |
+    {:return_item_collection_metrics, return_item_collection_metrics_vals } |
+    {:return_values, return_values_vals}
+  ]
+  defcallback delete_item(table_name :: table_name, primary_key :: primary_key) :: ExAws.Request.response_t
+  defcallback delete_item(table_name :: table_name, primary_key :: primary_key, opts :: delete_item_opts) :: ExAws.Request.response_t
 
   @doc """
   Enables custom request handling.

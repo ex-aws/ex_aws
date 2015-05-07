@@ -31,15 +31,15 @@ defmodule ExAws.Dynamo.Decoder do
   Use these if you just want the dynamo result to look more like elixir without
   coercing it into a particular struct.
   """
-  def decode(%{"S" => "TRUE"}),   do: true
-  def decode(%{"S" => "FALSE"}),  do: false
-  def decode(%{"BOOL" => true}),  do: true
-  def decode(%{"BOOL" => false}), do: false
+  def decode(%{"S" => "TRUE"}),     do: true
+  def decode(%{"S" => "FALSE"}),    do: false
+  def decode(%{"BOOL" => true}),    do: true
+  def decode(%{"BOOL" => false}),   do: false
   def decode(%{"BOOL" => "true"}),  do: true
   def decode(%{"BOOL" => "false"}), do: false
-  def decode(%{"B" => value}),    do: value
-  def decode(%{"S" => value}),    do: value
-  def decode(%{"M" => value}),    do: value |> decode
+  def decode(%{"B" => value}),      do: value
+  def decode(%{"S" => value}),      do: value
+  def decode(%{"M" => value}),      do: value |> decode
   def decode(%{"N" => value}) when is_binary(value), do: binary_to_number(value)
   def decode(%{"N" => value}) when value |> is_integer or value |> is_float, do: value
   def decode(item = %{}) do
