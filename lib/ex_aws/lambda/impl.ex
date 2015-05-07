@@ -1,5 +1,6 @@
 defmodule ExAws.Lambda.Impl do
   use ExAws.Actions
+  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
   require Logger
 
   @moduledoc false
@@ -28,27 +29,33 @@ defmodule ExAws.Lambda.Impl do
     update_function_configuration: :put
   ]
 
-  def add_permission(client, function_name, principal, action, statement_id, opts \\ %{}) do
+  def add_permission(client, function_name, principal, action, statement_id, opts \\ []) do
     opts
-    |> Map.merge(%{Action: action, Principal: principal, StatementId: statement_id})
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"      => action,
+      "Principal"   => principal,
+      "StatementId" => statement_id})
     |> client.request(:add_permission, "/2015-03-31/functions/#{function_name}/versions/HEAD/policy")
   end
 
-  def create_event_source_mapping(client, function_name, event_source_arn, starting_position, opts \\ %{}) do
+  def create_event_source_mapping(client, function_name, event_source_arn, starting_position, opts \\ []) do
     opts
+    |> normalize_opts
     |> Map.merge(%{
-      FunctionName:     function_name,
-      EventSourceArn:   event_source_arn,
-      StartingPosition: starting_position})
+      "FunctionName"     => function_name,
+      "EventSourceArn"   => event_source_arn,
+      "StartingPosition" => starting_position |> upcase})
     |> client.request(:create_event_source_mapping, "/2015-03-31/event-source-mappings/")
   end
 
-  def create_function(client, function_name, handler, zipfile, opts \\ %{}) do
+  def create_function(client, function_name, handler, zipfile, opts \\ []) do
     opts
+    |> normalize_opts
     |> Map.merge(%{
-      FunctionName: function_name,
-      Handler: handler,
-      Code: %{ZipFile: zipfile}})
+      "FunctionName" => function_name,
+      "Handler"      => handler,
+      "Code"         => %{"ZipFile" => zipfile}})
     |> client.request(:create_function, "/2015-03-31/functions")
   end
 
@@ -76,16 +83,21 @@ defmodule ExAws.Lambda.Impl do
     client.request(%{}, :get_policy, "/2015-03-31/functions/#{function_name}/versions/HEAD/policy")
   end
 
-  def invoke(client, function_name, payload, client_context, opts \\ %{}) do
-    json_codec = client.config[:json_codec]
-    headers = [
-      {"X-Amz-Invocation-Type", Map.get(opts, :InvocationType, "RequestResponse")},
-      {"X-Amz-Log-Type", Map.get(opts, :InvocationType, "RequestResponse")},
-    ]
+  def invoke(client, function_name, payload, client_context, opts \\ []) do
+    opts = Enum.into(opts, %{})
+
+    headers = [invocation_type: "X-Amz-Invocation-Type", log_type: "X-Amz-Log-Type"]
+    |> Enum.reduce([], fn({opt, header}, headers) ->
+      case Map.get(opts, opt) do
+        nil -> headers
+        value -> [{header, value} |headers]
+      end
+    end)
+
     headers = case client_context do
       %{} -> headers
       context ->
-        header = {"X-Amz-Client-Context", context |> json_codec.encode! |> Base.encode64}
+        header = {"X-Amz-Client-Context", context |> client.config[:json_codec].encode! |> Base.encode64}
         [header | headers]
     end
     client.request(payload, :invoke, "/2015-03-31/functions/#{function_name}/invocations", [], headers)
@@ -93,17 +105,18 @@ defmodule ExAws.Lambda.Impl do
 
   def invoke_async(client, function_name, args) do
     Logger.info("This API is deprecated. See invoke/5 with the Event value set as invocation type")
-    client.request(args, :invoke, "/2014-11-13/functions/#{function_name}/invoke-async/")
+    client.request(args |> normalize_opts, :invoke, "/2014-11-13/functions/#{function_name}/invoke-async/")
   end
 
-  def list_event_source_mappings(client, function_name, event_source_arn, opts \\ %{}) do
+  def list_event_source_mappings(client, opts \\ []) do
     params = opts
-    |> Map.merge(%{FunctionName: function_name, EventSourceArn: event_source_arn})
+    |> normalize_opts
+
     client.request(%{}, :list_event_source_mappings, "/2015-03-31/event-source-mappings/", params)
   end
 
-  def list_functions(client, opts \\ %{}) do
-    client.request(%{}, :list_functions, "/2015-03-31/functions/", opts)
+  def list_functions(client, opts \\ []) do
+    client.request(%{}, :list_functions, "/2015-03-31/functions/", normalize_opts(opts))
   end
 
   def remove_permission(client, function_name, statement_id) do
@@ -115,12 +128,18 @@ defmodule ExAws.Lambda.Impl do
   end
 
   def update_function_code(client, function_name, zipfile) do
-    %{ZipFile: zipfile}
+    %{"ZipFile" => zipfile}
     |> client.request(:update_function_code, "/2015-03-31/functions/#{function_name}/versions/HEAD/code")
   end
 
   def update_function_configuration(client, function_name, configuration) do
-    client.request(configuration, :update_function_configuration, "/2015-03-31/functions/#{function_name}/versions/HEAD/configuration")
+    client.request(configuration |> normalize_opts, :update_function_configuration, "/2015-03-31/functions/#{function_name}/versions/HEAD/configuration")
+  end
+
+  defp normalize_opts(opts) do
+    opts
+    |> Enum.into(%{})
+    |> camelize_keys
   end
 
 end

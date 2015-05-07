@@ -9,6 +9,7 @@ defmodule ExAws.Mixfile do
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
      package: package,
+     dialyzer: [flags: "--fullpath"],
      deps: deps]
   end
 

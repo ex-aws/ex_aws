@@ -84,12 +84,14 @@ defmacro __using__(opts) do
 end
 ```
 
-You're probably wondering, why are we going to the effort of calling client.request when all it does is just pass things along to ExAws.Dynamo.Request? Good question! This pattern bestows some very useful abilities upon custom clients. Suppose for example you had staging and production Dynamo tables such that you had a Users-staging and Users-production table, and some STAGE environment variable to tell the app what stage it's in. Instead of the tedious and bug prone `"Users-#{System.get_env("STAGE")}" |> Dynamo.describe_table`, you can just override the request function in a custom client. For example:
+You're probably wondering, why are we going to the effort of calling client.request when all it does is just pass things along to ExAws.Dynamo.Request? Good question! This pattern bestows some very useful abilities upon custom clients. For example gives us the ability to create dummy clients that merely return the structured request instead of actually sending a request, a very useful ability for testing.
+
+More importantly however, suppose had staging and production Dynamo tables such that you had a Users-staging and Users-production, and some STAGE environment variable to tell the app what stage it's in. Instead of the tedious and bug prone route of putting `"Users-#{System.get_env("STAGE")}" |> Dynamo.#desired_function` everywhere, you can just override the request function in a custom client. For example:
 
 ```elixir
 defmodule My.Dynamo do
-  def request(%{TableName: table_name} = data, action) do
-    data = %{data | TableName: "#{table_name}-#{System.get_env("STAGE")}"}
+  def request(%{"TableName" => table_name} = data, action) do
+    data = %{data | "TableName" => "#{table_name}-#{System.get_env("STAGE")}"}
 
     ExAws.Dynamo.Request.request(__MODULE__, action, data)
   end

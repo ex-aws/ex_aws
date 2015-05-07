@@ -73,7 +73,7 @@ defmodule ExAws.S3.Client do
   # Get
   @doc "List buckets"
   defcallback list_buckets() :: ExAws.Request.response_t
-  defcallback list_buckets(opts :: %{}) :: ExAws.Request.response_t
+  defcallback list_buckets(opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "List objects in bucket"
   defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
@@ -107,7 +107,7 @@ defmodule ExAws.S3.Client do
 
   @doc "Get bucket object versions"
   defcallback get_bucket_object_versions(bucket :: binary) :: ExAws.Request.response_t
-  defcallback get_bucket_object_versions(bucket :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback get_bucket_object_versions(bucket :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Get bucket payment configuration"
   defcallback get_bucket_request_payment(bucket :: binary) :: ExAws.Request.response_t
@@ -123,7 +123,7 @@ defmodule ExAws.S3.Client do
 
   @doc "List multipart uploads for a bucket"
   defcallback list_multipart_uploads(bucket :: binary) :: ExAws.Request.response_t
-  defcallback list_multipart_uploads(bucket :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback list_multipart_uploads(bucket :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Creates a bucket. Same as create_bucket/2"
   defcallback put_bucket(bucket :: binary, region :: binary) :: ExAws.Request.response_t
@@ -177,18 +177,18 @@ defmodule ExAws.S3.Client do
 
   @doc "Get an object from a bucket"
   defcallback get_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback get_object(bucket :: binary, object :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback get_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Get an object's access control policy"
   defcallback get_object_acl(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback get_object_acl(bucket :: binary, object :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback get_object_acl(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Get a torrent for a bucket"
   defcallback get_object_torrent(bucket :: binary, object :: binary) :: ExAws.Request.response_t
 
   @doc "Determine of an object exists"
   defcallback head_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback head_object(bucket :: binary, object :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback head_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Determine the CORS configuration for an object"
   defcallback options_object(
@@ -210,7 +210,7 @@ defmodule ExAws.S3.Client do
   support the AWS UI.
   """
   defcallback post_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback post_object(bucket :: binary, object :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback post_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Restore an object to a particular version FIXME"
   defcallback post_object_restore(
@@ -221,7 +221,7 @@ defmodule ExAws.S3.Client do
 
   @doc "Create an object within a bucket"
   defcallback put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
-  defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Create or update an object's access control FIXME"
   defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
@@ -241,7 +241,7 @@ defmodule ExAws.S3.Client do
 
   @doc "Initiate a multipart upload"
   defcallback initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback initiate_multipart_upload(bucket :: binary, object :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback initiate_multipart_upload(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc "Upload a part for a multipart upload"
   defcallback upload_part(
@@ -275,7 +275,7 @@ defmodule ExAws.S3.Client do
 
   @doc "List the parts of a multipart upload"
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
-  defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: %{}) :: ExAws.Request.response_t
+  defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
   @doc """
   Enables custom request handling.
