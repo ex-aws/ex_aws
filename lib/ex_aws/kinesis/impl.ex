@@ -3,8 +3,8 @@ defmodule ExAws.Kinesis.Impl do
   import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
   require Logger
 
-  defdelegate stream_shards(client, name), to: ExAws.Kinesis.Lazy
-  defdelegate stream_shards(client, name, opts), to: ExAws.Kinesis.Lazy
+  defdelegate stream_shards(client, stream_name), to: ExAws.Kinesis.Lazy
+  defdelegate stream_shards(client, stream_name, opts), to: ExAws.Kinesis.Lazy
 
   defdelegate stream_records(client, shard_iterator), to: ExAws.Kinesis.Lazy
   defdelegate stream_records(client, shard_iterator, opts), to: ExAws.Kinesis.Lazy
@@ -38,23 +38,23 @@ defmodule ExAws.Kinesis.Impl do
     client.request(%{}, :list_streams)
   end
 
-  def describe_stream(client, name, opts \\ []) do
+  def describe_stream(client, stream_name, opts \\ []) do
     opts
     |> camelize_keys
-    |> Map.merge(%{"StreamName" => name})
+    |> Map.merge(%{"StreamName" => stream_name})
     |> client.request(:describe_stream)
   end
 
-  def create_stream(client, name, shard_count \\ 1) do
+  def create_stream(client, stream_name, shard_count \\ 1) do
     %{
       "ShardCount" => shard_count,
-      "StreamName" => name
+      "StreamName" => stream_name
     }
     |> client.request(:create_stream)
   end
 
-  def delete_stream(client, name) do
-    %{"StreamName" => name}
+  def delete_stream(client, stream_name) do
+    %{"StreamName" => stream_name}
     |> client.request(:delete_stream)
   end
 
@@ -117,28 +117,28 @@ defmodule ExAws.Kinesis.Impl do
   ## Shards
   ######################
 
-  def get_shard_iterator(client, name, shard_id, shard_iterator_type, opts \\ []) do
+  def get_shard_iterator(client, stream_name, shard_id, shard_iterator_type, opts \\ []) do
     opts
     |> Enum.into(%{})
     |> camelize_keys
     |> Map.merge(%{
-      "StreamName" => name,
+      "StreamName" => stream_name,
       "ShardId" => shard_id,
       "ShardIteratorType" => shard_iterator_type |> upcase
     }) |> client.request(:get_shard_iterator)
   end
 
-  def merge_shards(client, name, adjacent_shard, shard) do
+  def merge_shards(client, stream_name, adjacent_shard, shard) do
     %{
-      "StreamName" => name,
+      "StreamName" => stream_name,
       "AdjacentShardToMerge" => adjacent_shard,
       "ShardToMerge" => shard
     } |> client.request(:merge_shards)
   end
 
-  def split_shard(client, name, shard, new_starting_hash_key) do
+  def split_shard(client, stream_name, shard, new_starting_hash_key) do
     %{
-      "StreamName" => name,
+      "StreamName" => stream_name,
       "ShardToSplit" => shard,
       "NewStartingHashKey" => new_starting_hash_key
     } |> client.request(:split_shard)
@@ -147,21 +147,21 @@ defmodule ExAws.Kinesis.Impl do
   ## Tags
   ######################
 
-  def add_tags_to_stream(client, name, tags) do
-    %{"StreamName" => name, "Tags" => tags |> Enum.into(%{})}
+  def add_tags_to_stream(client, stream_name, tags) do
+    %{"StreamName" => stream_name, "Tags" => tags |> Enum.into(%{})}
     |> client.request(:add_tags_to_stream)
   end
 
-  def list_tags_for_stream(client, name, opts \\ []) do
+  def list_tags_for_stream(client, stream_name, opts \\ []) do
     opts
     |> Enum.into(%{})
     |> camelize_keys
-    |> Map.merge(%{"StreamName" => name})
+    |> Map.merge(%{"StreamName" => stream_name})
     |> client.request(:list_tags_for_stream)
   end
 
-  def remove_tags_from_stream(client, name, tag_keys) do
-    %{"StreamName" => name, "TagKeys" => tag_keys}
+  def remove_tags_from_stream(client, stream_name, tag_keys) do
+    %{"StreamName" => stream_name, "TagKeys" => tag_keys}
     |> client.request(:remove_tags_from_stream)
   end
 end

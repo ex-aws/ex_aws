@@ -110,12 +110,12 @@ defmodule ExAws.Kinesis.Client do
     {:explicit_hash_key, binary} |
     {:sequence_number_for_ordering, binary}
   ]
-  defcallback put_record(stream_name :: stream_name, partition_key :: binary, blob :: binary) :: ExAws.Request.response_t
-  defcallback put_record(stream_name :: stream_name, partition_key :: binary, blob :: binary, opts :: put_record_opts) :: ExAws.Request.response_t
+  defcallback put_record(stream_name :: stream_name, partition_key :: binary, data :: binary) :: ExAws.Request.response_t
+  defcallback put_record(stream_name :: stream_name, partition_key :: binary, data :: binary, opts :: put_record_opts) :: ExAws.Request.response_t
 
   @doc "Put multiple records on a stream"
   @type put_records_record :: [
-    {:data, %{}} |
+    {:data, binary} |
     {:explicit_hash_key, binary}
   ]
   defcallback put_records(stream_name :: stream_name, records :: [put_records_record]) :: ExAws.Request.response_t
