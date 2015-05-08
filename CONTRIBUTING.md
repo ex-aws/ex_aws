@@ -1,7 +1,7 @@
 Contributing
 ============
 
-Contributions to ExAws are absolutely appreciated. For general bug fixes or other tweaks to existing code, a regular pull request is fine. For those who wish to add to the set of APIs supported by ExAws, please consult Organization section, as any PRs adding a service are expected to follow the structure defined therein.
+Contributions to ExAws are absolutely appreciated. For general bug fixes or other tweaks to existing code, a regular pull request is fine. For those who wish to add to the set of APIs supported by ExAws, please consult the rest of this document, as any PRs adding a service are expected to follow the structure defined herein.
 
 ## Organization
 
@@ -27,6 +27,8 @@ houses the functions that correspond to a particular action in the AWS service. 
 
 This module serves several  rolls. The first is to hold all of the callbacks that must be implemented by a given client. The second is to define a __using__ macro that implements all of the aforementioned callbacks. Most of this is done automatically via macros in the ExAws.Client module. However, the client author is responsible for a request function that simply passes the arguments to the function in the Request module. This indirection exists so that users with custom clients can specify custom behaviour around a request by overriding this function in their client module.
 
+Typespec for the callbacks ought to be fairly complete. See existing Clients for examples.
+
 ### ExAws.ServiceName
 Finally, the bare ExAws.ServiceName ought to simply consist of the following.
 ```elixir
@@ -36,7 +38,7 @@ defmodule ExAws.ServiceName do
   def config_root, do: Application.get_all_env(:ex_aws)
 end
 ```
-This produces a reified default client for the service in question.
+This produces a reified client for the service in question.
 
 ## Example
 To make all of this concrete, let's take a look at the `Dynamo.describe_table` function.
