@@ -199,6 +199,13 @@ defmodule ExAws.Dynamo.Client do
   defcallback stream_scan(table_name :: table_name, opts :: scan_opts) :: ExAws.Request.response_t
 
   @doc """
+  Same as stream_scan/1,2 but raises BadMatch unless
+  {:ok, %{"Items" => items}} = Dynamo.stream_scan
+  """
+  defcallback stream_scan!(table_name :: table_name) :: Enumerable.t
+  defcallback stream_scan!(table_name :: table_name, opts :: scan_opts) :: Enumerable.t
+
+  @doc """
   Query Table
 
   Please read: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
@@ -234,6 +241,13 @@ defmodule ExAws.Dynamo.Client do
   """
   defcallback stream_query(table_name :: table_name) :: ExAws.Request.response_t
   defcallback stream_query(table_name :: table_name, opts :: query_opts) :: ExAws.Request.response_t
+
+  @doc """
+  Same as stream_query/1,2 but raises BadMatch unless
+  {:ok, %{"Items" => items}} = Dynamo.stream_query
+  """
+  defcallback stream_query!(table_name :: table_name) :: Enumerable.t
+  defcallback stream_query!(table_name :: table_name, opts :: query_opts) :: Enumerable.t
 
   @doc """
   Get up to 100 items (16mb)

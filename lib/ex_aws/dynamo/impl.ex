@@ -10,8 +10,13 @@ defmodule ExAws.Dynamo.Impl do
 
   defdelegate stream_scan(client, name), to: ExAws.Dynamo.Lazy
   defdelegate stream_scan(client, name, opts), to: ExAws.Dynamo.Lazy
+  defdelegate stream_scan!(client, name), to: ExAws.Dynamo.Lazy
+  defdelegate stream_scan!(client, name, opts), to: ExAws.Dynamo.Lazy
+
   defdelegate stream_query(client, name), to: ExAws.Dynamo.Lazy
   defdelegate stream_query(client, name, opts), to: ExAws.Dynamo.Lazy
+  defdelegate stream_query!(client, name), to: ExAws.Dynamo.Lazy
+  defdelegate stream_query!(client, name, opts), to: ExAws.Dynamo.Lazy
 
   @namespace "DynamoDB_20120810"
   @actions [

@@ -2,6 +2,11 @@ defmodule ExAws.Dynamo.Lazy do
   @moduledoc false
   ## Implimentation of the lazy functions surfaced by ExAws.Dynamo.Client
 
+  def stream_scan!(client, table, opts \\ []) do
+    {:ok, %{"Items" => items}} = stream_scan(client, table, opts)
+    items
+  end
+
   def stream_scan(client, table, opts \\ []) do
     request_fun = fn
       {:initial, initial} -> initial
@@ -38,6 +43,10 @@ defmodule ExAws.Dynamo.Lazy do
     end, &pass/1)
   end
 
+  def stream_query!(client, table, opts \\ []) do
+    {:ok, %{"Items" => items}} = stream_query(client, table, opts)
+    items
+  end
 
   def stream_query(client, table, opts \\ []) do
     request_fun = fn
