@@ -10,6 +10,11 @@ defmodule ExAws.KinesisTest do
   use ExUnit.Case, async: true
   alias Test.Dummy.Kinesis
 
+  ## NOTE:
+  # These tests are not intended to be operational examples, but intead mere
+  # ensure that the form of the data to be sent to AWS is correct.
+  #
+
   test "#put_records" do
     records = [
       %{data: "asdfasdfasdf", partition_key: "foo"},

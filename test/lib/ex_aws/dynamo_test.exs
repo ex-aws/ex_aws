@@ -10,6 +10,11 @@ defmodule ExAws.DynamoTest do
   use ExUnit.Case, async: true
   alias Test.Dummy.Dynamo
 
+  ## NOTE:
+  # These tests are not intended to be operational examples, but intead mere
+  # ensure that the form of the data to be sent to AWS is correct.
+  #
+
   test "#scan" do
     expected = %{"ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}}, "ExpressionAttributeNames" => %{api_key: "#api_key"},
       "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},
@@ -28,7 +33,7 @@ defmodule ExAws.DynamoTest do
       "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},
       "FilterExpression" => "ApiKey = #api_key and Name = :name", "Limit" => 12, "TableName" => "Users"}
 
-    assert Dynamo.scan("Users",
+    assert Dynamo.query("Users",
       limit: 12,
       exclusive_start_key: [api_key: "api_key"],
       expression_attribute_names: [api_key: "#api_key"],

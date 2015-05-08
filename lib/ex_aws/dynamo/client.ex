@@ -6,6 +6,9 @@ defmodule ExAws.Dynamo.Client do
 
   By default you can use ExAws.Dynamo
 
+  NOTE: When Mix.env in [:test, :dev] dynamo clients will run by default against
+  Dynamodb local.
+
   ## Usage
   ```
   defmodule MyApp.Dynamo do

@@ -59,7 +59,7 @@ end
 Now we hop over to the `ExAws.Dynamo.Impl` module where we actually format the request:
 ```elixir
 def describe_table(client, name) do
-  %{TableName: name}
+  %{"TableName" => name}
   |> client.request(:describe_table)
 end
 ```

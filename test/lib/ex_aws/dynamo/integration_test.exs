@@ -3,6 +3,13 @@ defmodule ExAws.DynamoIntegrationTest do
   alias ExAws.Dynamo.Decoder
   use ExUnit.Case, async: true
 
+  ## These tests run against DynamoDb Local
+  #
+  # http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html
+  # In this way they can safely delete data and tables without risking actual data on
+  # Dynamo
+  #
+
   setup_all do
     Dynamo.delete_table("Users")
     Dynamo.delete_table(Test.User)
