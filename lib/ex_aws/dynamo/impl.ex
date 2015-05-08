@@ -43,11 +43,7 @@ defmodule ExAws.Dynamo.Impl do
 
   def create_table(client, name, primary_key, key_definitions, read_capacity, write_capacity)
   when is_atom(primary_key) or is_binary(primary_key) do
-    key_schema = [%{
-      attribute_name: primary_key,
-      key_type:       "HASH"
-    }]
-    create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity)
+    create_table(client, name, [{primary_key, :hash}], key_definitions, read_capacity, write_capacity)
   end
 
   def create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity) when is_list(key_schema) do
@@ -58,7 +54,7 @@ defmodule ExAws.Dynamo.Impl do
     data = %{
       "TableName" => name,
       "AttributeDefinitions" => key_definitions |> encode_key_definitions,
-      "KeySchema" => key_schema |> Enum.map(&camelize_keys/1),
+      "KeySchema" => key_schema |> build_key_schema,
       "ProvisionedThroughput" => %{
         "ReadCapacityUnits"  => read_capacity,
         "WriteCapacityUnits" => write_capacity
@@ -72,6 +68,15 @@ defmodule ExAws.Dynamo.Impl do
       {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
     end)
     |> client.request(:create_table)
+  end
+
+  defp build_key_schema(key_schema) do
+    Enum.map(key_schema, fn({attr, type}) ->
+      %{
+        "AttributeName" => attr,
+        "KeyType" => type |> upcase
+      }
+    end)
   end
 
   def describe_table(client, name) do

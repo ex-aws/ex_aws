@@ -127,23 +127,55 @@ defmodule ExAws.Dynamo.Client do
   @type return_item_collection_metrics_vals ::
     :size |
     :none
+  @type dynamo_type_names :: :blob
+    | :boolean
+    | :blob_set
+    | :list
+    | :map
+    | :number_set
+    | :null
+    | :number
+    | :string
+    | :string_set
+
+  @type key_schema :: [{atom | binary, :hash | :range}, ...]
+  @type key_definitions :: [{atom | binary, dynamo_type_names}, ...]
 
   @doc "List tables"
   defcallback list_tables() :: ExAws.Request.response_t
 
-  @doc "Create table"
+  @doc """
+  Create table
+
+  key_schema can be a simple binary or atom indicating a simple hash key
+  """
   defcallback create_table(
     table_name      :: binary,
-    primary_key     :: binary,
-    key_definitions :: Keyword.t,
+    key_schema      :: binary | atom,
+    key_definitions :: key_definitions,
+    read_capacity   :: pos_integer,
+    write_capacity  :: pos_integer) :: ExAws.Request.response_t
+
+    @doc """
+    Create table
+
+    key_schema allows specifying hash and / or range keys IE
+    ```
+    [api_key: :hash, something_rangy: :range]
+    ```
+    """
+  defcallback create_table(
+    table_name      :: binary,
+    key_schema      :: [key_schema],
+    key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer) :: ExAws.Request.response_t
 
   @doc "Create table with indices"
   defcallback create_table(
     table_name      :: binary,
-    primary_key     :: binary,
-    key_definitions :: [%{}],
+    key_schema      :: [key_schema],
+    key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
     global_indexes  :: Keyword.t,

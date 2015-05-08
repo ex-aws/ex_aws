@@ -15,6 +15,14 @@ defmodule ExAws.DynamoTest do
   # ensure that the form of the data to be sent to AWS is correct.
   #
 
+  test "#create_table" do
+    expected = %{"AttributeDefinitions" => [%{"AttributeName" => :email,
+      "AttributeType" => "S"}], "KeySchema" => [%{"AttributeName" => :email, "KeyType" => "HASH"}, %{"AttributeName" => :age, "KeyType" => "RANGE"}],
+      "ProvisionedThroughput" => %{"ReadCapacityUnits" => 1, "WriteCapacityUnits" => 1}, "TableName" => "Users"}
+
+    assert Dynamo.create_table("Users", [email: :hash, age: :range], [email: :string], 1, 1) == expected
+  end
+
   test "#scan" do
     expected = %{"ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}}, "ExpressionAttributeNames" => %{api_key: "#api_key"},
       "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},
