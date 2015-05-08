@@ -166,6 +166,20 @@ defmodule ExAws.Dynamo.Client do
 
   Please read http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html
 
+  ```
+  "Users"
+  |> Dynamo.stream_scan(
+    limit: 1,
+    expression_attribute_values: [desired_api_key: "adminkey"],
+    expression_attribute_names: %{"#asdf" => "api_key"},
+    filter_expression: "#asdf = :desired_api_key")
+  |> Enum.to_list
+  ```
+
+  Generally speaking you won't need to use `:expression_attribute_names`. It exists
+  to alias a column name if one of the columns you want to search against is a reserved dynamo word,
+  like `Percentile`. In this case it's totally unnecessary as `api_key` is not a reserved word.
+
   Parameters with keys that are automatically annotated with dynamo types are:
   `[:exclusive_start_key, :expression_attribute_names]`
   """
@@ -203,6 +217,15 @@ defmodule ExAws.Dynamo.Client do
 
   Please read: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
 
+  ```
+  "Users"
+  |> Dynamo.stream_query(
+    limit: 1,
+    expression_attribute_values: [desired_api_key: "adminkey"],
+    key_condition_expression: "api_key = :desired_api_key")
+  |> Enum.to_list
+  ```
+
   Parameters with keys that are automatically annotated with dynamo types are:
   `[:exclusive_start_key, :expression_attribute_names]`
   """
@@ -225,7 +248,7 @@ defmodule ExAws.Dynamo.Client do
   @doc """
   Stream records from table
 
-  Same as query/1,2 but the records are a stream which will automatically handle pagination
+  Returns an enumerable which handles pagination automatically in the backend.
 
   ```elixir
   {:ok, %{"Items" => items}} = Dynamo.stream_query("Users", filter_expression: "api_key = :api_key", expression_attribute_values: [api_key: "api_key_i_want"])
