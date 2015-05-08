@@ -66,8 +66,8 @@ defmodule ExAws.Kinesis.Client do
   Returns the normally shaped AWS response, except the Shards key is now a stream
   """
   @doc "Stream Shards"
-  defcallback stream_shards(stream_name :: stream_name) :: ExAws.Request.response_t
-  defcallback stream_shards(stream_name :: stream_name, opts :: describe_stream_opts) :: ExAws.Request.response_t
+  defcallback stream_shards(stream_name :: stream_name) :: Enumerable.t
+  defcallback stream_shards(stream_name :: stream_name, opts :: describe_stream_opts) :: Enumerable.t
 
   @doc "Creates stream"
   defcallback create_stream(stream_name :: stream_name) :: ExAws.Request.response_t
@@ -92,7 +92,8 @@ defmodule ExAws.Kinesis.Client do
   If you want it to take records until there are no more (at the moment), something like
 
   ```
-  Kinesis.stream_records("my-stream")
+  "my-stream"
+  |> Kinesis.stream_records
   |> Enum.take_while(fn(val) -> !match?(%{"Data" => []}, val))
   ```
   ought to do the trick.
@@ -100,10 +101,17 @@ defmodule ExAws.Kinesis.Client do
   The optional iterator_fun is a function that is called after every actual AWS request.
   Generally speaking you won't need this, but it can be handy if you're trying to prevent flooding.
   See Mix.Tasks.Kinesis.Tail.get_records/1 for an example.
+
+  The sleep_between_req_time is the amount of time that this function will sleep between requests to avoid
+  exceeding the provisioned read capacity. It defaults to 200ms.
   """
-  defcallback stream_records(shard_iterator :: binary)# :: Stream.t
-  defcallback stream_records(shard_iterator :: binary, opts :: get_records_opts)# :: Stream.t
-  defcallback stream_records(shard_iterator :: binary, opts :: get_records_opts, iterator_fun :: Fun)# :: Stream.t
+  @type stream_records_opts :: [
+    {:limit, pos_integer} |
+    {:sleep_between_req_time, non_neg_integer}
+  ]
+  defcallback stream_records(shard_iterator :: binary) :: Enumerable.t
+  defcallback stream_records(shard_iterator :: binary, opts :: stream_records_opts) :: Enumerable.t
+  defcallback stream_records(shard_iterator :: binary, opts :: stream_records_opts, each_req_fun :: Fun) :: Enumerable.t
 
   @doc "Puts a record on a stream"
   @type put_record_opts :: [

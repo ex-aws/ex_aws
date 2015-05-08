@@ -54,7 +54,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
 
   def get_records({:ok, %{"ShardIterator" => iterator}}, wait_time) do
     iterator
-    |> Kinesis.stream_records(%{}, fn
+    |> Kinesis.stream_records([], fn
       []  -> :timer.sleep(wait_time * 1000); []
       val -> val
     end)
