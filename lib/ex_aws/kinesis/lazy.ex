@@ -26,10 +26,8 @@ defmodule ExAws.Kinesis.Lazy do
       :quit -> {:halt, nil}
       {fun, args} -> case fun.(args) do
 
-        {:error, results} -> {[{:error, results}], :quit}
-
         {:ok, %{"StreamDescription" => %{"Shards" => shards, "HasMoreShards" => true}}} ->
-          opts = %{ExclusiveStartShardId: shards |> List.last |> Map.get("ShardId")}
+          opts = %{"ExclusiveStartShardId" => shards |> List.last |> Map.get("ShardId")}
           {shards, {fun, opts}}
 
         {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
@@ -45,34 +43,31 @@ defmodule ExAws.Kinesis.Lazy do
   NOTE: This stream is basically INFINITE, in that it runs
   until the shard it is reading from closes, which may be never.
   """
-  def stream_records(client, shard_iterator, opts \\ [], fun \\ &pass/1) do
-    sleep_time = Application.get_env(:ex_aws, :kinesis_sleep_between_req_time) || 200
+  def stream_records(client, shard_iterator, opts \\ [], each_req_fun \\ &pass/1) do
+    sleep_time = Keyword.get(opts, :sleep_between_req_time, 200)
 
-    request_fun = fn(fun_opts) ->
+    request_fun = fn shard_iter ->
       :timer.sleep(sleep_time)
-      req_opts = Map.merge(opts, fun_opts)
-      Kinesis.Impl.get_records(client, shard_iterator, req_opts)
+      Kinesis.Impl.get_records(client, shard_iter, opts)
     end
 
-    build_record_stream(request_fun, fun)
+    build_record_stream(request_fun, shard_iterator, each_req_fun)
   end
 
-  defp build_record_stream(request_fun, iteration_fun) do
-    Stream.resource(fn -> {request_fun, %{}} end, fn
+  defp build_record_stream(request_fun, shard_iterator, each_req_fun) do
+    Stream.resource(fn -> {request_fun, shard_iterator} end, fn
       :quit -> {:halt, nil}
 
-      {fun, args} -> case fun.(args) do
-
-        {:error, results} -> {iteration_fun.([{:error, results}]), :quit}
+      {fun, shard_iter} -> case fun.(shard_iter) do
 
         {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
           {
-            records |> iteration_fun.(),
-            {fun, %{ShardIterator: shard_iter}}
+            records |> each_req_fun.(),
+            {fun, shard_iter}
           }
 
         {:ok, %{"Records" => records}} ->
-          {iteration_fun.(records), :quit}
+          {each_req_fun.(records), :quit}
       end
     end, &pass/1)
   end

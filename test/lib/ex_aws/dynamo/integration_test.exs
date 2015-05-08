@@ -45,8 +45,8 @@ defmodule ExAws.DynamoIntegrationTest do
     user = %Test.User{email: "baz@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
     assert {:ok, _} = Dynamo.put_item("Users", user)
 
-    {:ok, %{"Items" => items}} = Dynamo.stream_scan("Users", limit: 1)
-    assert items |> Enum.count == 3
+    assert Dynamo.stream_scan("Users", limit: 1)
+    |> Enum.count == 3
   end
 
 end

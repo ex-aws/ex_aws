@@ -191,12 +191,12 @@ defmodule ExAws.Dynamo.Client do
   Same as scan/1,2 but the records are a stream which will automatically handle pagination
 
   ```elixir
-  {:ok, %{"Items" => items}} = Dynamo.stream_scan("Users")
-  items |> Enum.to_list #=> Returns every item in the Users table.
+  Dynamo.stream_scan("Users")
+  |> Enum.to_list #=> Returns every item in the Users table.
   ```
   """
-  defcallback stream_scan(table_name :: table_name) :: ExAws.Request.response_t
-  defcallback stream_scan(table_name :: table_name, opts :: scan_opts) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: table_name) :: Enumerable.t
+  defcallback stream_scan(table_name :: table_name, opts :: scan_opts) :: Enumerable.t
 
   @doc """
   Query Table
@@ -232,8 +232,8 @@ defmodule ExAws.Dynamo.Client do
   items |> Enum.to_list #=> Returns every item in the Users table with an api_key == "api_key_i_want".
   ```
   """
-  defcallback stream_query(table_name :: table_name) :: ExAws.Request.response_t
-  defcallback stream_query(table_name :: table_name, opts :: query_opts) :: ExAws.Request.response_t
+  defcallback stream_query(table_name :: table_name) :: Enumerable.t
+  defcallback stream_query(table_name :: table_name, opts :: query_opts) :: Enumerable.t
 
   @doc """
   Get up to 100 items (16mb)
