@@ -47,8 +47,12 @@ defmodule ExAws.SQS.Client do
     {:delay_seconds, 0..900 | none},
     {:attributes, Keyword.t }
   ]
-
- @doc "Create queue"
+  @type queue_attributes :: [
+    {:visibility_timeout, Integer} |
+    {:policy, binary}
+  ]
+ 
+  @doc "Create queue"
   defcallback create_queue(queue_name :: binary, visibility_timeout :: 0..43200 | none) :: ExAws.Request.response_t
 
   @doc "Delete a queue"
@@ -58,10 +62,6 @@ defmodule ExAws.SQS.Client do
   defcallback get_queue_attributes(queue_name :: binary, attribute_names :: [sqs_queue_attribute_name] | :all) :: ExAws.Request.response_t
 
   @doc "Set attributes of a SQS Queue"
-  @type queue_attributes :: [
-    {:visibility_timeout, Integer} |
-    {:policy, binary}
-  ]
   defcallback set_queue_attributes(queue_name :: binary, attributes :: queue_attributes) :: ExAws.Request.response_t
   
   @doc "Retrieces a list of all the SQS Queues"
@@ -78,7 +78,7 @@ defmodule ExAws.SQS.Client do
   @doc "Remove permission"
   defcallback remove_permission(queue_name :: binary, label :: binary) :: ExAws.Request.response_t
   
-   @doc "Send a message to a SQS Queue"
+  @doc "Send a message to a SQS Queue"
   defcallback send_message(queue_name :: binary, message :: sqs_message) :: ExAws.Request.response_t 
   defcallback send_message(queue_name :: binary, message_body :: binary, delay_seconds :: 0..900 | none) :: ExAws.Request.response_t
   
