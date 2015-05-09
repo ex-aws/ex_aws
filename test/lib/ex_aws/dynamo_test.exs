@@ -16,11 +16,11 @@ defmodule ExAws.DynamoTest do
   #
 
   test "#create_table" do
-    expected = %{"AttributeDefinitions" => [%{"AttributeName" => :email,
-      "AttributeType" => "S"}], "KeySchema" => [%{"AttributeName" => :email, "KeyType" => "HASH"}, %{"AttributeName" => :age, "KeyType" => "RANGE"}],
-      "ProvisionedThroughput" => %{"ReadCapacityUnits" => 1, "WriteCapacityUnits" => 1}, "TableName" => "Users"}
+    expected = %{"AttributeDefinitions" => [%{"AttributeName" => :email, "AttributeType" => "S"}, %{"AttributeName" => :age, "AttributeType" => "N"}],
+             "KeySchema" => [%{"AttributeName" => :email, "KeyType" => "HASH"}, %{"AttributeName" => :age, "KeyType" => "RANGE"}],
+             "ProvisionedThroughput" => %{"ReadCapacityUnits" => 1, "WriteCapacityUnits" => 1}, "TableName" => "Users"}
 
-    assert Dynamo.create_table("Users", [email: :hash, age: :range], [email: :string], 1, 1) == expected
+    assert Dynamo.create_table("Users", [email: :hash, age: :range], [email: :string, age: :number], 1, 1) == expected
   end
 
   test "#scan" do

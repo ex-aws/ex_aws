@@ -26,6 +26,10 @@ defmodule ExAws.DynamoIntegrationTest do
       Dynamo.create_table(Foo, :shard_id, [shard_id: :string], 1, 1)
   end
 
+  test "#create table with range" do
+    assert Dynamo.create_table("UsersWithRange", [email: :hash, age: :range], [email: :string, age: :number], 1, 1)
+  end
+
   test "put and get item with map values work" do
     {:ok, _} = Dynamo.create_table(Test.User, :email, [email: :string], 1, 1)
 
