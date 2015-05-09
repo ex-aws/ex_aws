@@ -3,6 +3,19 @@ defmodule ExAws.Dynamo.DecoderTest do
   alias ExAws.Dynamo.Decoder
   alias ExAws.Dynamo.Encoder
 
+  test "decoder works on lists of numbers" do
+    assert %{"NS" => ["1", "2", "3"]}
+    |> Decoder.decode == [1, 2, 3]
+
+    assert %{"NS" => [1, 2, 3]}
+    |> Decoder.decode == [1,2,3]
+  end
+
+  test "lists of different types" do
+    assert %{"L" => [%{"S" => "asdf"}, %{"N" => "1"}]}
+    |> Decoder.decode == ["asdf", 1]
+  end
+
   test "Decoder ints works" do
     assert Decoder.decode(%{"N" => "23"}) == 23
     assert Decoder.decode(%{"N" => 23}) == 23

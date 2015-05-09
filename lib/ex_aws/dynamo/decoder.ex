@@ -40,6 +40,14 @@ defmodule ExAws.Dynamo.Decoder do
   def decode(%{"B" => value}),      do: value
   def decode(%{"S" => value}),      do: value
   def decode(%{"M" => value}),      do: value |> decode
+  def decode(%{"SS" => values}),    do: values
+  def decode(%{"BS" => values}),    do: values
+  def decode(%{"NS" => values}) do
+    Enum.map(values, &binary_to_number/1)
+  end
+  def decode(%{"L" => values}) do
+    Enum.map(values, &decode/1)
+  end
   def decode(%{"N" => value}) when is_binary(value), do: binary_to_number(value)
   def decode(%{"N" => value}) when value |> is_integer or value |> is_float, do: value
   def decode(item = %{}) do
@@ -49,13 +57,14 @@ defmodule ExAws.Dynamo.Decoder do
   end
 
   @doc "Attempts to convert a number to a float, and then an integer"
-  def binary_to_number(binary) do
+  def binary_to_number(binary) when is_binary(binary) do
     try do
       String.to_float(binary)
     rescue
       ArgumentError -> String.to_integer(binary)
     end
   end
+  def binary_to_number(binary), do: binary
 
   @doc "Converts a map with binary keys to the specified struct"
   def binary_map_to_struct(bmap, module) do
