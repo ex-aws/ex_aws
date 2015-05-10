@@ -46,29 +46,43 @@ defmodule ExAws.Kinesis.Lazy do
   def stream_records(client, shard_iterator, opts \\ [], each_req_fun \\ &pass/1) do
     sleep_time = Keyword.get(opts, :sleep_between_req_time, 200)
 
-    request_fun = fn shard_iter ->
-      :timer.sleep(sleep_time)
-      Kinesis.Impl.get_records(client, shard_iter, opts)
-    end
+    Stream.resource(fn ->
+        pid = spawn_link(__MODULE__, :kinesis_request_handler, [self, client, sleep_time, opts, each_req_fun])
+        {pid, shard_iterator}
+      end,
+      fn
+        {:quit, pid} -> {:halt, pid}
+        {pid, shard_iter} ->
+          send(pid, {:request, shard_iter})
+          result = receive do
+            value -> value
+          end
+          case result do
+            {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
+              {
+                records |> each_req_fun.(),
+                {pid, shard_iter}
+              }
 
-    build_record_stream(request_fun, shard_iterator, each_req_fun)
+            {:ok, %{"Records" => records}} ->
+              {each_req_fun.(records), {:quit, pid}}
+          end
+      end,
+      fn(pid) -> send pid, :quit end
+    )
+
   end
 
-  defp build_record_stream(request_fun, shard_iterator, each_req_fun) do
-    Stream.resource(fn -> {request_fun, shard_iterator} end, fn
-      :quit -> {:halt, nil}
+  def kinesis_request_handler(parent_pid, client, sleep_time, opts, each_req_fun) do
+    receive do
+      {:request, shard_iter} ->
+        send parent_pid, Kinesis.Impl.get_records(client, shard_iter, opts)
+        :timer.sleep(sleep_time)
+        :wait
+      :quit ->
+        exit(:normal)
+    end
 
-      {fun, shard_iter} -> case fun.(shard_iter) do
-
-        {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
-          {
-            records |> each_req_fun.(),
-            {fun, shard_iter}
-          }
-
-        {:ok, %{"Records" => records}} ->
-          {each_req_fun.(records), :quit}
-      end
-    end, &pass/1)
+    kinesis_request_handler(parent_pid, client, sleep_time, opts, each_req_fun)
   end
 end
