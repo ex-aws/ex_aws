@@ -1,13 +1,4 @@
 defmodule ExAws.Dynamo.Decoder do
-  @moduledoc """
-  Converts from the dynamo type spec into more native elixir types
-  """
-
-  @doc "Convenience function, see decode/2"
-  def decode_collection(items, as: struct_module)do
-    items |> Stream.map(&decode(&1, struct_module))
-  end
-
   @doc """
   Decodes a dynamo response into a struct.
 
