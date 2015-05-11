@@ -26,7 +26,7 @@ defmodule ExAws.SQS.Client do
     :delete_message |
     :change_message_visibility |
     :get_queue_attributes
-  @type sqs_acl :: [{sqs_permission, binary},...] | {sqs_permission, binary}
+  @type sqs_acl :: %{ binary => sqs_permission | [sqs_permission, ...]}
   @type sqs_message_attribute_name ::
     :all |
     :sender_id |
@@ -54,10 +54,6 @@ defmodule ExAws.SQS.Client do
     :custom_type => binary | none,
     :value => binary | number
   }
-  @type sqs_message :: %{:message_body => binary} |
-  %{:message_body => binary, :delay_seconds => 0..900} |
-  %{:message_body => binary, :attributes => [sqs_message_attribute, ...] | sqs_message_attribute } |
-  %{:message_body => binary, :delay_seconds => 0..900, :attributes => [sqs_message_attribute, ...] | sqs_message_attribute }
 
   @doc "Create queue"
   defcallback create_queue(queue_name :: binary) :: ExAws.Request.response_t
@@ -85,15 +81,6 @@ defmodule ExAws.SQS.Client do
   @doc """
   Adds a permission with the provided label to the Queue
   for a specific action for a specific account.
-
-  ```elixir
-  "my_messages"
-  |> SQS.add_permission(
-    "JohnDoeReadPermission",
-    {:read_message, 125074342641}
-  )
-  |> Enum.to_list
-  ```
   """
   defcallback add_permission(queue_name :: binary, label :: binary, permissions :: sqs_acl) :: ExAws.Request.response_t
 
@@ -103,7 +90,7 @@ defmodule ExAws.SQS.Client do
   @doc "Send a message to a SQS Queue"
   @type sqs_message_opts :: [
       {:delay_seconds, 0..900} |
-      {:attributes, [sqs_message_attribute, ...] | sqs_message_attribute}
+      {:attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
   ]
   defcallback send_message(queue_name :: binary, message_body :: binary) :: ExAws.Request.response_t
   defcallback send_message(queue_name :: binary, message_body :: binary, opts :: sqs_message_opts) :: ExAws.Request.response_t
@@ -113,13 +100,13 @@ defmodule ExAws.SQS.Client do
   [
     {:message_body, binary} |
     {:delay_seconds, 0..900} |
-    {:attributes, [sqs_message_attribute, ...] | sqs_message_attribute}
+    {:attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
   ]
-  defcallback send_messages(queue_name :: binary, messages :: [sqs_batch_message, ...]) :: ExAws.Request.response_t
+  defcallback send_message_batch(queue_name :: binary, messages :: [sqs_batch_message, ...]) :: ExAws.Request.response_t
 
   @doc "Read messages from a SQS Queue"
   @type receive_message_opts :: [
-    {:attribute_names, [sqs_message_attribute_name] | sqs_message_attribute_name} |
+    {:attribute_names, sqs_message_attribute_name | [sqs_message_attribute_name, ...]} |
     {:max_number_of_messages, 1..10} |
     {:visibility_timeout, 0..43200} |
     {:wait_timeout, 0..20}
@@ -131,13 +118,23 @@ defmodule ExAws.SQS.Client do
   defcallback delete_message(queue_name :: binary, receipt_handle :: binary) :: ExAws.Request.response_t
 
   @doc "Deletes a list of messages from a SQS Queue in a single request"
-  defcallback delete_messages(queue_name :: binary, receipt_handles :: [binary, ...]) :: ExAws.Request.response_t
+  defcallback delete_message_batch(queue_name :: binary, receipt_handles :: [binary, ...]) :: ExAws.Request.response_t
 
   @doc """
   Extends the read lock timeout for the specified message from
   the specified queue to the specified value
   """
   defcallback change_message_visibility(queue_name :: binary, receipt_handle :: binary, visibility_timeout :: visibility_timeout) :: ExAws.Request.response_t
+
+  @doc """
+  Extends the read lock timeout for a batch of 1..10 messages
+  """
+  @type message_visibility_batch :: %{
+    :id => binary,
+    :receipt_handle => binary,
+    :visibility_timeout => visibility_timeout
+  }
+  defcallback change_message_visibility_batch(queue_name :: binary, opts :: [message_visibility_batch, ...]) :: ExAws.Request.response_t
 
   defmacro __using__(opts) do
     boilerplate = __MODULE__
