@@ -21,7 +21,7 @@ defmodule ExAws.SQSTest do
   end
 
   test "#delete_queue" do
-    
+
   end
 
   test "#list_queues" do
@@ -56,7 +56,7 @@ defmodule ExAws.SQSTest do
 
   end
 
-  test "#send_messages" do
+  test "#send_message_batch" do
 
   end
 
@@ -68,11 +68,15 @@ defmodule ExAws.SQSTest do
 
   end
 
-  test "#delete_messages" do
+  test "#delete_message_batch" do
 
   end
 
   test "#change_message_visibility" do
+
+  end
+
+  test "#change_message_visibility_batch" do
 
   end
 end
