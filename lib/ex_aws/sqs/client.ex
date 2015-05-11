@@ -64,7 +64,7 @@ defmodule ExAws.SQS.Client do
 
   @doc "Gets attributes of a SQS Queue"
   defcallback get_queue_attributes(queue_name :: binary) :: ExAws.Request.response_t
-  defcallback get_queue_attributes(queue_name :: binary, attribute_names :: [sqs_queue_attribute_name] | sqs_queue_attribute_name) :: ExAws.Request.response_t
+  defcallback get_queue_attributes(queue_name :: binary, attribute_names :: sqs_queue_attribute_name | [sqs_queue_attribute_name, ...]) :: ExAws.Request.response_t
 
   @doc "Set attributes of a SQS Queue"
   defcallback set_queue_attributes(queue_name :: binary, attributes :: queue_attributes) :: ExAws.Request.response_t
