@@ -185,7 +185,7 @@ defmodule ExAws.S3.Impl do
     response_opts = opts
     |> Map.take(param_keys)
     headers = opts
-    |> Map.drop(param_key)
+    |> Map.drop(param_keys)
     |> Enum.to_list
     client.request(:get, bucket, object, headers: headers, params: response_opts)
   end
