@@ -184,7 +184,9 @@ defmodule ExAws.S3.Impl do
     param_keys = ["response-content-type", "response-content-language", "response-expires", "response-cache-control", "response-content-disposition", "response-content-encoding"]
     response_opts = opts
     |> Map.take(param_keys)
-    headers = :maps.without(param_keys, opts)
+    headers = opts
+    |> Map.drop(param_key)
+    |> Enum.to_list
     client.request(:get, bucket, object, headers: headers, params: response_opts)
   end
 
