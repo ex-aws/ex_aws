@@ -182,9 +182,6 @@ defmodule ExAws.Kinesis.Client do
   """
   defcallback request(data :: %{}, action :: atom)
 
-  @doc "Service"
-  defcallback service() :: atom
-
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
 
@@ -196,15 +193,13 @@ defmodule ExAws.Kinesis.Client do
     |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
+      defstruct config: nil, service: :kinesis
       unquote(boilerplate)
 
       @doc false
       def request(data, action) do
         ExAws.Kinesis.Request.request(__MODULE__, action, data)
       end
-
-      @doc false
-      def service, do: :kinesis
 
       defoverridable config_root: 0, request: 2
     end

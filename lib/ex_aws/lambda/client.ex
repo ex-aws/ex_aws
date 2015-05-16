@@ -175,9 +175,6 @@ defmodule ExAws.Lambda.Client do
   defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t)
   defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t, headers :: [{binary, binary}, ...])
 
-  @doc "Service"
-  defcallback service() :: atom
-
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
 
@@ -189,6 +186,7 @@ defmodule ExAws.Lambda.Client do
     |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
+      defstruct config: nil, service: :lambda
       unquote(boilerplate)
 
       @doc false

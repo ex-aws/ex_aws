@@ -286,9 +286,6 @@ defmodule ExAws.S3.Client do
   defcallback request(http_method :: atom, bucket :: binary, path :: binary) :: ExAws.Request.response_t
   defcallback request(http_method :: atom, bucket :: binary, path :: binary, data :: Keyword.t) :: ExAws.Request.response_t
 
-  @doc "Service"
-  defcallback service() :: atom
-
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
 
@@ -300,15 +297,13 @@ defmodule ExAws.S3.Client do
     |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
+      defstruct config: nil, service: :s3
       unquote(boilerplate)
 
       @doc false
       def request(http_method, bucket, path, data \\ []) do
         ExAws.S3.Request.request(__MODULE__, http_method, bucket, path, data)
       end
-
-      @doc false
-      def service, do: :s3
 
       defoverridable config_root: 0, request: 3, request: 4
 

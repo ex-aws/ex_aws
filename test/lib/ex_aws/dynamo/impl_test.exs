@@ -3,7 +3,7 @@ defmodule Test.ClientData.Dynamo do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
-  def request(_data, _action, client_data), do: client_data
+  def request(client_data, _data, _action), do: client_data
 end
 
 defmodule ExAws.Dynamo.ImplTest do
@@ -12,7 +12,7 @@ defmodule ExAws.Dynamo.ImplTest do
     config = Test.ClientData.Dynamo.config
     |> Keyword.put(:secret_access_key, "foo")
 
-    assert ExAws.Dynamo.Impl.list_tables(%{module: Test.ClientData.Dynamo, config: config})
+    assert ExAws.Dynamo.Impl.list_tables(Test.ClientData.Dynamo.new(config: config))
     |> Map.get(:config)
     |> Keyword.get(:secret_access_key) == "foo"
   end

@@ -8,7 +8,7 @@ defmodule ExAws.Request do
 
   def request(http_method, url, data, headers, client) do
     config = client.config
-    service = client.module.service
+    service = client.service
 
     body = case data do
       []  -> "{}"
