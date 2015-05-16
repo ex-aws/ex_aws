@@ -41,10 +41,16 @@ defmodule ExAws.Client do
     {:def, [], [{name, [], arguments}, [do: {
       # Function call to the Impl.function_name
       {:., [], [impl_module, name]}, [],
-      # Append __MODULE__ to the function arguments passed to
+      # Append client_data to the function arguments passed to
       # The implementation function.
-      [{:__MODULE__, [], Elixir} | arguments]
+      [client_data | arguments]
     }]]}
+  end
+
+  def client_data do
+    quote do
+      %{module: __MODULE__, config: config()}
+    end
   end
 
   # ExAws.Dynamo.Client #=> ExAws.Dynamo.Impl

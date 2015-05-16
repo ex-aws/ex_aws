@@ -8,10 +8,10 @@ defmodule ExAws.Dynamo.Impl do
   @special_opts @nested_opts ++ @upcase_opts
 
 
-  defdelegate stream_scan(client, name), to: ExAws.Dynamo.Lazy
-  defdelegate stream_scan(client, name, opts), to: ExAws.Dynamo.Lazy
-  defdelegate stream_query(client, name), to: ExAws.Dynamo.Lazy
-  defdelegate stream_query(client, name, opts), to: ExAws.Dynamo.Lazy
+  defdelegate stream_scan(client_data, name), to: ExAws.Dynamo.Lazy
+  defdelegate stream_scan(client_data, name, opts), to: ExAws.Dynamo.Lazy
+  defdelegate stream_query(client_data, name), to: ExAws.Dynamo.Lazy
+  defdelegate stream_query(client_data, name, opts), to: ExAws.Dynamo.Lazy
 
   @namespace "DynamoDB_20120810"
   @actions [
@@ -37,20 +37,20 @@ defmodule ExAws.Dynamo.Impl do
   ## Tables
   ######################
 
-  def list_tables(client) do
-    client.request(%{}, :list_tables)
+  def list_tables(client_data) do
+    client_data.module.request(%{}, :list_tables, client_data)
   end
 
-  def create_table(client, name, primary_key, key_definitions, read_capacity, write_capacity)
+  def create_table(client_data, name, primary_key, key_definitions, read_capacity, write_capacity)
   when is_atom(primary_key) or is_binary(primary_key) do
-    create_table(client, name, [{primary_key, :hash}], key_definitions, read_capacity, write_capacity)
+    create_table(client_data, name, [{primary_key, :hash}], key_definitions, read_capacity, write_capacity)
   end
 
-  def create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity) when is_list(key_schema) do
-    create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
+  def create_table(client_data, name, key_schema, key_definitions, read_capacity, write_capacity) when is_list(key_schema) do
+    create_table(client_data, name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
   end
 
-  def create_table(client, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
+  def create_table(client_data, name, key_schema, key_definitions, read_capacity, write_capacity, global_indexes, local_indexes) do
     data = %{
       "TableName" => name,
       "AttributeDefinitions" => key_definitions |> encode_key_definitions,
@@ -67,7 +67,7 @@ defmodule ExAws.Dynamo.Impl do
       ({_, indices = %{}}, data) when map_size(indices) == 0 -> data
       {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
     end)
-    |> client.request(:create_table)
+    |> client_data.module.request(:create_table, client_data)
   end
 
   defp build_key_schema(key_schema) do
@@ -79,40 +79,40 @@ defmodule ExAws.Dynamo.Impl do
     end)
   end
 
-  def describe_table(client, name) do
+  def describe_table(client_data, name) do
     %{"TableName" => name}
-    |> client.request(:describe_table)
+    |> client_data.module.request(:describe_table, client_data)
   end
 
-  def update_table(client, name, attributes) do
+  def update_table(client_data, name, attributes) do
     attributes
     |> camelize_keys(deep: true)
     |> Map.merge(%{"TableName" => name})
-    |> client.request(:update_table)
+    |> client_data.module.request(:update_table, client_data)
   end
 
-  def delete_table(client, table) do
+  def delete_table(client_data, table) do
     %{"TableName" => table}
-    |> client.request(:delete_table)
+    |> client_data.module.request(:delete_table, client_data)
   end
 
   ## Records
   ######################
-  def scan(client, name, opts \\ []) do
+  def scan(client_data, name, opts \\ []) do
     opts
     |> build_opts
     |> Map.merge(%{"TableName" => name})
-    |> client.request(:scan)
+    |> client_data.module.request(:scan, client_data)
   end
 
-  def query(client, name, opts \\ []) do
+  def query(client_data, name, opts \\ []) do
     opts
     |> build_opts
     |> Map.merge(%{"TableName" => name})
-    |> client.request(:query)
+    |> client_data.module.request(:query, client_data)
   end
 
-  def batch_get_item(client, data, opts \\ []) do
+  def batch_get_item(client_data, data, opts \\ []) do
     request_items = data
     |> Enum.reduce(%{}, fn {table_name, table_query}, query ->
       keys = table_query
@@ -132,19 +132,19 @@ defmodule ExAws.Dynamo.Impl do
     opts
     |> camelize_keys
     |> Map.merge(%{"RequestItems" => request_items})
-    |> client.request(:batch_get_item)
+    |> client_data.module.request(:batch_get_item, client_data)
   end
 
-  def put_item(client, name, record, opts \\ []) do
+  def put_item(client_data, name, record, opts \\ []) do
     opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Item" => Dynamo.Encoder.encode(record)
-    }) |> client.request(:put_item)
+    }) |> client_data.module.request(:put_item, client_data)
   end
 
-  def batch_write_item(client, data, opts \\ []) do
+  def batch_write_item(client_data, data, opts \\ []) do
     request_items = data
     |> Enum.reduce(%{}, fn {table_name, table_queries}, query ->
       queries = table_queries
@@ -160,39 +160,39 @@ defmodule ExAws.Dynamo.Impl do
     opts
     |> camelize_keys
     |> Map.merge(%{"RequestItems" => request_items})
-    |> client.request(:batch_write_item)
+    |> client_data.module.request(:batch_write_item, client_data)
   end
 
-  def get_item(client, name, primary_key, opts \\ []) do
+  def get_item(client_data, name, primary_key, opts \\ []) do
     opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
-    }) |> client.request(:get_item)
+    }) |> client_data.module.request(:get_item, client_data)
   end
 
-  def get_item!(client, name, primary_key, opts \\ []) do
-    {:ok, %{"Item" => item}} = get_item(client, name, primary_key, opts)
+  def get_item!(client_data, name, primary_key, opts \\ []) do
+    {:ok, %{"Item" => item}} = get_item(client_data, name, primary_key, opts)
     item
   end
 
-  def update_item(client, table_name, primary_key, update_opts) do
+  def update_item(client_data, table_name, primary_key, update_opts) do
     update_opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => table_name,
       "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
-    }) |> client.request(:update_item)
+    }) |> client_data.module.request(:update_item, client_data)
   end
 
-  def delete_item(client, name, primary_key, opts \\ []) do
+  def delete_item(client_data, name, primary_key, opts \\ []) do
     opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat})
-    |> client.request(:delete_item)
+    |> client_data.module.request(:delete_item, client_data)
   end
 
   ## Options builder

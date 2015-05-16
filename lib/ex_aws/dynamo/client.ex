@@ -430,14 +430,14 @@ defmodule ExAws.Dynamo.Client do
       unquote(boilerplate)
 
       @doc false
-      def request(data, action) do
-        ExAws.Dynamo.Request.request(__MODULE__, action, data)
+      def request(data, action, client_data) do
+        ExAws.Dynamo.Request.request(client_data, action, data)
       end
 
       @doc false
       def service, do: :dynamodb
 
-      defoverridable config_root: 0, request: 2
+      defoverridable config_root: 0, request: 3
     end
   end
 
