@@ -171,9 +171,9 @@ defmodule ExAws.Lambda.Client do
   By default this just forwards the request to the ExAws.Lambda.Request.request/4.
   However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
-  defcallback request(data :: %{}, action :: atom, path :: binary)
-  defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t)
-  defcallback request(data :: %{}, action :: atom, path :: binary, params :: Dict.t, headers :: [{binary, binary}, ...])
+  defcallback request(client :: %{}, data :: %{}, action :: atom, path :: binary)
+  defcallback request(client :: %{}, data :: %{}, action :: atom, path :: binary, params :: Dict.t)
+  defcallback request(client :: %{}, data :: %{}, action :: atom, path :: binary, params :: Dict.t, headers :: [{binary, binary}, ...])
 
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
@@ -190,14 +190,14 @@ defmodule ExAws.Lambda.Client do
       unquote(boilerplate)
 
       @doc false
-      def request(data, action, path, params \\ [], headers \\ []) do
-        ExAws.Lambda.Request.request(__MODULE__, action, path, data, params, headers)
+      def request(client, action, data, path, params \\ [], headers \\ []) do
+        ExAws.Lambda.Request.request(client, action, path, data, params, headers)
       end
 
       @doc false
       def service, do: :lambda
 
-      defoverridable config_root: 0, request: 3, request: 4, request: 5
+      defoverridable config_root: 0, request: 4, request: 5, request: 6
     end
   end
 
