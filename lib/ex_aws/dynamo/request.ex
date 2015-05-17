@@ -1,15 +1,15 @@
 defmodule ExAws.Dynamo.Request do
   @moduledoc false
 
-  def request(client_data, action, data) do
+  def request(client, action, data) do
     {operation, http_method} = ExAws.Dynamo.Impl |> ExAws.Actions.get(action)
     headers = [
       {"x-amz-target", operation},
       {"content-type", "application/x-amz-json-1.0"},
       {"x-amz-content-sha256", ""}
     ]
-    ExAws.Request.request(http_method, client_data.config |> url, data, headers, client_data)
-    |> parse(client_data.config)
+    ExAws.Request.request(http_method, client.config |> url, data, headers, client)
+    |> parse(client.config)
   end
 
   def parse({:error, result}, _), do: {:error, result}

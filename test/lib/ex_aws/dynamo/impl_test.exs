@@ -3,7 +3,7 @@ defmodule Test.ClientData.Dynamo do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
-  def request(client_data, _data, _action), do: client_data
+  def request(client, _data, _action), do: client
 end
 
 defmodule ExAws.Dynamo.ImplTest do

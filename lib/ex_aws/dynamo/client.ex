@@ -429,8 +429,8 @@ defmodule ExAws.Dynamo.Client do
       unquote(boilerplate)
 
       @doc false
-      def request(client_data, action, data) do
-        ExAws.Dynamo.Request.request(client_data, action, data)
+      def request(client, action, data) do
+        ExAws.Dynamo.Request.request(client, action, data)
       end
 
       defoverridable config_root: 0, request: 3
