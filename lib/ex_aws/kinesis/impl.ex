@@ -35,37 +35,36 @@ defmodule ExAws.Kinesis.Impl do
   ######################
 
   def list_streams(client) do
-    client.request(%{}, :list_streams)
+    request(client, :list_streams, %{})
   end
 
   def describe_stream(client, stream_name, opts \\ []) do
-    opts
+    data = opts
     |> camelize_keys
     |> Map.merge(%{"StreamName" => stream_name})
-    |> client.request(:describe_stream)
+    request(client, :describe_stream, data)
   end
 
   def create_stream(client, stream_name, shard_count \\ 1) do
-    %{
+    data = %{
       "ShardCount" => shard_count,
-      "StreamName" => stream_name
-    }
-    |> client.request(:create_stream)
+      "StreamName" => stream_name}
+    request(client, :create_stream, data)
   end
 
   def delete_stream(client, stream_name) do
-    %{"StreamName" => stream_name}
-    |> client.request(:delete_stream)
+    request(client, :delete_stream, %{"StreamName" => stream_name})
   end
 
   ## Records
   ######################
 
   def get_records(client, shard_iterator, opts \\ []) do
-    opts
+    data = opts
     |> camelize_keys
     |> Map.merge(%{"ShardIterator" => shard_iterator})
-    |> client.request(:get_records)
+
+    request(client, :get_records, data)
     |> do_get_records
   end
 
@@ -88,21 +87,23 @@ defmodule ExAws.Kinesis.Impl do
   end
 
   def put_record(client, stream_name, partition_key, data, opts \\ []) do
-    opts
+    data = opts
     |> camelize_keys
     |> Map.merge(%{
       "Data" => data |> Base.encode64,
       "PartitionKey" => partition_key,
       "StreamName" => stream_name})
-    |> client.request(:put_record)
+
+    request(client, :put_record, data)
   end
 
   def put_records(client, stream_name, records) when is_list(records) do
-    %{
-      "Records" => records |> Enum.map(&format_record/1),
+    data = %{
+      "Records"    => records |> Enum.map(&format_record/1),
       "StreamName" => stream_name
     }
-    |> client.request(:put_records)
+
+    request(client, :put_records, data)
   end
 
   defp format_record(%{data: data, partition_key: partition_key} = record) do
@@ -118,50 +119,61 @@ defmodule ExAws.Kinesis.Impl do
   ######################
 
   def get_shard_iterator(client, stream_name, shard_id, shard_iterator_type, opts \\ []) do
-    opts
+    data = opts
     |> Enum.into(%{})
     |> camelize_keys
     |> Map.merge(%{
       "StreamName" => stream_name,
       "ShardId" => shard_id,
       "ShardIteratorType" => shard_iterator_type |> upcase
-    }) |> client.request(:get_shard_iterator)
+    })
+
+    request(client, :get_shard_iterator, data)
   end
 
   def merge_shards(client, stream_name, adjacent_shard, shard) do
-    %{
+    data = %{
       "StreamName" => stream_name,
       "AdjacentShardToMerge" => adjacent_shard,
       "ShardToMerge" => shard
-    } |> client.request(:merge_shards)
+    }
+
+    request(client, :merge_shards, data)
   end
 
   def split_shard(client, stream_name, shard, new_starting_hash_key) do
-    %{
+    data = %{
       "StreamName" => stream_name,
       "ShardToSplit" => shard,
       "NewStartingHashKey" => new_starting_hash_key
-    } |> client.request(:split_shard)
+    }
+
+    request(client, :split_shard, data)
   end
 
   ## Tags
   ######################
 
   def add_tags_to_stream(client, stream_name, tags) do
-    %{"StreamName" => stream_name, "Tags" => tags |> Enum.into(%{})}
-    |> client.request(:add_tags_to_stream)
+    data = %{"StreamName" => stream_name, "Tags" => tags |> Enum.into(%{})}
+    request(client, :add_tags_to_stream, data)
   end
 
   def list_tags_for_stream(client, stream_name, opts \\ []) do
-    opts
+    data = opts
     |> Enum.into(%{})
     |> camelize_keys
     |> Map.merge(%{"StreamName" => stream_name})
-    |> client.request(:list_tags_for_stream)
+
+    request(client, :list_tags_for_stream, data)
   end
 
   def remove_tags_from_stream(client, stream_name, tag_keys) do
-    %{"StreamName" => stream_name, "TagKeys" => tag_keys}
-    |> client.request(:remove_tags_from_stream)
+    data = %{"StreamName" => stream_name, "TagKeys" => tag_keys}
+    request(client, :remove_tags_from_stream, data)
+  end
+
+  defp request(%{__struct__: client_module} = client, action, data) do
+    client_module.request(client, action, data)
   end
 end

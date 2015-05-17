@@ -180,7 +180,7 @@ defmodule ExAws.Kinesis.Client do
   By default this just forwards the request to the `ExAws.Kinesis.Request.request/2`.
   However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
-  defcallback request(data :: %{}, action :: atom)
+  defcallback request(client :: %{}, data :: %{}, action :: atom)
 
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
@@ -197,11 +197,11 @@ defmodule ExAws.Kinesis.Client do
       unquote(boilerplate)
 
       @doc false
-      def request(data, action) do
-        ExAws.Kinesis.Request.request(__MODULE__, action, data)
+      def request(client, action, data) do
+        ExAws.Kinesis.Request.request(client, action, data)
       end
 
-      defoverridable config_root: 0, request: 2
+      defoverridable config_root: 0, request: 3
     end
   end
 end
