@@ -3,7 +3,7 @@ defmodule Test.Dummy.Kinesis do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
-  def request(data, _action), do: data
+  def request(_client, _action, data), do: data
 end
 
 defmodule ExAws.KinesisTest do

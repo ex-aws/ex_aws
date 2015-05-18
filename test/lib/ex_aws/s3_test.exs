@@ -3,7 +3,7 @@ defmodule Test.Dummy.S3 do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
-  def request(_http_method, bucket, path, data \\ []) do
+  def request(_client, _http_method, bucket, path, data \\ []) do
     data
     |> Enum.into(%{})
     |> Map.put(:bucket, bucket)

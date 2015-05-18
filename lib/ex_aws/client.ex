@@ -22,11 +22,16 @@ defmodule ExAws.Client do
       @otp_app Keyword.get(unquote(opts), :otp_app)
       @behaviour unquote(client)
 
+      def new(opts \\ []) do
+        %__MODULE__{config: config}
+        |> struct(opts |> Enum.into(%{}))
+      end
+
       @doc false
       def config_root, do: Application.get_env(@otp_app, :ex_aws)
 
       @doc false
-      def config, do: __MODULE__ |> ExAws.Config.get
+      def config, do: %__MODULE__{} |> ExAws.Config.get
     end
   end
 
@@ -41,10 +46,14 @@ defmodule ExAws.Client do
     {:def, [], [{name, [], arguments}, [do: {
       # Function call to the Impl.function_name
       {:., [], [impl_module, name]}, [],
-      # Append __MODULE__ to the function arguments passed to
+      # Append client_data to the function arguments passed to
       # The implementation function.
-      [{:__MODULE__, [], Elixir} | arguments]
+      [new_client_struct | arguments]
     }]]}
+  end
+
+  def new_client_struct do
+    quote do: __MODULE__.new
   end
 
   # ExAws.Dynamo.Client #=> ExAws.Dynamo.Impl

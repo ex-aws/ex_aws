@@ -38,7 +38,7 @@ defmodule ExAws.Dynamo.Impl do
   ######################
 
   def list_tables(client) do
-    client.request(%{}, :list_tables)
+    request(client, :list_tables, %{})
   end
 
   def create_table(client, name, primary_key, key_definitions, read_capacity, write_capacity)
@@ -60,14 +60,15 @@ defmodule ExAws.Dynamo.Impl do
         "WriteCapacityUnits" => write_capacity
       }
     }
-    %{
+    data = %{
       "GlobalSecondaryIndexes" => global_indexes |> camelize_keys(deep: true),
       "LocalSecondaryIndexes"  => local_indexes  |> camelize_keys(deep: true)
     } |> Enum.reduce(data, fn
       ({_, indices = %{}}, data) when map_size(indices) == 0 -> data
       {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
     end)
-    |> client.request(:create_table)
+
+    request(client, :create_table, data)
   end
 
   defp build_key_schema(key_schema) do
@@ -80,36 +81,37 @@ defmodule ExAws.Dynamo.Impl do
   end
 
   def describe_table(client, name) do
-    %{"TableName" => name}
-    |> client.request(:describe_table)
+    request(client, :describe_table, %{"TableName" => name})
   end
 
   def update_table(client, name, attributes) do
-    attributes
+    data = attributes
     |> camelize_keys(deep: true)
     |> Map.merge(%{"TableName" => name})
-    |> client.request(:update_table)
+
+    request(client, :update_table, data)
   end
 
   def delete_table(client, table) do
-    %{"TableName" => table}
-    |> client.request(:delete_table)
+    request(client, :delete_table, %{"TableName" => table})
   end
 
   ## Records
   ######################
   def scan(client, name, opts \\ []) do
-    opts
+    data = opts
     |> build_opts
     |> Map.merge(%{"TableName" => name})
-    |> client.request(:scan)
+
+    request(client, :scan, data)
   end
 
   def query(client, name, opts \\ []) do
-    opts
+    data = opts
     |> build_opts
     |> Map.merge(%{"TableName" => name})
-    |> client.request(:query)
+
+    request(client, :query, data)
   end
 
   def batch_get_item(client, data, opts \\ []) do
@@ -129,19 +131,22 @@ defmodule ExAws.Dynamo.Impl do
       Map.put(query, table_name, dynamized_table_query)
     end)
 
-    opts
+    data = opts
     |> camelize_keys
     |> Map.merge(%{"RequestItems" => request_items})
-    |> client.request(:batch_get_item)
+
+    request(client, :batch_get_item, data)
   end
 
   def put_item(client, name, record, opts \\ []) do
-    opts
+    data = opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Item" => Dynamo.Encoder.encode(record)
-    }) |> client.request(:put_item)
+    })
+
+    request(client, :put_item, data)
   end
 
   def batch_write_item(client, data, opts \\ []) do
@@ -157,19 +162,22 @@ defmodule ExAws.Dynamo.Impl do
       Map.put(query, table_name, queries)
     end)
 
-    opts
+    data = opts
     |> camelize_keys
     |> Map.merge(%{"RequestItems" => request_items})
-    |> client.request(:batch_write_item)
+
+    request(client, :batch_write_item, data)
   end
 
   def get_item(client, name, primary_key, opts \\ []) do
-    opts
+    data = opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
-    }) |> client.request(:get_item)
+    })
+
+    request(client, :get_item, data)
   end
 
   def get_item!(client, name, primary_key, opts \\ []) do
@@ -178,21 +186,28 @@ defmodule ExAws.Dynamo.Impl do
   end
 
   def update_item(client, table_name, primary_key, update_opts) do
-    update_opts
+    data = update_opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => table_name,
       "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
-    }) |> client.request(:update_item)
+    })
+
+    request(client, :update_item, data)
   end
 
   def delete_item(client, name, primary_key, opts \\ []) do
-    opts
+    data = opts
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
       "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat})
-    |> client.request(:delete_item)
+
+    request(client, :delete_item, data)
+  end
+
+  defp request(%{__struct__: client_module} = client, action, data) do
+    client_module.request(client, action, data)
   end
 
   ## Options builder

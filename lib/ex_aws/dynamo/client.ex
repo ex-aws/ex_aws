@@ -408,13 +408,10 @@ defmodule ExAws.Dynamo.Client do
   @doc """
   Enables custom request handling.
 
-  By default this just forwards the request to the `ExAws.Dynamo.Request.request/2`.
+  By default this just forwards the request to the `ExAws.Dynamo.Request.request/3`.
   However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
-  defcallback request(data :: %{}, action :: atom)
-
-  @doc "Service"
-  defcallback service() :: atom
+  defcallback request(client_struct :: %{}, data :: %{}, action :: atom)
 
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
@@ -427,17 +424,16 @@ defmodule ExAws.Dynamo.Client do
     |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
+      defstruct config: nil, service: :dynamodb
+
       unquote(boilerplate)
 
       @doc false
-      def request(data, action) do
-        ExAws.Dynamo.Request.request(__MODULE__, action, data)
+      def request(client, action, data) do
+        ExAws.Dynamo.Request.request(client, action, data)
       end
 
-      @doc false
-      def service, do: :dynamodb
-
-      defoverridable config_root: 0, request: 2
+      defoverridable config_root: 0, request: 3
     end
   end
 
