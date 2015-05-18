@@ -23,11 +23,8 @@ defmodule ExAws.Lambda.Request do
     end
   end
 
-  defp url(config, path) do
-    [
-      Keyword.get(config, :scheme),
-      Keyword.get(config, :host),
-      path
-    ] |> IO.iodata_to_binary
+  defp url(%{scheme: scheme, host: host}, path) do
+    [scheme, host, path]
+    |> IO.iodata_to_binary
   end
 end

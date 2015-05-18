@@ -7,7 +7,7 @@ defmodule ExAws.Client do
     config_boilerplate = create_config_boilerplate(client, opts)
 
     {:module, impl_module} = impl_module(client)
-    functions   = impl_module.__info__(:functions)
+    functions = impl_module.__info__(:functions)
 
     generated_functions = functions
     |> Enum.sort_by(&elem(&1, 1))
@@ -23,8 +23,9 @@ defmodule ExAws.Client do
       @behaviour unquote(client)
 
       def new(opts \\ []) do
+        config = config()
+        |> Map.merge(opts |> Enum.into(%{}))
         %__MODULE__{config: config}
-        |> struct(opts |> Enum.into(%{}))
       end
 
       @doc false

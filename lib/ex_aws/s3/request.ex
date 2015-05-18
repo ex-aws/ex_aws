@@ -23,11 +23,11 @@ defmodule ExAws.S3.Request do
     ExAws.Request.request(http_method, url, body, headers, client)
   end
 
-  def url(config, bucket, path) do
+  def url(%{scheme: scheme, host: host}, bucket, path) do
     [
-      config |> Keyword.get(:scheme),
+      scheme,
       bucket |> bucket?,
-      config |> Keyword.get(:host),
+      host,
       path   |> ensure_slash
     ] |> IO.iodata_to_binary
   end
