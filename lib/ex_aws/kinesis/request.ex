@@ -21,11 +21,8 @@ defmodule ExAws.Kinesis.Request do
     end
   end
 
-  defp url(config) do
-    [
-      Keyword.get(config, :scheme),
-      Keyword.get(config, :host),
-      "/"
-    ] |> IO.iodata_to_binary
+  defp url(%{scheme: scheme, host: host}) do
+    [scheme, host, "/"]
+    |> IO.iodata_to_binary
   end
 end
