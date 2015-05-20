@@ -14,7 +14,7 @@ defmodule ExAws.Mixfile do
   end
 
   def application do
-    Mix.env |> application
+    [mod: {ExAws, []}] ++ Mix.env |> application
   end
 
   def application(:dev) do
