@@ -9,9 +9,9 @@ defmodule ExAws.Config do
 
   @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
 
-  def get(%{__struct__: client, service: service}) do
-    config_root = client.config_root
-    unless config_root, do: raise "A valid configuration root is required in your #{client.service} client"
+  def get(%{__struct__: client_module, service: service} = client) do
+    config_root = client_module.config_root
+    unless config_root, do: raise "A valid configuration root is required in your #{service} client"
 
     config = config_root |> Keyword.get(service, [])
     common = defaults
@@ -22,18 +22,27 @@ defmodule ExAws.Config do
     |> Keyword.get(service, [])
     |> Keyword.merge(common)
     |> Keyword.merge(config)
-    |> retrieve_runtime_values
+    |> retrieve_runtime_values(client)
   end
 
-  def retrieve_runtime_values(config) do
+  def retrieve_runtime_values(config, client) do
     config
     |> Enum.reduce(%{}, fn {k, v}, config ->
-      Map.put(config, k, retrieve_runtime_value(v))
+      Map.put(config, k, retrieve_runtime_value(k, v, client))
     end)
   end
 
-  def retrieve_runtime_value({:system, env_key}), do: System.get_env(env_key)
-  def retrieve_runtime_value(value), do: value
+  def retrieve_runtime_value(_, {:system, env_key}, _), do: System.get_env(env_key)
+  def retrieve_runtime_value(k, {:role, role}, client) do
+    client
+    |> ExAws.Config.AuthCache.get(role)
+    |> Map.get(k)
+  end
+  def retrieve_runtime_value(key, values, client) when is_list(values) do
+    values
+    |> Enum.find(&retrieve_runtime_value(key, &1, client))
+  end
+  def retrieve_runtime_value(_, value, _), do: value
 
   def defaults do
     Mix.env |> defaults
