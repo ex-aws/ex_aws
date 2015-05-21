@@ -5,6 +5,19 @@ defmodule ExAws.InstanceMeta do
     case config.http_client.request(:get, @meta_path_root <> path) do
       {:ok, %{body: body}} -> body
     end
+  end
+
+  def role(client) do
+    ExAws.InstanceMeta.request(client, "/iam/security-credentials/")
+  end
+
+  def security_credentials(%{config: config} = client) do
+    result = ExAws.InstanceMeta.request(client, "/iam/security-credentials/#{role(client)}")
     |> config.json_codec.decode!
+
+    %{
+      access_key_id: result["AccessKeyId"],
+      secret_access_key: result["SecretAccessKey"]
+    }
   end
 end

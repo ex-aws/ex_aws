@@ -33,9 +33,9 @@ defmodule ExAws.Config do
   end
 
   def retrieve_runtime_value(_, {:system, env_key}, _), do: System.get_env(env_key)
-  def retrieve_runtime_value(k, {:role, role}, client) do
+  def retrieve_runtime_value(k, :role, client) do
     client
-    |> ExAws.Config.AuthCache.get(role)
+    |> ExAws.Config.AuthCache.get
     |> Map.get(k)
   end
   def retrieve_runtime_value(key, values, client) when is_list(values) do
