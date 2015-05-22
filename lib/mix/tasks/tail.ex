@@ -31,7 +31,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
     debug      = Keyword.get(opts, :debug, false)
     seq        = Keyword.get(opts, :from)
     {shard_type, opts} = case seq do
-      nil -> {"TRIM_HORIZON", %{}}
+      nil -> {"LATEST", %{}}
       val -> {"AT_SEQUENCE_NUMBER", %{StartingSequenceNumber: val}}
     end
 
