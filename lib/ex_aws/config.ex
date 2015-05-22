@@ -22,10 +22,12 @@ defmodule ExAws.Config do
     |> Keyword.get(service, [])
     |> Keyword.merge(common)
     |> Keyword.merge(config)
+    |> Enum.into(%{})
     |> retrieve_runtime_values(client)
   end
 
   def retrieve_runtime_values(config, client) do
+    client = %{client | config: config}
     config
     |> Enum.reduce(%{}, fn {k, v}, config ->
       Map.put(config, k, retrieve_runtime_value(k, v, client))

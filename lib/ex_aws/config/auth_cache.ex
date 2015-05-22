@@ -1,8 +1,6 @@
 defmodule ExAws.Config.AuthCache do
   use GenServer
 
-  @update_interval 30 * 60 * 1000
-
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
@@ -32,10 +30,18 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def refresh_config(%{__struct__: client_module} = client, ets) do
-    auth = ExAws.InstanceMeta.security_credentials
+    auth = ExAws.InstanceMeta.security_credentials(client)
     :ets.insert(ets, {client_module, auth})
-    Process.send_after(self, {:refresh_config, client}, @update_interval)
+    Process.send_after(self, {:refresh_config, client}, refresh_in(auth[:expiration]))
     auth
+  end
+
+  def refresh_in(expiration) do
+    expiration = Timex.DateFormat.parse(expiration, "{ISOz}")
+    |> Timex.Date.convert(:secs)
+    time_to_expiration = expiration - Timex.Time.now(:secs)
+    refresh_in = time_to_expiration - 2 * 60 # check two min prior to expiration
+    refresh_in * 1000
   end
 
 end
