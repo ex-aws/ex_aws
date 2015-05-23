@@ -117,8 +117,7 @@ defmodule ExAws.S3.Impl do
       <LocationConstraint>#{region}</LocationConstraint>
     </CreateBucketConfiguration>
     """
-<<<<<<< HEAD
-    client.request(:put, bucket, "/", body: body, headers: headers)
+    request(client, :put, bucket, "/", body: body, headers: headers)
   end
 
   @headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]

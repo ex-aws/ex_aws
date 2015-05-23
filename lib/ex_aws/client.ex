@@ -14,7 +14,6 @@ defmodule ExAws.Client do
     functions = impl_module.__info__(:functions)
 
     generated_functions = functions
-    |> Keyword.take(callbacks -- [:config, :config_root, :request, :service])
     |> Enum.sort_by(&elem(&1, 1))
     |> Enum.map(&generate_function(&1, impl_module))
 
