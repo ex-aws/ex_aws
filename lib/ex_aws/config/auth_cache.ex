@@ -32,14 +32,14 @@ defmodule ExAws.Config.AuthCache do
   def refresh_config(client, ets) do
     auth = ExAws.InstanceMeta.security_credentials(client)
     :ets.insert(ets, {:aws_instance_auth, auth})
-    Process.send_after(self, {:refresh_config, client}, refresh_in(auth[:expiration]))
+    Process.send_after(self(), {:refresh_config, client}, refresh_in(auth[:expiration]))
     auth
   end
 
   def refresh_in(expiration) do
     expiration = Timex.DateFormat.parse!(expiration, "{ISOz}")
     |> Timex.Date.convert(:secs)
-    time_to_expiration = expiration - Timex.Time.now(:secs)
+    time_to_expiration = expiration - Timex.Date.now(:secs)
     refresh_in = time_to_expiration - 2 * 60 # check two min prior to expiration
     refresh_in * 1000
   end
