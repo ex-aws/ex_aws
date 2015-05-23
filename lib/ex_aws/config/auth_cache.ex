@@ -37,7 +37,7 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def refresh_in(expiration) do
-    expiration = Timex.DateFormat.parse(expiration, "{ISOz}")
+    expiration = Timex.DateFormat.parse!(expiration, "{ISOz}")
     |> Timex.Date.convert(:secs)
     time_to_expiration = expiration - Timex.Time.now(:secs)
     refresh_in = time_to_expiration - 2 * 60 # check two min prior to expiration
