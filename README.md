@@ -31,11 +31,11 @@ def deps do
   ]
 end
 ```
-Don't forget to add :httpoison to your applications list if that's in fact the http client you choose.
+Don't forget to add :httpoison to your applications list if that's in fact the http client you choose. `:ex_aws` must always be added to your applications list.
 
 ```elixir
-def application() do
-  [applications: [:httpoison]]
+def application do
+  [applications: [:ex_aws, :httpoison]]
 end
 ```
 
