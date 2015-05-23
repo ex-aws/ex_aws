@@ -5,9 +5,9 @@ defmodule ExAws.Config.AuthCache do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  def get(%{__struct__: client_module} = client) do
-    case :ets.lookup(__MODULE__, client_module) do
-      [{^client_module, auth_config}] -> auth_config
+  def get(client) do
+    case :ets.lookup(__MODULE__, :aws_instance_auth) do
+      [{:aws_instance_auth, auth_config}] -> auth_config
       [] -> GenServer.call(__MODULE__, {:refresh_config, client})
     end
   end
@@ -29,9 +29,9 @@ defmodule ExAws.Config.AuthCache do
     {:noreply, ets}
   end
 
-  def refresh_config(%{__struct__: client_module} = client, ets) do
+  def refresh_config(client, ets) do
     auth = ExAws.InstanceMeta.security_credentials(client)
-    :ets.insert(ets, {client_module, auth})
+    :ets.insert(ets, {:aws_instance_auth, auth})
     Process.send_after(self, {:refresh_config, client}, refresh_in(auth[:expiration]))
     auth
   end

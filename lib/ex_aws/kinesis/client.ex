@@ -185,9 +185,6 @@ defmodule ExAws.Kinesis.Client do
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
 
-  @doc "Returns the canonical configuration for this service"
-  defcallback config() :: Keyword.t
-
   defmacro __using__(opts) do
     boilerplate = __MODULE__
     |> ExAws.Client.generate_boilerplate(opts)
