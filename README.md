@@ -20,6 +20,7 @@ Add ex_aws to your mix.exs, along with your json parser and http client of choic
 - Lambda: json
 - S3: xml
 
+If you wish to use instance roles to obtain AWS access keys you will need to add a JSON codec whether the particular API requires one or not.
 
 ```elixir
 def deps do
@@ -40,7 +41,7 @@ end
 
 That's it!
 
-By default ExAws does the equivalent having the following in your mix.exs
+ExAws has by default the equivalent including the following in your mix.exs
 
 ```elixir
 config :ex_aws,
@@ -48,7 +49,7 @@ config :ex_aws,
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
 ```
 
-This means it will first look for the aws standard `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, and fall back using instance meta-data if those don't exist. You should set those environment variables to your credentials, or configure an instance that this library runs on to have an iam role.
+This means it will first look for the AWS standard `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, and fall back using instance meta-data if those don't exist. You should set those environment variables to your credentials, or configure an instance that this library runs on to have an iam role.
 
 ## Usage
 
