@@ -1,6 +1,6 @@
 defmodule ExAws.S3.Impl do
 
-  # @moduledoc false
+  @moduledoc false
   # Implementation of the AWS S3 API.
   #
   # See ExAws.S3.Client for usage.
