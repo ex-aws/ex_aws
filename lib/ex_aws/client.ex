@@ -11,7 +11,7 @@ defmodule ExAws.Client do
     config_boilerplate = create_config_boilerplate(client, opts)
 
     {:module, impl_module} = impl_module(client)
-    functions   = impl_module.__info__(:functions)
+    functions = impl_module.__info__(:functions)
 
     generated_functions = functions
     |> Keyword.take(callbacks -- [:config, :config_root, :request, :service])
@@ -27,11 +27,17 @@ defmodule ExAws.Client do
       @otp_app Keyword.get(unquote(opts), :otp_app)
       @behaviour unquote(client)
 
+      def new(opts \\ []) do
+        config = config()
+        |> Map.merge(opts |> Enum.into(%{}))
+        %__MODULE__{config: config}
+      end
+
       @doc false
       def config_root, do: Application.get_env(@otp_app, :ex_aws)
 
       @doc false
-      def config, do: __MODULE__ |> ExAws.Config.get
+      def config, do: %__MODULE__{} |> ExAws.Config.get
     end
   end
 
@@ -46,10 +52,14 @@ defmodule ExAws.Client do
     {:def, [], [{name, [], arguments}, [do: {
       # Function call to the Impl.function_name
       {:., [], [impl_module, name]}, [],
-      # Append __MODULE__ to the function arguments passed to
+      # Append client_data to the function arguments passed to
       # The implementation function.
-      [{:__MODULE__, [], Elixir} | arguments]
+      [new_client_struct | arguments]
     }]]}
+  end
+
+  def new_client_struct do
+    quote do: __MODULE__.new
   end
 
   # ExAws.Dynamo.Client #=> ExAws.Dynamo.Impl

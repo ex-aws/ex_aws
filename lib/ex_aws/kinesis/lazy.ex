@@ -26,10 +26,8 @@ defmodule ExAws.Kinesis.Lazy do
       :quit -> {:halt, nil}
       {fun, args} -> case fun.(args) do
 
-        {:error, results} -> {[{:error, results}], :quit}
-
         {:ok, %{"StreamDescription" => %{"Shards" => shards, "HasMoreShards" => true}}} ->
-          opts = %{ExclusiveStartShardId: shards |> List.last |> Map.get("ShardId")}
+          opts = %{"ExclusiveStartShardId" => shards |> List.last |> Map.get("ShardId")}
           {shards, {fun, opts}}
 
         {:ok, %{"StreamDescription" => %{"Shards" => shards}}} ->
@@ -45,35 +43,46 @@ defmodule ExAws.Kinesis.Lazy do
   NOTE: This stream is basically INFINITE, in that it runs
   until the shard it is reading from closes, which may be never.
   """
-  def stream_records(client, shard_iterator, opts \\ [], fun \\ &pass/1) do
-    sleep_time = Application.get_env(:ex_aws, :kinesis_sleep_between_req_time) || 200
+  def stream_records(client, shard_iterator, opts \\ [], each_req_fun \\ &pass/1) do
+    sleep_time = Keyword.get(opts, :sleep_between_req_time, 200)
 
-    request_fun = fn(fun_opts) ->
-      :timer.sleep(sleep_time)
-      req_opts = Map.merge(opts, fun_opts)
-      Kinesis.Impl.get_records(client, shard_iterator, req_opts)
-    end
+    Stream.resource(fn ->
+        pid = spawn_link(__MODULE__, :kinesis_request_handler, [self, client, sleep_time, opts, each_req_fun])
+        {pid, shard_iterator}
+      end,
+      fn
+        {:quit, pid} -> {:halt, pid}
+        {pid, shard_iter} ->
+          send(pid, {:request, shard_iter})
+          result = receive do
+            value -> value
+          end
+          case result do
+            {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
+              {
+                records |> each_req_fun.(),
+                {pid, shard_iter}
+              }
 
-    build_record_stream(request_fun, fun)
+            {:ok, %{"Records" => records}} ->
+              {each_req_fun.(records), {:quit, pid}}
+          end
+      end,
+      fn(pid) -> send pid, :quit end
+    )
+
   end
 
-  defp build_record_stream(request_fun, iteration_fun) do
-    Stream.resource(fn -> {request_fun, %{}} end, fn
-      :quit -> {:halt, nil}
+  def kinesis_request_handler(parent_pid, client, sleep_time, opts, each_req_fun) do
+    receive do
+      {:request, shard_iter} ->
+        send parent_pid, Kinesis.Impl.get_records(client, shard_iter, opts)
+        :timer.sleep(sleep_time)
+        :wait
+      :quit ->
+        exit(:normal)
+    end
 
-      {fun, args} -> case fun.(args) do
-
-        {:error, results} -> {iteration_fun.([{:error, results}]), :quit}
-
-        {:ok, %{"Records" => records, "NextShardIterator" => shard_iter}} ->
-          {
-            records |> iteration_fun.(),
-            {fun, %{ShardIterator: shard_iter}}
-          }
-
-        {:ok, %{"Records" => records}} ->
-          {iteration_fun.(records), :quit}
-      end
-    end, &pass/1)
+    kinesis_request_handler(parent_pid, client, sleep_time, opts, each_req_fun)
   end
 end

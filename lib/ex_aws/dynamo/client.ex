@@ -6,6 +6,9 @@ defmodule ExAws.Dynamo.Client do
 
   By default you can use ExAws.Dynamo
 
+  NOTE: When Mix.env in [:test, :dev] dynamo clients will run by default against
+  Dynamodb local.
+
   ## Usage
   ```
   defmodule MyApp.Dynamo do
@@ -124,23 +127,55 @@ defmodule ExAws.Dynamo.Client do
   @type return_item_collection_metrics_vals ::
     :size |
     :none
+  @type dynamo_type_names :: :blob
+    | :boolean
+    | :blob_set
+    | :list
+    | :map
+    | :number_set
+    | :null
+    | :number
+    | :string
+    | :string_set
+
+  @type key_schema :: [{atom | binary, :hash | :range}, ...]
+  @type key_definitions :: [{atom | binary, dynamo_type_names}, ...]
 
   @doc "List tables"
   defcallback list_tables() :: ExAws.Request.response_t
 
-  @doc "Create table"
+  @doc """
+  Create table
+
+  key_schema can be a simple binary or atom indicating a simple hash key
+  """
   defcallback create_table(
     table_name      :: binary,
-    primary_key     :: binary,
-    key_definitions :: Keyword.t,
+    key_schema      :: binary | atom,
+    key_definitions :: key_definitions,
+    read_capacity   :: pos_integer,
+    write_capacity  :: pos_integer) :: ExAws.Request.response_t
+
+    @doc """
+    Create table
+
+    key_schema allows specifying hash and / or range keys IE
+    ```
+    [api_key: :hash, something_rangy: :range]
+    ```
+    """
+  defcallback create_table(
+    table_name      :: binary,
+    key_schema      :: [key_schema],
+    key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer) :: ExAws.Request.response_t
 
   @doc "Create table with indices"
   defcallback create_table(
     table_name      :: binary,
-    primary_key     :: binary,
-    key_definitions :: [%{}],
+    key_schema      :: [key_schema],
+    key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
     global_indexes  :: Keyword.t,
@@ -162,6 +197,20 @@ defmodule ExAws.Dynamo.Client do
   Scan table
 
   Please read http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html
+
+  ```
+  "Users"
+  |> Dynamo.stream_scan(
+    limit: 1,
+    expression_attribute_values: [desired_api_key: "adminkey"],
+    expression_attribute_names: %{"#asdf" => "api_key"},
+    filter_expression: "#asdf = :desired_api_key")
+  |> Enum.to_list
+  ```
+
+  Generally speaking you won't need to use `:expression_attribute_names`. It exists
+  to alias a column name if one of the columns you want to search against is a reserved dynamo word,
+  like `Percentile`. In this case it's totally unnecessary as `api_key` is not a reserved word.
 
   Parameters with keys that are automatically annotated with dynamo types are:
   `[:exclusive_start_key, :expression_attribute_names]`
@@ -188,17 +237,26 @@ defmodule ExAws.Dynamo.Client do
   Same as scan/1,2 but the records are a stream which will automatically handle pagination
 
   ```elixir
-  {:ok, %{"Items" => items}} = Dynamo.stream_scan("Users")
-  items |> Enum.to_list #=> Returns every item in the Users table.
+  Dynamo.stream_scan("Users")
+  |> Enum.to_list #=> Returns every item in the Users table.
   ```
   """
-  defcallback stream_scan(table_name :: table_name) :: ExAws.Request.response_t
-  defcallback stream_scan(table_name :: table_name, opts :: scan_opts) :: ExAws.Request.response_t
+  defcallback stream_scan(table_name :: table_name) :: Enumerable.t
+  defcallback stream_scan(table_name :: table_name, opts :: scan_opts) :: Enumerable.t
 
   @doc """
   Query Table
 
   Please read: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
+
+  ```
+  "Users"
+  |> Dynamo.stream_query(
+    limit: 1,
+    expression_attribute_values: [desired_api_key: "adminkey"],
+    key_condition_expression: "api_key = :desired_api_key")
+  |> Enum.to_list
+  ```
 
   Parameters with keys that are automatically annotated with dynamo types are:
   `[:exclusive_start_key, :expression_attribute_names]`
@@ -222,15 +280,15 @@ defmodule ExAws.Dynamo.Client do
   @doc """
   Stream records from table
 
-  Same as query/1,2 but the records are a stream which will automatically handle pagination
+  Returns an enumerable which handles pagination automatically in the backend.
 
   ```elixir
   {:ok, %{"Items" => items}} = Dynamo.stream_query("Users", filter_expression: "api_key = :api_key", expression_attribute_values: [api_key: "api_key_i_want"])
   items |> Enum.to_list #=> Returns every item in the Users table with an api_key == "api_key_i_want".
   ```
   """
-  defcallback stream_query(table_name :: table_name) :: ExAws.Request.response_t
-  defcallback stream_query(table_name :: table_name, opts :: query_opts) :: ExAws.Request.response_t
+  defcallback stream_query(table_name :: table_name) :: Enumerable.t
+  defcallback stream_query(table_name :: table_name, opts :: query_opts) :: Enumerable.t
 
   @doc """
   Get up to 100 items (16mb)
@@ -350,13 +408,10 @@ defmodule ExAws.Dynamo.Client do
   @doc """
   Enables custom request handling.
 
-  By default this just forwards the request to the `ExAws.Dynamo.Request.request/2`.
+  By default this just forwards the request to the `ExAws.Dynamo.Request.request/3`.
   However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
-  defcallback request(data :: %{}, action :: atom)
-
-  @doc "Service"
-  defcallback service() :: atom
+  defcallback request(client_struct :: %{}, data :: %{}, action :: atom)
 
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
@@ -369,17 +424,16 @@ defmodule ExAws.Dynamo.Client do
     |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
+      defstruct config: nil, service: :dynamodb
+
       unquote(boilerplate)
 
       @doc false
-      def request(data, action) do
-        ExAws.Dynamo.Request.request(__MODULE__, action, data)
+      def request(client, action, data) do
+        ExAws.Dynamo.Request.request(client, action, data)
       end
 
-      @doc false
-      def service, do: :dynamodb
-
-      defoverridable config_root: 0, request: 2
+      defoverridable config_root: 0, request: 3
     end
   end
 

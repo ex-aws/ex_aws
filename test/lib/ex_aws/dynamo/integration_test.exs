@@ -3,6 +3,13 @@ defmodule ExAws.DynamoIntegrationTest do
   alias ExAws.Dynamo.Decoder
   use ExUnit.Case, async: true
 
+  ## These tests run against DynamoDb Local
+  #
+  # http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html
+  # In this way they can safely delete data and tables without risking actual data on
+  # Dynamo
+  #
+
   setup_all do
     Dynamo.delete_table("Users")
     Dynamo.delete_table(Test.User)
@@ -17,6 +24,10 @@ defmodule ExAws.DynamoIntegrationTest do
   test "#create and destroy table" do
     assert {:ok, %{"TableDescription" => %{"TableName" => "Elixir.Foo"}}} =
       Dynamo.create_table(Foo, :shard_id, [shard_id: :string], 1, 1)
+  end
+
+  test "#create table with range" do
+    assert Dynamo.create_table("UsersWithRange", [email: :hash, age: :range], [email: :string, age: :number], 1, 1)
   end
 
   test "put and get item with map values work" do
@@ -38,8 +49,8 @@ defmodule ExAws.DynamoIntegrationTest do
     user = %Test.User{email: "baz@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
     assert {:ok, _} = Dynamo.put_item("Users", user)
 
-    {:ok, %{"Items" => items}} = Dynamo.stream_scan("Users", limit: 1)
-    assert items |> Enum.count == 3
+    assert Dynamo.stream_scan("Users", limit: 1)
+    |> Enum.count == 3
   end
 
 end

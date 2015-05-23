@@ -3,12 +3,17 @@ defmodule Test.Dummy.Kinesis do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
-  def request(data, _action), do: data
+  def request(_client, _action, data), do: data
 end
 
 defmodule ExAws.KinesisTest do
   use ExUnit.Case, async: true
   alias Test.Dummy.Kinesis
+
+  ## NOTE:
+  # These tests are not intended to be operational examples, but intead mere
+  # ensure that the form of the data to be sent to AWS is correct.
+  #
 
   test "#put_records" do
     records = [

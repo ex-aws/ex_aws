@@ -3,7 +3,7 @@ defmodule Test.Dummy.S3 do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
-  def request(_http_method, bucket, path, data \\ []) do
+  def request(_client, _http_method, bucket, path, data \\ []) do
     data
     |> Enum.into(%{})
     |> Map.put(:bucket, bucket)
@@ -16,7 +16,7 @@ defmodule ExAws.S3Test do
   alias Test.Dummy.S3
 
   test "#get_object" do
-    expected = %{headers: %{response: %{content_type: "application/json"}}, params: %{},
+    expected = %{headers: [response: %{content_type: "application/json"}], params: %{},
       path: "object.json", bucket: "bucket"}
     assert expected == S3.get_object("bucket", "object.json", %{response: %{content_type: "application/json"}})
   end

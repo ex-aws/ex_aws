@@ -20,13 +20,9 @@ defmodule ExAws.Dynamo.Request do
     end
   end
 
-  defp url(config) do
-    [
-      Keyword.get(config, :scheme),
-      Keyword.get(config, :host),
-      Keyword.get(config, :port) |> port,
-      "/"
-    ] |> IO.iodata_to_binary
+  defp url(%{scheme: scheme, host: host, port: port}) do
+    [scheme, host, port |> port, "/"]
+    |> IO.iodata_to_binary
   end
 
   defp port(80), do: ""

@@ -9,20 +9,31 @@ defmodule ExAws.Config do
 
   @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
 
-  def get(client) do
+  def get(%{__struct__: client, service: service}) do
     config_root = client.config_root
     unless config_root, do: raise "A valid configuration root is required in your #{client.service} client"
 
-    config      = config_root |> Keyword.get(client.service, [])
-    common      = defaults
+    config = config_root |> Keyword.get(service, [])
+    common = defaults
     |> Keyword.merge(config_root)
     |> Keyword.take(@common_config)
 
     defaults
-    |> Keyword.get(client.service, [])
+    |> Keyword.get(service, [])
     |> Keyword.merge(common)
     |> Keyword.merge(config)
+    |> retrieve_runtime_values
   end
+
+  def retrieve_runtime_values(config) do
+    config
+    |> Enum.reduce(%{}, fn {k, v}, config ->
+      Map.put(config, k, retrieve_runtime_value(v))
+    end)
+  end
+
+  def retrieve_runtime_value({:system, env_key}), do: System.get_env(env_key)
+  def retrieve_runtime_value(value), do: value
 
   def defaults do
     Mix.env |> defaults
