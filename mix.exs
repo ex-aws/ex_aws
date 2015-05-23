@@ -14,15 +14,8 @@ defmodule ExAws.Mixfile do
   end
 
   def application do
-    [mod: {ExAws, []}] ++ [applications: [:logger, :httpoison]]
-  end
-
-  def application(:dev) do
-    [applications: [:logger, :httpoison]]
-  end
-
-  def application(_) do
-    [applications: [:logger]]
+    [applications: [:logger],
+     mod: {ExAws, []}]
   end
 
   defp deps do
