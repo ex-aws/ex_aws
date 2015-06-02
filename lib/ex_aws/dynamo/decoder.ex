@@ -22,8 +22,6 @@ defmodule ExAws.Dynamo.Decoder do
   Use these if you just want the dynamo result to look more like elixir without
   coercing it into a particular struct.
   """
-  def decode(%{"S" => "TRUE"}),     do: true
-  def decode(%{"S" => "FALSE"}),    do: false
   def decode(%{"BOOL" => true}),    do: true
   def decode(%{"BOOL" => false}),   do: false
   def decode(%{"BOOL" => "true"}),  do: true
