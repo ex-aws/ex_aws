@@ -28,13 +28,13 @@ defmodule ExAws.Utils do
     end
   end
 
-  defp camelize_key(key) when is_atom(key) do
+  def camelize_key(key) when is_atom(key) do
     key
     |> Atom.to_string
     |> Mix.Utils.camelize
   end
 
-  defp camelize_key(key) when is_binary(key) do
+  def camelize_key(key) when is_binary(key) do
     key |> Mix.Utils.camelize
   end
 
