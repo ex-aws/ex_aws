@@ -87,6 +87,25 @@ defmodule ExAws.SNS.Client do
   @doc "Delete topic"
   defcallback delete_topic(topic_arn :: topic_arn) :: ExAws.Request.response_t
 
+  ## Publishing
+  ######################
+
+  @type message_attribute_values :: [
+    {:data_type, :string | :number | :binary} |
+    {:binary_value, binary} |
+    {:string_value, binary}]
+  @type publish_opts :: [
+    {:message_attributes, message_attribute_values} |
+    {:message_structure, :json} |
+    {:subject, binary} |
+    {:target_arn, binary} |
+    {:topic_arn, binary}]
+
+  @doc """
+  Publish message to a target/topic ARN
+  """
+  defcallback publish(message :: binary, opts :: publish_opts)
+
   ## Requests
   ######################
 
