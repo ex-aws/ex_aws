@@ -1,4 +1,4 @@
-%{"aws_auth": {:hex, :aws_auth, "0.2.3"},
+%{"aws_auth": {:git, "git://github.com/benwilson512/aws_auth.git", "b90c5f28e572b5114e19c043f2dbf1a8c4a8c598", [branch: "less_uri_encoding"]},
   "earmark": {:hex, :earmark, "0.1.15"},
   "ex_doc": {:hex, :ex_doc, "0.7.2"},
   "hackney": {:hex, :hackney, "1.1.0"},

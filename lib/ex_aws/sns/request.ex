@@ -10,7 +10,7 @@ defmodule ExAws.SNS.Request do
     |> URI.encode_query
 
     headers = [
-      {"x-amz-content-sha256", @empty_body_hash }
+      {"x-amz-content-sha256", @empty_body_hash}
     ]
 
     ExAws.Request.request(:post, client.config |> url(query), "", headers, client)
