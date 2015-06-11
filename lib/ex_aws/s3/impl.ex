@@ -8,7 +8,7 @@ defmodule ExAws.S3.Impl do
   ## Buckets
   #############
 
-  def list_buckets(client, opts \\ %{}) do
+  def list_buckets(client, opts \\ []) do
     request(client, :get, "", "/", params: opts)
   end
 
@@ -41,7 +41,7 @@ defmodule ExAws.S3.Impl do
   end
 
   @params [:delimiter, :marker, :prefix, :encoding_type, :max_keys]
-  def list_objects(client, bucket, opts \\ %{}) do
+  def list_objects(client, bucket, opts \\ []) do
     params = opts |> format_and_take(@params)
     request(client, :get, bucket, "/", params: params)
   end
@@ -82,7 +82,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, "/", resource: "tagging")
   end
 
-  def get_bucket_object_versions(client, bucket, opts \\ %{}) do
+  def get_bucket_object_versions(client, bucket, opts \\ []) do
     request(client, :get, bucket, "/", resource: "versions", params: opts)
   end
 
@@ -103,7 +103,7 @@ defmodule ExAws.S3.Impl do
   end
 
   @params [:delimiter, :encoding_type, :max_uploads, :key_marker, :prefix, :upload_id_marker]
-  def list_multipart_uploads(client, bucket, opts \\ %{}) do
+  def list_multipart_uploads(client, bucket, opts \\ []) do
     params = @params |> format_and_take(opts)
     request(client, :get, bucket, "/", resource: "uploads", params: params)
   end
@@ -184,7 +184,7 @@ defmodule ExAws.S3.Impl do
   ## Objects
   ###########
 
-  def delete_object(client, bucket, object, opts \\ %{}) do
+  def delete_object(client, bucket, object, opts \\ []) do
     request(client, :delete, bucket, object, headers: opts)
   end
 
@@ -196,23 +196,25 @@ defmodule ExAws.S3.Impl do
   @response_params [:content_type, :content_language, :expires, :cach_control, :content_disposition, :content_encoding]
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   @encryption_headers [:customer_algorithm, :customer_key, :customer_key_md5]
-  def get_object(client, bucket, object, opts \\ %{}) do
+  def get_object(client, bucket, object, opts \\ []) do
+    opts = opts |> Enum.into(%{})
+
     response_opts = opts
-    |> Map.get(:response)
+    |> Map.get(:response, %{})
     |> format_and_take(@response_params)
 
     headers = opts
-    |> Map.get(:request)
+    |> Map.get(:request, %{})
     |> format_and_take(@headers)
 
-    headers = headers ++ opts
-    |> Map.get(:encryption)
+    headers = Enum.into(headers, []) ++ opts
+    |> Map.get(:encryption, [])
     |> namespace("x-amz-server-side-encryption")
 
     request(client, :get, bucket, object, headers: headers, params: response_opts)
   end
 
-  def get_object_acl(client, bucket, object, opts \\ %{}) do
+  def get_object_acl(client, bucket, object, opts \\ []) do
     request(client, :get, bucket, object, resource: "acl", headers: opts)
   end
 
@@ -220,7 +222,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object, resource: "torrent")
   end
 
-  def head_object(client, bucket, object, opts \\ %{}) do
+  def head_object(client, bucket, object, opts \\ []) do
     request(client, :head, bucket, object, headers: opts)
   end
 
@@ -233,7 +235,7 @@ defmodule ExAws.S3.Impl do
     request(client, :options, bucket, object, headers: headers)
   end
 
-  def post_object(client, bucket, object, _opts \\ %{}) do
+  def post_object(client, bucket, object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, bucket, object)
   end
@@ -243,7 +245,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def put_object(client, bucket, object, body, opts \\ %{}) do
+  def put_object(client, bucket, object, body, opts \\ []) do
     headers = [
       {"Content-Type", "binary/octet-stream"} |
       opts |> Map.to_list
@@ -256,12 +258,12 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
+  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, dest_bucket, dest_object)
   end
 
-  def initiate_multipart_upload(client, bucket, object, _opts \\ %{}) do
+  def initiate_multipart_upload(client, bucket, object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, bucket, object)
   end
@@ -271,7 +273,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
+  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, dest_bucket, dest_object)
   end
@@ -286,7 +288,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def list_parts(client, bucket, object, upload_id, opts \\ %{}) do
+  def list_parts(client, bucket, object, upload_id, opts \\ []) do
     params = %{"uploadId" => upload_id}
     |> Map.merge(opts)
     request(client, :get, bucket, object, params: params)
@@ -297,8 +299,7 @@ defmodule ExAws.S3.Impl do
   end
 
   ## Formatting and helpers
-
-  def format_and_take(opts, param_list) do
+  def format_and_take(%{} = opts, param_list) do
     param_list
     |> Enum.map(&normalize_param/1)
     |> Enum.reduce(%{}, fn({elixir_opt, aws_opt}, params) ->
@@ -307,6 +308,12 @@ defmodule ExAws.S3.Impl do
         value -> Map.put(params, aws_opt, value)
       end
     end)
+  end
+
+  def format_and_take(opts, param_list) do
+    opts
+    |> Enum.into(%{})
+    |> format_and_take(param_list)
   end
 
   def format_grant_headers(grants, headers) do
