@@ -72,6 +72,7 @@ defmodule ExAws.SNS.Client do
 
   @doc "List topics"
   defcallback list_topics() :: ExAws.Request.response_t
+  defcallback list_topics(opts :: [next_token: binary]) :: ExAws.Request.response_t
 
   @doc "Create topic"
   defcallback create_topic(topic_name :: topic_name) :: ExAws.Request.response_t

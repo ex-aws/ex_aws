@@ -1,5 +1,5 @@
 defmodule ExAws.SNS.Impl do
-  import ExAws.Utils, only: [camelize_key: 1]
+  import ExAws.Utils, only: [camelize_key: 1, camelize_keys: 1]
   use ExAws.Actions
 
   @namespace "SNS_20100331"
@@ -19,8 +19,12 @@ defmodule ExAws.SNS.Impl do
   ## Topics
   ######################
 
-  def list_topics(client) do
-    request(client, :list_topics, %{})
+  def list_topics(client, opts \\ []) do
+    opts = opts
+    |> Enum.into(%{})
+    |> camelize_keys
+
+    request(client, :list_topics, opts)
   end
 
   def create_topic(client, topic_name) do
@@ -46,8 +50,8 @@ defmodule ExAws.SNS.Impl do
   ## Request
   ######################
 
-  defp request(%{__struct__: client_module} = client, action, data) do
-    client_module.request(client, action, data)
+  defp request(%{__struct__: client_module} = client, action, params) do
+    client_module.request(client, action, params)
   end
 
 end
