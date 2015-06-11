@@ -2,6 +2,8 @@ defmodule ExAws.SNS.Request do
   @moduledoc false
   # SNS specific request logic.
 
+  @empty_body_hash AWSAuth.Utils.hash_sha256("")
+
   def request(client, action, params) do
     {_, http_method} = ExAws.SNS.Impl |> ExAws.Actions.get(action)
 
@@ -10,7 +12,7 @@ defmodule ExAws.SNS.Request do
     |> URI.encode_query
 
     headers = [
-      {"x-amz-content-sha256", AWSAuth.Utils.hash_sha256("")}
+      {"x-amz-content-sha256", @empty_body_hash }
     ]
 
     ExAws.Request.request(http_method, client.config |> url(query), "", headers, client)
