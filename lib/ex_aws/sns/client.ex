@@ -91,12 +91,13 @@ defmodule ExAws.SNS.Client do
   ## Publishing
   ######################
 
-  @type message_attribute_values :: [
-    {:data_type, :string | :number | :binary} |
-    {:binary_value, binary} |
-    {:string_value, binary}]
+  @type message_attribute :: %{
+    :name => binary,
+    :data_type => :string | :number | :binary,
+    :value => {:string, binary} | {:binary, binary}
+  }
   @type publish_opts :: [
-    {:message_attributes, message_attribute_values} |
+    {:message_attributes, [message_attribute]} |
     {:message_structure, :json} |
     {:subject, binary} |
     {:target_arn, binary} |
@@ -104,8 +105,14 @@ defmodule ExAws.SNS.Client do
 
   @doc """
   Publish message to a target/topic ARN
+
+  You must set either :target_arn or :topic_arn but not both via the options argument.
+
+  Do NOT assume that because your message is a JSON blob that you should set
+  message_structure: to :json. This has a very specific meaning, please see
+  http://docs.aws.amazon.com/sns/latest/api/API_Publish.html for details.
   """
-  defcallback publish(message :: binary, opts :: publish_opts)
+  defcallback publish(message :: binary, opts :: publish_opts) :: ExAws.Request.response_t
 
   ## Requests
   ######################

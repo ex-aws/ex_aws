@@ -50,6 +50,11 @@ defmodule ExAws.Config.Defaults do
         host: "localhost",
         port: 8000,
         region: "us-east-1"
+      ],
+      sns: [
+        host: "sns.us-east-1.amazonaws.com",
+        scheme: "https://",
+        region: "us-east-1"
       ]
     ]
   end

@@ -5,8 +5,6 @@ defmodule ExAws.SNS.Request do
   @empty_body_hash AWSAuth.Utils.hash_sha256("")
 
   def request(client, action, params) do
-    {_, http_method} = ExAws.SNS.Impl |> ExAws.Actions.get(action)
-
     query = params
     |> Map.put("Action", Mix.Utils.camelize(Atom.to_string(action)))
     |> URI.encode_query
@@ -15,7 +13,7 @@ defmodule ExAws.SNS.Request do
       {"x-amz-content-sha256", @empty_body_hash }
     ]
 
-    ExAws.Request.request(http_method, client.config |> url(query), "", headers, client)
+    ExAws.Request.request(:post, client.config |> url(query), "", headers, client)
   end
 
   defp url(%{scheme: scheme, host: host}, query) do
