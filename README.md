@@ -20,6 +20,7 @@ Add ex_aws to your mix.exs, along with your json parser and http client of choic
 - Lambda: json
 - S3: xml
 
+If you wish to use instance roles to obtain AWS access keys you will need to add a JSON codec whether the particular API requires one or not.
 
 ```elixir
 def deps do
@@ -30,25 +31,29 @@ def deps do
   ]
 end
 ```
-Don't forget to add :httpoison to your applications list if that's in fact the http client you choose.
+Don't forget to add :httpoison to your applications list if that's in fact the http client you choose. `:ex_aws` must always be added to your applications list.
 
 ```elixir
-def application() do
-  [applications: [:httpoison]]
+def application do
+  [applications: [:ex_aws, :httpoison]]
 end
 ```
 
-See the configuration section for how to specify alternate codecs and clients.
+That's it!
 
-In your config:
+ExAws has by default the equivalent including the following in your mix.exs
 
 ```elixir
 config :ex_aws,
-  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
 ```
 
-That's it! ExAws ships with a default client for each API:
+This means it will first look for the AWS standard `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, and fall back using instance meta-data if those don't exist. You should set those environment variables to your credentials, or configure an instance that this library runs on to have an iam role.
+
+## Usage
+
+ExAws ships with a default client for each API:
 `[ExAws.Dynamo, ExAws.Kinesis, ExAws.Lambda, ExAws.S3]`
 
 For particular usage instructions, please consult the client definition for your desired service.

@@ -27,16 +27,12 @@ defmodule ExAws.Client do
       @behaviour unquote(client)
 
       def new(opts \\ []) do
-        config = config()
-        |> Map.merge(opts |> Enum.into(%{}))
-        %__MODULE__{config: config}
+        %__MODULE__{}
+        |> ExAws.Config.build(opts)
       end
 
       @doc false
       def config_root, do: Application.get_env(@otp_app, :ex_aws)
-
-      @doc false
-      def config, do: %__MODULE__{} |> ExAws.Config.get
     end
   end
 
