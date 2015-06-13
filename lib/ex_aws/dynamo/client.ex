@@ -411,7 +411,7 @@ defmodule ExAws.Dynamo.Client do
   By default this just forwards the request to the `ExAws.Dynamo.Request.request/3`.
   However, this can be overriden in your client to provide pre-request adjustments to headers, params, etc.
   """
-  defcallback request(client_struct :: %{}, data :: %{}, action :: atom)
+  defcallback request(client_struct :: %{}, action :: atom, data :: %{})
 
   @doc "Retrieves the root AWS config for this client"
   defcallback config_root() :: Keyword.t
