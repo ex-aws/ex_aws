@@ -54,7 +54,12 @@ defmodule ExAws.Auth do
     timestamp = now |> ExAws.Auth.Utils.amz_date
     hashed_canonical_request = ExAws.Auth.Utils.hash_sha256(canonical_request)
 
-    "AWS4-HMAC-SHA256\n#{timestamp}\n#{scope}\n#{hashed_canonical_request}"
+    [
+      "AWS4-HMAC-SHA256", "\n",
+      timestamp, "\n",
+      scope, "\n",
+      hashed_canonical_request
+    ] |> IO.iodata_to_binary
   end
 
   def sign_with(string_to_sign, signing_key) do
