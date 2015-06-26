@@ -14,13 +14,13 @@ defmodule ExAws.Mixfile do
   end
 
   def application do
-    [applications: [:logger],
+    [applications: [:logger, :timex, :crypto],
      mod: {ExAws, []}]
   end
 
   defp deps do
     [
-      {:aws_auth, "~> 0.2.3"} |
+      {:timex, "~> 0.13.4"} |
       deps(:test_dev)
     ]
   end

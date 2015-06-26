@@ -16,40 +16,8 @@ defmodule ExAws.Request do
       _   -> config[:json_codec].encode!(data)
     end
 
-    headers = headers(http_method, url, service, config, headers, body)
+    headers = ExAws.Auth.headers(http_method, url, service, config, headers, body)
     request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
-  end
-
-  def headers(http_method, url, service, config, headers, body) do
-    now = %{Timex.Date.now | ms: 0}
-    amz_date = Timex.DateFormat.format!(now, "{ISOz}")
-    |> String.replace("-", "")
-    |> String.replace(":", "")
-
-    headers = [
-      {"host", URI.parse(url).host},
-      {"x-amz-date", amz_date} |
-      headers
-    ]
-
-    auth_header = AWSAuth.sign_authorization_header(
-      config[:access_key_id],
-      config[:secret_access_key],
-      http_method |> method_string,
-      url,
-      config[:region],
-      service |> service_name,
-      headers |> Enum.into(%{}),
-      body,
-      now)
-
-    [{"Authorization", auth_header} | headers ]
-  end
-
-  def service_name(service), do: service |> Atom.to_string
-
-  def binary_headers(headers) do
-    headers |> Enum.map(fn({k, v}) -> {List.to_string(k), List.to_string(v)} end)
   end
 
   @doc false
@@ -121,11 +89,5 @@ defmodule ExAws.Request do
   # TODO: add jitter
   def backoff(attempt) do
     :timer.sleep(attempt * 1000)
-  end
-
-  defp method_string(method) do
-    method
-    |> Atom.to_string
-    |> String.upcase
   end
 end

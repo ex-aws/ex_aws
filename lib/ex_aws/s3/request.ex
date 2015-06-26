@@ -13,7 +13,7 @@ defmodule ExAws.S3.Request do
     |> url(bucket, path)
     |> add_query(resource, query)
 
-    hashed_payload = AWSAuth.Utils.hash_sha256(body)
+    hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
 
     headers = [
       {"x-amz-content-sha256", hashed_payload} |
