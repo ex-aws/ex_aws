@@ -14,13 +14,13 @@ defmodule ExAws.Mixfile do
   end
 
   def application do
-    [applications: [:logger],
+    [applications: [:logger, :timex, :crypto],
      mod: {ExAws, []}]
   end
 
   defp deps do
     [
-      {:aws_auth, github: "benwilson512/aws_auth", branch: "less_uri_encoding"} |
+      {:timex, "~> 0.13.4"} |
       deps(:test_dev)
     ]
   end
