@@ -92,12 +92,12 @@ More importantly however, suppose had staging and production Dynamo tables such 
 
 ```elixir
 defmodule My.Dynamo do
-  def request(%{"TableName" => table_name} = data, action) do
+  def request(client, action, %{"TableName" => table_name} = data) do
     data = %{data | "TableName" => "#{table_name}-#{System.get_env("STAGE")}"}
 
-    ExAws.Dynamo.Request.request(__MODULE__, action, data)
+    ExAws.Dynamo.Request.request(client, action, data)
   end
-  def request(data, action), do: super(data, action)
+  def request(client, action, data), do: super(client, action, data)
 end
 ```
 

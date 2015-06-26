@@ -92,4 +92,5 @@ defmodule ExAws.Config.Defaults do
       ]
     ]
   end
+  def defaults(_), do: []
 end
