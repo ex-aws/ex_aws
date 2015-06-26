@@ -14,7 +14,7 @@ defmodule ExAws.Mixfile do
   end
 
   def application do
-    [applications: [:logger],
+    [applications: [:logger, :timex],
      mod: {ExAws, []}]
   end
 

@@ -10,14 +10,14 @@ defmodule ExAws.Auth do
       headers
     ]
 
-    auth_header = ExAws.Auth.auth_header(
+    auth_header = auth_header(
       config[:access_key_id],
       config[:secret_access_key],
       http_method |> method_string,
       url,
       config[:region],
       service |> service_name,
-      headers |> Enum.into(%{}),
+      headers,
       body,
       now)
 
