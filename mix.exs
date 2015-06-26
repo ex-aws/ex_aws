@@ -20,7 +20,7 @@ defmodule ExAws.Mixfile do
 
   defp deps do
     [
-      {:aws_auth, "~> 0.2.3"} |
+      {:timex, "~> 0.13.4"} |
       deps(:test_dev)
     ]
   end
