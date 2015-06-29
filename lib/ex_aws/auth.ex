@@ -2,6 +2,8 @@ defmodule ExAws.Auth do
   import ExAws.Auth.Utils
   alias Timex.DateFormat
 
+  @moduledoc false
+
   def headers(http_method, url, service, config, headers, body) do
     now = %{Timex.Date.now | ms: 0}
     headers = [
@@ -22,7 +24,13 @@ defmodule ExAws.Auth do
       now)
 
     [{"Authorization", auth_header} | headers ]
+    |> handle_temp_credentials(config)
   end
+
+  def handle_temp_credentials(headers, %{token: token}) do
+    [{"X-Amz-Security-Token", token} | headers]
+  end
+  def handle_temp_credentials(headers, _), do: headers
 
   def auth_header(access_key, secret_key, http_method, url, region, service, headers, body, now) do
     date  = DateFormat.format!(now, "%Y%m%d", :strftime)
