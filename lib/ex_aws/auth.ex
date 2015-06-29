@@ -27,7 +27,7 @@ defmodule ExAws.Auth do
     |> handle_temp_credentials(config)
   end
 
-  def handle_temp_credentials(headers, %{token: token}) do
+  def handle_temp_credentials(headers, %{security_token: token}) do
     [{"X-Amz-Security-Token", token} | headers]
   end
   def handle_temp_credentials(headers, _), do: headers
