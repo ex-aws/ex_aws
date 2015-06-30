@@ -240,7 +240,7 @@ defmodule ExAws.S3.Client do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
-  @type canned_acl :: :privat
+  @type canned_acl :: :private
     | :public_read
     | :public_read_write
     | :authenticated_read
