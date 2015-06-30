@@ -246,10 +246,10 @@ defmodule ExAws.S3.Impl do
   end
 
   def put_object(client, bucket, object, body, opts, acl), do:
-    put_object(client, bucket, object, bucket, Keyword.put(opts, :'x-amz-acl', to_string acl))
+    put_object(client, bucket, object, bucket, Keyword.put(opts, :"x-amz-acl", to_string acl))
 
   def put_object(client, bucket, object, body, opts \\ []) do
-    headers = Keyword.put_new(opts, :'content-type', "binary/octet-stream")
+    headers = Keyword.put_new(opts, :"content-type", "binary/octet-stream")
     request(client, :put, bucket, object, body: body, headers: headers)
   end
 
