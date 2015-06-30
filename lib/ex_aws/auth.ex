@@ -23,6 +23,7 @@ defmodule ExAws.Auth do
       body,
       now)
 
+
     [{"Authorization", auth_header} | headers ]
     |> handle_temp_credentials(config)
   end
@@ -37,7 +38,6 @@ defmodule ExAws.Auth do
     scope = "#{date}/#{region}/#{service}/aws4_request"
 
     signing_key = build_signing_key(secret_key, date, region, service)
-
     signature = http_method
     |> build_canonical_request(url, headers, body)
     |> build_string_to_sign(now, scope)
@@ -78,7 +78,7 @@ defmodule ExAws.Auth do
 
   def signed_headers(headers) do
     headers
-    |> Enum.map(fn({k, _}) -> String.downcase(k) end)
+    |> Enum.map(fn({k, _}) -> k |> to_string |> String.downcase end)
     |> Enum.sort(&(&1 < &2))
     |> Enum.join(";")
   end
@@ -119,7 +119,7 @@ defmodule ExAws.Auth do
 
   def canonical_headers(headers) do
     headers
-    |> Enum.map(fn {k, v} -> {String.downcase(k), String.strip(v)} end)
+    |> Enum.map(fn {k, v} -> {k |> to_string |> String.downcase, String.strip(v)} end)
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
 end

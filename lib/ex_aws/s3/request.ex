@@ -9,16 +9,14 @@ defmodule ExAws.S3.Request do
     headers  = data |> Keyword.get(:headers, [])
 
 
-    url = client.config
-    |> url(bucket, path)
-    |> add_query(resource, query)
+    url =
+      client.config
+      |> url(bucket, path)
+      |> add_query(resource, query)
 
     hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
 
-    headers = [
-      {"x-amz-content-sha256", hashed_payload} |
-      headers
-    ]
+    headers = Keyword.put(headers, :"x-amz-content-sha256", hashed_payload)
 
     ExAws.Request.request(http_method, url, body, headers, client)
   end
@@ -38,8 +36,8 @@ defmodule ExAws.S3.Request do
   def add_query(url, resource, query), do: url <> "?" <> resource <> "&" <> query
 
   defp ensure_slash("/" <> _ = path), do: path
-  defp ensure_slash(path), do:  "/" <> path
+  defp ensure_slash(path),            do:  "/" <> path
 
-  defp bucket?(""), do: ""
+  defp bucket?(""),     do: ""
   defp bucket?(bucket), do: "/" <> bucket
 end
