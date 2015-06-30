@@ -16,9 +16,9 @@ defmodule ExAws.S3Test do
   alias Test.Dummy.S3
 
   test "#get_object" do
-    expected = %{headers: [response: %{content_type: "application/json"}], params: %{},
-      path: "object.json", bucket: "bucket"}
-    assert expected == S3.get_object("bucket", "object.json", %{response: %{content_type: "application/json"}})
+    expected = %{bucket: "bucket", headers: [{"x-amz-server-side-encryption-customer-algorithm", "md5"}],
+             params: %{"response-content-type" => "application/json"}, path: "object.json"}
+    assert expected == S3.get_object("bucket", "object.json", response: [content_type: "application/json"], encryption: [customer_algorithm: "md5"])
   end
 
 end

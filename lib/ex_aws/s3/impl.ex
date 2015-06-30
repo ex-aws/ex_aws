@@ -202,14 +202,18 @@ defmodule ExAws.S3.Impl do
     response_opts = opts
     |> Map.get(:response, %{})
     |> format_and_take(@response_params)
+    |> namespace("response")
 
     headers = opts
     |> Map.get(:request, %{})
-    |> format_and_take(@headers)
+    |> format_and_take(@request_headers)
 
-    headers = Enum.into(headers, []) ++ opts
-    |> Map.get(:encryption, [])
+    headers = opts
+    |> Map.get(:encryption, %{})
+    |> format_and_take(@encryption_headers)
     |> namespace("x-amz-server-side-encryption")
+    |> Map.merge(headers)
+    |> Enum.to_list
 
     request(client, :get, bucket, object, headers: headers, params: response_opts)
   end
@@ -317,10 +321,9 @@ defmodule ExAws.S3.Impl do
   end
 
   def format_grant_headers(grants, headers) do
-    headers = headers |> namespace("x-amz")
-
     grants
     |> format_and_take(headers)
+    |> namespace("x-amz")
     |> Map.to_list
     |> Enum.filter(&match?({_, [_|_]}, &1))
     |> Enum.map(&format_grant_header/1)
@@ -345,7 +348,8 @@ defmodule ExAws.S3.Impl do
 
     properties = mapping
     |> Enum.flat_map(fn({key, property}) ->
-      Map.get(rule, key, [])
+      rule
+      |> Map.get(key, [])
       |> Enum.map(&("<#{property}>#{&1}</#{property}>"))
     end)
     |> IO.iodata_to_binary
@@ -368,7 +372,9 @@ defmodule ExAws.S3.Impl do
   defp normalize_param(other), do: other
 
   def namespace(list, value) do
-    list |> Enum.map(&({&1, "#{value}-#{&1}" |> String.replace("_", "-")}))
+    list
+    |> Stream.map(fn {k ,v} -> {"#{value}-#{k}", v} end)
+    |> Enum.into(%{})
   end
 
 end
