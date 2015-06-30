@@ -9,6 +9,9 @@ defmodule ExAws.S3.Impl do
   ## Buckets
   #############
 
+  defdelegate stream_objects(client, bucket), to: ExAws.S3.Lazy
+  defdelegate stream_objects(client, bucket, opts), to: ExAws.S3.Lazy
+
   def list_buckets(client, opts \\ []) do
     request(client, :get, "", "/", params: opts)
   end
