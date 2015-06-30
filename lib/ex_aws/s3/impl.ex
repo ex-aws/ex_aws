@@ -1,4 +1,5 @@
 defmodule ExAws.S3.Impl do
+  import ExAws.S3.Utils
 
   @moduledoc false
   # Implementation of the AWS S3 API.
@@ -42,7 +43,8 @@ defmodule ExAws.S3.Impl do
 
   @params [:delimiter, :marker, :prefix, :encoding_type, :max_keys]
   def list_objects(client, bucket, opts \\ []) do
-    params = opts |> format_and_take(@params)
+    params = opts
+    |> format_and_take(@params)
     request(client, :get, bucket, "/", params: params)
   end
 
@@ -213,7 +215,6 @@ defmodule ExAws.S3.Impl do
     |> format_and_take(@encryption_headers)
     |> namespace("x-amz-server-side-encryption")
     |> Map.merge(headers)
-    |> Enum.to_list
 
     request(client, :get, bucket, object, headers: headers, params: response_opts)
   end
@@ -252,7 +253,7 @@ defmodule ExAws.S3.Impl do
   def put_object(client, bucket, object, body, opts \\ []) do
     headers = [
       {"Content-Type", "binary/octet-stream"} |
-      opts |> Map.to_list
+      opts
     ]
     request(client, :put, bucket, object, body: body, headers: headers)
   end
@@ -300,81 +301,6 @@ defmodule ExAws.S3.Impl do
 
   defp request(%{__struct__: client_module} = client, action, bucket, path, data \\ []) do
     client_module.request(client, action, bucket, path, data)
-  end
-
-  ## Formatting and helpers
-  def format_and_take(%{} = opts, param_list) do
-    param_list
-    |> Enum.map(&normalize_param/1)
-    |> Enum.reduce(%{}, fn({elixir_opt, aws_opt}, params) ->
-      case Map.get(opts, elixir_opt) do
-        nil   -> params
-        value -> Map.put(params, aws_opt, value)
-      end
-    end)
-  end
-
-  def format_and_take(opts, param_list) do
-    opts
-    |> Enum.into(%{})
-    |> format_and_take(param_list)
-  end
-
-  def format_grant_headers(grants, headers) do
-    grants
-    |> format_and_take(headers)
-    |> namespace("x-amz")
-    |> Map.to_list
-    |> Enum.filter(&match?({_, [_|_]}, &1))
-    |> Enum.map(&format_grant_header/1)
-  end
-
-  defp format_grant_header({permission, grantees}) do
-    grants = grantees
-    |> Enum.map(fn
-      {:email, email} -> "emailAddress=\"#{email}\""
-      {key, value}    -> "#{key}=\"#{value}\""
-    end)
-    |> Enum.join(", ")
-    {permission, grants}
-  end
-
-  def build_cors_rule(rule) do
-    mapping = [
-      allowed_origins: "AllowedOrigin",
-      allowed_methods: "AllowedMethod",
-      allowed_headers: "AllowedHeader",
-      exposed_headers: "ExposeHeader"]
-
-    properties = mapping
-    |> Enum.flat_map(fn({key, property}) ->
-      rule
-      |> Map.get(key, [])
-      |> Enum.map(&("<#{property}>#{&1}</#{property}>"))
-    end)
-    |> IO.iodata_to_binary
-
-    properties = case Map.get(rule, :max_age_seconds) do
-      nil -> properties
-      value -> "<MaxAgeSeconds>#{value}</MaxAgeSeconds>" <> properties
-    end
-
-    "<CORSRule>#{properties}</CORSRule>"
-  end
-
-  defp normalize_param(param) when is_atom(param) do
-    aws_param = param
-    |> Atom.to_string
-    |> String.replace("_", "-")
-
-    {param, aws_param}
-  end
-  defp normalize_param(other), do: other
-
-  def namespace(list, value) do
-    list
-    |> Stream.map(fn {k ,v} -> {"#{value}-#{k}", v} end)
-    |> Enum.into(%{})
   end
 
 end
