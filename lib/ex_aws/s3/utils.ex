@@ -86,7 +86,7 @@ defmodule ExAws.S3.Utils do
       "x-amz-server-side-encryption-aws-kms-key-id" => key_id
     }
   end
-  def build_encryption_headers(headers) do
+  def build_encryption_headers(headers = %{}) do
     headers
     |> Stream.map(fn {k ,v} -> {normalize_param(k), v} end)
     |> namespace("x-amz-server-side-encryption")

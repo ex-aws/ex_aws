@@ -187,7 +187,7 @@ defmodule ExAws.S3.Impl do
   ###########
 
   def delete_object(client, bucket, object, opts \\ []) do
-    request(client, :delete, bucket, object, headers: opts)
+    request(client, :delete, bucket, object, headers: opts |> Enum.into(%{}))
   end
 
   def delete_multiple_objects(client, bucket, _objects) do
@@ -219,7 +219,7 @@ defmodule ExAws.S3.Impl do
   end
 
   def get_object_acl(client, bucket, object, opts \\ []) do
-    request(client, :get, bucket, object, resource: "acl", headers: opts)
+    request(client, :get, bucket, object, resource: "acl", headers: opts |> Enum.into(%{}))
   end
 
   def get_object_torrent(client, bucket, object) do
@@ -227,7 +227,7 @@ defmodule ExAws.S3.Impl do
   end
 
   def head_object(client, bucket, object, opts \\ []) do
-    request(client, :head, bucket, object, headers: opts)
+    request(client, :head, bucket, object, headers: opts |> Enum.into(%{}))
   end
 
   def options_object(client, bucket, object, origin, request_method, request_headers \\ []) do
