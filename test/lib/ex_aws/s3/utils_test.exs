@@ -8,10 +8,11 @@ defmodule ExAws.S3.ImplTest do
     "<CORSRule><MaxAgeSeconds>45</MaxAgeSeconds><AllowedOrigin>*</AllowedOrigin><AllowedHeader>foo</AllowedHeader><AllowedHeader>bar</AllowedHeader></CORSRule>"
   end
 
-  test "from_options/2" do
-    params = [:foo, :bar_baz, yo: "dawg"]
+  test "format_and_take/2" do
+    params = [:foo, :bar_baz]
     opts = %{foo: "foo", bar_baz: "bar_baz", yo: "yo"}
-    assert %{"foo" => "foo", "bar-baz" => "bar_baz", "dawg" => "yo"} == opts
+
+    assert %{"foo" => "foo", "bar-baz" => "bar_baz"} == opts
     |> Utils.format_and_take(params)
   end
 
@@ -20,5 +21,11 @@ defmodule ExAws.S3.ImplTest do
     grants = [grant_read: [email: "foo@bar.com", id: "fake_id"]]
     assert grants |> Utils.format_grant_headers(headers) ==
       %{"x-amz-grant-read" => "emailAddress=\"foo@bar.com\", id=\"fake_id\""}
+  end
+
+  test "build_encryption_headers/1" do
+    assert Utils.build_encryption_headers("AES256") == %{"x-amz-server-side-encryption" => "AES256"}
+    assert Utils.build_encryption_headers([aws_kms_key_id: "key_id"]) ==
+    %{"x-amz-server-side-encryption" => "aws:kms", "x-amz-server-side-encryption-aws-kms-key-id" => "key_id"}
   end
 end

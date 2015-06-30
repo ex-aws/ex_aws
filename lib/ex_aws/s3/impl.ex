@@ -250,11 +250,38 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
+  @headers [:cache_control, :content_disposition, :content_encoding, :content_length, :content_type,
+    :expect, :expires]
+  @amz_headers [:storage_class, :website_redirect_location]
+  @acl_headers [:grant_read, :grant_read_acp, :grant_write_acp, :grant_full_control]
   def put_object(client, bucket, object, body, opts \\ []) do
-    headers = [
-      {"Content-Type", "binary/octet-stream"} |
-      opts
-    ]
+    opts = opts |> Enum.into(%{})
+
+    regular_headers = opts
+    |> format_and_take(@headers)
+
+    amz_headers = opts
+    |> format_and_take(@amz_headers)
+    |> namespace("x-amz")
+
+    acl_headers = opts
+    |> format_grant_headers(@acl_headers)
+
+    encryption_headers = opts
+    |> Map.get(:encryption, %{})
+    |> build_encryption_headers
+
+    canned_acl = case Map.get(opts, :acl) do
+      nil -> %{}
+      value -> %{"x-amz-acl" => normalize_param(value)}
+    end
+
+    headers = regular_headers
+    |> Map.merge(amz_headers)
+    |> Map.merge(acl_headers)
+    |> Map.merge(canned_acl)
+    |> Map.merge(encryption_headers)
+
     request(client, :put, bucket, object, body: body, headers: headers)
   end
 

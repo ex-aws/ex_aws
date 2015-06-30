@@ -215,9 +215,38 @@ defmodule ExAws.S3.Client do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
+  @type canned_acl :: :privat
+    | :public_read
+    | :public_read_write
+    | :authenticated_read
+    | :bucket_owner_read
+    | :bucket_owner_full_control
+  @type grant :: [ {:email, binary}
+    | {:id, binary}
+    | {:uri, binary}
+  ]
+  @type encryption_opts :: binary
+    | [aws_kms_key_id: binary]
+    | [customer_algorithm: binary, customer_key: binary, customer_key_md5: binary]
+  @type put_object_opts :: [ {:cache_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+    | {:content_length, binary}
+    | {:content_type, binary}
+    | {:expect, binary}
+    | {:expires, binary}
+    | {:storage_class, binary}
+    | {:website_redirect_location, binary}
+    | {:grant_read, grant}
+    | {:grant_read_acp, grant}
+    | {:grant_write_acp, grant}
+    | {:grant_full_control, grant}
+    | {:acl, canned_acl}
+    | {:encryption, encryption_opts}
+  ]
   @doc "Create an object within a bucket"
   defcallback put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
-  defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
 
   @doc "Create or update an object's access control FIXME"
   defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
