@@ -207,7 +207,6 @@ defmodule ExAws.S3.Impl do
     |> namespace("response")
 
     headers = opts
-    |> Map.get(:request, %{})
     |> format_and_take(@request_headers)
 
     headers = opts

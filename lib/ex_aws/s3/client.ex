@@ -75,8 +75,16 @@ defmodule ExAws.S3.Client do
   defcallback list_buckets() :: ExAws.Request.response_t
   defcallback list_buckets(opts :: Keyword.t) :: ExAws.Request.response_t
 
+  @type list_objects_opts :: [
+    {:delimiter, binary} |
+    {:encoding_type, binary} |
+    {:marker, binary} |
+    {:max_keys, 0..1000} |
+    {:prefix, binary}
+  ]
   @doc "List objects in bucket"
   defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
+  defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
 
   @doc "Get bucket acl"
   defcallback get_bucket_acl(bucket :: binary) :: ExAws.Request.response_t
@@ -171,9 +179,26 @@ defmodule ExAws.S3.Client do
     bucket  :: binary,
     objects :: [binary | {binary, binary}, ...]):: ExAws.Request.response_t
 
+  @type customer_encryption_opts :: [customer_algorithm: binary, customer_key: binary, customer_key_md5: binary]
+  @type get_object_response_opts :: [
+    {:content_language, binary}
+    | {:expires, binary}
+    | {:cach_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+  ]
+  @type get_object_opts :: [
+    {:response, get_object_response_opts}
+    | {:encryption, customer_encryption_opts}
+    | {:range, binary}
+    | {:if_modified_since, binary}
+    | {:if_unmodified_since, binary}
+    | {:if_match, binary}
+    | {:if_none_match, binary}
+  ]
   @doc "Get an object from a bucket"
   defcallback get_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback get_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback get_object(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
 
   @doc "Get an object's access control policy"
   defcallback get_object_acl(bucket :: binary, object :: binary) :: ExAws.Request.response_t
@@ -225,9 +250,7 @@ defmodule ExAws.S3.Client do
     | {:id, binary}
     | {:uri, binary}
   ]
-  @type encryption_opts :: binary
-    | [aws_kms_key_id: binary]
-    | [customer_algorithm: binary, customer_key: binary, customer_key_md5: binary]
+  @type encryption_opts :: binary | [aws_kms_key_id: binary] | customer_encryption_opts
   @type put_object_opts :: [ {:cache_control, binary}
     | {:content_disposition, binary}
     | {:content_encoding, binary}
