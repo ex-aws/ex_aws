@@ -20,7 +20,8 @@ defmodule ExAws.Mixfile do
 
   defp deps do
     [
-      {:timex, "~> 0.13.4"} |
+      {:timex, "~> 0.13.4"},
+      {:sweet_xml, "~> 0.2.1", only: [:dev, :test]} |
       deps(:test_dev)
     ]
   end

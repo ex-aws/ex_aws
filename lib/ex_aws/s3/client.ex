@@ -75,8 +75,24 @@ defmodule ExAws.S3.Client do
   defcallback list_buckets() :: ExAws.Request.response_t
   defcallback list_buckets(opts :: Keyword.t) :: ExAws.Request.response_t
 
+  @type list_objects_opts :: [
+    {:delimiter, binary} |
+    {:encoding_type, binary} |
+    {:marker, binary} |
+    {:max_keys, 0..1000} |
+    {:prefix, binary}
+  ]
   @doc "List objects in bucket"
   defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
+  defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
+
+  @doc "Same as list_objects/1,2 but returns the result and raises on failure."
+  defcallback list_objects!(bucket :: binary) :: ExAws.Request.response_t
+  defcallback list_objects!(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
+
+  @doc "Stream list of objects in bucket"
+  defcallback stream_objects!(bucket :: binary) :: Enumerable.t
+  defcallback stream_objects!(bucket :: binary, opts :: list_objects_opts) :: Enumerable.t
 
   @doc "Get bucket acl"
   defcallback get_bucket_acl(bucket :: binary) :: ExAws.Request.response_t
@@ -129,11 +145,7 @@ defmodule ExAws.S3.Client do
   defcallback put_bucket(bucket :: binary, region :: binary) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket bucket access control"
-  defcallback put_bucket_acl(
-    bucket      :: binary,
-    owner_id    :: binary,
-    owner_email :: binary,
-    grants      :: %{}) :: ExAws.Request.response_t
+  defcallback put_bucket_acl(bucket :: binary, grants :: %{}) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket CORS policy"
   defcallback put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Request.response_t
@@ -170,14 +182,38 @@ defmodule ExAws.S3.Client do
   @doc "Delete object object in bucket"
   defcallback delete_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
 
+  @doc "Same as delete_object/2 but returns just the response or raises on error"
+  defcallback delete_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+
   @doc "Delete multiple objects within a bucket"
   defcallback delete_multiple_objects(
     bucket  :: binary,
     objects :: [binary | {binary, binary}, ...]):: ExAws.Request.response_t
 
+  @type customer_encryption_opts :: [customer_algorithm: binary, customer_key: binary, customer_key_md5: binary]
+  @type get_object_response_opts :: [
+    {:content_language, binary}
+    | {:expires, binary}
+    | {:cach_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+  ]
+  @type get_object_opts :: [
+    {:response, get_object_response_opts}
+    | {:encryption, customer_encryption_opts}
+    | {:range, binary}
+    | {:if_modified_since, binary}
+    | {:if_unmodified_since, binary}
+    | {:if_match, binary}
+    | {:if_none_match, binary}
+  ]
   @doc "Get an object from a bucket"
   defcallback get_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback get_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback get_object(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
+
+  @doc "Same as get_object/2,3 but returns just the response or raises on error"
+  defcallback get_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+  defcallback get_object!(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
 
   @doc "Get an object's access control policy"
   defcallback get_object_acl(bucket :: binary, object :: binary) :: ExAws.Request.response_t
@@ -219,9 +255,40 @@ defmodule ExAws.S3.Client do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
+  @type canned_acl :: :private
+    | :public_read
+    | :public_read_write
+    | :authenticated_read
+    | :bucket_owner_read
+    | :bucket_owner_full_control
+  @type grant :: [ {:email, binary}
+    | {:id, binary}
+    | {:uri, binary}
+  ]
+  @type encryption_opts :: binary | [aws_kms_key_id: binary] | customer_encryption_opts
+  @type put_object_opts :: [ {:cache_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+    | {:content_length, binary}
+    | {:content_type, binary}
+    | {:expect, binary}
+    | {:expires, binary}
+    | {:storage_class, binary}
+    | {:website_redirect_location, binary}
+    | {:grant_read, grant}
+    | {:grant_read_acp, grant}
+    | {:grant_write_acp, grant}
+    | {:grant_full_control, grant}
+    | {:acl, canned_acl}
+    | {:encryption, encryption_opts}
+  ]
   @doc "Create an object within a bucket"
   defcallback put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
-  defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
+
+  @doc "Same as put_object/2 but returns just the response or raises on error"
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
 
   @doc "Create or update an object's access control FIXME"
   defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
@@ -290,6 +357,7 @@ defmodule ExAws.S3.Client do
   defcallback config_root() :: Keyword.t
 
   defmacro __using__(opts) do
+
     boilerplate = __MODULE__
     |> ExAws.Client.generate_boilerplate(opts)
 
