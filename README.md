@@ -5,7 +5,7 @@ A flexible easy to use set of clients AWS APIs.
 
 ## Highlighted Features
 - Easy configuration.
-- Minimal dependencies. Choose your favorite JSON / XML codec and HTTP client.
+- Minimal dependencies. Choose your favorite JSON codec and HTTP client.
 - Elixir streams to automatically retrieve paginated resources.
 - Elixir protocols allow easy customization of Dynamo encoding / decoding.
 - `mix kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
@@ -13,7 +13,7 @@ A flexible easy to use set of clients AWS APIs.
 
 ## Getting started
 
-Add ex_aws to your mix.exs, along with your json parser and http client of choice. ExAws works out of the box with Poison and HTTPoison and sweet_xml. All APIs require an http client, but only some require a json or xml codec. You only need the codec for the API you intend to use.
+Add ex_aws to your mix.exs, along with your json parser and http client of choice. ExAws works out of the box with Poison and HTTPoison and sweet_xml. All APIs require an http client, but only some require a json or xml codec. You only need the codec for the API you intend to use. At this time only SweetXml is supported for xml parsing.
 
 - Dynamo: json
 - Kinesis: json
@@ -25,7 +25,7 @@ If you wish to use instance roles to obtain AWS access keys you will need to add
 ```elixir
 def deps do
   [
-    ex_aws:    "~> 0.3.0",
+    ex_aws:    "~> 0.4.0",
     poison:    "~> 1.2.0",
     httpoison: "~> 0.6.0"
   ]
@@ -178,7 +178,7 @@ In addition to its unique features, ExAws has a number of advantages over erlclo
 
 - Binaries and Maps. ExAws always uses binaries over char lists, and returns maps instead of proplists.
 
-- No built in dependencies. Already using Poison? No need to add jsx as a dependency.
+- Few built in dependencies. Already using Poison? No need to add jsx as a dependency.
 
 - Lambda support
 
