@@ -1,5 +1,6 @@
 defmodule ExAws.S3.Impl do
   import ExAws.S3.Utils
+  alias ExAws.S3.Parsers
 
   @moduledoc false
   # Implementation of the AWS S3 API.
@@ -9,8 +10,8 @@ defmodule ExAws.S3.Impl do
   ## Buckets
   #############
 
-  defdelegate stream_objects(client, bucket), to: ExAws.S3.Lazy
-  defdelegate stream_objects(client, bucket, opts), to: ExAws.S3.Lazy
+  defdelegate stream_objects!(client, bucket), to: ExAws.S3.Lazy
+  defdelegate stream_objects!(client, bucket, opts), to: ExAws.S3.Lazy
 
   def list_buckets(client, opts \\ []) do
     request(client, :get, "", "/", params: opts)
@@ -49,6 +50,12 @@ defmodule ExAws.S3.Impl do
     params = opts
     |> format_and_take(@params)
     request(client, :get, bucket, "/", params: params)
+    |> Parsers.parse_list_objects
+  end
+
+  def list_objects!(client, bucket, opts \\ []) do
+    {:ok, resp} = list_objects(client, bucket, opts)
+    resp
   end
 
   def get_bucket_acl(client, bucket) do
@@ -192,6 +199,10 @@ defmodule ExAws.S3.Impl do
   def delete_object(client, bucket, object, opts \\ []) do
     request(client, :delete, bucket, object, headers: opts |> Enum.into(%{}))
   end
+  def delete_object!(client, bucket, object, opts \\ []) do
+    {:ok, resp} = delete_object(client, bucket, object, opts)
+    resp
+  end
 
   def delete_multiple_objects(client, bucket, _objects) do
     raise "not yet implemented"
@@ -219,6 +230,11 @@ defmodule ExAws.S3.Impl do
     |> Map.merge(headers)
 
     request(client, :get, bucket, object, headers: headers, params: response_opts)
+  end
+
+  def get_object!(client, bucket, object, opts \\ []) do
+    {:ok, resp} = get_object(client, bucket, object, opts)
+    resp
   end
 
   def get_object_acl(client, bucket, object, opts \\ []) do
@@ -285,6 +301,11 @@ defmodule ExAws.S3.Impl do
     |> Map.merge(encryption_headers)
 
     request(client, :put, bucket, object, body: body, headers: headers)
+  end
+
+  def put_object!(client, bucket, object, body, opts \\ []) do
+    {:ok, resp} = put_object(client, bucket, object, body, opts)
+    resp
   end
 
   def put_object_acl(client, bucket, object, _acl) do

@@ -13,11 +13,8 @@ defmodule ExAws.Dynamo.Request do
   end
 
   def parse({:error, result}, _), do: {:error, result}
-  def parse({:ok, body}, config) do
-    case config[:json_codec].decode(body) do
-      {:ok, result} -> {:ok, result}
-      {:error, _}   -> {:error, body}
-    end
+  def parse({:ok, %{body: body}}, config) do
+    {:ok, config[:json_codec].decode!(body)}
   end
 
   defp url(%{scheme: scheme, host: host, port: port}) do

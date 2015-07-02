@@ -4,7 +4,8 @@ defmodule ExAws.Request do
 
   @moduledoc false
 
-  @type response_t :: {:ok, any} | {:error, {:http_error, pos_integer, binary}}
+  @type response_t :: {:ok, %{body: binary, headers: [{binary, binary}] }}
+    | {:error, {:http_error, pos_integer, binary}}
 
   def request(http_method, url, data, headers, client) do
     config = client.config
@@ -20,7 +21,6 @@ defmodule ExAws.Request do
     request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
   end
 
-  @doc false
   def request_and_retry(_method, _url, _service, _config, _headers, _req_body, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
@@ -31,8 +31,8 @@ defmodule ExAws.Request do
     end
 
     case config[:http_client].request(method, url, req_body, headers) do
-      {:ok, %{status_code: status, body: body}} when status in 200..299 ->
-        {:ok, body}
+      {:ok, response = %{status_code: status}} when status in 200..299 ->
+        {:ok, response}
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
         case client_error(resp, config[:json_codec]) do
           {:retry, reason} ->

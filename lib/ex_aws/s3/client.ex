@@ -86,9 +86,13 @@ defmodule ExAws.S3.Client do
   defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
   defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
 
+  @doc "Same as list_objects/1,2 but raises on failure."
+  defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
+  defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
+
   @doc "Stream list of objects in bucket"
-  defcallback stream_objects(bucket :: binary) :: Enumerable.t
-  defcallback stream_objects(bucket :: binary, opts :: list_objects_opts) :: Enumerable.t
+  defcallback stream_objects!(bucket :: binary) :: Enumerable.t
+  defcallback stream_objects!(bucket :: binary, opts :: list_objects_opts) :: Enumerable.t
 
   @doc "Get bucket acl"
   defcallback get_bucket_acl(bucket :: binary) :: ExAws.Request.response_t
