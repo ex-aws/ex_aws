@@ -86,9 +86,9 @@ defmodule ExAws.S3.Client do
   defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
   defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
 
-  @doc "Same as list_objects/1,2 but raises on failure."
-  defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
-  defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
+  @doc "Same as list_objects/1,2 but returns the result and raises on failure."
+  defcallback list_objects!(bucket :: binary) :: ExAws.Request.response_t
+  defcallback list_objects!(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
 
   @doc "Stream list of objects in bucket"
   defcallback stream_objects!(bucket :: binary) :: Enumerable.t
@@ -182,6 +182,9 @@ defmodule ExAws.S3.Client do
   @doc "Delete object object in bucket"
   defcallback delete_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
 
+  @doc "Same as delete_object/2 but returns just the response or raises on error"
+  defcallback delete_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+
   @doc "Delete multiple objects within a bucket"
   defcallback delete_multiple_objects(
     bucket  :: binary,
@@ -207,6 +210,10 @@ defmodule ExAws.S3.Client do
   @doc "Get an object from a bucket"
   defcallback get_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
   defcallback get_object(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
+
+  @doc "Same as get_object/2,3 but returns just the response or raises on error"
+  defcallback get_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+  defcallback get_object!(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
 
   @doc "Get an object's access control policy"
   defcallback get_object_acl(bucket :: binary, object :: binary) :: ExAws.Request.response_t
@@ -278,6 +285,10 @@ defmodule ExAws.S3.Client do
   @doc "Create an object within a bucket"
   defcallback put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
   defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
+
+  @doc "Same as put_object/2 but returns just the response or raises on error"
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
 
   @doc "Create or update an object's access control FIXME"
   defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
