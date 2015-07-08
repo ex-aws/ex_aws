@@ -31,7 +31,7 @@ defmodule ExAws.Mixfile do
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.7", only: :dev},
       {:sweet_xml, "~> 0.2.1", only: [:test]},
-      {:httpoison, "~> 0.6.0", only: [:test, :dev]},
+      {:httpoison, "~> 0.7", only: [:test, :dev]},
       {:poison, "~> 1.2.0", only: [:test, :dev]},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1", only: :test},
       {:httpotion, "~> 2.0.0", only: :test},

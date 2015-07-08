@@ -9,7 +9,7 @@ defmodule ExAws.Config.Defaults do
   end
   def defaults(:dev) do
     [
-      http_client: HTTPoison,
+      http_client: ExAws.Request.HTTPoison,
       json_codec: Poison,
       kinesis: [
         scheme: "https://",
@@ -38,7 +38,7 @@ defmodule ExAws.Config.Defaults do
   end
   def defaults(:test) do
     [
-      http_client: HTTPoison,
+      http_client: ExAws.Request.HTTPoison,
       json_codec: Poison,
       dynamodb: [
         scheme: "http://",
@@ -50,7 +50,7 @@ defmodule ExAws.Config.Defaults do
   end
   def defaults(:prod) do
     [
-      http_client: HTTPoison,
+      http_client: ExAws.Request.HTTPoison,
       json_codec: Poison,
       kinesis: [
         scheme: "https://",
