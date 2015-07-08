@@ -1,11 +1,10 @@
 defmodule ExAws.Auth do
   import ExAws.Auth.Utils
-  alias Timex.DateFormat
 
   @moduledoc false
 
   def headers(http_method, url, service, config, headers, body) do
-    now = %{Timex.Date.now | ms: 0}
+    now = :os.timestamp |> :calendar.now_to_universal_time
     headers = [
       {"host", URI.parse(url).host},
       {"x-amz-date", amz_date(now)} |
@@ -32,8 +31,8 @@ defmodule ExAws.Auth do
   end
   def handle_temp_credentials(headers, _), do: headers
 
-  def auth_header(access_key, secret_key, http_method, url, region, service, headers, body, now) do
-    date  = DateFormat.format!(now, "%Y%m%d", :strftime)
+  def auth_header(access_key, secret_key, http_method, url, region, service, headers, body, {date, _} = now) do
+    date  = date |> quasi_iso_format
     scope = "#{date}/#{region}/#{service}/aws4_request"
 
     signing_key = build_signing_key(secret_key, date, region, service)
@@ -59,8 +58,8 @@ defmodule ExAws.Auth do
   end
 
   def build_string_to_sign(canonical_request, now, scope) do
-    timestamp = now |> ExAws.Auth.Utils.amz_date
-    hashed_canonical_request = ExAws.Auth.Utils.hash_sha256(canonical_request)
+    timestamp = now |> amz_date
+    hashed_canonical_request = hash_sha256(canonical_request)
 
     [
       "AWS4-HMAC-SHA256", "\n",
