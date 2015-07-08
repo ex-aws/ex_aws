@@ -27,7 +27,7 @@ def deps do
   [
     ex_aws:    "~> 0.4.0",
     poison:    "~> 1.2.0",
-    httpoison: "~> 0.6.0"
+    httpoison: "~> 0.7.0"
   ]
 end
 ```
