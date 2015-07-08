@@ -24,4 +24,8 @@ defmodule ExAws.UtilsTest do
     assert %{"FooBar" => ["foo", "bar"]} == [foo_bar: ["foo", "bar"]]
     |> camelize_keys(deep: true)
   end
+
+  test "iso_z_to_secs/1" do
+    assert iso_z_to_secs("2015-07-05T22:16:18Z") == 1436134578
+  end
 end

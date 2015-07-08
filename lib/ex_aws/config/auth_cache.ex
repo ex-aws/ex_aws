@@ -1,6 +1,10 @@
 defmodule ExAws.Config.AuthCache do
   use GenServer
 
+  @moduledoc false
+
+  # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
@@ -37,9 +41,8 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def refresh_in(expiration) do
-    expiration = Timex.DateFormat.parse!(expiration, "{ISOz}")
-    |> Timex.Date.convert(:secs)
-    time_to_expiration = expiration - Timex.Date.now(:secs)
+    expiration = expiration |> ExAws.Utils.iso_z_to_secs
+    time_to_expiration = expiration - ExAws.Utils.now_in_seconds
     refresh_in = time_to_expiration - 2 * 60 # check two min prior to expiration
     refresh_in * 1000
   end
