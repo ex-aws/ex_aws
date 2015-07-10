@@ -334,8 +334,8 @@ defmodule ExAws.S3.Impl do
   end
 
   def initiate_multipart_upload(client, bucket, object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  
+    request(client, :get, bucket, object, resource: "uploads")
   end
 
   def upload_part(client, bucket, object, _upload_id, _part_number) do
@@ -359,8 +359,10 @@ defmodule ExAws.S3.Impl do
   end
 
   def list_parts(client, bucket, object, upload_id, opts \\ []) do
-    params = %{"uploadId" => upload_id}
-    |> Map.merge(opts)
+    params = opts
+    |> Enum.into(%{})
+    |> Map.merge(%{"uploadId" => upload_id})
+
     request(client, :get, bucket, object, params: params)
   end
 

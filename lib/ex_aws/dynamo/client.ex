@@ -1,5 +1,6 @@
 defmodule ExAws.Dynamo.Client do
   use Behaviour
+  alias ExAws.Dynamo.Request
 
   @moduledoc """
   Defines a Dynamo Client
@@ -142,7 +143,7 @@ defmodule ExAws.Dynamo.Client do
   @type key_definitions :: [{atom | binary, dynamo_type_names}, ...]
 
   @doc "List tables"
-  defcallback list_tables() :: ExAws.Request.response_t
+  defcallback list_tables() :: Request.response_t
 
   @doc """
   Create table
@@ -154,7 +155,7 @@ defmodule ExAws.Dynamo.Client do
     key_schema      :: binary | atom,
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
-    write_capacity  :: pos_integer) :: ExAws.Request.response_t
+    write_capacity  :: pos_integer) :: Request.response_t
 
     @doc """
     Create table
@@ -169,7 +170,7 @@ defmodule ExAws.Dynamo.Client do
     key_schema      :: [key_schema],
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
-    write_capacity  :: pos_integer) :: ExAws.Request.response_t
+    write_capacity  :: pos_integer) :: Request.response_t
 
   @doc "Create table with indices"
   defcallback create_table(
@@ -179,16 +180,16 @@ defmodule ExAws.Dynamo.Client do
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
     global_indexes  :: Keyword.t,
-    local_indexes   :: Keyword.t) :: ExAws.Request.response_t
+    local_indexes   :: Keyword.t) :: Request.response_t
 
   @doc "Describe table"
-  defcallback describe_table(name :: binary) :: ExAws.Request.response_t
+  defcallback describe_table(name :: binary) :: Request.response_t
 
   @doc "Update Table"
-  defcallback update_table(name :: binary, attributes :: Keyword.t) :: ExAws.Request.response_t
+  defcallback update_table(name :: binary, attributes :: Keyword.t) :: Request.response_t
 
   @doc "Delete Table"
-  defcallback delete_table(table :: binary) :: ExAws.Request.response_t
+  defcallback delete_table(table :: binary) :: Request.response_t
 
   ## Records
   ######################
@@ -227,8 +228,8 @@ defmodule ExAws.Dynamo.Client do
     {:segment, non_neg_integer} |
     {:select, select_vals} |
     {:total_segments, pos_integer}]
-  defcallback scan(table_name :: table_name) :: ExAws.Request.response_t
-  defcallback scan(table_name :: table_name, opts :: scan_opts) :: ExAws.Request.response_t
+  defcallback scan(table_name :: table_name) :: Request.response_t
+  defcallback scan(table_name :: table_name, opts :: scan_opts) :: Request.response_t
 
 
   @doc """
@@ -274,8 +275,8 @@ defmodule ExAws.Dynamo.Client do
     {:return_consumed_capacity, return_consumed_capacity_vals} |
     {:scan_index_forward, boolean} |
     {:select, select_vals}]
-  defcallback query(table_name :: table_name) :: ExAws.Request.response_t
-  defcallback query(table_name :: table_name, opts :: query_opts) :: ExAws.Request.response_t
+  defcallback query(table_name :: table_name) :: Request.response_t
+  defcallback query(table_name :: table_name, opts :: query_opts) :: Request.response_t
 
   @doc """
   Stream records from table
@@ -327,8 +328,8 @@ defmodule ExAws.Dynamo.Client do
     {:consistent_read, boolean} |
     {:keys, [primary_key]}
   ]
-  defcallback batch_get_item(%{table_name => get_item}) :: ExAws.Request.response_t
-  defcallback batch_get_item(%{table_name => get_item}, opts :: batch_get_item_opts) :: ExAws.Request.response_t
+  defcallback batch_get_item(%{table_name => get_item}) :: Request.response_t
+  defcallback batch_get_item(%{table_name => get_item}, opts :: batch_get_item_opts) :: Request.response_t
 
   @doc """
   Put or delete up to 25 items (16mb)
@@ -347,8 +348,8 @@ defmodule ExAws.Dynamo.Client do
     {:return_consumed_capacity, return_consumed_capacity_vals} |
     {:return_item_collection_metrics, return_item_collection_metrics_vals}
   ]
-  defcallback batch_write_item(%{table_name => [write_item]}) :: ExAws.Request.response_t
-  defcallback batch_write_item(%{table_name => [write_item]}, opts :: batch_write_item_opts) :: ExAws.Request.response_t
+  defcallback batch_write_item(%{table_name => [write_item]}) :: Request.response_t
+  defcallback batch_write_item(%{table_name => [write_item]}, opts :: batch_write_item_opts) :: Request.response_t
 
   @doc "Put item in table"
   @type put_item_opts :: [
@@ -359,8 +360,8 @@ defmodule ExAws.Dynamo.Client do
     {:return_item_collection_metrics, return_item_collection_metrics_vals } |
     {:return_values, return_values_vals}
   ]
-  defcallback put_item(table_name :: table_name, record :: %{}) :: ExAws.Request.response_t
-  defcallback put_item(table_name :: table_name, record :: %{}, opts :: put_item_opts) :: ExAws.Request.response_t
+  defcallback put_item(table_name :: table_name, record :: %{}) :: Request.response_t
+  defcallback put_item(table_name :: table_name, record :: %{}, opts :: put_item_opts) :: Request.response_t
 
   @doc "Get item from table"
   @type get_item_opts :: [
@@ -369,8 +370,8 @@ defmodule ExAws.Dynamo.Client do
     {:projection_expression, binary} |
     {:return_consumed_capacity, return_consumed_capacity_vals}
   ]
-  defcallback get_item(table_name :: table_name, primary_key :: primary_key) :: ExAws.Request.response_t
-  defcallback get_item(table_name :: table_name, primary_key :: primary_key, opts :: get_item_opts) :: ExAws.Request.response_t
+  defcallback get_item(table_name :: table_name, primary_key :: primary_key) :: Request.response_t
+  defcallback get_item(table_name :: table_name, primary_key :: primary_key, opts :: get_item_opts) :: Request.response_t
 
   @doc "Get an item from a dynamo table, and raise if it does not exist or there is an error"
   defcallback get_item!(table_name :: table_name, primary_key :: primary_key) :: %{}
@@ -391,7 +392,7 @@ defmodule ExAws.Dynamo.Client do
     {:return_values, return_values_vals } |
     {:update_expression, binary}
   ]
-  defcallback update_item(table_name :: table_name, primary_key :: primary_key, opts :: update_item_opts) :: ExAws.Request.response_t
+  defcallback update_item(table_name :: table_name, primary_key :: primary_key, opts :: update_item_opts) :: Request.response_t
 
   @doc "Delete item in table"
   @type delete_item_opts :: [
@@ -402,8 +403,8 @@ defmodule ExAws.Dynamo.Client do
     {:return_item_collection_metrics, return_item_collection_metrics_vals } |
     {:return_values, return_values_vals}
   ]
-  defcallback delete_item(table_name :: table_name, primary_key :: primary_key) :: ExAws.Request.response_t
-  defcallback delete_item(table_name :: table_name, primary_key :: primary_key, opts :: delete_item_opts) :: ExAws.Request.response_t
+  defcallback delete_item(table_name :: table_name, primary_key :: primary_key) :: Request.response_t
+  defcallback delete_item(table_name :: table_name, primary_key :: primary_key, opts :: delete_item_opts) :: Request.response_t
 
   @doc """
   Enables custom request handling.

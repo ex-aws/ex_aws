@@ -4,8 +4,10 @@ defmodule ExAws.Request do
 
   @moduledoc false
 
-  @type response_t :: {:ok, %{body: binary, headers: [{binary, binary}] }}
-    | {:error, {:http_error, pos_integer, binary}}
+  @type http_status :: pos_integer
+  @type success_t :: {:ok, %{body: binary, headers: [{binary, binary}] }}
+  @type error_t :: {:error, {:http_error, http_status, binary}}
+  @type response_t :: success_t | error_t
 
   def request(http_method, url, data, headers, client) do
     config = client.config
