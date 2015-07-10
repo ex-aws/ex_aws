@@ -151,9 +151,12 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, "/")
   end
 
-  def put_bucket_policy(client, bucket, _policy) do
-    raise "not yet implemented"
-    request(client, :put, bucket, "/")
+  def put_bucket_policy(client, bucket, policy) when is_binary(policy) do
+    request(client, :put, bucket, "/", resource: "policy", body: policy)
+  end
+
+  def put_bucket_policy(client, bucket, policy) do
+    put_bucket_policy(client, bucket, client.config.json_codec.encode!(policy))
   end
 
   def put_bucket_logging(client, bucket, _logging_config) do
@@ -298,9 +301,8 @@ defmodule ExAws.S3.Impl do
     resp
   end
 
-  def put_object_acl(client, bucket, object, _acl) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def put_object_acl(client, bucket, object, acl) do
+    request(client, :get, bucket, object, headers: format_acl_headers(acl))
   end
 
   @amz_headers ~w(
