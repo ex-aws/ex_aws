@@ -26,7 +26,6 @@ defmodule ExAws.S3Test do
       headers: %{
         "content-encoding" => "application/json",
         "x-amz-acl" => "public-read",
-        "x-amz-grant-read" => "emailAddress=\"foo@bar.com\", id=\"foo-id\"",
         "x-amz-server-side-encryption" => "AES256",
         "x-amz-storage-class" => "spicy"},
       path: "object.json"}
@@ -34,7 +33,6 @@ defmodule ExAws.S3Test do
     assert expected == S3.put_object("bucket", "object.json", "data",
       content_encoding: "application/json",
       storage_class: "spicy",
-      grant_read: [email: "foo@bar.com", id: "foo-id"],
       acl: :public_read, #ordinarily you wouldn't do both this and the grant_read but it's just for testing
       encryption: "AES256"
     )

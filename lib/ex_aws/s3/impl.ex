@@ -120,9 +120,10 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, "/", resource: "uploads", params: params)
   end
 
-  @headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
-  def put_bucket(client, bucket, region, grants \\ %{}) do
-    headers = grants |> format_grant_headers(@headers)
+  def put_bucket(client, bucket, region, opts \\ []) do
+    headers = opts
+    |> Enum.into(%{})
+    |> format_acl_headers
 
     body = """
     <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
@@ -132,11 +133,8 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, "/", body: body, headers: headers)
   end
 
-  @headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
   def put_bucket_acl(client, bucket, grants) do
-    headers = grants |> format_grant_headers(@headers)
-
-    request(client, :put, bucket, "/", headers: headers)
+    request(client, :put, bucket, "/", headers: format_acl_headers(grants))
   end
 
   def put_bucket_cors(client, bucket, cors_rules) do
@@ -271,7 +269,6 @@ defmodule ExAws.S3.Impl do
   @headers [:cache_control, :content_disposition, :content_encoding, :content_length, :content_type,
     :expect, :expires]
   @amz_headers [:storage_class, :website_redirect_location]
-  @acl_headers [:grant_read, :grant_read_acp, :grant_write_acp, :grant_full_control]
   def put_object(client, bucket, object, body, opts \\ []) do
     opts = opts |> Enum.into(%{})
 
@@ -282,22 +279,15 @@ defmodule ExAws.S3.Impl do
     |> format_and_take(@amz_headers)
     |> namespace("x-amz")
 
-    acl_headers = opts
-    |> format_grant_headers(@acl_headers)
+    acl_headers = format_acl_headers(opts)
 
     encryption_headers = opts
     |> Map.get(:encryption, %{})
     |> build_encryption_headers
 
-    canned_acl = case Map.get(opts, :acl) do
-      nil -> %{}
-      value -> %{"x-amz-acl" => normalize_param(value)}
-    end
-
     headers = regular_headers
     |> Map.merge(amz_headers)
     |> Map.merge(acl_headers)
-    |> Map.merge(canned_acl)
     |> Map.merge(encryption_headers)
 
     request(client, :put, bucket, object, body: body, headers: headers)
@@ -313,9 +303,32 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, dest_bucket, dest_object)
+  @amz_headers ~w(
+    metadata_directive
+    copy_source_if_modified_since
+    copy_source_if_unmodified_since
+    copy_source_if_match
+    copy_source_if_none_match
+    storage_class
+    website_redirect_location)a
+  @acl_headers ~w(
+    grant_read
+    grant_read_acp
+    grant_write_acp
+    grant_full_control)a
+  def put_object_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
+    opts = opts |> Enum.into(%{})
+
+    amz_headers = opts
+    |> format_and_take(@amz_headers)
+    |> namespace("x-amz")
+
+    headers = opts
+    |> format_acl_headers
+    |> Map.merge(amz_headers)
+    |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
+
+    request(client, :get, dest_bucket, dest_object, headers: headers)
   end
 
   def initiate_multipart_upload(client, bucket, object, _opts \\ []) do

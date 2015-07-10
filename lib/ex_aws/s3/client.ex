@@ -46,6 +46,27 @@ defmodule ExAws.S3.Client do
   and then the configuration of a particular client is merged in and overrides the defaults.
   """
 
+  # Common general types
+  @type acl_opts :: canned_acl | grant
+  @type canned_acl :: :private
+    | :public_read
+    | :public_read_write
+    | :authenticated_read
+    | :bucket_owner_read
+    | :bucket_owner_full_control
+  @type grant :: [ {:email, binary}
+    | {:id, binary}
+    | {:uri, binary}
+  ]
+
+  @type customer_encryption_opts :: [
+    customer_algorithm: binary,
+    customer_key: binary,
+    customer_key_md5: binary]
+  @type encryption_opts :: binary
+    | [aws_kms_key_id: binary]
+    | customer_encryption_opts
+
   ## Bucket functions
 
   # Delete
@@ -145,7 +166,7 @@ defmodule ExAws.S3.Client do
   defcallback put_bucket(bucket :: binary, region :: binary) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket bucket access control"
-  defcallback put_bucket_acl(bucket :: binary, grants :: %{}) :: ExAws.Request.response_t
+  defcallback put_bucket_acl(bucket :: binary, opts :: acl_opts) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket CORS policy"
   defcallback put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Request.response_t
@@ -190,7 +211,6 @@ defmodule ExAws.S3.Client do
     bucket  :: binary,
     objects :: [binary | {binary, binary}, ...]):: ExAws.Request.response_t
 
-  @type customer_encryption_opts :: [customer_algorithm: binary, customer_key: binary, customer_key_md5: binary]
   @type get_object_response_opts :: [
     {:content_language, binary}
     | {:expires, binary}
@@ -255,17 +275,6 @@ defmodule ExAws.S3.Client do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
-  @type canned_acl :: :private
-    | :public_read
-    | :public_read_write
-    | :authenticated_read
-    | :bucket_owner_read
-    | :bucket_owner_full_control
-  @type grant :: [ {:email, binary}
-    | {:id, binary}
-    | {:uri, binary}
-  ]
-  @type encryption_opts :: binary | [aws_kms_key_id: binary] | customer_encryption_opts
   @type put_object_opts :: [ {:cache_control, binary}
     | {:content_disposition, binary}
     | {:content_encoding, binary}
@@ -293,6 +302,23 @@ defmodule ExAws.S3.Client do
   @doc "Create or update an object's access control FIXME"
   defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
 
+  @type pub_object_copy_opts :: [
+    {:metadata_directive, :copy | :replace}
+    | {:copy_source_if_modified_since, binary}
+    | {:copy_source_if_unmodified_since, binary}
+    | {:copy_source_if_match, binary}
+    | {:copy_source_if_none_match, binary}
+    | {:storage_class, :standard, :redunced_redundancy}
+    | {:website_redirect_location, binary}
+    | {:destination_encryption, encryption_opts}
+    | {:source_encryption, customer_encryption_opts}
+    | {:acl, canned_acl}
+    | {:grant_read, grant}
+    | {:grant_read_acp, grant}
+    | {:grant_write_acp, grant}
+    | {:grant_full_control, grant}
+  ]
+
   @doc "Copy an object"
   defcallback put_object_copy(
     dest_bucket :: binary,
@@ -304,7 +330,7 @@ defmodule ExAws.S3.Client do
     dest_object :: binary,
     src_bucket  :: binary,
     src_object  :: binary,
-    opts        :: %{}) :: ExAws.Request.response_t
+    opts        :: pub_object_copy_opts) :: ExAws.Request.response_t
 
   @doc "Initiate a multipart upload"
   defcallback initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Request.response_t

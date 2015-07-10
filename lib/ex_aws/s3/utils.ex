@@ -23,9 +23,15 @@ defmodule ExAws.S3.Utils do
     |> format_and_take(param_list)
   end
 
-  def format_grant_headers(grants, headers) do
+  @acl_headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
+  def format_acl_headers(%{acl: canned_acl}) do
+    %{"x-amz-acl" => normalize_param(canned_acl)}
+  end
+  def format_acl_headers(grants), do: format_grant_headers(grants)
+
+  def format_grant_headers(grants) do
     grants
-    |> format_and_take(headers)
+    |> format_and_take(@acl_headers)
     |> namespace("x-amz")
     |> Enum.into(%{}, &format_grant_header/1)
   end

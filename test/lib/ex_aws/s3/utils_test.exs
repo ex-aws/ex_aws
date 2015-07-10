@@ -17,9 +17,8 @@ defmodule ExAws.S3.ImplTest do
   end
 
   test "format_grant_headers/2" do
-    headers = [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
     grants = [grant_read: [email: "foo@bar.com", id: "fake_id"]]
-    assert grants |> Utils.format_grant_headers(headers) ==
+    assert grants |> Utils.format_acl_headers ==
       %{"x-amz-grant-read" => "emailAddress=\"foo@bar.com\", id=\"fake_id\""}
   end
 
