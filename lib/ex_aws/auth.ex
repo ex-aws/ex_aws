@@ -100,7 +100,7 @@ defmodule ExAws.Auth do
 
     [
       http_method, "\n",
-      uri.path, "\n",
+      uri.path |> URI.encode(&valid_path_char?/1), "\n",
       query_params, "\n",
       header_string, "\n",
       "\n",

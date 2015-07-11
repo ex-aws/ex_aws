@@ -6,6 +6,10 @@ defmodule ExAws.Auth.Utils do
     |> String.replace(":", "")
   end
 
+  def valid_path_char?(c) do
+    !(c in ':@')
+  end
+
   def hash_sha256(data) do
     :sha256
     |> :crypto.hash(data)
