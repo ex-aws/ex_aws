@@ -1,11 +1,4 @@
 defmodule ExAws.Auth.Utils do
-  def amz_date(now) do
-    now
-    |> Timex.DateFormat.format!("{ISOz}")
-    |> String.replace("-", "")
-    |> String.replace(":", "")
-  end
-
   def valid_path_char?(?/), do: true
   def valid_path_char?(c) do
     !URI.char_reserved?(c)
@@ -34,4 +27,21 @@ defmodule ExAws.Auth.Utils do
     |> Atom.to_string
     |> String.upcase
   end
+
+  def amz_date({date, time}) do
+    date = date |> quasi_iso_format
+    time = time |> quasi_iso_format
+
+    [date, "T", time, "Z"]
+    |> IO.iodata_to_binary
+  end
+
+  def quasi_iso_format({y, m, d}) do
+    [y, m, d]
+    |> Enum.map(&Integer.to_string/1)
+    |> Enum.map(&zero_pad/1)
+  end
+
+  defp zero_pad(<<_>> = val), do: "0" <> val
+  defp zero_pad(val), do: val
 end

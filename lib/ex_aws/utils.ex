@@ -47,4 +47,29 @@ defmodule ExAws.Utils do
   def upcase(value) when is_binary(value) do
     String.upcase(value)
   end
+
+  @seconds_0_to_1970 :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
+
+  def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">>) do
+    <<year::binary-4, "-", mon::binary-2, "-", day::binary-2>> = date
+    <<hour::binary-2, ":", min::binary-2, ":", sec::binary-2>> = time
+    year = year |> String.to_integer
+    mon  = mon  |> String.to_integer
+    day  = day  |> String.to_integer
+    hour = hour |> String.to_integer
+    min  = min  |> String.to_integer
+    sec  = sec  |> String.to_integer
+
+    # Seriously? Gregorian seconds but not epoch seconds?
+    greg_secs = :calendar.datetime_to_gregorian_seconds({{year, mon, day}, {hour, min, sec}})
+    greg_secs - @seconds_0_to_1970
+  end
+
+  def now_in_seconds do
+    greg_secs = :os.timestamp
+    |> :calendar.now_to_universal_time
+    |> :calendar.datetime_to_gregorian_seconds
+
+    greg_secs - @seconds_0_to_1970
+  end
 end
