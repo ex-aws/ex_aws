@@ -25,7 +25,7 @@ If you wish to use instance roles to obtain AWS access keys you will need to add
 ```elixir
 def deps do
   [
-    ex_aws:    "~> 0.4.2",
+    ex_aws:    "~> 0.4.3",
     poison:    "~> 1.2.0",
     httpoison: "~> 0.7.0"
   ]
