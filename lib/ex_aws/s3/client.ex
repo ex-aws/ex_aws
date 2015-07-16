@@ -332,6 +332,19 @@ defmodule ExAws.S3.Client do
     src_object  :: binary,
     opts        :: pub_object_copy_opts) :: ExAws.Request.response_t
 
+  @doc "Same as put_object_copy but raise on error"
+  defcallback put_object_copy!(
+    dest_bucket :: binary,
+    dest_object :: binary,
+    src_bucket  :: binary,
+    src_object  :: binary) :: ExAws.Request.response_t
+  defcallback put_object_copy!(
+    dest_bucket :: binary,
+    dest_object :: binary,
+    src_bucket  :: binary,
+    src_object  :: binary,
+    opts        :: pub_object_copy_opts) :: ExAws.Request.response_t
+
   @doc "Initiate a multipart upload"
   defcallback initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Request.response_t
   defcallback initiate_multipart_upload(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t

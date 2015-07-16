@@ -333,8 +333,13 @@ defmodule ExAws.S3.Impl do
     request(client, :get, dest_bucket, dest_object, headers: headers)
   end
 
+  def put_object_copy!(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
+    {:ok, resp} = put_object_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts)
+    resp
+  end
+
   def initiate_multipart_upload(client, bucket, object, _opts \\ []) do
-  
+    raise "not yet implemented"
     request(client, :get, bucket, object, resource: "uploads")
   end
 
