@@ -2,11 +2,6 @@ defmodule ExAws.Dynamo.EncoderTest do
   use ExUnit.Case, async: true
   alias ExAws.Dynamo.Encoder
 
-  test "encoding works with derived structs" do
-    assert %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
-    |> Encoder.encode
-  end
-
   test "Encoder converts numbers to binaries" do
     assert Encoder.encode(34) == %{"N" => "34"}
   end
@@ -14,6 +9,11 @@ defmodule ExAws.Dynamo.EncoderTest do
   test "Encoder can handle map values" do
     result = %{foo: 1, bar: %{baz: 2, zounds: "asdf"}} |> Encoder.encode
     assert %{"M" => %{"bar" => %{"M" => %{"baz" => %{"N" => "2"}, "zounds" => %{"S" => "asdf"}}}, "foo" => %{"N" => "1"}}} == result
+  end
+
+  test "Encoder handles hashdicts" do
+    dict = %{foo: 1, bar: 2} |> Enum.into(HashDict.new)
+    assert dict |> Encoder.encode == %{"M" => %{"bar" => %{"N" => "2"}, "foo" => %{"N" => "1"}}}
   end
 
   test "Encoder can handle floats" do
@@ -27,7 +27,9 @@ defmodule ExAws.Dynamo.EncoderTest do
   end
 
   test "encoder handles lists properly" do
-    %{"NS" => ["3", ["2", ["1", []]]]}
+    assert ["foo", "bar"] |> Encoder.encode == %{"SS" => ["foo", "bar"]}
+    assert [1, 2] |> Encoder.encode == %{"NS" => ["1", "2"]}
+    assert ["foo", 1] |> Encoder.encode == %{"L" => [%{"S" => "foo"}, %{"N" => "1"}]}
   end
 
   test "encoder is idempotent" do

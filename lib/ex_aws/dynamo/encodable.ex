@@ -24,24 +24,33 @@ defimpl ExAws.Dynamo.Encodable, for: Float do
   end
 end
 
-defimpl ExAws.Dynamo.Encodable, for: [Map, HashDict] do
+defimpl ExAws.Dynamo.Encodable, for: HashDict do
+  def encode(hashdict) do
+    %{"M" => ExAws.Dynamo.Encodable.Map.do_encode(hashdict)}
+  end
+end
+
+defimpl ExAws.Dynamo.Encodable, for: Map do
   def encode(%{__struct__: _} = struct) do
-    %{"M" => val} = struct
+    struct
     |> Map.from_struct
-    |> encode
-    val
+    |> do_encode
   end
   def encode(map) do
-    map = Enum.reduce(map, %{}, fn
+    %{"M" => do_encode(map)}
+  end
+
+  def do_encode(dict) do
+    Enum.reduce(dict, %{}, fn
       ({_, nil}, map) -> map
       ({_, []}, map)  -> map
+
       ({k, v}, map) when is_binary(k) ->
         Map.put(map, k, ExAws.Dynamo.Encodable.encode(v))
       ({k, v}, map)   ->
         key = String.Chars.to_string(k)
         Map.put(map, key, ExAws.Dynamo.Encodable.encode(v))
     end)
-    %{"M" => map}
   end
 end
 
@@ -69,10 +78,11 @@ defimpl ExAws.Dynamo.Encodable, for: List do
     typed_values = list
     |> Enum.map(&Encodable.encode/1)
 
-    {types, values} = Enum.reduce(typed_values, {[], []}, fn(item, {types, values}) ->
-      {type, value} = item
+    {types, values} = Enum.reduce(list, {[], []}, fn(item, {types, values}) ->
+      [{type, value}] = item
+      |> Encodable.encode
       |> Map.to_list
-      |> hd
+
       {[type | types], [value | values]}
     end)
 
