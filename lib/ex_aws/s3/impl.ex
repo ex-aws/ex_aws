@@ -330,7 +330,7 @@ defmodule ExAws.S3.Impl do
     |> Map.merge(amz_headers)
     |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
 
-    request(client, :get, dest_bucket, dest_object, headers: headers)
+    request(client, :put, dest_bucket, dest_object, headers: headers)
   end
 
   def put_object_copy!(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
