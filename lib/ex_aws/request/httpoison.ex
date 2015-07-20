@@ -30,7 +30,7 @@ defmodule ExAws.Request.HTTPoison do
     hackney: [recv_timeout: @default_timeout]
   ]
 
-  def request(method, url, body, headers) do
+  def request(method, url, body \\ "", headers \\ []) do
     opts = Application.get_env(:ex_aws, :httpoison_opts, @default_opts)
     HTTPoison.request(method, url, body, headers, opts)
   end
