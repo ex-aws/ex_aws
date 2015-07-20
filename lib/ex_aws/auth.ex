@@ -10,6 +10,7 @@ defmodule ExAws.Auth do
       {"x-amz-date", amz_date(now)} |
       headers
     ]
+    |> handle_temp_credentials(config)
 
     auth_header = auth_header(
       config[:access_key_id],
@@ -23,7 +24,6 @@ defmodule ExAws.Auth do
       now)
 
     [{"Authorization", auth_header} | headers ]
-    |> handle_temp_credentials(config)
   end
 
   def handle_temp_credentials(headers, %{security_token: token}) do
