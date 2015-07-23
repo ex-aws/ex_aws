@@ -275,9 +275,18 @@ defmodule ExAws.S3.Impl do
     request(client, :options, bucket, object, headers: headers)
   end
 
-  def post_object_restore(client, bucket, object, _version_id, _number_of_days) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def post_object_restore(client, bucket, object, number_of_days, opts \\ []) do
+    params = opts
+    |> Enum.into(%{}, fn {:version_id, version} ->
+      {"versionId", version}
+    end)
+
+    body = """
+    <RestoreRequest xmlns="http://s3.amazonaws.com/doc/2006-3-01">
+      <Days>#{number_of_days}</Days>
+    </RestoreRequest>
+    """
+    request(client, :post, bucket, object, resource: "restore", params: params, body: body)
   end
 
   def put_object(client, bucket, object, body, opts \\ []) do

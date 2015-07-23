@@ -72,4 +72,11 @@ defmodule ExAws.S3Test do
     assert expected == S3.delete_multiple_objects("bucket", ["foo", {"bar", "v1"}])
   end
 
+  test "#post_object_restore" do
+    expected = %{body: "<RestoreRequest xmlns=\"http://s3.amazonaws.com/doc/2006-3-01\">\n  <Days>5</Days>\n</RestoreRequest>\n",
+      bucket: "bucket", params: %{"versionId" => 123}, path: "object",
+      resource: "restore"}
+    assert expected == S3.post_object_restore("bucket", "object", 5, version_id: 123)
+  end
+
 end
