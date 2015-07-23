@@ -10,9 +10,10 @@ defmodule ExAws.S3.Utils do
     param_list
     |> Enum.map(&{&1, normalize_param(&1)})
     |> Enum.reduce(%{}, fn({elixir_opt, aws_opt}, params) ->
-      case Map.get(opts, elixir_opt) do
-        nil   -> params
-        value -> Map.put(params, aws_opt, value)
+      case Map.fetch(opts, elixir_opt) do
+        :error       -> params
+        {:ok, nil}   -> params
+        {:ok, value} -> Map.put(params, aws_opt, value)
       end
     end)
   end
@@ -60,14 +61,15 @@ defmodule ExAws.S3.Utils do
       |> Map.get(key, [])
       |> Enum.map(&("<#{property}>#{&1}</#{property}>"))
     end)
-    |> IO.iodata_to_binary
 
-    properties = case Map.get(rule, :max_age_seconds) do
-      nil -> properties
-      value -> "<MaxAgeSeconds>#{value}</MaxAgeSeconds>" <> properties
+    properties = case Map.fetch(rule, :max_age_seconds) do
+      :error       -> properties
+      {:ok, nil}   -> properties
+      {:ok, value} -> ["<MaxAgeSeconds>#{value}</MaxAgeSeconds>" | properties]
     end
 
-    "<CORSRule>#{properties}</CORSRule>"
+    ["<CORSRule>", properties, "</CORSRule>"]
+    |> IO.iodata_to_binary
   end
 
   def normalize_param(param) when is_atom(param) do

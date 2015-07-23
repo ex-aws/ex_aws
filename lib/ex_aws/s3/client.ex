@@ -47,14 +47,18 @@ defmodule ExAws.S3.Client do
   """
 
   # Common general types
-  @type acl_opts :: canned_acl | grant
+  @type acl_opts :: [{:acl, canned_acl} | grant]
+  @type grant :: {:grant_read, grantee}
+    | {:grant_read_acp, grantee}
+    | {:grant_write_acp, grantee}
+    | {:grant_full_control, grantee}
   @type canned_acl :: :private
     | :public_read
     | :public_read_write
     | :authenticated_read
     | :bucket_owner_read
     | :bucket_owner_full_control
-  @type grant :: [ {:email, binary}
+  @type grantee :: [ {:email, binary}
     | {:id, binary}
     | {:uri, binary}
   ]
@@ -108,8 +112,8 @@ defmodule ExAws.S3.Client do
   defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
 
   @doc "Same as list_objects/1,2 but returns the result and raises on failure."
-  defcallback list_objects!(bucket :: binary) :: ExAws.Request.response_t
-  defcallback list_objects!(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
+  defcallback list_objects!(bucket :: binary) :: ExAws.Request.success_content
+  defcallback list_objects!(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.success_content
 
   @doc "Stream list of objects in bucket"
   defcallback stream_objects!(bucket :: binary) :: Enumerable.t
@@ -189,8 +193,8 @@ defmodule ExAws.S3.Client do
   @doc "Update or create a bucket tagging configuration"
   defcallback put_bucket_tagging(bucket :: binary, tags :: %{}) :: ExAws.Request.response_t
 
-  @doc "Update or create a bucket requestpayment configuration"
-  defcallback put_bucket_requestpayment(bucket :: binary, payer :: :requester | :bucket_owner) :: ExAws.Request.response_t
+  @doc "Update or create a bucket requestPayment configuration"
+  defcallback put_bucket_request_payment(bucket :: binary, payer :: :requester | :bucket_owner) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket versioning configuration"
   defcallback put_bucket_versioning(bucket :: binary, version_config :: binary) :: ExAws.Request.response_t
@@ -204,7 +208,7 @@ defmodule ExAws.S3.Client do
   defcallback delete_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
 
   @doc "Same as delete_object/2 but returns just the response or raises on error"
-  defcallback delete_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+  defcallback delete_object!(bucket :: binary, object :: binary) :: ExAws.Request.success_content
 
   @doc "Delete multiple objects within a bucket"
   defcallback delete_multiple_objects(
@@ -232,8 +236,8 @@ defmodule ExAws.S3.Client do
   defcallback get_object(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
 
   @doc "Same as get_object/2,3 but returns just the response or raises on error"
-  defcallback get_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback get_object!(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
+  defcallback get_object!(bucket :: binary, object :: binary) :: ExAws.Request.success_content
+  defcallback get_object!(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.success_content
 
   @doc "Get an object's access control policy"
   defcallback get_object_acl(bucket :: binary, object :: binary) :: ExAws.Request.response_t
@@ -259,15 +263,6 @@ defmodule ExAws.S3.Client do
     request_method  :: atom,
     request_headers :: [binary, ...]) :: ExAws.Request.response_t
 
-  @doc """
-  Create an object within a bucket.
-
-  Generally speaking put_object ought to be used. AWS POST object exists to
-  support the AWS UI.
-  """
-  defcallback post_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback post_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
-
   @doc "Restore an object to a particular version FIXME"
   defcallback post_object_restore(
     bucket         :: binary,
@@ -284,23 +279,22 @@ defmodule ExAws.S3.Client do
     | {:expires, binary}
     | {:storage_class, binary}
     | {:website_redirect_location, binary}
-    | {:grant_read, grant}
-    | {:grant_read_acp, grant}
-    | {:grant_write_acp, grant}
-    | {:grant_full_control, grant}
-    | {:acl, canned_acl}
     | {:encryption, encryption_opts}
+    | acl_opts
   ]
   @doc "Create an object within a bucket"
   defcallback put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
   defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
 
   @doc "Same as put_object/2 but returns just the response or raises on error"
-  defcallback put_object!(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
-  defcallback put_object!(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.success_content
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.success_content
 
   @doc "Create or update an object's access control FIXME"
-  defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
+  defcallback put_object_acl(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Request.response_t
+
+  @doc "Same as put_object_acl/3 but raise on error"
+  defcallback put_object_acl!(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Request.success_content
 
   @type pub_object_copy_opts :: [
     {:metadata_directive, :copy | :replace}
@@ -312,11 +306,7 @@ defmodule ExAws.S3.Client do
     | {:website_redirect_location, binary}
     | {:destination_encryption, encryption_opts}
     | {:source_encryption, customer_encryption_opts}
-    | {:acl, canned_acl}
-    | {:grant_read, grant}
-    | {:grant_read_acp, grant}
-    | {:grant_write_acp, grant}
-    | {:grant_full_control, grant}
+    | acl_opts
   ]
 
   @doc "Copy an object"
@@ -337,17 +327,28 @@ defmodule ExAws.S3.Client do
     dest_bucket :: binary,
     dest_object :: binary,
     src_bucket  :: binary,
-    src_object  :: binary) :: ExAws.Request.response_t
+    src_object  :: binary) :: ExAws.Request.success_content
   defcallback put_object_copy!(
     dest_bucket :: binary,
     dest_object :: binary,
     src_bucket  :: binary,
     src_object  :: binary,
-    opts        :: pub_object_copy_opts) :: ExAws.Request.response_t
+    opts        :: pub_object_copy_opts) :: ExAws.Request.success_content
+
+  @type initiate_multipart_upload_opts :: [ {:cache_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+    | {:content_type, binary}
+    | {:expires, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
+    | {:website_redirect_location, binary}
+    | {:encryption, encryption_opts}
+    | acl_opts
+  ]
 
   @doc "Initiate a multipart upload"
   defcallback initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback initiate_multipart_upload(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback initiate_multipart_upload(bucket :: binary, object :: binary, opts :: initiate_multipart_upload_opts) :: ExAws.Request.response_t
 
   @doc "Upload a part for a multipart upload"
   defcallback upload_part(

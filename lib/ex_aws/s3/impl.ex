@@ -179,7 +179,7 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, "/")
   end
 
-  def put_bucket_requestpayment(client, bucket, _payer) do
+  def put_bucket_request_payment(client, bucket, _payer) do
     raise "not yet implemented"
     request(client, :put, bucket, "/")
   end
@@ -259,11 +259,6 @@ defmodule ExAws.S3.Impl do
     request(client, :options, bucket, object, headers: headers)
   end
 
-  def post_object(client, bucket, object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
-  end
-
   def post_object_restore(client, bucket, object, _version_id, _number_of_days) do
     raise "not yet implemented"
     request(client, :get, bucket, object)
@@ -302,7 +297,13 @@ defmodule ExAws.S3.Impl do
   end
 
   def put_object_acl(client, bucket, object, acl) do
-    request(client, :get, bucket, object, headers: format_acl_headers(acl))
+    headers = acl |> Enum.into(%{}) |> format_acl_headers
+    request(client, :put, bucket, object, headers: headers, resource: "acl")
+  end
+
+  def put_object_acl!(client, bucket, object, acl) do
+    {:ok, result} = put_object_acl(client, bucket, object, acl)
+    result
   end
 
   @amz_headers ~w(
@@ -313,11 +314,6 @@ defmodule ExAws.S3.Impl do
     copy_source_if_none_match
     storage_class
     website_redirect_location)a
-  @acl_headers ~w(
-    grant_read
-    grant_read_acp
-    grant_write_acp
-    grant_full_control)a
   def put_object_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
     opts = opts |> Enum.into(%{})
 
