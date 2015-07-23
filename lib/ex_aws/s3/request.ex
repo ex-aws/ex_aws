@@ -24,11 +24,8 @@ defmodule ExAws.S3.Request do
   end
 
   def url(%{scheme: scheme, host: host}, bucket, path) do
-    [
-      scheme,
-      host_and_bucket(host, bucket),
-      path   |> ensure_slash
-    ] |> IO.iodata_to_binary
+    [ scheme, host_and_bucket(host, bucket), ensure_slash(path) ]
+    |> IO.iodata_to_binary
   end
 
   def add_query(url, "", ""),          do: url

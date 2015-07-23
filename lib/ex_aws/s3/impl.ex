@@ -298,11 +298,22 @@ defmodule ExAws.S3.Impl do
     |> format_and_take(@amz_headers)
     |> namespace("x-amz")
 
+    source_encryption = opts
+    |> Map.get(:source_encryption, %{})
+    |> build_encryption_headers
+    |> Enum.into(%{}, fn {<<"x-amz", k :: binary>>, v} ->
+      {"x-amz-copy-source" <> k, v}
+    end)
+
+    destination_encryption = opts
+    |> Map.get(:destination_encryption, %{})
+    |> build_encryption_headers
+
     headers = opts
     |> format_acl_headers
     |> Map.merge(amz_headers)
-    |> Map.merge(opts |> Map.get(:source_encryption, %{}) |> build_encryption_headers)
-    |> Map.merge(opts |> Map.get(:destination_encryption, %{}) |> build_encryption_headers)
+    |> Map.merge(source_encryption)
+    |> Map.merge(destination_encryption)
     |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
 
     request(client, :put, dest_bucket, dest_object, headers: headers)
@@ -322,9 +333,38 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, object, params: params)
   end
 
-  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :put, dest_bucket, dest_object)
+  @amz_headers ~w(
+    copy_source_if_modified_since
+    copy_source_if_unmodified_since
+    copy_source_if_match
+    copy_source_if_none_match)a
+  def upload_part_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
+    opts = opts |> Enum.into(%{})
+
+    source_encryption = opts
+    |> Map.get(:source_encryption, %{})
+    |> build_encryption_headers
+    |> Enum.into(%{}, fn {<<"x-amz", k :: binary>>, v} ->
+      {"x-amz-copy-source" <> k, v}
+    end)
+
+    destination_encryption = opts
+    |> Map.get(:destination_encryption, %{})
+    |> build_encryption_headers
+
+    headers = opts
+    |> format_and_take(@amz_headers)
+    |> namespace("x-amz")
+    |> Map.merge(source_encryption)
+    |> Map.merge(destination_encryption)
+
+    headers = case opts do
+      %{copy_source_range: first..last} -> Map.put(headers, "x-amz-copy-source-range", "bytes=#{first}-#{last}")
+      _ -> headers
+    end
+    |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
+
+    request(client, :put, dest_bucket, dest_object, headers: headers)
   end
 
   def complete_multipart_upload(client, bucket, object, upload_id, parts) do

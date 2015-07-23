@@ -42,9 +42,10 @@ defmodule ExAws.S3Test do
     expected = %{bucket: "dest-bucket",
       headers: %{"x-amz-acl" => "public-read",
         "x-amz-copy-source" => "/src-bucket/src-object",
-        "x-amz-server-side-encryption-customer-algorithm" => "md5"},
+        "x-amz-server-side-encryption-customer-algorithm" => "md5",
+        "x-amz-copy-source-server-side-encryption-customer-algorithm" => "md5"},
       path: "dest-object"}
-    assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "src-object", source_encryption: [customer_algorithm: "md5"], acl: :public_read)
+    assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "src-object", source_encryption: [customer_algorithm: "md5"], acl: :public_read, destination_encryption: [customer_algorithm: "md5"])
   end
 
   test "#complete_multipart_upload" do
@@ -52,6 +53,16 @@ defmodule ExAws.S3Test do
       body: "<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag>foo</ETag></Part><Part><PartNumber>2</PartNumber><ETag>bar</ETag></Part></CompleteMultipartUpload>",
       bucket: "bucket", params: %{"uploadId" => "upload-id"}, path: "object"}
     assert expected == S3.complete_multipart_upload("bucket", "object", "upload-id", %{1 => "foo", 2 => "bar"})
+  end
+
+  test "#upload_part_copy" do
+    expected = %{bucket: "dest-bucket",
+      headers: %{"x-amz-copy-source" => "/src-bucket/src-object",
+        "x-amz-copy-source-range" => "bytes=1-9",
+        "x-amz-copy-source-server-side-encryption-customer-algorithm" => "md5"},
+      path: "dest-object"}
+
+    assert expected == S3.upload_part_copy("dest-bucket", "dest-object", "src-bucket", "src-object", source_encryption: [customer_algorithm: "md5"], copy_source_range: 1..9)
   end
 
 end

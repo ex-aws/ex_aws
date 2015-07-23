@@ -363,6 +363,16 @@ defmodule ExAws.S3.Client do
     part_number :: pos_integer,
     opts :: [encryption_opts | {:expect, binary}]) :: ExAws.Request.response_t
 
+  @type upload_part_copy_opts :: [
+    {:copy_source_range, Range.t}
+    | {:copy_source_if_modified_since, binary}
+    | {:copy_source_if_unmodified_since, binary}
+    | {:copy_source_if_match, binary}
+    | {:copy_source_if_none_match, binary}
+    | {:destination_encryption, encryption_opts}
+    | {:source_encryption, customer_encryption_opts}
+  ]
+
   @doc "Upload a part for a multipart copy"
   defcallback upload_part_copy(
     dest_bucket :: binary,
@@ -374,7 +384,7 @@ defmodule ExAws.S3.Client do
     dest_object :: binary,
     src_bucket  :: binary,
     src_object  :: binary,
-    opts        :: %{}) :: ExAws.Request.response_t
+    opts        :: upload_part_copy_opts) :: ExAws.Request.response_t
 
   @doc "Complete a multipart upload"
   defcallback complete_multipart_upload(
