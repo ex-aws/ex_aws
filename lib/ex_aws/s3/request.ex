@@ -17,6 +17,7 @@ defmodule ExAws.S3.Request do
 
     headers = headers
     |> Map.put("x-amz-content-sha256", hashed_payload)
+    |> Map.put("content-length", byte_size(body))
     |> Map.to_list
 
     ExAws.Request.request(http_method, url, body, headers, client)

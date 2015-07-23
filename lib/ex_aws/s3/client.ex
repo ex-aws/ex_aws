@@ -356,6 +356,12 @@ defmodule ExAws.S3.Client do
     object      :: binary,
     upload_id   :: binary,
     part_number :: pos_integer) :: ExAws.Request.response_t
+  defcallback upload_part(
+    bucket      :: binary,
+    object      :: binary,
+    upload_id   :: binary,
+    part_number :: pos_integer,
+    opts :: [encryption_opts | {:expect, binary}]) :: ExAws.Request.response_t
 
   @doc "Upload a part for a multipart copy"
   defcallback upload_part_copy(
@@ -375,7 +381,7 @@ defmodule ExAws.S3.Client do
     bucket    :: binary,
     object    :: binary,
     upload_id :: binary,
-    parts     :: %{}) :: ExAws.Request.response_t
+    parts     :: [{binary | pos_integer, binary}, ...]) :: ExAws.Request.response_t
 
   @doc "Abort a multipart upload"
   defcallback abort_multipart_upload(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t

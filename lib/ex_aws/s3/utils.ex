@@ -2,6 +2,31 @@ defmodule ExAws.S3.Utils do
   ## Formatting and helpers
   @moduledoc false
 
+  @headers [:cache_control, :content_disposition, :content_encoding, :content_length, :content_type,
+    :expect, :expires]
+  @amz_headers [:storage_class, :website_redirect_location]
+  def put_object_headers(opts) do
+    opts = opts |> Enum.into(%{})
+
+    regular_headers = opts
+    |> format_and_take(@headers)
+
+    amz_headers = opts
+    |> format_and_take(@amz_headers)
+    |> namespace("x-amz")
+
+    acl_headers = format_acl_headers(opts)
+
+    encryption_headers = opts
+    |> Map.get(:encryption, %{})
+    |> build_encryption_headers
+
+    regular_headers
+    |> Map.merge(amz_headers)
+    |> Map.merge(acl_headers)
+    |> Map.merge(encryption_headers)
+  end
+
   @doc """
   format_and_take %{param_one: "v1", param_two: "v2"}, [:param_one]
   #=> %{"param-one" => "v1"}
@@ -81,7 +106,7 @@ defmodule ExAws.S3.Utils do
 
   def namespace(list, value) do
     list
-    |> Stream.map(fn {k ,v} -> {"#{value}-#{k}", v} end)
+    |> Enum.map(fn {k ,v} -> {"#{value}-#{k}", v} end)
     |> Enum.into(%{})
   end
 
@@ -94,10 +119,9 @@ defmodule ExAws.S3.Utils do
       "x-amz-server-side-encryption-aws-kms-key-id" => key_id
     }
   end
-  def build_encryption_headers(headers = %{}) do
+  def build_encryption_headers(headers) do
     headers
-    |> Stream.map(fn {k ,v} -> {normalize_param(k), v} end)
+    |> Enum.map(fn {k ,v} -> {normalize_param(k), v} end)
     |> namespace("x-amz-server-side-encryption")
   end
-  def build_encryption_headers(val), do: val
 end

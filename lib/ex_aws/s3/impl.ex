@@ -264,31 +264,8 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  @headers [:cache_control, :content_disposition, :content_encoding, :content_length, :content_type,
-    :expect, :expires]
-  @amz_headers [:storage_class, :website_redirect_location]
   def put_object(client, bucket, object, body, opts \\ []) do
-    opts = opts |> Enum.into(%{})
-
-    regular_headers = opts
-    |> format_and_take(@headers)
-
-    amz_headers = opts
-    |> format_and_take(@amz_headers)
-    |> namespace("x-amz")
-
-    acl_headers = format_acl_headers(opts)
-
-    encryption_headers = opts
-    |> Map.get(:encryption, %{})
-    |> build_encryption_headers
-
-    headers = regular_headers
-    |> Map.merge(amz_headers)
-    |> Map.merge(acl_headers)
-    |> Map.merge(encryption_headers)
-
-    request(client, :put, bucket, object, body: body, headers: headers)
+    request(client, :put, bucket, object, body: body, headers: put_object_headers(opts))
   end
 
   def put_object!(client, bucket, object, body, opts \\ []) do
@@ -324,6 +301,8 @@ defmodule ExAws.S3.Impl do
     headers = opts
     |> format_acl_headers
     |> Map.merge(amz_headers)
+    |> Map.merge(opts |> Map.get(:source_encryption, %{}) |> build_encryption_headers)
+    |> Map.merge(opts |> Map.get(:destination_encryption, %{}) |> build_encryption_headers)
     |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
 
     request(client, :put, dest_bucket, dest_object, headers: headers)
@@ -334,29 +313,37 @@ defmodule ExAws.S3.Impl do
     resp
   end
 
-  def initiate_multipart_upload(client, bucket, object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object, resource: "uploads")
+  def initiate_multipart_upload(client, bucket, object, opts \\ []) do
+    request(client, :post, bucket, object, resource: "uploads", headers: put_object_headers(opts))
   end
 
-  def upload_part(client, bucket, object, _upload_id, _part_number) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def upload_part(client, bucket, object, upload_id, part_number, _opts \\ []) do
+    params = %{"uploadId" => upload_id, "partNumber" => part_number}
+    request(client, :put, bucket, object, params: params)
   end
 
   def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
     raise "not yet implemented"
-    request(client, :get, dest_bucket, dest_object)
+    request(client, :put, dest_bucket, dest_object)
   end
 
-  def complete_multipart_upload(client, bucket, object, _upload_id, _parts) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def complete_multipart_upload(client, bucket, object, upload_id, parts) do
+    parts_xml = parts
+    |> Enum.map(fn {part_number, etag}->
+      ["<Part>",
+        "<PartNumber>", Integer.to_string(part_number), "</PartNumber>",
+        "<ETag>", etag, "</ETag>",
+      "</Part>"]
+    end)
+
+    body = ["<CompleteMultipartUpload>", parts_xml, "</CompleteMultipartUpload>"]
+    |> IO.iodata_to_binary
+
+    request(client, :post, bucket, object, params: %{"uploadId" => upload_id}, body: body)
   end
 
-  def abort_multipart_upload(client, bucket, object, _upload_id) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def abort_multipart_upload(client, bucket, object, upload_id) do
+    request(client, :delete, bucket, object, params: %{"uploadId" => upload_id})
   end
 
   def list_parts(client, bucket, object, upload_id, opts \\ []) do

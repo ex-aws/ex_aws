@@ -33,9 +33,25 @@ defmodule ExAws.S3Test do
     assert expected == S3.put_object("bucket", "object.json", "data",
       content_encoding: "application/json",
       storage_class: "spicy",
-      acl: :public_read, #ordinarily you wouldn't do both this and the grant_read but it's just for testing
+      acl: :public_read,
       encryption: "AES256"
     )
+  end
+
+  test "#put_object_copy" do
+    expected = %{bucket: "dest-bucket",
+      headers: %{"x-amz-acl" => "public-read",
+        "x-amz-copy-source" => "/src-bucket/src-object",
+        "x-amz-server-side-encryption-customer-algorithm" => "md5"},
+      path: "dest-object"}
+    assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "src-object", source_encryption: [customer_algorithm: "md5"], acl: :public_read)
+  end
+
+  test "#complete_multipart_upload" do
+    expected = %{
+      body: "<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag>foo</ETag></Part><Part><PartNumber>2</PartNumber><ETag>bar</ETag></Part></CompleteMultipartUpload>",
+      bucket: "bucket", params: %{"uploadId" => "upload-id"}, path: "object"}
+    assert expected == S3.complete_multipart_upload("bucket", "object", "upload-id", %{1 => "foo", 2 => "bar"})
   end
 
 end
