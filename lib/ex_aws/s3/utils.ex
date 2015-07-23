@@ -21,10 +21,21 @@ defmodule ExAws.S3.Utils do
     |> Map.get(:encryption, %{})
     |> build_encryption_headers
 
+    meta = opts
+    |> Map.get(:meta)
+    |> build_meta_headers
+
     regular_headers
     |> Map.merge(amz_headers)
     |> Map.merge(acl_headers)
     |> Map.merge(encryption_headers)
+    |> Map.merge(meta)
+  end
+
+  def build_meta_headers(meta) do
+    Enum.into(meta, %{}, fn {k ,v} ->
+      {"x-amz-meta-#{k}", v}
+    end)
   end
 
   @doc """

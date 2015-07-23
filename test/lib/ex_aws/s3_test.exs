@@ -27,14 +27,16 @@ defmodule ExAws.S3Test do
         "content-encoding" => "application/json",
         "x-amz-acl" => "public-read",
         "x-amz-server-side-encryption" => "AES256",
-        "x-amz-storage-class" => "spicy"},
+        "x-amz-storage-class" => "spicy",
+        "x-amz-meta-foo" => "sqiggles"},
       path: "object.json"}
 
     assert expected == S3.put_object("bucket", "object.json", "data",
       content_encoding: "application/json",
       storage_class: "spicy",
       acl: :public_read,
-      encryption: "AES256"
+      encryption: "AES256",
+      meta: [foo: "sqiggles"]
     )
   end
 
@@ -43,9 +45,14 @@ defmodule ExAws.S3Test do
       headers: %{"x-amz-acl" => "public-read",
         "x-amz-copy-source" => "/src-bucket/src-object",
         "x-amz-server-side-encryption-customer-algorithm" => "md5",
-        "x-amz-copy-source-server-side-encryption-customer-algorithm" => "md5"},
+        "x-amz-copy-source-server-side-encryption-customer-algorithm" => "md5",
+        "x-amz-meta-foo" => "sqiggles"},
       path: "dest-object"}
-    assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "src-object", source_encryption: [customer_algorithm: "md5"], acl: :public_read, destination_encryption: [customer_algorithm: "md5"])
+    assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "src-object",
+      source_encryption: [customer_algorithm: "md5"],
+      acl: :public_read,
+      destination_encryption: [customer_algorithm: "md5"],
+      meta: [foo: "sqiggles"])
   end
 
   test "#complete_multipart_upload" do

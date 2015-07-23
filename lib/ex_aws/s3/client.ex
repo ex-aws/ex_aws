@@ -71,6 +71,8 @@ defmodule ExAws.S3.Client do
     | [aws_kms_key_id: binary]
     | customer_encryption_opts
 
+  @type amz_meta_opts :: [{atom, binary} | {binary, binary}, ...]
+
   ## Bucket functions
 
   # Delete
@@ -283,6 +285,7 @@ defmodule ExAws.S3.Client do
     | {:storage_class, binary}
     | {:website_redirect_location, binary}
     | {:encryption, encryption_opts}
+    | {:meta, amz_meta_opts}
     | acl_opts
   ]
   @doc "Create an object within a bucket"
