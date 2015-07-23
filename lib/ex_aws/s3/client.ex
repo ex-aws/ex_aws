@@ -229,12 +229,7 @@ defmodule ExAws.S3.Client do
   ]
   @type get_object_opts :: [
     {:response, get_object_response_opts}
-    | {:encryption, customer_encryption_opts}
-    | {:range, binary}
-    | {:if_modified_since, binary}
-    | {:if_unmodified_since, binary}
-    | {:if_match, binary}
-    | {:if_none_match, binary}
+    | head_object_opts
   ]
   @doc "Get an object from a bucket"
   defcallback get_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
@@ -251,9 +246,18 @@ defmodule ExAws.S3.Client do
   @doc "Get a torrent for a bucket"
   defcallback get_object_torrent(bucket :: binary, object :: binary) :: ExAws.Request.response_t
 
+  @type head_object_opts :: [
+    {:encryption, customer_encryption_opts}
+    | {:range, binary}
+    | {:if_modified_since, binary}
+    | {:if_unmodified_since, binary}
+    | {:if_match, binary}
+    | {:if_none_match, binary}
+  ]
+
   @doc "Determine of an object exists"
   defcallback head_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback head_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback head_object(bucket :: binary, object :: binary, opts :: head_object_opts) :: ExAws.Request.response_t
 
   @doc "Determine the CORS configuration for an object"
   defcallback options_object(

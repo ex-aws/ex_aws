@@ -86,4 +86,12 @@ defmodule ExAws.S3Test do
     assert expected == S3.post_object_restore("bucket", "object", 5, version_id: 123)
   end
 
+  test "#head_object" do
+    expected = %{bucket: "bucket",
+      headers: %{"x-amz-server-side-encryption-customer-algorithm" => "md5"},
+      params: %{"versionId" => 123}, path: "object"}
+
+    assert expected == S3.head_object("bucket", "object", encryption: [customer_algorithm: "md5"], version_id: 123)
+  end
+
 end

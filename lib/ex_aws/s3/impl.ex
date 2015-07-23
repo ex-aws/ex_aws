@@ -228,7 +228,6 @@ defmodule ExAws.S3.Impl do
 
   @response_params [:content_type, :content_language, :expires, :cach_control, :content_disposition, :content_encoding]
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
-  @encryption_headers [:customer_algorithm, :customer_key, :customer_key_md5]
   def get_object(client, bucket, object, opts \\ []) do
     opts = opts |> Enum.into(%{})
 
@@ -242,8 +241,7 @@ defmodule ExAws.S3.Impl do
 
     headers = opts
     |> Map.get(:encryption, %{})
-    |> format_and_take(@encryption_headers)
-    |> namespace("x-amz-server-side-encryption")
+    |> build_encryption_headers
     |> Map.merge(headers)
 
     request(client, :get, bucket, object, headers: headers, params: response_opts)
@@ -262,8 +260,23 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object, resource: "torrent")
   end
 
+  @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def head_object(client, bucket, object, opts \\ []) do
-    request(client, :head, bucket, object, headers: opts |> Enum.into(%{}))
+    opts = opts |> Enum.into(%{})
+
+    headers = opts
+    |> format_and_take(@request_headers)
+
+    headers = opts
+    |> Map.get(:encryption, %{})
+    |> build_encryption_headers
+    |> Map.merge(headers)
+
+    params = case Map.fetch(opts, :version_id) do
+      {:ok, id} -> %{"versionId" => id}
+      _ -> %{}
+    end
+    request(client, :head, bucket, object, headers: headers, params: params)
   end
 
   def options_object(client, bucket, object, origin, request_method, request_headers \\ []) do
@@ -276,10 +289,10 @@ defmodule ExAws.S3.Impl do
   end
 
   def post_object_restore(client, bucket, object, number_of_days, opts \\ []) do
-    params = opts
-    |> Enum.into(%{}, fn {:version_id, version} ->
-      {"versionId", version}
-    end)
+    params = case Keyword.fetch(opts, :version_id) do
+      {:ok, id} -> %{"versionId" => id}
+      _ -> %{}
+    end
 
     body = """
     <RestoreRequest xmlns="http://s3.amazonaws.com/doc/2006-3-01">
