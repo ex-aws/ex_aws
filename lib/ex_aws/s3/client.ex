@@ -214,6 +214,9 @@ defmodule ExAws.S3.Client do
   defcallback delete_multiple_objects(
     bucket  :: binary,
     objects :: [binary | {binary, binary}, ...]):: ExAws.Request.response_t
+  defcallback delete_multiple_objects(
+    bucket  :: binary,
+    objects :: [binary | {binary, binary}, ...], opts :: [quiet: true]):: ExAws.Request.response_t
 
   @type get_object_response_opts :: [
     {:content_language, binary}

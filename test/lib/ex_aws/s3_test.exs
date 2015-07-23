@@ -65,4 +65,11 @@ defmodule ExAws.S3Test do
     assert expected == S3.upload_part_copy("dest-bucket", "dest-object", "src-bucket", "src-object", source_encryption: [customer_algorithm: "md5"], copy_source_range: 1..9)
   end
 
+  test "#delete_multiple_objects" do
+    expected = %{body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Delete><Object><Key>foo</Key></Object><Object><Key>bar</Key><VersionId>v1</VersionId></Object></Delete>",
+      bucket: "bucket", path: "/?delete"}
+
+    assert expected == S3.delete_multiple_objects("bucket", ["foo", {"bar", "v1"}])
+  end
+
 end

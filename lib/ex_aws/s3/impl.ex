@@ -205,9 +205,25 @@ defmodule ExAws.S3.Impl do
     resp
   end
 
-  def delete_multiple_objects(client, bucket, _objects) do
-    raise "not yet implemented"
-    request(client, :post, bucket, "/?delete")
+  def delete_multiple_objects(client, bucket, objects, opts \\ []) do
+    objects_xml = Enum.map(objects, fn
+      {key, version} -> ["<Object><Key>", key, "</Key><VersionId>", version, "</VersionId></Object>"]
+      key -> ["<Object><Key>", key, "</Key></Object>"]
+    end)
+
+    quiet = case opts do
+      [quiet: true] -> "<Quiet>true</Quiet>"
+      _ -> ""
+    end
+
+    body = [
+      ~s(<?xml version="1.0" encoding="UTF-8"?>),
+      quiet,
+      "<Delete>",
+      objects_xml,
+      "</Delete>"
+    ] |> IO.iodata_to_binary
+    request(client, :post, bucket, "/?delete", body: body)
   end
 
   @response_params [:content_type, :content_language, :expires, :cach_control, :content_disposition, :content_encoding]
