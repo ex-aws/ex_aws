@@ -369,6 +369,7 @@ defmodule ExAws.S3.Impl do
 
   def initiate_multipart_upload(client, bucket, object, opts \\ []) do
     request(client, :post, bucket, object, resource: "uploads", headers: put_object_headers(opts))
+    |> Parsers.parse_initiate_multipart_upload
   end
 
   def upload_part(client, bucket, object, upload_id, part_number, _opts \\ []) do
@@ -408,6 +409,7 @@ defmodule ExAws.S3.Impl do
     |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
 
     request(client, :put, dest_bucket, dest_object, headers: headers)
+    |> Parsers.parse_upload_part_copy
   end
 
   def complete_multipart_upload(client, bucket, object, upload_id, parts) do
@@ -423,6 +425,7 @@ defmodule ExAws.S3.Impl do
     |> IO.iodata_to_binary
 
     request(client, :post, bucket, object, params: %{"uploadId" => upload_id}, body: body)
+    |> Parsers.parse_complete_multipart_upload
   end
 
   def abort_multipart_upload(client, bucket, object, upload_id) do
@@ -435,6 +438,7 @@ defmodule ExAws.S3.Impl do
     |> Map.merge(%{"uploadId" => upload_id})
 
     request(client, :get, bucket, object, params: params)
+    |> Parsers.parse_list_parts
   end
 
   defp request(%{__struct__: client_module} = client, action, bucket, path, data \\ []) do
