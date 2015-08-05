@@ -4,7 +4,6 @@ defmodule ExAws.SQS.Impl do
     request(client, "", "ListQueues", Enum.into(opts, %{}))
   end
 
-  @opts ~w()a
   def send_message(client, queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])
@@ -17,6 +16,10 @@ defmodule ExAws.SQS.Impl do
     |> Map.put("MessageBody", message)
 
     request(client, queue, "SendMessage", params)
+  end
+
+  def delete_message(client, queue, receipt_handle) do
+    request(client, queue, "DeleteMessage", %{"ReceiptHandle" => receipt_handle})
   end
 
   def receive_message(client, queue, opts \\ []) do
