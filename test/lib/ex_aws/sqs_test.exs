@@ -3,9 +3,9 @@ defmodule Test.Dummy.SQS do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
-  def request(queue_name, action, params \\ []) do
+  def request(_client, queue_name, action, params) do
     params
-    |> Enum.into(Map.new)
+    |> Enum.into(%{})
     |> Map.put(:queue_name, queue_name)
     |> Map.put(:action, action)
   end

@@ -8,7 +8,8 @@ defmodule ExAws.SQS.Impl do
   def send_message(client, queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])
-    |> build_message_attrs
+
+    attrs = attrs |> build_message_attrs
 
     params = opts
     |> format_regular_opts
@@ -33,7 +34,7 @@ defmodule ExAws.SQS.Impl do
   end
 
   defp format_regular_opts(opts) do
-    Enum.into(opts, fn {k, v} ->
+    opts |> Enum.into(%{}, fn {k, v} ->
       {format_param_key(k), v}
     end)
   end
@@ -45,7 +46,7 @@ defmodule ExAws.SQS.Impl do
   end
 
   defp build_message_attrs(%{} = attr), do: build_message_attr({attr, 0})
-  defp build_message_attrs() do
+  defp build_message_attrs(attrs) do
     attrs
     |> Enum.with_index
     |> Enum.map(&build_message_attr/1)
