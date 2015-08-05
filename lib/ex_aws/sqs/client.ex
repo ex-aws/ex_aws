@@ -50,7 +50,7 @@ defmodule ExAws.SQS.Client do
   ]
   @type sqs_message_attribute :: %{
     :name => binary,
-    :data_type => :string | :number | :binary,
+    :data_type => :string | :binary,
     :custom_type => binary | none,
     :value => binary | number
   }
@@ -71,6 +71,7 @@ defmodule ExAws.SQS.Client do
 
   @doc "Retrieves a list of all the SQS Queues"
   defcallback list_queues() :: ExAws.Request.response_t
+  defcallback list_queues(opts :: [queue_name_prefix: binary]) :: ExAws.Request.response_t
 
   @doc "Retrieves the dead letter source queues for a given SQS Queue"
   defcallback get_dead_letter_source_queues(queue_name :: binary) :: ExAws.Request.response_t
@@ -145,11 +146,11 @@ defmodule ExAws.SQS.Client do
       unquote(boilerplate)
 
       @doc false
-      def request(client, queue_name, action, params \\ []) do
+      def request(client, queue_name, action, params) do
         ExAws.SQS.Request.request(client, queue_name, action, params)
       end
 
-      defoverridable config_root: 0, request: 3, request: 4
+      defoverridable config_root: 0, request: 4
 
     end
   end
