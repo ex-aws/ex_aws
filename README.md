@@ -101,7 +101,7 @@ Consult the relevant documentation for the API of interest.
 To configure the built in clients do the following in your config.exs:
 
 ```elixir
-config :ex_aws,,
+config :ex_aws,
   region: "us-east-2",
   dynamo: [
     region: "us-west-1"
