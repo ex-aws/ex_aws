@@ -103,7 +103,7 @@ To configure the built in clients do the following in your config.exs:
 ```elixir
 config :ex_aws,
   region: "us-east-2",
-  dynamo: [
+  dynamodb: [
     region: "us-west-1"
   ]
 ```
@@ -161,11 +161,11 @@ To configure:
 
 ```elixir
 config :my_ex_aws,
-  dynamo: [] # Dynamo config here
+  dynamodb: [] # Dynamo config here
 
 config :my_other_ex_aws,
   json_codec: ExAws.JSON.JSX # Maybe :my_other_app uses jsx
-  dynamo: [] # Other Dynamo config here
+  dynamodb: [] # Other Dynamo config here
 ```
 
 ## ExAws vs. Erlcloud
