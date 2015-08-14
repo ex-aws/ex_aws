@@ -101,8 +101,8 @@ Consult the relevant documentation for the API of interest.
 To configure the built in clients do the following in your config.exs:
 
 ```elixir
-config, :ex_aws,
-  region: "us-east-2"
+config :ex_aws,,
+  region: "us-east-2",
   dynamo: [
     region: "us-west-1"
   ]
@@ -130,11 +130,11 @@ end
 To configure:
 ```elixir
 config :my_app, :ex_aws,
-  dynamo: [] # Dynamo config here
+  dynamodb: [] # Dynamo config here
 
 config :my_other_app, :ex_aws,
   json_codec: ExAws.JSON.JSX # Maybe :my_other_app uses jsx
-  dynamo: [] # Other Dynamo config here
+  dynamodb: [] # Other Dynamo config here
 ```
 
 The association with a particular OTP app is merely for convenience, and is entirely optional. To configure multiple clients without reference to another app simply write your own `config_root/0` in each client to tell ExAws where to find the configuration.
