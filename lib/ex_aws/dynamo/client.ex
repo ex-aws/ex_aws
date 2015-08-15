@@ -185,8 +185,15 @@ defmodule ExAws.Dynamo.Client do
     index_name: "my-global-index",
     key_schema: [%{
       attribute_name: "email",
-      attribute_type: "string",
-    }]
+      attribute_type: "HASH",
+    }],
+    provisioned_throughput: %{
+      read_capacity_units: 1,
+      write_capacity_units: 1,
+    },
+    projection: %{
+      projection_type: "KEYS_ONLY",
+    }
   }]
   create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, [])
 
