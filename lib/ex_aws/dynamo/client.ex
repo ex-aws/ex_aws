@@ -151,35 +151,54 @@ defmodule ExAws.Dynamo.Client do
   """
   defcallback create_table(
     table_name      :: binary,
-    key_schema      :: binary | atom,
+    key_schema      :: binary | atom | key_schema,
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer) :: ExAws.Request.response_t
 
-    @doc """
-    Create table
+  @doc """
+  Create table
 
-    key_schema allows specifying hash and / or range keys IE
-    ```
-    [api_key: :hash, something_rangy: :range]
-    ```
-    """
+  key_schema allows specifying hash and / or range keys IE
+  ```
+  [api_key: :hash, something_rangy: :range]
+  ```
+  """
   defcallback create_table(
     table_name      :: binary,
-    key_schema      :: [key_schema],
+    key_schema      :: key_schema,
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer) :: ExAws.Request.response_t
 
-  @doc "Create table with indices"
+  @doc """
+  Create table with secondary indices
+
+  Each index should follow the format outlined here: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_CreateTable.html
+
+  For convenience, the keys in each index map are allowed to be atoms. IE:
+  `"KeySchema"` in the aws docs can be `key_schema:`
+
+  Note that both the `global_indexes` and `local_indexes` arguments expect a list of such indices.
+  Examples
+  secondary_index = [%{
+    index_name: "my-global-index",
+    key_schema: [%{
+      attribute_name: "email",
+      attribute_type: "string",
+    }]
+  }]
+  create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, [])
+
+  """
   defcallback create_table(
     table_name      :: binary,
-    key_schema      :: [key_schema],
+    key_schema      :: key_schema,
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
-    global_indexes  :: Keyword.t,
-    local_indexes   :: Keyword.t) :: ExAws.Request.response_t
+    global_indexes  :: [Map.t],
+    local_indexes   :: [Map.t]) :: ExAws.Request.response_t
 
   @doc "Describe table"
   defcallback describe_table(name :: binary) :: ExAws.Request.response_t
