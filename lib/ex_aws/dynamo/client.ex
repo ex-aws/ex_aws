@@ -207,7 +207,9 @@ defmodule ExAws.Dynamo.Client do
   `"KeySchema"` in the aws docs can be `key_schema:`
 
   Note that both the `global_indexes` and `local_indexes` arguments expect a list of such indices.
+
   Examples
+  ```
   secondary_index = [%{
     index_name: "my-global-index",
     key_schema: [%{
@@ -223,6 +225,7 @@ defmodule ExAws.Dynamo.Client do
     }
   }]
   create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, [])
+  ```
 
   """
   defcallback create_table(
