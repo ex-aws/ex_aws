@@ -1,6 +1,7 @@
 defmodule ExAws.CloudSearch.Request do
   @version "2013-01-01"
 
+  @doc "GET requests, data is encoded as a query string"
   def request(client = %{config: config}, :get, path, data) do
     data = URI.encode_query(data)
     path = Enum.join([path, data], "?")
@@ -9,6 +10,7 @@ defmodule ExAws.CloudSearch.Request do
     |> parse(config)
   end
 
+  @doc "POST requests, data is encoded as json"
   def request(client = %{config: config}, :post, path, data) do
     data    = config.json_codec.encode! data
     headers = [{"content-type", "application/json"}]
@@ -17,9 +19,10 @@ defmodule ExAws.CloudSearch.Request do
     |> parse(config)
   end
 
+  @doc false
   def parse({:error, result}, _), do: {:error, result}
   def parse({:ok, %{body: body}}, config) do
-    {:ok, config[:json_codec].decode!(body)}
+    {:ok, config.json_codec.decode!(body)}
   end
 
   defp url(%{search_endpoint: search_endpoint}, path = "/search" <> _) do
