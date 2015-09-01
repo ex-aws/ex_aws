@@ -49,7 +49,7 @@ defmodule ExAws.SQS.Client do
     | :redrive_policy
   @type visibility_timeout :: 0..43200
   @type queue_attributes :: [
-    | {:policy, binary}
+    {:policy, binary}
     | {:visibility_timeout, visibility_timeout}
     | {:maximum_message_size, 1024..262144}
     | {:message_retention_period, 60..1209600}
