@@ -4,6 +4,8 @@ elixir: 1.0.5
 notifications:
   recipients:
     - ben.wilson@cargosense.com
+  on_success: change
+  on_failure: change
 otp_release:
   - 17.1
   - 17.5
