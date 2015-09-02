@@ -3,12 +3,19 @@ defmodule Test.Dummy.SQS do
 
   def config_root, do: Application.get_all_env(:ex_aws)
 
+  def request(_client, "", action, params) do
+    params
+    |> Enum.into(%{})
+    |> Map.put("Action", action)
+  end
+
   def request(_client, queue_name, action, params) do
     params
     |> Enum.into(%{})
-    |> Map.put(:queue_name, queue_name)
-    |> Map.put(:action, action)
+    |> Map.put("QueueName", queue_name)
+    |> Map.put("Action", action)
   end
+
 end
 
 defmodule ExAws.SQSTest do
@@ -17,7 +24,8 @@ defmodule ExAws.SQSTest do
 
 
   test "#create_queue" do
-
+    expected = %{"Action" => "CreateQueue", "Attribute.1.Name" => "VisibilityTimeout", "Attribute.1.Value" => 10, "QueueName" => "test_queue"}
+    assert expected == SQS.create_queue("test_queue", visibility_timeout: 10)
   end
 
   test "#delete_queue" do
