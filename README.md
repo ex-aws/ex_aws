@@ -1,5 +1,6 @@
 ExAws
 =====
+[![Build Status](https://travis-ci.org/CargoSense/ex_aws.svg?branch=master)](https://travis-ci.org/CargoSense/ex_aws)
 
 A flexible easy to use set of clients AWS APIs.
 
