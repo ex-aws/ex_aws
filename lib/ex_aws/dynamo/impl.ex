@@ -61,11 +61,12 @@ defmodule ExAws.Dynamo.Impl do
       }
     }
     data = %{
-      "GlobalSecondaryIndexes" => global_indexes |> camelize_keys(deep: true),
-      "LocalSecondaryIndexes"  => local_indexes  |> camelize_keys(deep: true)
+      "GlobalSecondaryIndexes" => global_indexes |> Enum.map(&camelize_keys(&1, deep: true)),
+      "LocalSecondaryIndexes"  => local_indexes  |> Enum.map(&camelize_keys(&1, deep: true))
     } |> Enum.reduce(data, fn
-      ({_, indices = %{}}, data) when map_size(indices) == 0 -> data
-      {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
+      {_, []}, data -> data
+      {name, indices}, data ->
+        Map.put(data, name, indices)
     end)
 
     request(client, :create_table, data)

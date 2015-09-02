@@ -3,7 +3,7 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.4.5",
+     version: "0.4.8",
      elixir: "~> 1.0",
      description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
      name: "ExAws",
@@ -30,7 +30,7 @@ defmodule ExAws.Mixfile do
       {:sweet_xml, "~> 0.2.1", only: [:test]},
       {:httpoison, "~> 0.7", only: [:test, :dev]},
       {:poison, "~> 1.2.0", only: [:test, :dev]},
-      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1", only: :test},
+      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", only: :test},
       {:httpotion, "~> 2.0.0", only: :test},
       {:jsx, "~> 2.5.2", only: :test}
     ]
