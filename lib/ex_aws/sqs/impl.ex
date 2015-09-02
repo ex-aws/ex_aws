@@ -9,6 +9,10 @@ defmodule ExAws.SQS.Impl do
     request(client, "", "CreateQueue", params)
   end
 
+  def delete_queue(client, queue) do
+    request(client, queue, "DeleteQueue", %{})
+  end
+
   def list_queues(client, opts \\ []) do
     request(client, "", "ListQueues", Enum.into(opts, %{}))
   end
