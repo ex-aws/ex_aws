@@ -5,25 +5,28 @@ Contributions to ExAws are absolutely appreciated. For general bug fixes or othe
 
 ## Running Tests
 Running the test suite for ex_aws requires a few things:
+
 1. DynamoDB Local must be running
   * May be downloaded from http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html
   * And may be executed with `java -Djava.library.path=/DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory`
 2. Requires two environment variables `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY`
   * These must be valid AWS credentials, the minimum IAM permissions required are:
-    ```{
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": [
-                    "kinesis:ListStreams",
-                    "lambda:ListFunctions",
-                    "s3:ListAllMyBuckets"
-                ],
-                "Resource": "*"
-            }
-        ]
-    }```
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": [
+              "kinesis:ListStreams",
+              "lambda:ListFunctions",
+              "s3:ListAllMyBuckets"
+          ],
+          "Resource": "*"
+      }
+  ]
+}
+```
 
 The test suite can be run with `AWS_ACCESS_KEY_ID=your-aws-access-key AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key mix test`
 
