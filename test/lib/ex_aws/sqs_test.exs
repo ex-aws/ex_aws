@@ -34,7 +34,8 @@ defmodule ExAws.SQSTest do
   end
 
   test "#list_queues" do
-
+    expected = %{"Action" => "ListQueues"}
+    assert expected == SQS.list_queues
   end
 
   test "#get_queue_attributes" do
