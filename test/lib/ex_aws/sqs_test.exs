@@ -39,7 +39,11 @@ defmodule ExAws.SQSTest do
   end
 
   test "#get_queue_attributes" do
+    expected = %{"Action" => "GetQueueAttributes", "AttributeName.1" => "All", "QueueName" => "982071696186/test_queue"}
+    assert expected == SQS.get_queue_attributes("982071696186/test_queue")
 
+    expected =  %{"Action" => "GetQueueAttributes", "AttributeName.1" => "VisibilityTimeout", "AttributeName.2" => "MessageRetentionPeriod", "QueueName" => "982071696186/test_queue"}
+    assert expected == SQS.get_queue_attributes("982071696186/test_queue", [:visibility_timeout, :message_retention_period])
   end
 
   test "#set_queue_attributes" do

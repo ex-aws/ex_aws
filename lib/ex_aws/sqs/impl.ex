@@ -17,6 +17,14 @@ defmodule ExAws.SQS.Impl do
     request(client, "", "ListQueues", Enum.into(opts, %{}))
   end
 
+  def get_queue_attributes(client, queue, attributes \\ :all) do
+    params =
+      attributes
+      |> format_queue_attributes
+
+    request(client, queue, "GetQueueAttributes", params)
+  end
+
   def send_message(client, queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])
@@ -59,6 +67,20 @@ defmodule ExAws.SQS.Impl do
     key
     |> Atom.to_string
     |> Mix.Utils.camelize
+  end
+
+  def format_queue_attributes(:all), do: format_queue_attributes([:all])
+  def format_queue_attributes(attributes) do
+    attributes
+    |> Enum.with_index
+    |> Enum.map(&format_queue_attribute/1)
+    |> Enum.reduce(%{}, &Map.merge(&1, &2))
+  end
+
+  def format_queue_attribute({attribute, index}) do
+    key = "AttributeName.#{index + 1}"
+
+    Map.put(%{}, key, format_param_key(attribute))
   end
 
   defp build_attrs(attrs) do
