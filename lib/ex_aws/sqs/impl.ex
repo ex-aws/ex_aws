@@ -91,7 +91,6 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "ReceiveMessage", params)
   end
 
-
   def delete_message(client, queue, receipt_handle) do
     request(client, queue, "DeleteMessage", %{"ReceiptHandle" => receipt_handle})
   end

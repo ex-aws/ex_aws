@@ -218,7 +218,8 @@ defmodule ExAws.SQSTest do
   end
 
   test "#delete_message" do
-
+    expected = %{"Action" => "DeleteMessage", "QueueName" => "982071696186/test_queue", "ReceiptHandle" => "AQEB0aw+z96sMOUWLQuIzA7nPHS7zUOIRlV0OEqvDoKtNcHxSVDQEfY0gBOJKGcnyTvIUncpimPv0CfQDFbwmdU9E00793cP19Bx8BqzuS0sNrARyY4M4xVi7ceVYHMSNU1uyF/+sK6u8yAGnsbsgmPg4AUs5oapv5Qawiq5HJGgH3cmRPy5/IW+b9W6HVy//uNzejbIcAjQX58Dd79D4AGb9Iu4dqfEVK7zo5BCTy+pz9hqGf5MT3jkrd5umjwGdrg3sVBYhrLjmgaqftON8JclkmrUJk0LzPwQ4DdpT8oz5mh7VzAjRXkIA0IQ8PGFFGPMIb8gWNzJ4KA4/OYlnDYyGw=="}
+    assert expected == SQS.delete_message("982071696186/test_queue", "AQEB0aw+z96sMOUWLQuIzA7nPHS7zUOIRlV0OEqvDoKtNcHxSVDQEfY0gBOJKGcnyTvIUncpimPv0CfQDFbwmdU9E00793cP19Bx8BqzuS0sNrARyY4M4xVi7ceVYHMSNU1uyF/+sK6u8yAGnsbsgmPg4AUs5oapv5Qawiq5HJGgH3cmRPy5/IW+b9W6HVy//uNzejbIcAjQX58Dd79D4AGb9Iu4dqfEVK7zo5BCTy+pz9hqGf5MT3jkrd5umjwGdrg3sVBYhrLjmgaqftON8JclkmrUJk0LzPwQ4DdpT8oz5mh7VzAjRXkIA0IQ8PGFFGPMIb8gWNzJ4KA4/OYlnDYyGw==")
   end
 
   test "#delete_message_batch" do
