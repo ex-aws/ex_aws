@@ -62,7 +62,19 @@ defmodule ExAws.SQSTest do
   end
 
   test "#add_permission" do
+    expected = %{
+      "Action" => "AddPermission",
+      "Label" => "TestAddPermission",
+      "QueueName" => "982071696186/test_queue",
+      "AWSAccountId.1" => "681962096817",
+      "ActionName.1" => "*",
+      "AWSAccountId.2" => "071669896281",
+      "ActionName.2" => "SendMessage",
+      "AWSAccountId.3" => "071669896281",
+      "ActionName.3" => "ReceiveMessage"
+    }
 
+    assert expected == SQS.add_permission("982071696186/test_queue", "TestAddPermission", %{"681962096817" => :all, "071669896281" => [:send_message, :receive_message]})
   end
 
   test "#remove_permission" do
