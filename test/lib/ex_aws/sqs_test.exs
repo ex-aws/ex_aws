@@ -47,7 +47,8 @@ defmodule ExAws.SQSTest do
   end
 
   test "#set_queue_attributes" do
-
+    expected = %{"Action" => "SetQueueAttributes", "Attribute.1.Name" => "VisibilityTimeout", "Attribute.1.Value" => 10, "QueueName" => "982071696186/test_queue"}
+    assert expected == SQS.set_queue_attributes("982071696186/test_queue", visibility_timeout: 10)
   end
 
   test "#purge_queue" do

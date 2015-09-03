@@ -25,6 +25,14 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "GetQueueAttributes", params)
   end
 
+  def set_queue_attributes(client, queue, attributes \\ []) do
+    params =
+      attributes
+      |> build_attrs
+
+    request(client, queue, "SetQueueAttributes", params)
+  end
+
   def send_message(client, queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])
