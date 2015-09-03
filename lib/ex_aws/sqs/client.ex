@@ -65,7 +65,7 @@ defmodule ExAws.SQS.Client do
   ]
   @type sqs_message_attribute :: %{
     :name => binary,
-    :data_type => :string | :binary,
+    :data_type => :string | :binary | :number,
     :custom_type => binary | none,
     :value => binary | number
   }
@@ -139,7 +139,7 @@ defmodule ExAws.SQS.Client do
   @doc "Send a message to a SQS Queue"
   @type sqs_message_opts :: [
       {:delay_seconds, 0..900} |
-      {:attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
+      {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
   ]
   defcallback send_message(queue_name :: binary, message_body :: binary) :: SQS.Request.response_t
   defcallback send_message(queue_name :: binary, message_body :: binary, opts :: sqs_message_opts) :: SQS.Request.response_t

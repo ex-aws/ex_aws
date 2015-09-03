@@ -84,7 +84,53 @@ defmodule ExAws.SQSTest do
   end
 
   test "#send_message" do
+    expected = %{"Action" => "SendMessage",
+                 "MessageBody" => "This is the message body.",
+                 "QueueName" => "982071696186/test_queue",
+                 "DelaySeconds" => 30,
+                 "MessageAttribute.1.Name" => "TestStringAttribute",
+                 "MessageAttribute.1.Value.StringValue" => "testing!",
+                 "MessageAttribute.1.Value.DataType" => "String",
+                 "MessageAttribute.2.Name" => "TestBinaryAttribute",
+                 "MessageAttribute.2.Value.BinaryValue" => <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 43, 73, 45, 46, 201, 204, 75, 87, 4, 0, 188, 169, 224, 119, 8, 0, 0, 0>>,
+                 "MessageAttribute.2.Value.DataType" => "Binary",
+                 "MessageAttribute.3.Name" => "TestNumberAttribute",
+                 "MessageAttribute.3.Value.StringValue" => 42,
+                 "MessageAttribute.3.Value.DataType" => "Number",
+                 "MessageAttribute.4.Name" => "TestCustomNumberAttribute",
+                 "MessageAttribute.4.Value.StringValue" => 7,
+                 "MessageAttribute.4.Value.DataType" => "Number.Prime"
+                 }
 
+    assert expected == SQS.send_message(
+                         "982071696186/test_queue",
+                         "This is the message body.",
+                         [
+                           delay_seconds: 30,
+                           message_attributes: [
+                             %{
+                               name: "TestStringAttribute",
+                               data_type: :string,
+                               value: "testing!"
+                             },
+                             %{
+                                name: "TestBinaryAttribute",
+                                data_type: :binary,
+                                value: :zlib.gzip("testing!")
+                              },
+                              %{
+                                name: "TestNumberAttribute",
+                                data_type: :number,
+                                value: 42
+                              },
+                              %{
+                                name: "TestCustomNumberAttribute",
+                                data_type: :number,
+                                custom_type: "Prime",
+                                value: 7
+                              }
+                           ]
+                         ])
   end
 
   test "#send_message_batch" do

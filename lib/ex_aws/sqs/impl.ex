@@ -162,18 +162,25 @@ defmodule ExAws.SQS.Impl do
   end
 
   defp build_message_attr({attr, index}) do
-    prefix = "MessageAttribute.#{index}."
+    prefix = "MessageAttribute.#{index + 1}."
     %{}
     |> Map.put(prefix <> "Name", attr.name)
-    |> Map.put(prefix <> "Value.DataType", attr.data_type)
+    |> Map.put(prefix <> "Value.DataType", message_data_type(attr))
     |> message_attr_value(prefix, attr)
+  end
+
+  defp message_data_type(%{data_type: data_type, custom_type: custom_type}) do
+    format_param_key(data_type) <> "." <> custom_type
+  end
+  defp message_data_type(%{data_type: data_type}) do
+    format_param_key(data_type)
   end
 
   defp message_attr_value(param, prefix, %{value: value, data_type: :binary}) do
     Map.put(param, prefix <> "Value.BinaryValue", value)
   end
 
-  defp message_attr_value(param, prefix, %{value: value, data_type: :string}) do
+  defp message_attr_value(param, prefix, %{value: value}) do
     Map.put(param, prefix <> "Value.StringValue", value)
   end
 
