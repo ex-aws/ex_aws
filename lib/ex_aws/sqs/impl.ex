@@ -79,18 +79,21 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "SendMessageBatch", params)
   end
 
-  def delete_message(client, queue, receipt_handle) do
-    request(client, queue, "DeleteMessage", %{"ReceiptHandle" => receipt_handle})
-  end
-
   def receive_message(client, queue, opts \\ []) do
-    {_attrs, opts} = opts
-    |> Keyword.split([:attributes, :message_attributes])
+    {attrs, opts} = opts
+    |> Keyword.pop(:attribute_names, [])
 
-    params = opts
-    |> format_regular_opts
+    params =
+      attrs
+      |> format_queue_attributes
+      |> Map.merge(format_regular_opts(opts))
 
     request(client, queue, "ReceiveMessage", params)
+  end
+
+
+  def delete_message(client, queue, receipt_handle) do
+    request(client, queue, "DeleteMessage", %{"ReceiptHandle" => receipt_handle})
   end
 
   defp request(%{__struct__: module} = client, queue, action, params) do

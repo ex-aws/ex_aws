@@ -204,7 +204,17 @@ defmodule ExAws.SQSTest do
   end
 
   test "#receive_message" do
+    expected = %{"Action" => "ReceiveMessage", "QueueName" => "982071696186/test_queue"}
+    assert expected == SQS.receive_message("982071696186/test_queue")
 
+    expected = %{"Action" => "ReceiveMessage", "AttributeName.1" => "All", "MaxNumberOfMessages" => 5, "QueueName" => "982071696186/test_queue"}
+    assert expected == SQS.receive_message("982071696186/test_queue", attribute_names: :all,
+                                                                      max_number_of_messages: 5)
+
+    expected = %{"Action" => "ReceiveMessage", "AttributeName.1" => "SenderId", "AttributeName.2" => "ApproximateReceiveCount", "QueueName" => "982071696186/test_queue", "VisibilityTimeout" => 1000, "WaitTimeout" => 20}
+    assert expected == SQS.receive_message("982071696186/test_queue", attribute_names: [:sender_id, :approximate_receive_count],
+                                                                      visibility_timeout: 1000,
+                                                                      wait_timeout: 20)
   end
 
   test "#delete_message" do
