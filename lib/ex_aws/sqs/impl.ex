@@ -68,6 +68,17 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "SendMessage", params)
   end
 
+  def send_message_batch(client, queue, messages) do
+    params =
+      messages
+      |> Enum.with_index
+      |> Enum.reduce(%{}, fn({message, index}, params) ->
+        Map.merge(params, format_batch_message(message, index))
+      end)
+
+    request(client, queue, "SendMessageBatch", params)
+  end
+
   def delete_message(client, queue, receipt_handle) do
     request(client, queue, "DeleteMessage", %{"ReceiptHandle" => receipt_handle})
   end
@@ -137,6 +148,24 @@ defmodule ExAws.SQS.Impl do
     key = "AttributeName.#{index + 1}"
 
     Map.put(%{}, key, format_param_key(attribute))
+  end
+
+  def format_batch_message(message, index) do
+    prefix = "SendMessageBatchRequestEntry.#{index + 1}."
+
+    {attrs, opts} = message
+    |> Keyword.pop(:message_attributes, [])
+
+    attrs =
+      attrs
+      |> build_message_attrs
+
+    opts
+    |> format_regular_opts
+    |> Map.merge(attrs)
+    |> Enum.reduce(%{}, fn({key, value}, params) ->
+         Map.put(params, prefix <> key, value)
+       end)
   end
 
   defp build_attrs(attrs) do

@@ -134,7 +134,73 @@ defmodule ExAws.SQSTest do
   end
 
   test "#send_message_batch" do
+    expected = %{"Action" => "SendMessageBatch",
+                 "QueueName" => "982071696186/test_queue",
+                 "SendMessageBatchRequestEntry.1.Id" => "test_message_1",
+                 "SendMessageBatchRequestEntry.1.MessageBody" => "This is the message body.",
+                 "SendMessageBatchRequestEntry.1.DelaySeconds" => 30,
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.1.Name" => "TestStringAttribute",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.1.Value.StringValue" => "testing!",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.1.Value.DataType" => "String",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.2.Name" => "TestBinaryAttribute",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.2.Value.BinaryValue" => <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 43, 73, 45, 46, 201, 204, 75, 87, 4, 0, 188, 169, 224, 119, 8, 0, 0, 0>>,
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.2.Value.DataType" => "Binary",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.3.Name" => "TestNumberAttribute",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.3.Value.StringValue" => 42,
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.3.Value.DataType" => "Number",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.4.Name" => "TestCustomNumberAttribute",
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.4.Value.StringValue" => 7,
+                 "SendMessageBatchRequestEntry.1.MessageAttribute.4.Value.DataType" => "Number.Prime",
+                 "SendMessageBatchRequestEntry.2.Id" => "test_message_2",
+                 "SendMessageBatchRequestEntry.2.MessageBody" => "This is the second message body.",
+                 "SendMessageBatchRequestEntry.2.MessageAttribute.1.Name" => "TestAnotherStringAttribute",
+                 "SendMessageBatchRequestEntry.2.MessageAttribute.1.Value.StringValue" => "still testing!",
+                 "SendMessageBatchRequestEntry.2.MessageAttribute.1.Value.DataType" => "String",
+                 }
 
+    assert expected == SQS.send_message_batch(
+                         "982071696186/test_queue",
+                         [
+                           [ id: "test_message_1",
+                             message_body: "This is the message body.",
+                             delay_seconds: 30,
+                             message_attributes: [
+                               %{
+                                 name: "TestStringAttribute",
+                                 data_type: :string,
+                                 value: "testing!"
+                               },
+                               %{
+                                  name: "TestBinaryAttribute",
+                                  data_type: :binary,
+                                  value: :zlib.gzip("testing!")
+                                },
+                                %{
+                                  name: "TestNumberAttribute",
+                                  data_type: :number,
+                                  value: 42
+                                },
+                                %{
+                                  name: "TestCustomNumberAttribute",
+                                  data_type: :number,
+                                  custom_type: "Prime",
+                                  value: 7
+                                }
+                             ]
+                           ],
+                           [
+                             id: "test_message_2",
+                             message_body: "This is the second message body.",
+                             message_attributes: [
+                               %{
+                                 name: "TestAnotherStringAttribute",
+                                 data_type: :string,
+                                 value: "still testing!"
+                               }
+                             ]
+                           ]
+                         ]
+                       )
   end
 
   test "#receive_message" do

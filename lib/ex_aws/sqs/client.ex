@@ -150,9 +150,10 @@ defmodule ExAws.SQS.Client do
   @doc "Send up to 10 messages to a SQS Queue in a single request"
   @type sqs_batch_message :: binary |
   [
+    {:id, binary} |
     {:message_body, binary} |
     {:delay_seconds, 0..900} |
-    {:attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
+    {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
   ]
   defcallback send_message_batch(queue_name :: binary, messages :: [sqs_batch_message, ...]) :: SQS.Request.response_t
 
