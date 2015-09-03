@@ -33,6 +33,10 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "SetQueueAttributes", params)
   end
 
+  def purge_queue(client, queue) do
+    request(client, queue, "PurgeQueue", %{})
+  end
+
   def send_message(client, queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])

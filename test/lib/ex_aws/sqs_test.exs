@@ -52,7 +52,8 @@ defmodule ExAws.SQSTest do
   end
 
   test "#purge_queue" do
-
+    expected = %{"Action" => "PurgeQueue", "QueueName" => "982071696186/test_queue"}
+    assert expected == SQS.purge_queue("982071696186/test_queue")
   end
 
   test "#get_dead_letter_source_queues" do
