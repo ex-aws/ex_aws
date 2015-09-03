@@ -37,6 +37,10 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "PurgeQueue", %{})
   end
 
+  def list_dead_letter_source_queues(client, queue) do
+    request(client, queue, "ListDeadLetterSourceQueues", %{})
+  end
+
   def send_message(client, queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])
