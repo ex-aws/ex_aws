@@ -22,12 +22,13 @@ defmodule ExAws.Config do
     config_root = client_module.config_root
     unless config_root, do: raise "A valid configuration root is required in your #{service} client"
 
-    config = config_root |> Keyword.get(service, [])
-    common = ExAws.Config.Defaults.defaults
+    defaults = Application.get_all_env(:ex_aws)
+    config   = config_root |> Keyword.get(service, [])
+    common   = defaults
     |> Keyword.merge(config_root)
     |> Keyword.take(@common_config)
 
-    ExAws.Config.Defaults.defaults
+    defaults
     |> Keyword.get(service, [])
     |> Keyword.merge(common)
     |> Keyword.merge(config)
