@@ -30,8 +30,8 @@ defimpl ExAws.Dynamo.Encodable, for: HashDict do
   end
 end
 
+defimpl ExAws.Dynamo.Encodable, for: Map do
 
-defimpl ExAws.Dynamo.Encodable, for: Any do
   defmacro __deriving__(module, struct, options) do
     deriving(module, struct, options)
   end
@@ -50,13 +50,6 @@ defimpl ExAws.Dynamo.Encodable, for: Any do
         end
       end
     end
-  end
-end
-
-defimpl ExAws.Dynamo.Encodable, for: Map do
-
-  defmacro __deriving__(module, struct, options) do
-    ExAws.Dynamo.Encodable.Any.deriving(module, struct, options)
   end
 
   def encode(map, options) do
