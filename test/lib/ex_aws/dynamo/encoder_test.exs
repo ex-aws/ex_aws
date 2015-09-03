@@ -1,3 +1,8 @@
+defmodule Test.Nested do
+  @derive {ExAws.Dynamo.Encodable, only: [:items]}
+  defstruct items: [], secret: nil
+end
+
 defmodule ExAws.Dynamo.EncoderTest do
   use ExUnit.Case, async: true
   alias ExAws.Dynamo.Encoder
@@ -23,7 +28,7 @@ defmodule ExAws.Dynamo.EncoderTest do
   test "Encoder with structs works properly" do
     user = %Test.User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     assert %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},
-      "email" => %{"S" => "foo@bar.com"}, "name" => %{"S" => "Bob"}} = Encoder.encode(user)
+      "email" => %{"S" => "foo@bar.com"}, "name" => %{"S" => "Bob"}} = Encoder.encode_root(user)
   end
 
   test "encoder handles lists properly" do
@@ -34,6 +39,12 @@ defmodule ExAws.Dynamo.EncoderTest do
 
   test "encoder is idempotent" do
     value = %{foo: 1, bar: %{baz: 2, zounds: "asdf"}}
-    assert value |> Encoder.encode ==  value |> Encoder.encode |> Encoder.encode
+    assert value |> Encoder.encode == value |> Encoder.encode |> Encoder.encode
+  end
+
+  test "encoder works with nested structs" do
+    nested_structs = %Test.Nested{items: [%Test.Nested{items: ["asdf"], secret: "foo"}], secret: "bar"} |> Encoder.encode_root
+    expected = %{"items" => %{"L" => [%{"M" => %{"items" => %{"SS" => ["asdf"]}}}]}}
+    assert nested_structs == expected
   end
 end
