@@ -2,7 +2,7 @@ defmodule ExAws.SNS.Request do
   @moduledoc false
   # SNS specific request logic.
 
-  @empty_body_hash AWSAuth.Utils.hash_sha256("")
+  @empty_body_hash ExAws.Auth.Utils.hash_sha256("")
 
   def request(client, action, params) do
     query = params
