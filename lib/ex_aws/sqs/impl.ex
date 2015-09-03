@@ -50,6 +50,10 @@ defmodule ExAws.SQS.Impl do
       request(client, queue, "AddPermission", params)
   end
 
+  def remove_permission(client, queue, label) do
+    request(client, queue, "RemovePermission", %{"Label" => label})
+  end
+
   def send_message(client, queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])

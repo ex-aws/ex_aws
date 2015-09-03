@@ -78,7 +78,9 @@ defmodule ExAws.SQSTest do
   end
 
   test "#remove_permission" do
+    expected = %{"Action" => "RemovePermission", "Label" => "TestAddPermission", "QueueName" => "982071696186/test_queue"}
 
+    assert expected == SQS.remove_permission("982071696186/test_queue", "TestAddPermission")
   end
 
   test "#send_message" do
