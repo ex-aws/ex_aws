@@ -26,14 +26,6 @@ end
 
 ## Other
 
-defmodule Test.HTTPClient do
-  @behaviour ExAws.Request.HttpClient
-
-  def request(method, url, body, headers) do
-    HTTPoison.request(method, url, body, headers)
-  end
-end
-
 defmodule Test.JSONCodec do
   @behaviour ExAws.JSON.Codec
 

@@ -5,8 +5,8 @@ defmodule ExAws.S3.Request do
   def request(client, http_method, bucket, path, data \\ []) do
     body     = data |> Keyword.get(:body, "")
     resource = data |> Keyword.get(:resource, "")
-    query    = data |> Keyword.get(:params, []) |> URI.encode_query
-    headers  = data |> Keyword.get(:headers, [])
+    query    = data |> Keyword.get(:params, %{}) |> URI.encode_query
+    headers  = data |> Keyword.get(:headers, %{})
 
 
     url = client.config
@@ -15,10 +15,9 @@ defmodule ExAws.S3.Request do
 
     hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
 
-    headers = [
-      {"x-amz-content-sha256", hashed_payload} |
-      headers
-    ]
+    headers = headers
+    |> Map.put("x-amz-content-sha256", hashed_payload)
+    |> Map.to_list
 
     ExAws.Request.request(http_method, url, body, headers, client)
   end
@@ -26,8 +25,7 @@ defmodule ExAws.S3.Request do
   def url(%{scheme: scheme, host: host}, bucket, path) do
     [
       scheme,
-      bucket |> bucket?,
-      host,
+      host_and_bucket(host, bucket),
       path   |> ensure_slash
     ] |> IO.iodata_to_binary
   end
@@ -40,6 +38,11 @@ defmodule ExAws.S3.Request do
   defp ensure_slash("/" <> _ = path), do: path
   defp ensure_slash(path), do:  "/" <> path
 
-  defp bucket?(""), do: ""
-  defp bucket?(bucket), do: bucket <> "."
+  defp host_and_bucket(host, ""), do: host
+  defp host_and_bucket(host, bucket) do
+    case bucket |> String.contains?(".") do
+      true  -> [host, "/", bucket]
+      false -> [bucket, ".", host]
+    end
+  end
 end

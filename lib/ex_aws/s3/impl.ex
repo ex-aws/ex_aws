@@ -1,4 +1,6 @@
 defmodule ExAws.S3.Impl do
+  import ExAws.S3.Utils
+  alias ExAws.S3.Parsers
 
   @moduledoc false
   # Implementation of the AWS S3 API.
@@ -8,7 +10,10 @@ defmodule ExAws.S3.Impl do
   ## Buckets
   #############
 
-  def list_buckets(client, opts \\ %{}) do
+  defdelegate stream_objects!(client, bucket), to: ExAws.S3.Lazy
+  defdelegate stream_objects!(client, bucket, opts), to: ExAws.S3.Lazy
+
+  def list_buckets(client, opts \\ []) do
     request(client, :get, "", "/", params: opts)
   end
 
@@ -40,8 +45,17 @@ defmodule ExAws.S3.Impl do
     request(client, :delete, bucket, "/", resource: "website")
   end
 
-  def list_objects(client, bucket, opts \\ %{}) do
-    request(client, :get, bucket, "/", params: opts)
+  @params [:delimiter, :marker, :prefix, :encoding_type, :max_keys]
+  def list_objects(client, bucket, opts \\ []) do
+    params = opts
+    |> format_and_take(@params)
+    request(client, :get, bucket, "/", params: params)
+    |> Parsers.parse_list_objects
+  end
+
+  def list_objects!(client, bucket, opts \\ []) do
+    {:ok, resp} = list_objects(client, bucket, opts)
+    resp
   end
 
   def get_bucket_acl(client, bucket) do
@@ -80,7 +94,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, "/", resource: "tagging")
   end
 
-  def get_bucket_object_versions(client, bucket, opts \\ %{}) do
+  def get_bucket_object_versions(client, bucket, opts \\ []) do
     request(client, :get, bucket, "/", resource: "versions", params: opts)
   end
 
@@ -100,27 +114,38 @@ defmodule ExAws.S3.Impl do
     request(client, :head, bucket, "/")
   end
 
-  def list_multipart_uploads(client, bucket, opts \\ %{}) do
-    request(client, :get, bucket, "/", resource: "uploads", params: opts)
+  @params [:delimiter, :encoding_type, :max_uploads, :key_marker, :prefix, :upload_id_marker]
+  def list_multipart_uploads(client, bucket, opts \\ []) do
+    params = @params |> format_and_take(opts)
+    request(client, :get, bucket, "/", resource: "uploads", params: params)
   end
 
-  def put_bucket(client, bucket, region, opts \\ %{}) do
+  @headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
+  def put_bucket(client, bucket, region, grants \\ %{}) do
+    headers = grants |> format_grant_headers(@headers)
+
     body = """
     <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
       <LocationConstraint>#{region}</LocationConstraint>
     </CreateBucketConfiguration>
     """
-    request(client, :put, bucket, "/", body: body, headers: opts)
+    request(client, :put, bucket, "/", body: body, headers: headers)
   end
 
-  def put_bucket_acl(client, bucket, _owner_id, _owner_email, _grants) do
-    raise "not yet implemented"
-    request(client, :put, bucket, "/")
+  @headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
+  def put_bucket_acl(client, bucket, grants) do
+    headers = grants |> format_grant_headers(@headers)
+
+    request(client, :put, bucket, "/", headers: headers)
   end
 
-  def put_bucket_cors(client, bucket, _cors_config) do
-    raise "not yet implemented"
-    request(client, :put, bucket, "/")
+  def put_bucket_cors(client, bucket, cors_rules) do
+    rules = cors_rules
+    |> Enum.map(&build_cors_rule/1)
+    |> IO.iodata_to_binary
+
+    body = "<CORSConfiguration>#{rules}</CORSConfiguration>"
+    request(client, :put, bucket, "/", body: body)
   end
 
   def put_bucket_lifecycle(client, bucket, _livecycle_config) do
@@ -171,8 +196,12 @@ defmodule ExAws.S3.Impl do
   ## Objects
   ###########
 
-  def delete_object(client, bucket, object, opts \\ %{}) do
-    request(client, :delete, bucket, object, headers: opts)
+  def delete_object(client, bucket, object, opts \\ []) do
+    request(client, :delete, bucket, object, headers: opts |> Enum.into(%{}))
+  end
+  def delete_object!(client, bucket, object, opts \\ []) do
+    {:ok, resp} = delete_object(client, bucket, object, opts)
+    resp
   end
 
   def delete_multiple_objects(client, bucket, _objects) do
@@ -180,26 +209,44 @@ defmodule ExAws.S3.Impl do
     request(client, :post, bucket, "/?delete")
   end
 
-  def get_object(client, bucket, object, opts \\ %{}) do
-    param_keys = ["response-content-type", "response-content-language", "response-expires", "response-cache-control", "response-content-disposition", "response-content-encoding"]
+  @response_params [:content_type, :content_language, :expires, :cach_control, :content_disposition, :content_encoding]
+  @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
+  @encryption_headers [:customer_algorithm, :customer_key, :customer_key_md5]
+  def get_object(client, bucket, object, opts \\ []) do
+    opts = opts |> Enum.into(%{})
+
     response_opts = opts
-    |> Map.take(param_keys)
+    |> Map.get(:response, %{})
+    |> format_and_take(@response_params)
+    |> namespace("response")
+
     headers = opts
-    |> Map.drop(param_keys)
-    |> Enum.to_list
+    |> format_and_take(@request_headers)
+
+    headers = opts
+    |> Map.get(:encryption, %{})
+    |> format_and_take(@encryption_headers)
+    |> namespace("x-amz-server-side-encryption")
+    |> Map.merge(headers)
+
     request(client, :get, bucket, object, headers: headers, params: response_opts)
   end
 
-  def get_object_acl(client, bucket, object, opts \\ %{}) do
-    request(client, :get, bucket, object, resource: "acl", headers: opts)
+  def get_object!(client, bucket, object, opts \\ []) do
+    {:ok, resp} = get_object(client, bucket, object, opts)
+    resp
+  end
+
+  def get_object_acl(client, bucket, object, opts \\ []) do
+    request(client, :get, bucket, object, resource: "acl", headers: opts |> Enum.into(%{}))
   end
 
   def get_object_torrent(client, bucket, object) do
     request(client, :get, bucket, object, resource: "torrent")
   end
 
-  def head_object(client, bucket, object, opts \\ %{}) do
-    request(client, :head, bucket, object, headers: opts)
+  def head_object(client, bucket, object, opts \\ []) do
+    request(client, :head, bucket, object, headers: opts |> Enum.into(%{}))
   end
 
   def options_object(client, bucket, object, origin, request_method, request_headers \\ []) do
@@ -211,7 +258,7 @@ defmodule ExAws.S3.Impl do
     request(client, :options, bucket, object, headers: headers)
   end
 
-  def post_object(client, bucket, object, _opts \\ %{}) do
+  def post_object(client, bucket, object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, bucket, object)
   end
@@ -221,12 +268,44 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def put_object(client, bucket, object, body, opts \\ %{}) do
-    headers = [
-      {"Content-Type", "binary/octet-stream"} |
-      opts |> Map.to_list
-    ]
+  @headers [:cache_control, :content_disposition, :content_encoding, :content_length, :content_type,
+    :expect, :expires]
+  @amz_headers [:storage_class, :website_redirect_location]
+  @acl_headers [:grant_read, :grant_read_acp, :grant_write_acp, :grant_full_control]
+  def put_object(client, bucket, object, body, opts \\ []) do
+    opts = opts |> Enum.into(%{})
+
+    regular_headers = opts
+    |> format_and_take(@headers)
+
+    amz_headers = opts
+    |> format_and_take(@amz_headers)
+    |> namespace("x-amz")
+
+    acl_headers = opts
+    |> format_grant_headers(@acl_headers)
+
+    encryption_headers = opts
+    |> Map.get(:encryption, %{})
+    |> build_encryption_headers
+
+    canned_acl = case Map.get(opts, :acl) do
+      nil -> %{}
+      value -> %{"x-amz-acl" => normalize_param(value)}
+    end
+
+    headers = regular_headers
+    |> Map.merge(amz_headers)
+    |> Map.merge(acl_headers)
+    |> Map.merge(canned_acl)
+    |> Map.merge(encryption_headers)
+
     request(client, :put, bucket, object, body: body, headers: headers)
+  end
+
+  def put_object!(client, bucket, object, body, opts \\ []) do
+    {:ok, resp} = put_object(client, bucket, object, body, opts)
+    resp
   end
 
   def put_object_acl(client, bucket, object, _acl) do
@@ -234,12 +313,12 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
+  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, dest_bucket, dest_object)
   end
 
-  def initiate_multipart_upload(client, bucket, object, _opts \\ %{}) do
+  def initiate_multipart_upload(client, bucket, object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, bucket, object)
   end
@@ -249,7 +328,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ %{}) do
+  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
     raise "not yet implemented"
     request(client, :get, dest_bucket, dest_object)
   end
@@ -264,7 +343,7 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object)
   end
 
-  def list_parts(client, bucket, object, upload_id, opts \\ %{}) do
+  def list_parts(client, bucket, object, upload_id, opts \\ []) do
     params = %{"uploadId" => upload_id}
     |> Map.merge(opts)
     request(client, :get, bucket, object, params: params)

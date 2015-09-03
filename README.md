@@ -1,11 +1,12 @@
 ExAws
 =====
+[![Build Status](https://travis-ci.org/CargoSense/ex_aws.svg?branch=master)](https://travis-ci.org/CargoSense/ex_aws)
 
 A flexible easy to use set of clients AWS APIs.
 
 ## Highlighted Features
 - Easy configuration.
-- Minimal dependencies. Choose your favorite JSON / XML codec and HTTP client.
+- Minimal dependencies. Choose your favorite JSON codec and HTTP client.
 - Elixir streams to automatically retrieve paginated resources.
 - Elixir protocols allow easy customization of Dynamo encoding / decoding.
 - `mix kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
@@ -13,7 +14,7 @@ A flexible easy to use set of clients AWS APIs.
 
 ## Getting started
 
-Add ex_aws to your mix.exs, along with your json parser and http client of choice. ExAws works out of the box with Poison and HTTPoison and sweet_xml. All APIs require an http client, but only some require a json or xml codec. You only need the codec for the API you intend to use.
+Add ex_aws to your mix.exs, along with your json parser and http client of choice. ExAws works out of the box with Poison and HTTPoison and sweet_xml. All APIs require an http client, but only some require a json or xml codec. You only need the codec for the API you intend to use. At this time only SweetXml is supported for xml parsing.
 
 - Dynamo: json
 - Kinesis: json
@@ -25,9 +26,9 @@ If you wish to use instance roles to obtain AWS access keys you will need to add
 ```elixir
 def deps do
   [
-    ex_aws:    "~> 0.1.0",
+    ex_aws:    "~> 0.4.8",
     poison:    "~> 1.2.0",
-    httpoison: "~> 0.6.0"
+    httpoison: "~> 0.7.0"
   ]
 end
 ```
@@ -101,9 +102,9 @@ Consult the relevant documentation for the API of interest.
 To configure the built in clients do the following in your config.exs:
 
 ```elixir
-config, :ex_aws,
-  region: "us-east-2"
-  dynamo: [
+config :ex_aws,
+  region: "us-east-2",
+  dynamodb: [
     region: "us-west-1"
   ]
 ```
@@ -130,11 +131,11 @@ end
 To configure:
 ```elixir
 config :my_app, :ex_aws,
-  dynamo: [] # Dynamo config here
+  dynamodb: [] # Dynamo config here
 
 config :my_other_app, :ex_aws,
   json_codec: ExAws.JSON.JSX # Maybe :my_other_app uses jsx
-  dynamo: [] # Other Dynamo config here
+  dynamodb: [] # Other Dynamo config here
 ```
 
 The association with a particular OTP app is merely for convenience, and is entirely optional. To configure multiple clients without reference to another app simply write your own `config_root/0` in each client to tell ExAws where to find the configuration.
@@ -161,11 +162,11 @@ To configure:
 
 ```elixir
 config :my_ex_aws,
-  dynamo: [] # Dynamo config here
+  dynamodb: [] # Dynamo config here
 
 config :my_other_ex_aws,
   json_codec: ExAws.JSON.JSX # Maybe :my_other_app uses jsx
-  dynamo: [] # Other Dynamo config here
+  dynamodb: [] # Other Dynamo config here
 ```
 
 ## ExAws vs. Erlcloud
@@ -178,7 +179,7 @@ In addition to its unique features, ExAws has a number of advantages over erlclo
 
 - Binaries and Maps. ExAws always uses binaries over char lists, and returns maps instead of proplists.
 
-- No built in dependencies. Already using Poison? No need to add jsx as a dependency.
+- Few built in dependencies. Already using Poison? No need to add jsx as a dependency.
 
 - Lambda support
 

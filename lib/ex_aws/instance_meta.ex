@@ -18,6 +18,7 @@ defmodule ExAws.InstanceMeta do
     %{
       access_key_id: result["AccessKeyId"],
       secret_access_key: result["SecretAccessKey"],
+      security_token: result["Token"],
       expiration: result["Expiration"]
     }
   end

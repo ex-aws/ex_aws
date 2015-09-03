@@ -23,6 +23,25 @@ defmodule ExAws.DynamoTest do
     assert Dynamo.create_table("Users", [email: :hash, age: :range], [email: :string, age: :number], 1, 1) == expected
   end
 
+  test "create_table with secondary indexes" do
+    expected = %{"AttributeDefinitions" => [%{"AttributeName" => :id, "AttributeType" => "S"}],
+     "GlobalSecondaryIndexes" => [%{"IndexName" => "my-global-index", "KeySchema" =>
+        [%{"AttributeName" => "email", "AttributeType" => "string"}]}],
+     "KeySchema" => [%{"AttributeName" => :id, "KeyType" => "HASH"}],
+     "LocalSecondaryIndexes" => [%{"IndexName" => "my-global-index", "KeySchema" =>
+        [%{"AttributeName" => "email", "AttributeType" => "string"}]}],
+     "ProvisionedThroughput" => %{"ReadCapacityUnits" => 1, "WriteCapacityUnits" => 1}, "TableName" => "TestUsers"}
+
+    secondary_index = [%{
+      index_name: "my-global-index",
+      key_schema: [%{
+        attribute_name: "email",
+        attribute_type: "string",
+      }]
+    }]
+    assert Dynamo.create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, secondary_index) == expected
+  end
+
   test "#scan" do
     expected = %{"ExclusiveStartKey" => %{api_key: %{"S" => "api_key"}}, "ExpressionAttributeNames" => %{api_key: "#api_key"},
       "ExpressionAttributeValues" => %{":api_key" => %{"S" => "asdfasdfasdf"}, ":name" => %{"S" => "bubba"}},

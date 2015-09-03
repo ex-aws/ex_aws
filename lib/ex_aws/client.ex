@@ -2,6 +2,10 @@ defmodule ExAws.Client do
   @moduledoc false
 
   # Generates boilerplate for client configuration and implementation.
+  # It uses the functions in Impl as the list to generate from, so that
+  # the built in behaviour checking logic can operate normally.
+  #
+  # However, the impl list is filtered according to the callback list
 
   def generate_boilerplate(client, opts) do
     config_boilerplate = create_config_boilerplate(client, opts)
@@ -17,8 +21,11 @@ defmodule ExAws.Client do
   end
 
   def create_config_boilerplate(client, opts) do
+    << "Elixir.", client_name::binary>> = client |> Atom.to_string
     quote do
-      @moduledoc false
+      @moduledoc """
+      Consult the documentation in #{unquote(client_name)}
+      """
       @otp_app Keyword.get(unquote(opts), :otp_app)
       @behaviour unquote(client)
 
