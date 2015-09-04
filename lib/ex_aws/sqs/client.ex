@@ -100,7 +100,11 @@ defmodule ExAws.SQS.Client do
   defcallback delete_message(queue_url :: binary, receipt_handle :: binary) :: SQS.Request.response_t
 
   @doc "Deletes a list of messages from a SQS Queue in a single request"
-  defcallback delete_message_batch(queue_url :: binary, receipt_handles :: [binary, ...]) :: SQS.Request.response_t
+  @type delete_message_batch_item :: %{
+    :id => binary,
+    :receipt_handle => binary
+  }
+  defcallback delete_message_batch(queue_url :: binary, message_receipts :: [delete_message_batch_item, ...]) :: SQS.Request.response_t
 
   @doc "Delete a queue"
   defcallback delete_queue(queue_url :: binary) :: SQS.Request.response_t

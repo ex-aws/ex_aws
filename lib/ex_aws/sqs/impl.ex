@@ -95,11 +95,26 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "DeleteMessage", %{"ReceiptHandle" => receipt_handle})
   end
 
+  def delete_message_batch(client, queue, messages) do
+    params =
+      messages
+      |> Enum.with_index
+      |> Enum.reduce(%{}, fn({message, index}, params) ->
+        Map.merge(params, format_batch_deletion(message, index))
+      end)
+
+    request(client, queue, "DeleteMessageBatch", params)
+  end
+
+  def change_message_visibility(client, queue, receipt_handle, visibility_timeout) do
+    request(client, queue, "ChangeMessageVisibility", %{"ReceiptHandle" => receipt_handle, "VisibilityTimeout" => visibility_timeout})
+  end
+
   defp request(%{__struct__: module} = client, queue, action, params) do
     module.request(client, queue, action, params)
   end
 
-  def format_permissions(%{} = permissions) do
+  defp format_permissions(%{} = permissions) do
     permissions
     |> expand_permissions
     |> Enum.with_index
@@ -107,19 +122,19 @@ defmodule ExAws.SQS.Impl do
     |> Enum.reduce(%{}, &Map.merge(&1, &2))
   end
 
-  def expand_permissions(%{} = permissions) do
+  defp expand_permissions(%{} = permissions) do
     Enum.reduce(permissions, [], fn(permission, permissions) ->
       [expand_permission(permission) | permissions]
     end)
     |> List.flatten
   end
 
-  def expand_permission({account_id, :all}), do: {account_id, "*"}
-  def expand_permission({account_id, permissions}) do
+  defp expand_permission({account_id, :all}), do: {account_id, "*"}
+  defp expand_permission({account_id, permissions}) do
     Enum.map(permissions, &({account_id, &1}))
   end
 
-  def format_permission({{account_id, permission}, index}) do
+  defp format_permission({{account_id, permission}, index}) do
     %{}
     |> Map.put("AWSAccountId.#{index + 1}", account_id)
     |> Map.put("ActionName.#{index + 1}", format_param_key(permission))
@@ -138,21 +153,21 @@ defmodule ExAws.SQS.Impl do
     |> Mix.Utils.camelize
   end
 
-  def format_queue_attributes(:all), do: format_queue_attributes([:all])
-  def format_queue_attributes(attributes) do
+  defp format_queue_attributes(:all), do: format_queue_attributes([:all])
+  defp format_queue_attributes(attributes) do
     attributes
     |> Enum.with_index
     |> Enum.map(&format_queue_attribute/1)
     |> Enum.reduce(%{}, &Map.merge(&1, &2))
   end
 
-  def format_queue_attribute({attribute, index}) do
+  defp format_queue_attribute({attribute, index}) do
     key = "AttributeName.#{index + 1}"
 
     Map.put(%{}, key, format_param_key(attribute))
   end
 
-  def format_batch_message(message, index) do
+  defp format_batch_message(message, index) do
     prefix = "SendMessageBatchRequestEntry.#{index + 1}."
 
     {attrs, opts} = message
@@ -165,6 +180,16 @@ defmodule ExAws.SQS.Impl do
     opts
     |> format_regular_opts
     |> Map.merge(attrs)
+    |> Enum.reduce(%{}, fn({key, value}, params) ->
+         Map.put(params, prefix <> key, value)
+       end)
+  end
+
+  defp format_batch_deletion(message, index) do
+    prefix = "DeleteMessageBatchRequestEntry.#{index + 1}."
+
+    message
+    |> format_regular_opts
     |> Enum.reduce(%{}, fn({key, value}, params) ->
          Map.put(params, prefix <> key, value)
        end)

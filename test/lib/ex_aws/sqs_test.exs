@@ -223,11 +223,34 @@ defmodule ExAws.SQSTest do
   end
 
   test "#delete_message_batch" do
+    expected = %{"Action" => "DeleteMessageBatch",
+                 "DeleteMessageBatchRequestEntry.1.Id" => "message_1",
+                 "DeleteMessageBatchRequestEntry.1.ReceiptHandle" => "AQEBlA6/i+8F3P6lA7y3msc8dINnF+b3VgTX71nMWw7VvbHc8mdGFyZjVAVMH/rg6Vyc00O2Tl2ZyKn8IPUiy6n44ipop+xb33XNU/cABvVWZogNN95b9mmR6RuSA0dcVmFL02TwZDpg7cMOWNhYThEp+a5atsG85PX7V6q9zBklltBSQnT6r9QSngnv2m1C23jfFYow0oy86cofp0mQ4z5ez9bWmlHa4XfpZUpP2KVlBCDgyR0tQQRGt170foph32Cg+Bp6RRv9Tyo7aVWqM4OT/CHTJ0ZPiAYoH8MYFxjUaqoeKhUwDFq36trQxrBq9BfBj+hrzEtDQdxcNZM2pZi2xQ==",
+                 "DeleteMessageBatchRequestEntry.2.Id" => "message_2",
+                 "DeleteMessageBatchRequestEntry.2.ReceiptHandle" => "AQEBc8vuFKIpTF3ESXTpxc2+vARUXHpGzup9YwTMD7Alibe/z/yXEPaXY4ZtTUvInYfEazLhughdoLGSEh1SDPsIdDB9Os8D84xHmtXelswA7FBXEdNunRk4wg6Zi4jgjEy3Kyy9cGpiZwRxw4Vy4PrK7H0BbH07k+mVby8P8B9m97GO/w666/zU46QpFB6jhi7L0d76AW16/PMzEBbDB6zUvXiYUAMmxvdppYrcYqb22K0gWvZsL1Dogr592k/fA1W2oF1YsjTSn9FjYr/q5XK1Z1Lvvmh3/20D5U0qjnFd4wg9MlVp8zrBg2mNoVl6QEHPNP/zA+dZg2d/6SSgEdI1hQ==",
+                 "QueueName" => "982071696186/test_queue"}
 
+    assert expected == SQS.delete_message_batch("982071696186/test_queue", [
+                        %{
+                          id: "message_1",
+                          receipt_handle: "AQEBlA6/i+8F3P6lA7y3msc8dINnF+b3VgTX71nMWw7VvbHc8mdGFyZjVAVMH/rg6Vyc00O2Tl2ZyKn8IPUiy6n44ipop+xb33XNU/cABvVWZogNN95b9mmR6RuSA0dcVmFL02TwZDpg7cMOWNhYThEp+a5atsG85PX7V6q9zBklltBSQnT6r9QSngnv2m1C23jfFYow0oy86cofp0mQ4z5ez9bWmlHa4XfpZUpP2KVlBCDgyR0tQQRGt170foph32Cg+Bp6RRv9Tyo7aVWqM4OT/CHTJ0ZPiAYoH8MYFxjUaqoeKhUwDFq36trQxrBq9BfBj+hrzEtDQdxcNZM2pZi2xQ==",
+                        },
+                        %{
+                          id: "message_2",
+                          receipt_handle: "AQEBc8vuFKIpTF3ESXTpxc2+vARUXHpGzup9YwTMD7Alibe/z/yXEPaXY4ZtTUvInYfEazLhughdoLGSEh1SDPsIdDB9Os8D84xHmtXelswA7FBXEdNunRk4wg6Zi4jgjEy3Kyy9cGpiZwRxw4Vy4PrK7H0BbH07k+mVby8P8B9m97GO/w666/zU46QpFB6jhi7L0d76AW16/PMzEBbDB6zUvXiYUAMmxvdppYrcYqb22K0gWvZsL1Dogr592k/fA1W2oF1YsjTSn9FjYr/q5XK1Z1Lvvmh3/20D5U0qjnFd4wg9MlVp8zrBg2mNoVl6QEHPNP/zA+dZg2d/6SSgEdI1hQ==",
+                        }
+                       ])
   end
 
   test "#change_message_visibility" do
+    expected = %{"Action" => "ChangeMessageVisibility",
+                 "QueueName" => "982071696186/test_queue",
+                 "ReceiptHandle" => "AQEBS52UqQL7wJo1I21OqVBXTbxZa0WrHqKntw/N4YtYblV3mix7BkEQVM16K9WABAM9q6AKqjiuTPQAmhqRz2+pw02QuNB5kUn2hpSLVTasAkcTMPgFfLFEufBxGR2hxGeOvP/XDO3DPGnQO3WvOSJTxQKitwT9xWDWAZgm96Ra1pnduckZkLTWolj+34okJqQTDVAL7/Br4BEtgHQXJKm5BCfry8jA1XYjy5IjyB2syLihdgVU0qBLxlGDDhuCOW5eNQiVig3v0oa7SVvRKzMK4bMor1Y17wSETo6y0gYb1QtD1rBUpoKAeq49gpKjBnAkMdHV/DFAfRAtcJNcsPpiQA==",
+                 "VisibilityTimeout" => 300}
 
+    assert expected == SQS.change_message_visibility("982071696186/test_queue",
+                                                     "AQEBS52UqQL7wJo1I21OqVBXTbxZa0WrHqKntw/N4YtYblV3mix7BkEQVM16K9WABAM9q6AKqjiuTPQAmhqRz2+pw02QuNB5kUn2hpSLVTasAkcTMPgFfLFEufBxGR2hxGeOvP/XDO3DPGnQO3WvOSJTxQKitwT9xWDWAZgm96Ra1pnduckZkLTWolj+34okJqQTDVAL7/Br4BEtgHQXJKm5BCfry8jA1XYjy5IjyB2syLihdgVU0qBLxlGDDhuCOW5eNQiVig3v0oa7SVvRKzMK4bMor1Y17wSETo6y0gYb1QtD1rBUpoKAeq49gpKjBnAkMdHV/DFAfRAtcJNcsPpiQA==",
+                                                     300)
   end
 
   test "#change_message_visibility_batch" do
