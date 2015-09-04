@@ -233,11 +233,11 @@ defmodule ExAws.SQSTest do
     assert expected == SQS.delete_message_batch("982071696186/test_queue", [
                         %{
                           id: "message_1",
-                          receipt_handle: "AQEBlA6/i+8F3P6lA7y3msc8dINnF+b3VgTX71nMWw7VvbHc8mdGFyZjVAVMH/rg6Vyc00O2Tl2ZyKn8IPUiy6n44ipop+xb33XNU/cABvVWZogNN95b9mmR6RuSA0dcVmFL02TwZDpg7cMOWNhYThEp+a5atsG85PX7V6q9zBklltBSQnT6r9QSngnv2m1C23jfFYow0oy86cofp0mQ4z5ez9bWmlHa4XfpZUpP2KVlBCDgyR0tQQRGt170foph32Cg+Bp6RRv9Tyo7aVWqM4OT/CHTJ0ZPiAYoH8MYFxjUaqoeKhUwDFq36trQxrBq9BfBj+hrzEtDQdxcNZM2pZi2xQ==",
+                          receipt_handle: "AQEBlA6/i+8F3P6lA7y3msc8dINnF+b3VgTX71nMWw7VvbHc8mdGFyZjVAVMH/rg6Vyc00O2Tl2ZyKn8IPUiy6n44ipop+xb33XNU/cABvVWZogNN95b9mmR6RuSA0dcVmFL02TwZDpg7cMOWNhYThEp+a5atsG85PX7V6q9zBklltBSQnT6r9QSngnv2m1C23jfFYow0oy86cofp0mQ4z5ez9bWmlHa4XfpZUpP2KVlBCDgyR0tQQRGt170foph32Cg+Bp6RRv9Tyo7aVWqM4OT/CHTJ0ZPiAYoH8MYFxjUaqoeKhUwDFq36trQxrBq9BfBj+hrzEtDQdxcNZM2pZi2xQ=="
                         },
                         %{
                           id: "message_2",
-                          receipt_handle: "AQEBc8vuFKIpTF3ESXTpxc2+vARUXHpGzup9YwTMD7Alibe/z/yXEPaXY4ZtTUvInYfEazLhughdoLGSEh1SDPsIdDB9Os8D84xHmtXelswA7FBXEdNunRk4wg6Zi4jgjEy3Kyy9cGpiZwRxw4Vy4PrK7H0BbH07k+mVby8P8B9m97GO/w666/zU46QpFB6jhi7L0d76AW16/PMzEBbDB6zUvXiYUAMmxvdppYrcYqb22K0gWvZsL1Dogr592k/fA1W2oF1YsjTSn9FjYr/q5XK1Z1Lvvmh3/20D5U0qjnFd4wg9MlVp8zrBg2mNoVl6QEHPNP/zA+dZg2d/6SSgEdI1hQ==",
+                          receipt_handle: "AQEBc8vuFKIpTF3ESXTpxc2+vARUXHpGzup9YwTMD7Alibe/z/yXEPaXY4ZtTUvInYfEazLhughdoLGSEh1SDPsIdDB9Os8D84xHmtXelswA7FBXEdNunRk4wg6Zi4jgjEy3Kyy9cGpiZwRxw4Vy4PrK7H0BbH07k+mVby8P8B9m97GO/w666/zU46QpFB6jhi7L0d76AW16/PMzEBbDB6zUvXiYUAMmxvdppYrcYqb22K0gWvZsL1Dogr592k/fA1W2oF1YsjTSn9FjYr/q5XK1Z1Lvvmh3/20D5U0qjnFd4wg9MlVp8zrBg2mNoVl6QEHPNP/zA+dZg2d/6SSgEdI1hQ=="
                         }
                        ])
   end
@@ -254,6 +254,26 @@ defmodule ExAws.SQSTest do
   end
 
   test "#change_message_visibility_batch" do
+    expected = %{"Action" => "ChangeMessageVisibilityBatch",
+                 "ChangeMessageVisibilityBatchRequestEntry.1.Id" => "message_1",
+                 "ChangeMessageVisibilityBatchRequestEntry.1.ReceiptHandle" => "AQEBnLhpyRJrHQrnrj9KdMD2PjD5XJdb26X12vvOvZuqoa/i1LGSq4JO7HHmoXGbrn04Zi4jTb4yQGywI/Q1yah/kPgLQuiOAHlnPvypRmKeToeJoHA75bduoC0o8rCokcQtTy9ZGIBM/WlnrND4Cs0Zie7KJEEq4LxDb9xivphZp1vjXTwActAwCN6jk4rSlyXaLTgYoeeugjm4RoM0Vq+iSQX/vksNAkEy2pjZWg3/K8v8/2JQZtop6F6JjcaRlhRYSKvwSu0Xjh3U3QJhXaWZL0u9e08k16g8pE5Q/5s50Gjo9qTkDFUdJVBmFdiyccH1afkkwgYQ4/TJ9j/wR2jQRA==",
+                 "ChangeMessageVisibilityBatchRequestEntry.1.VisibilityTimeout" => 300,
+                 "ChangeMessageVisibilityBatchRequestEntry.2.Id" => "message_2",
+                 "ChangeMessageVisibilityBatchRequestEntry.2.ReceiptHandle" => "AQEBpi/Z/1G3YBXa24a9beh4WwXFMJLNcd9bNVnfz1GKQIs/LlgzUf12jnyV7SquZIJ2KSkxnIVd4w6mGxCFGg/esrgk0xmu53QRWxCJ3HSa1RGpb+cJ/nNbgRFG1DIo1/njuG+sCZ66VFgsCz8tAtjEKNAndVgT9RDpRjvD+Xb+Ud4Z66izJs5ubeXpCTaq6tiBTmgC6VAUsOzH3d7WelmZTKnDG/3+nHmZnP3/9PJwwx1dzJDtZdOrNJ3w5dRPOpKAfxsgPTMl+5Vcd0xpaA6jEC9IvLakvw1OgqadLwUaS90GJr4GjHBevSDh+2fe8jub6BoCM3nzixlYKEZwdPVORw==",
+                 "ChangeMessageVisibilityBatchRequestEntry.2.VisibilityTimeout" => 600,
+                 "QueueName" => "982071696186/test_queue"}
 
+    assert expected == SQS.change_message_visibility_batch("982071696186/test_queue", [
+                        %{
+                          id: "message_1",
+                          receipt_handle: "AQEBnLhpyRJrHQrnrj9KdMD2PjD5XJdb26X12vvOvZuqoa/i1LGSq4JO7HHmoXGbrn04Zi4jTb4yQGywI/Q1yah/kPgLQuiOAHlnPvypRmKeToeJoHA75bduoC0o8rCokcQtTy9ZGIBM/WlnrND4Cs0Zie7KJEEq4LxDb9xivphZp1vjXTwActAwCN6jk4rSlyXaLTgYoeeugjm4RoM0Vq+iSQX/vksNAkEy2pjZWg3/K8v8/2JQZtop6F6JjcaRlhRYSKvwSu0Xjh3U3QJhXaWZL0u9e08k16g8pE5Q/5s50Gjo9qTkDFUdJVBmFdiyccH1afkkwgYQ4/TJ9j/wR2jQRA==",
+                          visibility_timeout: 300
+                        },
+                        %{
+                          id: "message_2",
+                          receipt_handle: "AQEBpi/Z/1G3YBXa24a9beh4WwXFMJLNcd9bNVnfz1GKQIs/LlgzUf12jnyV7SquZIJ2KSkxnIVd4w6mGxCFGg/esrgk0xmu53QRWxCJ3HSa1RGpb+cJ/nNbgRFG1DIo1/njuG+sCZ66VFgsCz8tAtjEKNAndVgT9RDpRjvD+Xb+Ud4Z66izJs5ubeXpCTaq6tiBTmgC6VAUsOzH3d7WelmZTKnDG/3+nHmZnP3/9PJwwx1dzJDtZdOrNJ3w5dRPOpKAfxsgPTMl+5Vcd0xpaA6jEC9IvLakvw1OgqadLwUaS90GJr4GjHBevSDh+2fe8jub6BoCM3nzixlYKEZwdPVORw==",
+                          visibility_timeout: 600
+                        }
+                       ])
   end
 end

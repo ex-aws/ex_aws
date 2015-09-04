@@ -110,6 +110,17 @@ defmodule ExAws.SQS.Impl do
     request(client, queue, "ChangeMessageVisibility", %{"ReceiptHandle" => receipt_handle, "VisibilityTimeout" => visibility_timeout})
   end
 
+  def change_message_visibility_batch(client, queue, messages) do
+    params =
+      messages
+      |> Enum.with_index
+      |> Enum.reduce(%{}, fn({message, index}, params) ->
+        Map.merge(params, format_batch_visibility_change(message, index))
+      end)
+
+    request(client, queue, "ChangeMessageVisibilityBatch", params)
+  end
+
   defp request(%{__struct__: module} = client, queue, action, params) do
     module.request(client, queue, action, params)
   end
@@ -187,6 +198,16 @@ defmodule ExAws.SQS.Impl do
 
   defp format_batch_deletion(message, index) do
     prefix = "DeleteMessageBatchRequestEntry.#{index + 1}."
+
+    message
+    |> format_regular_opts
+    |> Enum.reduce(%{}, fn({key, value}, params) ->
+         Map.put(params, prefix <> key, value)
+       end)
+  end
+
+  defp format_batch_visibility_change(message, index) do
+    prefix = "ChangeMessageVisibilityBatchRequestEntry.#{index + 1}."
 
     message
     |> format_regular_opts
