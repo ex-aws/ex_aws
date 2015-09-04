@@ -14,7 +14,7 @@ defmodule ExAws.S3.Client do
 
   In your config
   ```
-  config :my_otp_app, ExAws,
+  config :my_otp_app, :ex_aws,
     s3: [], # S3 config goes here
   ```
 

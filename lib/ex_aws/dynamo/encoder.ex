@@ -14,30 +14,31 @@ defmodule ExAws.Dynamo.Encoder do
   """
 
   # These functions exist to ensure that encoding is idempotent.
-  def encode(%{"B"    => _} = val), do: val
-  def encode(%{"BOOL" => _} = val), do: val
-  def encode(%{"BS"   => _} = val), do: val
-  def encode(%{"L"    => _} = val), do: val
-  def encode(%{"M"    => _} = val), do: val
-  def encode(%{"NS"   => _} = val), do: val
-  def encode(%{"NULL" => _} = val), do: val
-  def encode(%{"N"    => _} = val), do: val
-  def encode(%{"S"    => _} = val), do: val
-  def encode(%{"SS"   => _} = val), do: val
+  def encode(value), do: encode(value, [])
+  def encode(%{"B"    => _} = val, _), do: val
+  def encode(%{"BOOL" => _} = val, _), do: val
+  def encode(%{"BS"   => _} = val, _), do: val
+  def encode(%{"L"    => _} = val, _), do: val
+  def encode(%{"M"    => _} = val, _), do: val
+  def encode(%{"NS"   => _} = val, _), do: val
+  def encode(%{"NULL" => _} = val, _), do: val
+  def encode(%{"N"    => _} = val, _), do: val
+  def encode(%{"S"    => _} = val, _), do: val
+  def encode(%{"SS"   => _} = val, _), do: val
 
-  def encode(value) do
-    ExAws.Dynamo.Encodable.encode(value)
+  def encode(value, options) do
+    ExAws.Dynamo.Encodable.encode(value, options)
   end
 
   # Use this in case you want to encode something already in dynamo format
   # For some reason I cannot fathom. If you find yourself using this, please open an issue
   # so I can find out why and better support this.
-  def encode!(value) do
-    ExAws.Dynamo.Encodable.encode(value)
+  def encode!(value, options \\ []) do
+    ExAws.Dynamo.Encodable.encode(value, options)
   end
 
-  def encode_flat(value) do
-    case ExAws.Dynamo.Encodable.encode(value) do
+  def encode_root(value, options \\ []) do
+    case ExAws.Dynamo.Encodable.encode(value, options) do
       %{"M" => value} -> value
       %{"L" => value} -> value
     end

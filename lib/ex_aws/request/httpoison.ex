@@ -27,7 +27,7 @@ defmodule ExAws.Request.HTTPoison do
   # HTTPoison it couldn't be set as an option to httpoison directly.
   @default_opts [
     recv_timeout: @default_timeout,
-    hackney: [recv_timeout: @default_timeout]
+    hackney: [recv_timeout: @default_timeout, pool: false]
   ]
 
   def request(method, url, body \\ "", headers \\ []) do

@@ -15,7 +15,7 @@ defmodule ExAws.Lambda.Client do
 
   In your config
   ```
-  config :my_otp_app, ExAws,
+  config :my_otp_app, :ex_aws,
     lambda: [], # lambda config goes here
   ```
 

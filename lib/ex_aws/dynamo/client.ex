@@ -10,7 +10,34 @@ defmodule ExAws.Dynamo.Client do
   NOTE: When Mix.env in [:test, :dev] dynamo clients will run by default against
   Dynamodb local.
 
-  ## Usage
+  ## Basic usage
+  ```elixir
+  defmodule User do
+    @derive [ExAws.Dynamo.Encodable]
+    defstruct [:email, :name, :age, :admin]
+  end
+
+  alias ExAws.Dynamo
+
+  # Create a users table with a primary key of email [String]
+  # and 1 unit of read and write capacity
+  Dynamo.create_table("Users", "email", %{email: :string}, 1, 1)
+
+  user = %User{email: "bubba@foo.com", name: "Bubba", age: 23, admin: false}
+  # Save the user
+  Dynamo.put_item("Users", user)
+
+  # Retrieve the user by email and decode it as a User struct.
+  result = Dynamo.get_item!("Users", %{email: user.email})
+  |> Dynamo.Decoder.decode(as: User)
+
+  assert user == result
+  ```
+
+  ## Customization
+  If you want more than one client you can define your own as follows. If you don't need more
+  than one or plan on customizing the request process it's generally easier to just use
+  and configure the ExAws.Dynamo client.
   ```
   defmodule MyApp.Dynamo do
     use ExAws.Dynamo.Client, otp_app: :my_otp_app
@@ -152,35 +179,64 @@ defmodule ExAws.Dynamo.Client do
   """
   defcallback create_table(
     table_name      :: binary,
-    key_schema      :: binary | atom,
+    key_schema      :: binary | atom | key_schema,
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer) :: Request.response_t
 
-    @doc """
-    Create table
+  @doc """
+  Create table
 
-    key_schema allows specifying hash and / or range keys IE
-    ```
-    [api_key: :hash, something_rangy: :range]
-    ```
-    """
+  key_schema allows specifying hash and / or range keys IE
+  ```
+  [api_key: :hash, something_rangy: :range]
+  ```
+  """
   defcallback create_table(
     table_name      :: binary,
-    key_schema      :: [key_schema],
+    key_schema      :: key_schema,
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer) :: Request.response_t
 
-  @doc "Create table with indices"
+  @doc """
+  Create table with secondary indices
+
+  Each index should follow the format outlined here: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_CreateTable.html
+
+  For convenience, the keys in each index map are allowed to be atoms. IE:
+  `"KeySchema"` in the aws docs can be `key_schema:`
+
+  Note that both the `global_indexes` and `local_indexes` arguments expect a list of such indices.
+
+  Examples
+  ```
+  secondary_index = [%{
+    index_name: "my-global-index",
+    key_schema: [%{
+      attribute_name: "email",
+      attribute_type: "HASH",
+    }],
+    provisioned_throughput: %{
+      read_capacity_units: 1,
+      write_capacity_units: 1,
+    },
+    projection: %{
+      projection_type: "KEYS_ONLY",
+    }
+  }]
+  create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, [])
+  ```
+
+  """
   defcallback create_table(
     table_name      :: binary,
-    key_schema      :: [key_schema],
+    key_schema      :: key_schema,
     key_definitions :: key_definitions,
     read_capacity   :: pos_integer,
     write_capacity  :: pos_integer,
-    global_indexes  :: Keyword.t,
-    local_indexes   :: Keyword.t) :: Request.response_t
+    global_indexes  :: [Map.t],
+    local_indexes   :: [Map.t]) :: ExAws.Request.response_t
 
   @doc "Describe table"
   defcallback describe_table(name :: binary) :: Request.response_t
@@ -200,13 +256,11 @@ defmodule ExAws.Dynamo.Client do
   Please read http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html
 
   ```
-  "Users"
-  |> Dynamo.stream_scan(
+  Dynamo.scan("Users"
     limit: 1,
     expression_attribute_values: [desired_api_key: "adminkey"],
     expression_attribute_names: %{"#asdf" => "api_key"},
     filter_expression: "#asdf = :desired_api_key")
-  |> Enum.to_list
   ```
 
   Generally speaking you won't need to use `:expression_attribute_names`. It exists
@@ -251,12 +305,10 @@ defmodule ExAws.Dynamo.Client do
   Please read: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
 
   ```
-  "Users"
-  |> Dynamo.stream_query(
+  Dynamo.query("Users",
     limit: 1,
     expression_attribute_values: [desired_api_key: "adminkey"],
     key_condition_expression: "api_key = :desired_api_key")
-  |> Enum.to_list
   ```
 
   Parameters with keys that are automatically annotated with dynamo types are:
@@ -284,8 +336,8 @@ defmodule ExAws.Dynamo.Client do
   Returns an enumerable which handles pagination automatically in the backend.
 
   ```elixir
-  {:ok, %{"Items" => items}} = Dynamo.stream_query("Users", filter_expression: "api_key = :api_key", expression_attribute_values: [api_key: "api_key_i_want"])
-  items |> Enum.to_list #=> Returns every item in the Users table with an api_key == "api_key_i_want".
+  Dynamo.stream_query("Users", filter_expression: "api_key = :api_key", expression_attribute_values: [api_key: "api_key_i_want"])
+  |> Enum.to_list #=> Returns every item in the Users table with an api_key == "api_key_i_want".
   ```
   """
   defcallback stream_query(table_name :: table_name) :: Enumerable.t

@@ -21,8 +21,11 @@ defmodule ExAws.Client do
   end
 
   def create_config_boilerplate(client, opts) do
+    << "Elixir.", client_name::binary>> = client |> Atom.to_string
     quote do
-      @moduledoc false
+      @moduledoc """
+      Consult the documentation in #{unquote(client_name)}
+      """
       @otp_app Keyword.get(unquote(opts), :otp_app)
       @behaviour unquote(client)
 

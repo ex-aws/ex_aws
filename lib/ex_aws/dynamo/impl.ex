@@ -61,11 +61,12 @@ defmodule ExAws.Dynamo.Impl do
       }
     }
     data = %{
-      "GlobalSecondaryIndexes" => global_indexes |> camelize_keys(deep: true),
-      "LocalSecondaryIndexes"  => local_indexes  |> camelize_keys(deep: true)
+      "GlobalSecondaryIndexes" => global_indexes |> Enum.map(&camelize_keys(&1, deep: true)),
+      "LocalSecondaryIndexes"  => local_indexes  |> Enum.map(&camelize_keys(&1, deep: true))
     } |> Enum.reduce(data, fn
-      ({_, indices = %{}}, data) when map_size(indices) == 0 -> data
-      {name, indices}, data -> Map.put(data, name, Enum.into(indices, %{}))
+      {_, []}, data -> data
+      {name, indices}, data ->
+        Map.put(data, name, indices)
     end)
 
     request(client, :create_table, data)
@@ -143,7 +144,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
-      "Item" => Dynamo.Encoder.encode(record)
+      "Item" => Dynamo.Encoder.encode_root(record)
     })
 
     request(client, :put_item, data)
@@ -157,7 +158,7 @@ defmodule ExAws.Dynamo.Impl do
         [delete_request: [key: primary_key]] ->
           %{"DeleteRequest" => %{"Key" => primary_key |> Dynamo.Encoder.encode}}
         [put_request: [item: item]] ->
-          %{"PutRequest" => %{"Item" => Dynamo.Encoder.encode(item)}}
+          %{"PutRequest" => %{"Item" => Dynamo.Encoder.encode_root(item)}}
       end)
       Map.put(query, table_name, queries)
     end)
@@ -174,7 +175,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
-      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_root
     })
 
     request(client, :get_item, data)
@@ -190,7 +191,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => table_name,
-      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_root
     })
 
     request(client, :update_item, data)
@@ -201,7 +202,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
-      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat})
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_root})
 
     request(client, :delete_item, data)
   end

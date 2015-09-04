@@ -17,6 +17,10 @@ defmodule ExAws.Utils do
       end
     end)
   end
+  
+  def camelize_keys([%{} | _] = opts, deep: deep) do
+    Enum.map(opts, &camelize_keys(&1, deep: deep))
+  end
 
   def camelize_keys(opts, depth) do
     try do
