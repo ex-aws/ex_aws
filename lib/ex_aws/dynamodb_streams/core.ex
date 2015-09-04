@@ -5,6 +5,43 @@ defmodule ExAws.Dynamodb.Streams.Core do
     "GetShardIterator",
     "ListStreams"]
 
+  @moduledoc """
+  ## Amazon DynamoDB Streams
+
+  Amazon DynamoDB Streams
+
+  This is the Amazon DynamoDB Streams API Reference. This guide describes the
+  low-level API actions for accessing streams and processing stream records.
+  For information about application development with DynamoDB Streams, see
+  the [Amazon DynamoDB Developer
+  Guide](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide//Streams.html).
+
+  Note that this document is intended for use with the following DynamoDB
+  documentation:
+
+  <ul> <li> [Amazon DynamoDB Developer
+  Guide](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/)
+
+  </li> <li> [Amazon DynamoDB API
+  Reference](http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/)
+
+  </li> </ul> The following are short descriptions of each low-level DynamoDB
+  Streams API action, organized by function.
+
+  <ul> <li>*DescribeStream* - Returns detailed information about a particular
+  stream.
+
+  </li> <li> *GetRecords* - Retrieves the stream records from within a shard.
+
+  </li> <li> *GetShardIterator* - Returns information on how to retrieve the
+  streams record from a shard with a given shard ID.
+
+  </li> <li> *ListStreams* - Returns a list of all the streams associated
+  with the current AWS account and endpoint.
+
+  </li> </ul>
+  """
+
 
   @doc """
   DescribeStream

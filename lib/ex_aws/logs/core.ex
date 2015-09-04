@@ -23,6 +23,57 @@ defmodule ExAws.Logs.Core do
     "PutSubscriptionFilter",
     "TestMetricFilter"]
 
+  @moduledoc """
+  ## Amazon CloudWatch Logs
+
+  Amazon CloudWatch Logs API Reference
+
+  This is the *Amazon CloudWatch Logs API Reference*. Amazon CloudWatch Logs
+  enables you to monitor, store, and access your system, application, and
+  custom log files. This guide provides detailed information about Amazon
+  CloudWatch Logs actions, data types, parameters, and errors. For detailed
+  information about Amazon CloudWatch Logs features and their associated API
+  calls, go to the [Amazon CloudWatch Developer
+  Guide](http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide).
+
+  Use the following links to get started using the *Amazon CloudWatch Logs
+  API Reference*:
+
+  <ul> <li>
+  [Actions](http://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_Operations.html):
+  An alphabetical list of all Amazon CloudWatch Logs actions.</li> <li> [Data
+  Types](http://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_Types.html):
+  An alphabetical list of all Amazon CloudWatch Logs data types.</li> <li>
+  [Common
+  Parameters](http://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/CommonParameters.html):
+  Parameters that all Query actions can use.</li> <li> [Common
+  Errors](http://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/CommonErrors.html):
+  Client and server errors that all actions can return.</li> <li> [Regions
+  and
+  Endpoints](http://docs.aws.amazon.com/general/latest/gr/index.html?rande.html):
+  Itemized regions and endpoints for all AWS products.</li> </ul> In addition
+  to using the Amazon CloudWatch Logs API, you can also use the following
+  SDKs and third-party libraries to access Amazon CloudWatch Logs
+  programmatically.
+
+  <ul> <li>[AWS SDK for Java
+  Documentation](http://aws.amazon.com/documentation/sdkforjava/)</li>
+  <li>[AWS SDK for .NET
+  Documentation](http://aws.amazon.com/documentation/sdkfornet/)</li>
+  <li>[AWS SDK for PHP
+  Documentation](http://aws.amazon.com/documentation/sdkforphp/)</li>
+  <li>[AWS SDK for Ruby
+  Documentation](http://aws.amazon.com/documentation/sdkforruby/)</li> </ul>
+  Developers in the AWS developer community also provide their own libraries,
+  which you can find at the following AWS developer centers:
+
+  <ul> <li>[AWS Java Developer Center](http://aws.amazon.com/java/)</li>
+  <li>[AWS PHP Developer Center](http://aws.amazon.com/php/)</li> <li>[AWS
+  Python Developer Center](http://aws.amazon.com/python/)</li> <li>[AWS Ruby
+  Developer Center](http://aws.amazon.com/ruby/)</li> <li>[AWS Windows and
+  .NET Developer Center](http://aws.amazon.com/net/)</li> </ul>
+  """
+
 
   @doc """
   CreateLogGroup

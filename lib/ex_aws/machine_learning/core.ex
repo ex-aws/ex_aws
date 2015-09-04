@@ -26,6 +26,12 @@ defmodule ExAws.MachineLearning.Core do
     "UpdateEvaluation",
     "UpdateMLModel"]
 
+  @moduledoc """
+  ## Amazon Machine Learning
+
+  Definition of the public APIs exposed by Amazon Machine Learning
+  """
+
 
   @doc """
   CreateBatchPrediction

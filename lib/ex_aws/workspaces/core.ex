@@ -8,6 +8,16 @@ defmodule ExAws.Workspaces.Core do
     "RebuildWorkspaces",
     "TerminateWorkspaces"]
 
+  @moduledoc """
+  ## Amazon WorkSpaces
+
+  Amazon WorkSpaces Service
+
+  This is the *Amazon WorkSpaces API Reference*. This guide provides detailed
+  information about Amazon WorkSpaces operations, data types, parameters, and
+  errors.
+  """
+
 
   @doc """
   CreateWorkspaces

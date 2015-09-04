@@ -19,6 +19,12 @@ defmodule ExAws.Route53Domains.Core do
     "UpdateDomainNameservers",
     "UpdateTagsForDomain"]
 
+  @moduledoc """
+  ## Amazon Route 53 Domains
+
+
+  """
+
 
   @doc """
   CheckDomainAvailability

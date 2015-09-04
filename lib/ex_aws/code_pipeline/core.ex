@@ -24,6 +24,95 @@ defmodule ExAws.CodePipeline.Core do
     "StartPipelineExecution",
     "UpdatePipeline"]
 
+  @moduledoc """
+  ## AWS CodePipeline
+
+  AWS CodePipeline
+
+  **Overview** This is the AWS CodePipeline API Reference. This guide
+  provides descriptions of the actions and data types for AWS CodePipeline.
+  Some functionality for your pipeline is only configurable through the API.
+  For additional information, see the [AWS CodePipeline User
+  Guide](http://docs.aws.amazon.com/pipelines/latest/userguide/welcome.html).
+
+  You can use the AWS CodePipeline API to work with pipelines, stages,
+  actions, gates, and transitions, as described below.
+
+  *Pipelines* are models of automated release processes. Each pipeline is
+  uniquely named, and consists of actions, gates, and stages.
+
+  You can work with pipelines by calling: <ul> <li> `CreatePipeline`, which
+  creates a uniquely-named pipeline.</li> <li> `DeletePipeline`, which
+  deletes the specified pipeline.</li> <li> `GetPipeline`, which returns
+  information about a pipeline structure.</li> <li> `GetPipelineState`, which
+  returns information about the current state of the stages and actions of a
+  pipeline.</li> <li> `ListPipelines`, which gets a summary of all of the
+  pipelines associated with your account.</li> <li> `StartPipelineExecution`,
+  which runs the the most recent revision of an artifact through the
+  pipeline.</li> <li> `UpdatePipeline`, which updates a pipeline with edits
+  or changes to the structure of the pipeline.</li> </ul> Pipelines include
+  *stages*, which are which are logical groupings of gates and actions. Each
+  stage contains one or more actions that must complete before the next stage
+  begins. A stage will result in success or failure. If a stage fails, then
+  the pipeline stops at that stage and will remain stopped until either a new
+  version of an artifact appears in the source location, or a user takes
+  action to re-run the most recent artifact through the pipeline. You can
+  call `GetPipelineState`, which displays the status of a pipeline, including
+  the status of stages in the pipeline, or `GetPipeline`, which returns the
+  entire structure of the pipeline, including the stages of that pipeline.
+  For more information about the structure of stages and actions, also refer
+  to the <ulink
+  url="http://docs.aws.amazon.com/codepipeline/latest/UserGuide/pipeline-structure.html">AWS
+  CodePipeline Pipeline Structure Reference</ulink>.
+
+  Pipeline stages include *actions*, which are categorized into categories
+  such as source or build actions performed within a stage of a pipeline. For
+  example, you can use a source action to import artifacts into a pipeline
+  from a source such as Amazon S3. Like stages, you do not work with actions
+  directly in most cases, but you do define and interact with actions when
+  working with pipeline operations such as `CreatePipeline` and
+  `GetPipelineState`.
+
+  Pipelines also include *transitions*, which allow the transition of
+  artifacts from one stage to the next in a pipeline after the actions in one
+  stage complete.
+
+  You can work with transitions by calling:
+
+  <ul> <li> `DisableStageTransition`, which prevents artifacts from
+  transitioning to the next stage in a pipeline.</li> <li>
+  `EnableStageTransition`, which enables transition of artifacts between
+  stages in a pipeline. </li> </ul> **Using the API to integrate with AWS
+  CodePipeline**
+
+  For third-party integrators or developers who want to create their own
+  integrations with AWS CodePipeline, the expected sequence varies from the
+  standard API user. In order to integrate with AWS CodePipeline, developers
+  will need to work with the following items:
+
+  <ul> <li>Jobs, which are instances of an action. For example, a job for a
+  source action might import a revision of an artifact from a source. You can
+  work with jobs by calling:
+
+  <ul> <li> `AcknowledgeJob`, which confirms whether a job worker has
+  received the specified job,</li> <li> `GetJobDetails`, which returns the
+  details of a job,</li> <li> `PollForJobs`, which determines whether there
+  are any jobs to act upon, </li> <li> `PutJobFailureResult`, which provides
+  details of a job failure, and</li> <li> `PutJobSuccessResult`, which
+  provides details of a job success.</li> </ul> </li> <li>Third party jobs,
+  which are instances of an action created by a partner action and integrated
+  into AWS CodePipeline. Partner actions are created by members of the AWS
+  Partner Network. You can work with third party jobs by calling:
+
+  <ul> <li> `AcknowledgeThirdPartyJob`, which confirms whether a job worker
+  has received the specified job,</li> <li> `GetThirdPartyJobDetails`, which
+  requests the details of a job for a partner action,</li> <li>
+  `PollForThirdPartyJobs`, which determines whether there are any jobs to act
+  upon, </li> <li> `PutThirdPartyJobFailureResult`, which provides details of
+  a job failure, and</li> <li> `PutThirdPartyJobSuccessResult`, which
+  provides details of a job success.</li> </ul> </li> </ul>
+  """
+
 
   @doc """
   AcknowledgeJob

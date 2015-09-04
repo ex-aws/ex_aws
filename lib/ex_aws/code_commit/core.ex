@@ -12,6 +12,21 @@ defmodule ExAws.CodeCommit.Core do
     "UpdateRepositoryDescription",
     "UpdateRepositoryName"]
 
+  @moduledoc """
+  ## AWS CodeCommit
+
+  AWS CodeCommit
+
+  This is the *AWS CodeCommit API Reference*. This reference provides
+  descriptions of the AWS CodeCommit API.
+
+  You can use the AWS CodeCommit API to work with the following objects:
+
+  <ul> <li>Repositories</li> <li>Branches</li> <li>Commits</li> </ul> For
+  information about how to use AWS CodeCommit, see the *AWS CodeCommit User
+  Guide*.
+  """
+
 
   @doc """
   BatchGetRepositories

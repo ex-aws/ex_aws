@@ -18,6 +18,12 @@ defmodule ExAws.CloudHSM.Core do
     "ModifyHsm",
     "ModifyLunaClient"]
 
+  @moduledoc """
+  ## Amazon CloudHSM
+
+  AWS CloudHSM Service
+  """
+
 
   @doc """
   CreateHapg

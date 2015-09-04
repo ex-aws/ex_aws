@@ -71,6 +71,61 @@ defmodule ExAws.OpsWorks.Core do
     "UpdateUserProfile",
     "UpdateVolume"]
 
+  @moduledoc """
+  ## AWS OpsWorks
+
+  AWS OpsWorks
+
+  Welcome to the *AWS OpsWorks API Reference*. This guide provides
+  descriptions, syntax, and usage examples about AWS OpsWorks actions and
+  data types, including common parameters and error codes.
+
+  AWS OpsWorks is an application management service that provides an
+  integrated experience for overseeing the complete application lifecycle.
+  For information about this product, go to the [AWS
+  OpsWorks](http://aws.amazon.com/opsworks/) details page.
+
+  **SDKs and CLI**
+
+  The most common way to use the AWS OpsWorks API is by using the AWS Command
+  Line Interface (CLI) or by using one of the AWS SDKs to implement
+  applications in your preferred language. For more information, see:
+
+  <ul> <li> [AWS
+  CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html)
+  </li> <li> [AWS SDK for
+  Java](http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/opsworks/AWSOpsWorksClient.html)
+  </li> <li> [AWS SDK for
+  .NET](http://docs.aws.amazon.com/sdkfornet/latest/apidocs/html/N_Amazon_OpsWorks.htm)
+  </li> <li> [AWS SDK for PHP
+  2](http://docs.aws.amazon.com/aws-sdk-php-2/latest/class-Aws.OpsWorks.OpsWorksClient.html)
+  </li> <li> [AWS SDK for
+  Ruby](http://docs.aws.amazon.com/AWSRubySDK/latest/AWS/OpsWorks/Client.html)
+  </li> <li> [AWS SDK for
+  Node.js](http://aws.amazon.com/documentation/sdkforjavascript/) </li> <li>
+  [AWS SDK for
+  Python(Boto)](http://docs.pythonboto.org/en/latest/ref/opsworks.html) </li>
+  </ul> **Endpoints**
+
+  AWS OpsWorks supports only one endpoint, opsworks.us-east-1.amazonaws.com
+  (HTTPS), so you must connect to that endpoint. You can then use the API to
+  direct AWS OpsWorks to create stacks in any AWS Region.
+
+  **Chef Versions**
+
+  When you call `CreateStack`, `CloneStack`, or `UpdateStack` we recommend
+  you use the `ConfigurationManager` parameter to specify the Chef version.
+  The recommended value for Linux stacks, which is also the default value, is
+  currently 11.10. Windows stacks use Chef 12.2. For more information, see
+  [Chef
+  Versions](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-chef11.html).
+
+  Note:You can also specify Chef 11.4 or Chef 0.9 for your Linux stack.
+  However, Chef 0.9 has been deprecated. We do not recommend using Chef 0.9
+  for new stacks, and we recommend migrating your existing Chef 0.9 stacks to
+  Chef 11.10 as soon as possible.
+  """
+
 
   @doc """
   AssignInstance

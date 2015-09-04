@@ -20,6 +20,33 @@ defmodule ExAws.DirectConnect.Core do
     "DescribeVirtualGateways",
     "DescribeVirtualInterfaces"]
 
+  @moduledoc """
+  ## AWS Direct Connect
+
+  AWS Direct Connect makes it easy to establish a dedicated network
+  connection from your premises to Amazon Web Services (AWS). Using AWS
+  Direct Connect, you can establish private connectivity between AWS and your
+  data center, office, or colocation environment, which in many cases can
+  reduce your network costs, increase bandwidth throughput, and provide a
+  more consistent network experience than Internet-based connections.
+
+  The AWS Direct Connect API Reference provides descriptions, syntax, and
+  usage examples for each of the actions and data types for AWS Direct
+  Connect. Use the following links to get started using the *AWS Direct
+  Connect API Reference*:
+
+  <ul> <li>
+  [Actions](http://docs.aws.amazon.com/directconnect/latest/APIReference/API_Operations.html):
+  An alphabetical list of all AWS Direct Connect actions.</li> <li> [Data
+  Types](http://docs.aws.amazon.com/directconnect/latest/APIReference/API_Types.html):
+  An alphabetical list of all AWS Direct Connect data types.</li> <li>
+  [Common Query
+  Parameters](http://docs.aws.amazon.com/directconnect/latest/APIReference/CommonParameters.html):
+  Parameters that all Query actions can use.</li> <li> [Common
+  Errors](http://docs.aws.amazon.com/directconnect/latest/APIReference/CommonErrors.html):
+  Client and server errors that all actions can return.</li> </ul>
+  """
+
 
   @doc """
   AllocateConnectionOnInterconnect

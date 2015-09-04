@@ -18,6 +18,16 @@ defmodule ExAws.DirectoryService.Core do
     "RestoreFromSnapshot",
     "UpdateRadius"]
 
+  @moduledoc """
+  ## AWS Directory Service
+
+  AWS Directory Service
+
+  This is the *AWS Directory Service API Reference*. This guide provides
+  detailed information about AWS Directory Service operations, data types,
+  parameters, and errors.
+  """
+
 
   @doc """
   ConnectDirectory
