@@ -120,9 +120,10 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, "/", resource: "uploads", params: params)
   end
 
-  @headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
-  def put_bucket(client, bucket, region, grants \\ %{}) do
-    headers = grants |> format_grant_headers(@headers)
+  def put_bucket(client, bucket, region, opts \\ []) do
+    headers = opts
+    |> Enum.into(%{})
+    |> format_acl_headers
 
     body = """
     <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
@@ -132,11 +133,8 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, "/", body: body, headers: headers)
   end
 
-  @headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
   def put_bucket_acl(client, bucket, grants) do
-    headers = grants |> format_grant_headers(@headers)
-
-    request(client, :put, bucket, "/", headers: headers)
+    request(client, :put, bucket, "/", headers: format_acl_headers(grants))
   end
 
   def put_bucket_cors(client, bucket, cors_rules) do
@@ -153,9 +151,12 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, "/")
   end
 
-  def put_bucket_policy(client, bucket, _policy) do
-    raise "not yet implemented"
-    request(client, :put, bucket, "/")
+  def put_bucket_policy(client, bucket, policy) when is_binary(policy) do
+    request(client, :put, bucket, "/", resource: "policy", body: policy)
+  end
+
+  def put_bucket_policy(client, bucket, policy) do
+    put_bucket_policy(client, bucket, client.config.json_codec.encode!(policy))
   end
 
   def put_bucket_logging(client, bucket, _logging_config) do
@@ -178,7 +179,7 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, "/")
   end
 
-  def put_bucket_requestpayment(client, bucket, _payer) do
+  def put_bucket_request_payment(client, bucket, _payer) do
     raise "not yet implemented"
     request(client, :put, bucket, "/")
   end
@@ -204,14 +205,29 @@ defmodule ExAws.S3.Impl do
     resp
   end
 
-  def delete_multiple_objects(client, bucket, _objects) do
-    raise "not yet implemented"
-    request(client, :post, bucket, "/?delete")
+  def delete_multiple_objects(client, bucket, objects, opts \\ []) do
+    objects_xml = Enum.map(objects, fn
+      {key, version} -> ["<Object><Key>", key, "</Key><VersionId>", version, "</VersionId></Object>"]
+      key -> ["<Object><Key>", key, "</Key></Object>"]
+    end)
+
+    quiet = case opts do
+      [quiet: true] -> "<Quiet>true</Quiet>"
+      _ -> ""
+    end
+
+    body = [
+      ~s(<?xml version="1.0" encoding="UTF-8"?>),
+      quiet,
+      "<Delete>",
+      objects_xml,
+      "</Delete>"
+    ] |> IO.iodata_to_binary
+    request(client, :post, bucket, "/?delete", body: body)
   end
 
   @response_params [:content_type, :content_language, :expires, :cach_control, :content_disposition, :content_encoding]
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
-  @encryption_headers [:customer_algorithm, :customer_key, :customer_key_md5]
   def get_object(client, bucket, object, opts \\ []) do
     opts = opts |> Enum.into(%{})
 
@@ -225,8 +241,7 @@ defmodule ExAws.S3.Impl do
 
     headers = opts
     |> Map.get(:encryption, %{})
-    |> format_and_take(@encryption_headers)
-    |> namespace("x-amz-server-side-encryption")
+    |> build_encryption_headers
     |> Map.merge(headers)
 
     request(client, :get, bucket, object, headers: headers, params: response_opts)
@@ -245,8 +260,23 @@ defmodule ExAws.S3.Impl do
     request(client, :get, bucket, object, resource: "torrent")
   end
 
+  @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def head_object(client, bucket, object, opts \\ []) do
-    request(client, :head, bucket, object, headers: opts |> Enum.into(%{}))
+    opts = opts |> Enum.into(%{})
+
+    headers = opts
+    |> format_and_take(@request_headers)
+
+    headers = opts
+    |> Map.get(:encryption, %{})
+    |> build_encryption_headers
+    |> Map.merge(headers)
+
+    params = case Map.fetch(opts, :version_id) do
+      {:ok, id} -> %{"versionId" => id}
+      _ -> %{}
+    end
+    request(client, :head, bucket, object, headers: headers, params: params)
   end
 
   def options_object(client, bucket, object, origin, request_method, request_headers \\ []) do
@@ -258,49 +288,22 @@ defmodule ExAws.S3.Impl do
     request(client, :options, bucket, object, headers: headers)
   end
 
-  def post_object(client, bucket, object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
-  end
-
-  def post_object_restore(client, bucket, object, _version_id, _number_of_days) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
-  end
-
-  @headers [:cache_control, :content_disposition, :content_encoding, :content_length, :content_type,
-    :expect, :expires]
-  @amz_headers [:storage_class, :website_redirect_location]
-  @acl_headers [:grant_read, :grant_read_acp, :grant_write_acp, :grant_full_control]
-  def put_object(client, bucket, object, body, opts \\ []) do
-    opts = opts |> Enum.into(%{})
-
-    regular_headers = opts
-    |> format_and_take(@headers)
-
-    amz_headers = opts
-    |> format_and_take(@amz_headers)
-    |> namespace("x-amz")
-
-    acl_headers = opts
-    |> format_grant_headers(@acl_headers)
-
-    encryption_headers = opts
-    |> Map.get(:encryption, %{})
-    |> build_encryption_headers
-
-    canned_acl = case Map.get(opts, :acl) do
-      nil -> %{}
-      value -> %{"x-amz-acl" => normalize_param(value)}
+  def post_object_restore(client, bucket, object, number_of_days, opts \\ []) do
+    params = case Keyword.fetch(opts, :version_id) do
+      {:ok, id} -> %{"versionId" => id}
+      _ -> %{}
     end
 
-    headers = regular_headers
-    |> Map.merge(amz_headers)
-    |> Map.merge(acl_headers)
-    |> Map.merge(canned_acl)
-    |> Map.merge(encryption_headers)
+    body = """
+    <RestoreRequest xmlns="http://s3.amazonaws.com/doc/2006-3-01">
+      <Days>#{number_of_days}</Days>
+    </RestoreRequest>
+    """
+    request(client, :post, bucket, object, resource: "restore", params: params, body: body)
+  end
 
-    request(client, :put, bucket, object, body: body, headers: headers)
+  def put_object(client, bucket, object, body, opts \\ []) do
+    request(client, :put, bucket, object, body: body, headers: put_object_headers(opts))
   end
 
   def put_object!(client, bucket, object, body, opts \\ []) do
@@ -308,45 +311,134 @@ defmodule ExAws.S3.Impl do
     resp
   end
 
-  def put_object_acl(client, bucket, object, _acl) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def put_object_acl(client, bucket, object, acl) do
+    headers = acl |> Enum.into(%{}) |> format_acl_headers
+    request(client, :put, bucket, object, headers: headers, resource: "acl")
   end
 
-  def put_object_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, dest_bucket, dest_object)
+  def put_object_acl!(client, bucket, object, acl) do
+    {:ok, result} = put_object_acl(client, bucket, object, acl)
+    result
   end
 
-  def initiate_multipart_upload(client, bucket, object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  @amz_headers ~w(
+    metadata_directive
+    copy_source_if_modified_since
+    copy_source_if_unmodified_since
+    copy_source_if_match
+    copy_source_if_none_match
+    storage_class
+    website_redirect_location)a
+  def put_object_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
+    opts = opts |> Enum.into(%{})
+
+    amz_headers = opts
+    |> format_and_take(@amz_headers)
+    |> namespace("x-amz")
+
+    source_encryption = opts
+    |> Map.get(:source_encryption, %{})
+    |> build_encryption_headers
+    |> Enum.into(%{}, fn {<<"x-amz", k :: binary>>, v} ->
+      {"x-amz-copy-source" <> k, v}
+    end)
+
+    destination_encryption = opts
+    |> Map.get(:destination_encryption, %{})
+    |> build_encryption_headers
+
+    meta = opts
+    |> Map.get(:meta)
+    |> build_meta_headers
+
+    headers = opts
+    |> format_acl_headers
+    |> Map.merge(amz_headers)
+    |> Map.merge(source_encryption)
+    |> Map.merge(destination_encryption)
+    |> Map.merge(meta)
+    |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
+
+    request(client, :put, dest_bucket, dest_object, headers: headers)
   end
 
-  def upload_part(client, bucket, object, _upload_id, _part_number) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def put_object_copy!(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
+    {:ok, resp} = put_object_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts)
+    resp
   end
 
-  def upload_part_copy(client, dest_bucket, dest_object, _src_bucket, _src_object, _opts \\ []) do
-    raise "not yet implemented"
-    request(client, :get, dest_bucket, dest_object)
+  def initiate_multipart_upload(client, bucket, object, opts \\ []) do
+    request(client, :post, bucket, object, resource: "uploads", headers: put_object_headers(opts))
+    |> Parsers.parse_initiate_multipart_upload
   end
 
-  def complete_multipart_upload(client, bucket, object, _upload_id, _parts) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  def upload_part(client, bucket, object, upload_id, part_number, _opts \\ []) do
+    params = %{"uploadId" => upload_id, "partNumber" => part_number}
+    request(client, :put, bucket, object, params: params)
   end
 
-  def abort_multipart_upload(client, bucket, object, _upload_id) do
-    raise "not yet implemented"
-    request(client, :get, bucket, object)
+  @amz_headers ~w(
+    copy_source_if_modified_since
+    copy_source_if_unmodified_since
+    copy_source_if_match
+    copy_source_if_none_match)a
+  def upload_part_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
+    opts = opts |> Enum.into(%{})
+
+    source_encryption = opts
+    |> Map.get(:source_encryption, %{})
+    |> build_encryption_headers
+    |> Enum.into(%{}, fn {<<"x-amz", k :: binary>>, v} ->
+      {"x-amz-copy-source" <> k, v}
+    end)
+
+    destination_encryption = opts
+    |> Map.get(:destination_encryption, %{})
+    |> build_encryption_headers
+
+    headers = opts
+    |> format_and_take(@amz_headers)
+    |> namespace("x-amz")
+    |> Map.merge(source_encryption)
+    |> Map.merge(destination_encryption)
+
+    headers = case opts do
+      %{copy_source_range: first..last} -> Map.put(headers, "x-amz-copy-source-range", "bytes=#{first}-#{last}")
+      _ -> headers
+    end
+    |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
+
+    request(client, :put, dest_bucket, dest_object, headers: headers)
+    |> Parsers.parse_upload_part_copy
+  end
+
+  def complete_multipart_upload(client, bucket, object, upload_id, parts) do
+    parts_xml = parts
+    |> Enum.map(fn {part_number, etag}->
+      ["<Part>",
+        "<PartNumber>", Integer.to_string(part_number), "</PartNumber>",
+        "<ETag>", etag, "</ETag>",
+      "</Part>"]
+    end)
+
+    body = ["<CompleteMultipartUpload>", parts_xml, "</CompleteMultipartUpload>"]
+    |> IO.iodata_to_binary
+
+    request(client, :post, bucket, object, params: %{"uploadId" => upload_id}, body: body)
+    |> Parsers.parse_complete_multipart_upload
+  end
+
+  def abort_multipart_upload(client, bucket, object, upload_id) do
+    request(client, :delete, bucket, object, params: %{"uploadId" => upload_id})
   end
 
   def list_parts(client, bucket, object, upload_id, opts \\ []) do
-    params = %{"uploadId" => upload_id}
-    |> Map.merge(opts)
+    params = opts
+    |> Enum.into(%{})
+    |> Map.merge(%{"uploadId" => upload_id})
+
     request(client, :get, bucket, object, params: params)
+    |> Parsers.parse_list_parts
   end
 
   defp request(%{__struct__: client_module} = client, action, bucket, path, data \\ []) do

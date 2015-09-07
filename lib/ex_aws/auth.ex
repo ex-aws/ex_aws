@@ -118,7 +118,10 @@ defmodule ExAws.Auth do
 
   def canonical_headers(headers) do
     headers
-    |> Enum.map(fn {k, v} -> {String.downcase(k), String.strip(v)} end)
+    |> Enum.map(fn
+      {k, v} when is_binary(v) -> {String.downcase(k), String.strip(v)}
+      {k, v} -> {String.downcase(k), v}
+    end)
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
 end

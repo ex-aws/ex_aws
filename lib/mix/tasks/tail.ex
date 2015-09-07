@@ -24,6 +24,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
 
   def run(argv) do
     {:ok, _} = Application.ensure_all_started(:ex_aws)
+    {:ok, _} = Application.ensure_all_started(:httpoison)
 
     {opts, [stream_name|_], _} = OptionParser.parse(argv)
 
@@ -31,7 +32,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
     debug      = Keyword.get(opts, :debug, false)
     seq        = Keyword.get(opts, :from)
     {shard_type, opts} = case seq do
-      nil -> {"LATEST", %{}}
+      nil -> {"TRIM_HORIZON", %{}}
       val -> {"AT_SEQUENCE_NUMBER", %{StartingSequenceNumber: val}}
     end
 

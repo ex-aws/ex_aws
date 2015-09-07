@@ -88,9 +88,10 @@ defmodule ExAws.Lambda.Impl do
 
     headers = [invocation_type: "X-Amz-Invocation-Type", log_type: "X-Amz-Log-Type"]
     |> Enum.reduce([], fn({opt, header}, headers) ->
-      case Map.get(opts, opt) do
-        nil -> headers
-        value -> [{header, value} |headers]
+      case Map.fetch(opts, opt) do
+        :error       -> headers
+        {:ok, nil}   -> headers
+        {:ok, value} -> [{header, value} |headers]
       end
     end)
 

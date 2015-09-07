@@ -17,17 +17,15 @@ defmodule ExAws.S3.Request do
 
     headers = headers
     |> Map.put("x-amz-content-sha256", hashed_payload)
+    |> Map.put("content-length", byte_size(body))
     |> Map.to_list
 
     ExAws.Request.request(http_method, url, body, headers, client)
   end
 
   def url(%{scheme: scheme, host: host}, bucket, path) do
-    [
-      scheme,
-      host_and_bucket(host, bucket),
-      path   |> ensure_slash
-    ] |> IO.iodata_to_binary
+    [ scheme, host_and_bucket(host, bucket), ensure_slash(path) ]
+    |> IO.iodata_to_binary
   end
 
   def add_query(url, "", ""),          do: url

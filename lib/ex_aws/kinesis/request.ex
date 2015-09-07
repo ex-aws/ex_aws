@@ -2,6 +2,8 @@ defmodule ExAws.Kinesis.Request do
   @moduledoc false
   # Kinesis specific request logic.
 
+  @type response_t :: %{} | ExAws.Request.error_t
+
   def request(client, action, data) do
     {operation, http_method} = ExAws.Kinesis.Impl |> ExAws.Actions.get(action)
     headers = [
