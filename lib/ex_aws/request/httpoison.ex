@@ -32,6 +32,7 @@ defmodule ExAws.Request.HTTPoison do
 
   def request(method, url, body \\ "", headers \\ []) do
     opts = Application.get_env(:ex_aws, :httpoison_opts, @default_opts)
-    HTTPoison.request(method, url, body, headers, opts)
+    {status, resp} = HTTPoison.request(method, url, body, headers, opts)
+    {status, Map.from_struct(resp)}
   end
 end
