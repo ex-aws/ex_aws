@@ -144,7 +144,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
-      "Item" => Dynamo.Encoder.encode(record)
+      "Item" => Dynamo.Encoder.encode_root(record)
     })
 
     request(client, :put_item, data)
@@ -158,7 +158,7 @@ defmodule ExAws.Dynamo.Impl do
         [delete_request: [key: primary_key]] ->
           %{"DeleteRequest" => %{"Key" => primary_key |> Dynamo.Encoder.encode}}
         [put_request: [item: item]] ->
-          %{"PutRequest" => %{"Item" => Dynamo.Encoder.encode(item)}}
+          %{"PutRequest" => %{"Item" => Dynamo.Encoder.encode_root(item)}}
       end)
       Map.put(query, table_name, queries)
     end)
@@ -175,7 +175,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
-      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_root
     })
 
     request(client, :get_item, data)
@@ -191,7 +191,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => table_name,
-      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_root
     })
 
     request(client, :update_item, data)
@@ -202,7 +202,7 @@ defmodule ExAws.Dynamo.Impl do
     |> build_opts
     |> Map.merge(%{
       "TableName" => name,
-      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_flat})
+      "Key" => primary_key |> Enum.into(%{}) |> Dynamo.Encoder.encode_root})
 
     request(client, :delete_item, data)
   end
@@ -261,10 +261,10 @@ defmodule ExAws.Dynamo.Impl do
   ################
 
   defp add_upcased_opt(data, opts, key) do
-    case Map.get(opts, key) do
-      nil -> data
-      value ->
-        Map.put(data, key, value |> upcase)
+    case Map.fetch(opts, key) do
+      :error     -> data
+      {:ok, nil} -> data
+      {:ok, v}   -> Map.put(data, key, v |> upcase)
     end
   end
 
