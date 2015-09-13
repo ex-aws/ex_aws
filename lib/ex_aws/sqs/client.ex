@@ -65,7 +65,7 @@ defmodule ExAws.SQS.Client do
   ]
   @type sqs_message_attribute :: %{
     :name => binary,
-    :data_type => :string | :binary,
+    :data_type => :string | :binary | :number,
     :custom_type => binary | none,
     :value => binary | number
   }
@@ -100,7 +100,11 @@ defmodule ExAws.SQS.Client do
   defcallback delete_message(queue_url :: binary, receipt_handle :: binary) :: SQS.Request.response_t
 
   @doc "Deletes a list of messages from a SQS Queue in a single request"
-  defcallback delete_message_batch(queue_url :: binary, receipt_handles :: [binary, ...]) :: SQS.Request.response_t
+  @type delete_message_batch_item :: %{
+    :id => binary,
+    :receipt_handle => binary
+  }
+  defcallback delete_message_batch(queue_url :: binary, message_receipts :: [delete_message_batch_item, ...]) :: SQS.Request.response_t
 
   @doc "Delete a queue"
   defcallback delete_queue(queue_url :: binary) :: SQS.Request.response_t
@@ -139,7 +143,7 @@ defmodule ExAws.SQS.Client do
   @doc "Send a message to a SQS Queue"
   @type sqs_message_opts :: [
       {:delay_seconds, 0..900} |
-      {:attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
+      {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
   ]
   defcallback send_message(queue_name :: binary, message_body :: binary) :: SQS.Request.response_t
   defcallback send_message(queue_name :: binary, message_body :: binary, opts :: sqs_message_opts) :: SQS.Request.response_t
@@ -150,9 +154,10 @@ defmodule ExAws.SQS.Client do
   @doc "Send up to 10 messages to a SQS Queue in a single request"
   @type sqs_batch_message :: binary |
   [
+    {:id, binary} |
     {:message_body, binary} |
     {:delay_seconds, 0..900} |
-    {:attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
+    {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
   ]
   defcallback send_message_batch(queue_name :: binary, messages :: [sqs_batch_message, ...]) :: SQS.Request.response_t
 

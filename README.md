@@ -1,5 +1,6 @@
 ExAws
 =====
+[![Build Status](https://travis-ci.org/CargoSense/ex_aws.svg?branch=master)](https://travis-ci.org/CargoSense/ex_aws)
 
 A flexible easy to use set of clients AWS APIs.
 
@@ -25,7 +26,7 @@ If you wish to use instance roles to obtain AWS access keys you will need to add
 ```elixir
 def deps do
   [
-    ex_aws:    "~> 0.4.3",
+    ex_aws:    "~> 0.4.8",
     poison:    "~> 1.2.0",
     httpoison: "~> 0.7.0"
   ]
