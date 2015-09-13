@@ -20,6 +20,7 @@ Add ex_aws to your mix.exs, along with your json parser and http client of choic
 - Dynamo: json
 - Kinesis: json
 - Lambda: json
+- SQS: xml
 - S3: xml
 
 If you wish to use instance roles to obtain AWS access keys you will need to add a JSON codec whether the particular API requires one or not.
@@ -95,6 +96,7 @@ Consult the relevant documentation for the API of interest.
 - Dynamo
 - Kinesis
 - Lambda
+- SQS
 - S3 (in progress)
 - Many more planned
 
