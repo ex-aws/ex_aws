@@ -72,6 +72,11 @@ defmodule ExAws.Mixfile do
         scheme: "https://",
         host: "s3.amazonaws.com",
         region: "us-east-1"
+      ],
+      sqs: [
+        scheme: "https://",
+        host: "sqs.us-east-1.amazonaws.com",
+        region: "us-east-1"
       ]
     ]
   end
