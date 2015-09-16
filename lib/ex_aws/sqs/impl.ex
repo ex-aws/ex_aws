@@ -1,5 +1,12 @@
 defmodule ExAws.SQS.Impl do
 
+  def get_queue_url(client, queue_name, opts \\ []) do
+    params = opts
+      |> format_regular_opts
+      |> Map.put("QueueName", queue_name)
+    request(client, "", "GetQueueUrl", params)
+  end
+
   def create_queue(client, queue, attributes \\ []) do
     params =
       attributes
