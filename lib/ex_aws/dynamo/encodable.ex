@@ -30,13 +30,13 @@ defimpl ExAws.Dynamo.Encodable, for: HashDict do
   end
 end
 
-defimpl ExAws.Dynamo.Encodable, for: Map do
+defimpl ExAws.Dynamo.Encodable, for: Any do
 
   defmacro __deriving__(module, struct, options) do
-    deriving(module, struct, options)
+    ExAws.Dynamo.Encodable.Any.do_deriving(module, struct, options)
   end
 
-  def deriving(module, _struct, options) do
+  def do_deriving(module, _struct, options) do
     if only = options[:only] do
       extractor = quote(do: Map.take(struct, unquote(only)))
     else
@@ -50,6 +50,15 @@ defimpl ExAws.Dynamo.Encodable, for: Map do
         end
       end
     end
+  end
+
+  def encode(_, _), do: raise "ExAws.Dynamo.Encodable does not fallback to any"
+end
+
+defimpl ExAws.Dynamo.Encodable, for: Map do
+
+  defmacro __deriving__(module, struct, options) do
+    ExAws.Dynamo.Encodable.Any.do_deriving(module, struct, options)
   end
 
   def encode(map, options) do
