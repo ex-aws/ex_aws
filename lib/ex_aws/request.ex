@@ -76,9 +76,6 @@ defmodule ExAws.Request do
     {:error, {type, message}}
   end
 
-  def attempt_again?(_, {:http_error, _, _} = reason) do
-    {:error, reason}
-  end
   def attempt_again?(attempt, reason) when attempt >= @max_attempts do
     {:error, reason}
   end
