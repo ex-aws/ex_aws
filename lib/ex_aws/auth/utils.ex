@@ -1,5 +1,7 @@
 defmodule ExAws.Auth.Utils do
   def valid_path_char?(?/), do: true
+  # Space character
+  def valid_path_char?(?\ ), do: false
   def valid_path_char?(c) do
     !URI.char_reserved?(c)
   end

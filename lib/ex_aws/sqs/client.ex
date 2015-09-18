@@ -132,7 +132,7 @@ defmodule ExAws.SQS.Client do
     {:attribute_names, :all | [sqs_message_attribute_name, ...]} |
     {:max_number_of_messages, 1..10} |
     {:visibility_timeout, 0..43200} |
-    {:wait_timeout, 0..20}
+    {:wait_time_seconds, 0..20}
   ]
   defcallback receive_message(queue_name :: binary) :: SQS.Request.response_t
   defcallback receive_message(queue_name :: binary, opts :: receive_message_opts) :: SQS.Request.response_t

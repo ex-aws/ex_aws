@@ -22,7 +22,7 @@ defmodule ExAws.S3.Utils do
     |> build_encryption_headers
 
     meta = opts
-    |> Map.get(:meta)
+    |> Map.get(:meta, [])
     |> build_meta_headers
 
     regular_headers

@@ -3,9 +3,9 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.4.8",
+     version: "0.4.10",
      elixir: "~> 1.0",
-     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
+     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
      package: package,
@@ -29,10 +29,10 @@ defmodule ExAws.Mixfile do
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.7", only: :dev},
       {:httpoison, "~> 0.7", optional: true},
-      {:poison, "~> 1.2.0", optional: true},
+      {:poison, "~> 1.2", optional: true},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", optional: true},
-      {:httpotion, "~> 2.0.0", optional: true},
-      {:jsx, "~> 2.5.2", optional: true}
+      {:httpotion, "~> 2.0", optional: true},
+      {:jsx, "~> 2.5", optional: true}
     ]
   end
 
