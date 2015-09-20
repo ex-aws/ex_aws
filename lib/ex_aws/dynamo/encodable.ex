@@ -110,22 +110,34 @@ defimpl ExAws.Dynamo.Encodable, for: List do
   [%{"N" => 1},%{"S" => "Foo"}] #=> %{"L" => [%{"N" => 1},%{"S" => "Foo"}]}
   """
   def encode(list, _) do
-    typed_values = list
-    |> Enum.map(&Encodable.encode(&1, []))
+    {typed_values, list_type} = list
+    |> Enum.map_reduce(:first,
+        fn
+        value, :first ->
+          typed_value = Encodable.encode(value, [])
+          dynamo_type = typed_value |> Map.keys() |> hd()
+          {typed_value, dynamo_type}
 
-    {types, values} = Enum.reduce(list, {[], []}, fn(item, {types, values}) ->
-      [{type, value}] = item
-      |> Encodable.encode([])
-      |> Map.to_list
-
-      {[type | types], [value | values]}
-    end)
-
-    case types |> Enum.uniq do
-      ["B"] -> %{"BS" => values |> Enum.reverse}
-      ["N"] -> %{"NS" => values |> Enum.reverse}
-      ["S"] -> %{"SS" => values |> Enum.reverse}
-      _     -> %{"L"  => typed_values}
+        value, dynamo_type ->
+          typed_value = Encodable.encode(value, [])
+          new_dynamo_type = typed_value |> Map.keys() |> hd()
+          if dynamo_type == new_dynamo_type do
+            {typed_value, dynamo_type}
+          else
+            {typed_value, "generic"}
+          end
+        end)
+    case list_type do
+      "N" ->
+        values = typed_values |> Enum.map(fn %{"N" => value} -> value end)
+        %{"NS" => values}
+      "S" ->
+        values = typed_values |> Enum.map(fn %{"S" => value} -> value end)
+        %{"SS" => values}
+      "B" ->
+        values = typed_values |> Enum.map(fn %{"B" => value} -> value end)
+        %{"BS" => values}
+      _ -> %{"L"  => typed_values}
     end
   end
 end
