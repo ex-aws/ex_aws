@@ -20,7 +20,7 @@ end
 
 defimpl ExAws.Dynamo.Encodable, for: Float do
   def encode(val, _) do
-    %{"N" => val |> Float.to_string}
+    %{"N" => String.Chars.Float.to_string(val)}
   end
 end
 
