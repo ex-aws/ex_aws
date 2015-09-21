@@ -22,7 +22,7 @@ defmodule ExAws.Dynamo.EncoderTest do
   end
 
   test "Encoder can handle floats" do
-    assert Encoder.encode(0.4) == %{"N" => "4.00000000000000022204e-01"}
+    assert Encoder.encode(0.4) == %{"N" => "0.4"}
   end
 
   test "Encoder with structs works properly" do
