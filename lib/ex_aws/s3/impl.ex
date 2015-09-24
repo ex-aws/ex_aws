@@ -441,6 +441,19 @@ defmodule ExAws.S3.Impl do
     |> Parsers.parse_list_parts
   end
 
+  def presigned_url(client, http_method, bucket, object, opts \\ []) do
+    expires = Keyword.get(opts, :expires_in, 3600)
+    virtual_host = Keyword.get(opts, :virtual_host, false)
+    # TODO: throw if expires > 604800
+
+    config = client.config
+    url = case virtual_host do
+            true -> "#{config[:scheme]}#{bucket}.#{config[:host]}/#{object}"
+            false -> "#{config[:scheme]}#{config[:host]}/#{bucket}/#{object}"
+          end
+    ExAws.Auth.presigned_url(http_method, url, client.service, client.config, expires)
+  end
+
   defp request(%{__struct__: client_module} = client, action, bucket, path, data \\ []) do
     client_module.request(client, action, bucket, path, data)
   end

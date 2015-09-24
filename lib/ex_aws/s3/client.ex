@@ -71,6 +71,11 @@ defmodule ExAws.S3.Client do
     | [aws_kms_key_id: binary]
     | customer_encryption_opts
 
+  @type presigned_url_opts :: [
+    expires_in: integer,
+    virtual_host: boolean
+  ]
+
   @type amz_meta_opts :: [{atom, binary} | {binary, binary}, ...]
 
   ## Bucket functions
@@ -409,6 +414,9 @@ defmodule ExAws.S3.Client do
   @doc "List the parts of a multipart upload"
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+
+  @doc "Generates a pre-signed URL for this object."
+  defcallback presigned_url(http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: binary
 
   @doc """
   Enables custom request handling.
