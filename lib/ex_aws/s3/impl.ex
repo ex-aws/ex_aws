@@ -451,7 +451,9 @@ defmodule ExAws.S3.Impl do
             true -> "#{config[:scheme]}#{bucket}.#{config[:host]}/#{object}"
             false -> "#{config[:scheme]}#{config[:host]}/#{bucket}/#{object}"
           end
-    ExAws.Auth.presigned_url(http_method, url, client.service, client.config, expires)
+    datetime = :calendar.universal_time
+    ExAws.Auth.presigned_url(
+      http_method, url, client.service, datetime, client.config, expires)
   end
 
   defp request(%{__struct__: client_module} = client, action, bucket, path, data \\ []) do
