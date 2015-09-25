@@ -415,7 +415,14 @@ defmodule ExAws.S3.Client do
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
 
-  @doc "Generates a pre-signed URL for this object."
+  @doc """
+  Generates a pre-signed URL for this object.
+
+  Raises an ArgumentError if `:expires_in` exceeds one week.
+
+  When option param :virtual_host is `true`, the {#bucket} name will be used as
+  the hostname. This will cause the returned URL to be 'http' and not 'https'.
+  """
   defcallback presigned_url(http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: binary
 
   @doc """

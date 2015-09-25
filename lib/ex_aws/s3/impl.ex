@@ -442,22 +442,27 @@ defmodule ExAws.S3.Impl do
   end
 
   def presigned_url(client, http_method, bucket, object, opts \\ []) do
-    expires = Keyword.get(opts, :expires_in, 3600)
+    expires_in = Keyword.get(opts, :expires_in, 3600)
     virtual_host = Keyword.get(opts, :virtual_host, false)
-    # TODO: throw if expires > 604800
-
+    raise_if_exceeds_one_week(expires_in)
     config = client.config
     url = case virtual_host do
-            true -> "#{config[:scheme]}#{bucket}.#{config[:host]}/#{object}"
+            true -> "http://#{bucket}.#{config[:host]}/#{object}"
             false -> "#{config[:scheme]}#{config[:host]}/#{bucket}/#{object}"
           end
     datetime = :calendar.universal_time
     ExAws.Auth.presigned_url(
-      http_method, url, client.service, datetime, client.config, expires)
+      http_method, url, client.service, datetime, client.config, expires_in)
   end
 
   defp request(%{__struct__: client_module} = client, action, bucket, path, data \\ []) do
     client_module.request(client, action, bucket, path, data)
   end
 
+  defp raise_if_exceeds_one_week(expires_in) do
+    if expires_in > 60 * 60 * 24 * 7 do
+      msg = "expires_in value of #{expires_in} exceeds one-week maximum"
+      raise ArgumentError, message: msg
+    end
+  end
 end

@@ -96,35 +96,39 @@ defmodule ExAws.S3Test do
 
   test "#presigned_url no opts" do
     url = S3.presigned_url(:get, "bucket", "foo.txt")
-    assert_pre_signed_url(url, "s3.amazonaws.com", "/bucket/foo.txt", "3600")
+    assert_pre_signed_url(url, "https://s3.amazonaws.com/bucket/foo.txt", "3600")
   end
 
   test "#presigned_url passing expires_in option" do
     url = S3.presigned_url(:get, "bucket", "foo.txt", [expires_in: 100])
-    assert_pre_signed_url(url, "s3.amazonaws.com", "/bucket/foo.txt", "100")
+    assert_pre_signed_url(url, "https://s3.amazonaws.com/bucket/foo.txt", "100")
   end
 
   test "#presigned_url passing virtual_host=false option" do
     url = S3.presigned_url(:get, "bucket", "foo.txt", [virtual_host: false])
-    assert_pre_signed_url(url, "s3.amazonaws.com", "/bucket/foo.txt", "100")
+    assert_pre_signed_url(url, "https://s3.amazonaws.com/bucket/foo.txt", "100")
   end
 
   test "#presigned_url passing virtual_host=true option" do
     url = S3.presigned_url(:get, "bucket", "foo.txt", [virtual_host: true])
-    assert_pre_signed_url(url, "bucket.s3.amazonaws.com", "/foo.txt", "3600")
+    assert_pre_signed_url(url, "http://bucket.s3.amazonaws.com/foo.txt", "3600")
   end
 
   test "#presigned_url passing both expires_in and virtual_host options" do
     opts = [expires_in: 100, virtual_host: true]
     url = S3.presigned_url(:get, "bucket", "foo.txt", opts)
-    assert_pre_signed_url(url, "bucket.s3.amazonaws.com", "/foo.txt", "100")
+    assert_pre_signed_url(url, "http://bucket.s3.amazonaws.com/foo.txt", "100")
   end
 
-  defp assert_pre_signed_url(url, expected_host, expected_path, expected_expire) do
+  test "#presigned_url raises exception on bad expires_in option" do
+    opts = [expires_in: 60 * 60 * 24 * 8]
+    assert_raise(
+      ArgumentError, fn -> S3.presigned_url(:get, "bucket", "foo.txt", opts) end)
+  end
+
+  defp assert_pre_signed_url(url, expected_scheme_host_path, expected_expire) do
     uri = URI.parse(url)
-    assert "https" == uri.scheme
-    assert expected_host == uri.host
-    assert expected_path == uri.path
+    assert expected_scheme_host_path == "#{uri.scheme}://#{uri.host}#{uri.path}"
     headers = URI.query_decoder(uri.query) |> Enum.map(&(&1))
     assert [{"X-Amz-Algorithm", "AWS4-HMAC-SHA256"},
             {"X-Amz-Credential", _},
