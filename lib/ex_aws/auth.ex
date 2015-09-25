@@ -26,8 +26,9 @@ defmodule ExAws.Auth do
 
   def presigned_url(http_method, url, service, config, expires) do
     datetime = :calendar.universal_time
+    service = service_name(service)
     headers = presigned_url_headers(url)
-    query = presigned_url_query(datetime, service, config, expires)
+    query = presigned_url_query(service, datetime, config, expires)
     url = "#{url}?#{query}"
     signature = signature(http_method, url, headers, nil, service, datetime, config)
     "#{url}&X-Amz-Signature=#{signature}"
@@ -41,16 +42,16 @@ defmodule ExAws.Auth do
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
     signature = signature(http_method, url, headers, body, service, datetime, config)
     [
-      "AWS4-HMAC-SHA256 Credential=", credentials(datetime, service, config), ",",
+      "AWS4-HMAC-SHA256 Credential=", credentials(service, datetime, config), ",",
       "SignedHeaders=", signed_headers(headers), ",",
       "Signature=", signature
     ] |> IO.iodata_to_binary
   end
 
-  defp signature(http_method, url, headers, body, datetime, service, config) do
+  defp signature(http_method, url, headers, body, service, datetime, config) do
     request = build_canonical_request(http_method, url, headers, body)
-    string_to_sign = string_to_sign(request, datetime, service, config)
-    signing_key = signing_key(datetime, service, config)
+    string_to_sign = string_to_sign(request, service, datetime, config)
+    signing_key = signing_key(service, datetime, config)
     hmac_sha256(signing_key, string_to_sign) |> bytes_to_hex
   end
 
@@ -85,7 +86,7 @@ defmodule ExAws.Auth do
     ] |> IO.iodata_to_binary
   end
 
-  defp signing_key(datetime, service, config) do
+  defp signing_key(service, datetime, config) do
     ["AWS4", config[:secret_access_key]]
     |> hmac_sha256(date(datetime))
     |> hmac_sha256(config[:region])
@@ -93,13 +94,13 @@ defmodule ExAws.Auth do
     |> hmac_sha256("aws4_request")
   end
 
-  defp string_to_sign(request, datetime, service, config) do
+  defp string_to_sign(request, service, datetime, config) do
     request = hash_sha256(request)
 
     """
     AWS4-HMAC-SHA256
     #{amz_date(datetime)}
-    #{scope(datetime, service, config)}
+    #{scope(service, datetime, config)}
     #{request}
     """
     |> String.rstrip
@@ -134,19 +135,19 @@ defmodule ExAws.Auth do
     "host:#{uri.host}"
   end
 
-  defp presigned_url_query(datetime, service, config, expires) do
+  defp presigned_url_query(service, datetime, config, expires) do
     "X-Amz-Algorithm=AWS4-HMAC-SHA256&"
-    <> "X-Amz-Credential=#{uri_encode(credentials(datetime, service, config))}&"
+    <> "X-Amz-Credential=#{uri_encode(credentials(service, datetime, config))}&"
     <> "X-Amz-Date=#{amz_date(datetime)}&"
     <> "X-Amz-Expires=#{expires}&"
     <> "X-Amz-SignedHeaders=host"
   end
 
-  defp credentials(datetime, service, config) do
-    "#{config[:access_key_id]}/#{scope(datetime, service, config)}"
+  defp credentials(service, datetime, config) do
+    "#{config[:access_key_id]}/#{scope(service, datetime, config)}"
   end
 
-  defp scope(datetime, service, config) do
+  defp scope(service, datetime, config) do
     "#{date(datetime)}/#{config[:region]}/#{service}/aws4_request"
   end
 end
