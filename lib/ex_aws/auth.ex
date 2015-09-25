@@ -24,8 +24,7 @@ defmodule ExAws.Auth do
     [{"Authorization", auth_header} | headers ]
   end
 
-  def presigned_url(http_method, url, service, config, expires) do
-    datetime = :calendar.universal_time
+  def presigned_url(http_method, url, service, datetime, config, expires) do
     service = service_name(service)
     headers = presigned_url_headers(url)
     query = presigned_url_query(service, datetime, config, expires)
@@ -55,7 +54,7 @@ defmodule ExAws.Auth do
     hmac_sha256(signing_key, string_to_sign) |> bytes_to_hex
   end
 
-  defp build_canonical_request(http_method, url, headers, body) do
+  def build_canonical_request(http_method, url, headers, body) do
     uri = URI.parse(url)
     http_method = http_method |> method_string |> String.upcase
 
@@ -132,7 +131,7 @@ defmodule ExAws.Auth do
 
   defp presigned_url_headers(url) do
     uri = URI.parse(url)
-    "host:#{uri.host}"
+    [{"host", uri.host}]
   end
 
   defp presigned_url_query(service, datetime, config, expires) do
