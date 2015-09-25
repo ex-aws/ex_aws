@@ -106,7 +106,7 @@ defmodule ExAws.S3Test do
 
   test "#presigned_url passing virtual_host=false option" do
     url = S3.presigned_url(:get, "bucket", "foo.txt", [virtual_host: false])
-    assert_pre_signed_url(url, "https://s3.amazonaws.com/bucket/foo.txt", "100")
+    assert_pre_signed_url(url, "https://s3.amazonaws.com/bucket/foo.txt", "3600")
   end
 
   test "#presigned_url passing virtual_host=true option" do
@@ -133,8 +133,10 @@ defmodule ExAws.S3Test do
     assert [{"X-Amz-Algorithm", "AWS4-HMAC-SHA256"},
             {"X-Amz-Credential", _},
             {"X-Amz-Date", _},
-            {"X-Amz-Expires", expected_expire},
+            {"X-Amz-Expires", _},
             {"X-Amz-SignedHeaders", "host"},
             {"X-Amz-Signature", _}] = headers
+    assert {"X-Amz-Expires", expected_expire} ==
+      List.keyfind(headers, "X-Amz-Expires", 0)
   end
 end
