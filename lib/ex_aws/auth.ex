@@ -140,6 +140,10 @@ defmodule ExAws.Auth do
     <> "X-Amz-Date=#{amz_date(datetime)}&"
     <> "X-Amz-Expires=#{expires}&"
     <> "X-Amz-SignedHeaders=host"
+    <> case config[:security_token] do
+         nil -> ""
+         token -> "&X-Amz-Security-Token=#{uri_encode(token)}"
+       end
   end
 
   defp credentials(service, datetime, config) do
