@@ -33,8 +33,8 @@ defmodule ExAws.S3.Request do
   def add_query(url, resource, ""),    do: url <> "?" <> resource
   def add_query(url, resource, query), do: url <> "?" <> resource <> "&" <> query
 
-  defp ensure_slash("/" <> _ = path), do: path
-  defp ensure_slash(path), do:  "/" <> path
+  def ensure_slash("/" <> _ = path), do: path
+  def ensure_slash(path), do:  "/" <> path
 
   defp host_and_bucket(host, ""), do: host
   defp host_and_bucket(host, bucket) do
