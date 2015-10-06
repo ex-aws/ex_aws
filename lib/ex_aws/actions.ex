@@ -16,7 +16,7 @@ defmodule ExAws.Actions do
   defmacro __before_compile__(_) do
     quote do
       @action_map @actions |> Enum.reduce(%{}, fn({action, method}, actions) ->
-        name = action |> Atom.to_string |> Mix.Utils.camelize
+        name = action |> Atom.to_string |> ExAws.Utils.camelize
         Map.put(actions, action, {"#{@namespace}.#{name}", method})
       end)
       def __actions__, do: @action_map
