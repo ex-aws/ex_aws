@@ -168,7 +168,7 @@ defmodule ExAws.SQS.Impl do
   defp format_param_key(key) do
     key
     |> Atom.to_string
-    |> Mix.Utils.camelize
+    |> ExAws.Utils.camelize
   end
 
   defp format_queue_attributes(:all), do: format_queue_attributes([:all])

@@ -17,7 +17,7 @@ defmodule ExAws.Utils do
       end
     end)
   end
-  
+
   def camelize_keys([%{} | _] = opts, deep: deep) do
     Enum.map(opts, &camelize_keys(&1, deep: deep))
   end
@@ -35,12 +35,33 @@ defmodule ExAws.Utils do
   defp camelize_key(key) when is_atom(key) do
     key
     |> Atom.to_string
-    |> Mix.Utils.camelize
+    |> camelize
   end
 
   defp camelize_key(key) when is_binary(key) do
-    key |> Mix.Utils.camelize
+    key |> camelize
   end
+
+  def camelize(string)
+  def camelize(""), do: ""
+  def camelize(<<?_, t :: binary>>), do: camelize(t)
+  def camelize(<<h, t :: binary>>),  do: <<to_upper_char(h)>> <> do_camelize(t)
+
+  defp do_camelize(<<?_, ?_, t :: binary>>),
+    do: do_camelize(<< ?_, t :: binary >>)
+  defp do_camelize(<<?_, h, t :: binary>>) when h in ?a..?z,
+    do: <<to_upper_char(h)>> <> do_camelize(t)
+  defp do_camelize(<<?_>>),
+    do: <<>>
+  defp do_camelize(<<?/, t :: binary>>),
+    do: <<?.>> <> camelize(t)
+  defp do_camelize(<<h, t :: binary>>),
+    do: <<h>> <> do_camelize(t)
+  defp do_camelize(<<>>),
+    do: <<>>
+
+  defp to_upper_char(char) when char in ?a..?z, do: char - 32
+  defp to_upper_char(char), do: char
 
   def upcase(value) when is_atom(value) do
     value
