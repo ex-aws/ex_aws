@@ -13,6 +13,7 @@ defmodule ExAws.Config do
     config = client
     |> ExAws.Config.get
     |> Map.merge(Enum.into(opts, %{}))
+    |> parse_host_for_region
 
     %{client | config: config}
     |> retrieve_runtime_config
@@ -61,5 +62,16 @@ defmodule ExAws.Config do
     |> Enum.find(&(&1))
   end
   def retrieve_runtime_value(value, _), do: value
+
+  def parse_host_for_region(%{host: {stub, host}, region: region} = config) do
+    %{config | host: String.replace(host, stub, region)}
+  end
+  def parse_host_for_region(%{host: map, region: region} = config) when is_map(map) do
+    case Map.fetch(map, region) do
+      {:ok, host} -> %{config | host: host}
+      :error      -> "A host for region #{region} was not found in host map #{inspect(map)}"
+    end
+  end
+  def parse_host_for_region(config), do: config
 
 end
