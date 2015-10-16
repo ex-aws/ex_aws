@@ -39,7 +39,7 @@ defmodule ExAws.Mixfile do
   defp package do
     [description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
      files: ["lib", "config", "mix.exs", "README*"],
-     contributors: ["Ben Wilson"],
+     maintainers: ["Ben Wilson"],
      licenses: ["MIT"],
      links: %{github: "https://github.com/CargoSense/ex_aws"}]
   end
