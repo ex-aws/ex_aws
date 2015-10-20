@@ -116,7 +116,7 @@ defmodule ExAws.S3.Impl do
 
   @params [:delimiter, :encoding_type, :max_uploads, :key_marker, :prefix, :upload_id_marker]
   def list_multipart_uploads(client, bucket, opts \\ []) do
-    params = @params |> format_and_take(opts)
+    params = opts |> format_and_take(@params)
     request(client, :get, bucket, "/", resource: "uploads", params: params)
   end
 

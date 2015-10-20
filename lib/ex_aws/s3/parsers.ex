@@ -1,5 +1,5 @@
-defmodule ExAws.S3.Parsers do
-  if Code.ensure_loaded?(SweetXml) do
+if Code.ensure_loaded?(SweetXml) do
+  defmodule ExAws.S3.Parsers do
     import SweetXml, only: [sigil_x: 2]
 
     def parse_list_objects({:ok, resp = %{body: xml}}) do
@@ -45,7 +45,9 @@ defmodule ExAws.S3.Parsers do
     def parse_complete_multipart_upload(val), do: val
     def parse_list_parts(val), do: val
 
-  else
+  end
+else
+  defmodule ExAws.S3.Parsers do
     def parse_list_objects(val), do: val
     def parse_initiate_multipart_upload(val), do: val
     def parse_upload_part_copy(val), do: val
