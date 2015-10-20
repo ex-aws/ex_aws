@@ -370,12 +370,14 @@ defmodule ExAws.S3.Client do
     bucket      :: binary,
     object      :: binary,
     upload_id   :: binary,
-    part_number :: pos_integer) :: ExAws.Request.response_t
+    part_number :: pos_integer,
+    body        :: binary) :: ExAws.Request.response_t
   defcallback upload_part(
     bucket      :: binary,
     object      :: binary,
     upload_id   :: binary,
     part_number :: pos_integer,
+    body        :: binary,
     opts :: [encryption_opts | {:expect, binary}]) :: ExAws.Request.response_t
 
   @type upload_part_copy_opts :: [
