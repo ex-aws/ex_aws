@@ -9,4 +9,4 @@
   "mixunit": {:hex, :mixunit, "0.9.2"},
   "poison": {:hex, :poison, "1.2.1"},
   "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5"},
-  "sweet_xml": {:hex, :sweet_xml, "0.2.1"}}
+  "sweet_xml": {:hex, :sweet_xml, "0.4.0"}}

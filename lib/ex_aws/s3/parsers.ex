@@ -19,7 +19,7 @@ if Code.ensure_loaded?(SweetXml) do
           size: ~x"./Size/text()",
           storage_class: ~x"./StorageClass/text()",
           owner: [
-            ~x"./Owner",
+            ~x"./Owner"o,
             id: ~x"./ID/text()",
             display_name: ~x"./DisplayName/text()"
           ]

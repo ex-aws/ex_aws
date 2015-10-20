@@ -25,7 +25,7 @@ defmodule ExAws.Mixfile do
 
   defp deps(:test_dev) do
     [
-      {:sweet_xml, "~> 0.2.1", optional: true},
+      {:sweet_xml, "~> 0.4.0", optional: true},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.7", only: :dev},
       {:httpoison, "~> 0.7", optional: true},
