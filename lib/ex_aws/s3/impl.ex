@@ -116,7 +116,7 @@ defmodule ExAws.S3.Impl do
 
   @params [:delimiter, :encoding_type, :max_uploads, :key_marker, :prefix, :upload_id_marker]
   def list_multipart_uploads(client, bucket, opts \\ []) do
-    params = @params |> format_and_take(opts)
+    params = opts |> format_and_take(@params)
     request(client, :get, bucket, "/", resource: "uploads", params: params)
   end
 
@@ -372,9 +372,9 @@ defmodule ExAws.S3.Impl do
     |> Parsers.parse_initiate_multipart_upload
   end
 
-  def upload_part(client, bucket, object, upload_id, part_number, _opts \\ []) do
+  def upload_part(client, bucket, object, upload_id, part_number, body, _opts \\ []) do
     params = %{"uploadId" => upload_id, "partNumber" => part_number}
-    request(client, :put, bucket, object, params: params)
+    request(client, :put, bucket, object, params: params, body: body)
   end
 
   @amz_headers ~w(
