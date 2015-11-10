@@ -14,13 +14,17 @@ defmodule ExAws.SQS.Request do
     ExAws.Request.request(:post, url(client.config, queue_name), query, headers, client)
   end
 
-  def url(%{scheme: scheme, host: host}, queue_name) do
+  def url(%{scheme: scheme, host: host, port: port}, queue_name) do
     [
       scheme,
       host,
+      port |> port(),
       queue_name |> with_slash
     ] |> IO.iodata_to_binary
   end
+
+  defp port(80), do: ""
+  defp port(p),  do: ":#{p}"
 
   def with_slash(""), do: "/"
   def with_slash(queue), do: ["/", queue]

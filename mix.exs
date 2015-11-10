@@ -86,7 +86,8 @@ defmodule ExAws.Mixfile do
       sqs: [
         scheme: "https://",
         host: {"$region", "sqs.$region.amazonaws.com"},
-        region: "us-east-1"
+        region: "us-east-1",
+        port: 80
       ]
     ]
   end
