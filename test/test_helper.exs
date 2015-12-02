@@ -2,7 +2,7 @@ Code.require_file("default_helper.exs", __DIR__)
 Code.require_file("alternate_helper.exs", __DIR__)
 
 defmodule Test.User do
-  @derive [ExAws.Dynamo.Encodable]
+  @derive ExAws.Dynamo.Encodable
   defstruct [:email, :name, :age, :admin]
 
   defimpl ExAws.Dynamo.Decodable do

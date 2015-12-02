@@ -66,7 +66,6 @@ defmodule ExAws.Kinesis.Client do
   Same as describe_stream/1,2 except the shards key is a stream and will automatically handle pagination
   Returns the normally shaped AWS response, except the Shards key is now a stream
   """
-  @doc "Stream Shards"
   defcallback stream_shards(stream_name :: stream_name) :: Enumerable.t
   defcallback stream_shards(stream_name :: stream_name, opts :: describe_stream_opts) :: Enumerable.t
 
