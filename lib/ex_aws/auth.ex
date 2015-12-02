@@ -114,6 +114,8 @@ defmodule ExAws.Auth do
     |> URI.query_decoder
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
     |> URI.encode_query
+    |> String.replace("+", "%20")
+    |> String.replace("%7E", "~")
   end
 
   def canonical_headers(headers) do
