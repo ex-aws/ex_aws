@@ -16,11 +16,6 @@ defmodule ExAws.Dynamo.EncoderTest do
     assert %{"M" => %{"bar" => %{"M" => %{"baz" => %{"N" => "2"}, "zounds" => %{"S" => "asdf"}}}, "foo" => %{"N" => "1"}}} == result
   end
 
-  test "Encoder handles hashdicts" do
-    dict = %{foo: 1, bar: 2} |> Enum.into(HashDict.new)
-    assert dict |> Encoder.encode == %{"M" => %{"bar" => %{"N" => "2"}, "foo" => %{"N" => "1"}}}
-  end
-
   test "Encoder can handle floats" do
     assert Encoder.encode(0.4) == %{"N" => "0.4"}
   end

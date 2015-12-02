@@ -33,14 +33,14 @@ end
 defimpl ExAws.Dynamo.Encodable, for: Any do
 
   defmacro __deriving__(module, struct, options) do
-    ExAws.Dynamo.Encodable.Any.do_deriving(module, struct, options)
+    deriving(module, struct, options)
   end
 
-  def do_deriving(module, _struct, options) do
-    if only = options[:only] do
-      extractor = quote(do: Map.take(struct, unquote(only)))
+  def deriving(module, _struct, options) do
+    extractor = if only = options[:only] do
+      quote(do: Map.take(struct, unquote(only)))
     else
-      extractor = quote(do: :maps.remove(:__struct__, struct))
+      quote(do: :maps.remove(:__struct__, struct))
     end
 
     quote do
@@ -58,7 +58,7 @@ end
 defimpl ExAws.Dynamo.Encodable, for: Map do
 
   defmacro __deriving__(module, struct, options) do
-    ExAws.Dynamo.Encodable.Any.do_deriving(module, struct, options)
+    ExAws.Dynamo.Encodable.Any.deriving(module, struct, options)
   end
 
   def encode(map, options) do

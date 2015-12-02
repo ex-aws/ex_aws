@@ -3,7 +3,7 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.4.12",
+     version: "0.4.13",
      elixir: "~> 1.0",
      description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS",
      name: "ExAws",
@@ -25,7 +25,7 @@ defmodule ExAws.Mixfile do
 
   defp deps(:test_dev) do
     [
-      {:sweet_xml, "~> 0.4.0", optional: true},
+      {:sweet_xml, "~> 0.5", optional: true},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.7", only: :dev},
       {:httpoison, "~> 0.7", optional: true},
