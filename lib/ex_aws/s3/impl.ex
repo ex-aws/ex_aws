@@ -463,7 +463,7 @@ defmodule ExAws.S3.Impl do
   defp url_to_sign(bucket, object, config, virtual_host) do
     object = ExAws.S3.Request.ensure_slash(object)
     case virtual_host do
-      true -> "http://#{bucket}.#{config[:host]}#{object}"
+      true -> "#{config[:scheme]}#{bucket}.#{config[:host]}#{object}"
       false -> "#{config[:scheme]}#{config[:host]}/#{bucket}#{object}"
     end
   end
