@@ -5,6 +5,7 @@ defmodule ExAws.Mixfile do
     [app: :ex_aws,
      version: "0.4.13",
      elixir: "~> 1.0",
+     elixirc_paths: elixirc_paths(Mix.env),
      description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
@@ -18,6 +19,9 @@ defmodule ExAws.Mixfile do
      mod: {ExAws, []},
      env: env]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib",]
 
   defp deps do
     deps(:test_dev)

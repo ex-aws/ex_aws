@@ -111,13 +111,13 @@ defmodule ExAws.S3Test do
 
   test "#presigned_url passing virtual_host=true option" do
     {:ok, url} = S3.presigned_url(:get, "bucket", "foo.txt", [virtual_host: true])
-    assert_pre_signed_url(url, "http://bucket.s3.amazonaws.com/foo.txt", "3600")
+    assert_pre_signed_url(url, "https://bucket.s3.amazonaws.com/foo.txt", "3600")
   end
 
   test "#presigned_url passing both expires_in and virtual_host options" do
     opts = [expires_in: 100, virtual_host: true]
     {:ok, url} = S3.presigned_url(:get, "bucket", "foo.txt", opts)
-    assert_pre_signed_url(url, "http://bucket.s3.amazonaws.com/foo.txt", "100")
+    assert_pre_signed_url(url, "https://bucket.s3.amazonaws.com/foo.txt", "100")
   end
 
   test "#presigned_url file is path with slash" do

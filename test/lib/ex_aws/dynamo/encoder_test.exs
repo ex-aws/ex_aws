@@ -1,8 +1,3 @@
-defmodule Test.Nested do
-  @derive {ExAws.Dynamo.Encodable, only: [:items]}
-  defstruct items: [], secret: nil
-end
-
 defmodule ExAws.Dynamo.EncoderTest do
   use ExUnit.Case, async: true
   alias ExAws.Dynamo.Encoder
