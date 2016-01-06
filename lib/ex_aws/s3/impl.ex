@@ -222,8 +222,12 @@ defmodule ExAws.S3.Impl do
       "<Delete>",
       objects_xml,
       "</Delete>"
-    ] |> IO.iodata_to_binary
-    request(client, :post, bucket, "/?delete", body: body)
+    ]
+
+    content_md5 = body |> :crypto.md5 |> Base.encode64
+    body_binary = body |> IO.iodata_to_binary
+
+    request(client, :post, bucket, "/?delete", body: body_binary, headers: %{"content-md5" => content_md5})
   end
 
   @response_params [:content_type, :content_language, :expires, :cach_control, :content_disposition, :content_encoding]
