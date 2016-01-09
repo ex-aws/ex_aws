@@ -13,12 +13,8 @@ defmodule ExAws.MachineLearning.Impl do
     predict: :post,
   ]
 
-  def predict(client, modelId, record \\ %{}) do
-    data = %{
-      "MLModelId" => modelId,
-      "Record" => record,
-    }
-
+  def predict(client, record \\ %{}) do
+    data = %{ "Record" => record }
     request(client, :predict, data)
   end
 

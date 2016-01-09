@@ -10,10 +10,12 @@ defmodule ExAws.MachineLearning.Request do
     ]
 
     predict_endpoint = client.config |> url
-    data = Map.put(data, "PredictEndpoint", predict_endpoint)
+    data = data
+    |> Map.put("PredictEndpoint", predict_endpoint)
+    |> Map.put("MLModelId", client.config[:model_id])
 
-    ExAws.Request.request(http_method, predict_endpoint, data, headers, client)
-    |> parse(client.config)
+    request = ExAws.Request.request(http_method, predict_endpoint, data, headers, client)
+    request |> parse(client.config)
   end
 
   def parse({:error, result}, _), do: {:error, result}

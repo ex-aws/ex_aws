@@ -48,7 +48,7 @@ defmodule ExAws.MachineLearning.Client do
   """
 
   @doc "Request a prediction from a Machine Learning Real-Time Endpoint"
-  defcallback predict(modelId :: binary, record :: %{}) :: ExAws.Request.response_t
+  defcallback predict(record :: %{}) :: ExAws.Request.response_t
 
   defmacro __using__(opts) do
     boilerplate = __MODULE__

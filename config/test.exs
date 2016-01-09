@@ -29,5 +29,6 @@ config :ex_aws, :s3,
 config :ex_aws, :machinelearning,
   scheme: "https://",
   host: "realtime.machinelearning.us-east-1.amazonaws.com",
-  region: "us-east-1"
+  region: "us-east-1",
+  model_id: "ml-Ry8sJUCy97V"
 
