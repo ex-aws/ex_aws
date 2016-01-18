@@ -74,7 +74,7 @@ defmodule ExAws.S3Test do
 
   test "#delete_multiple_objects" do
     expected = %{body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Delete><Object><Key>foo</Key></Object><Object><Key>bar</Key><VersionId>v1</VersionId></Object></Delete>",
-      bucket: "bucket", path: "/?delete"}
+      bucket: "bucket", path: "/?delete", headers: %{"content-md5" => "lvfX5nHeLllWDA7QnpsnrA=="}}
 
     assert expected == S3.delete_multiple_objects("bucket", ["foo", {"bar", "v1"}])
   end

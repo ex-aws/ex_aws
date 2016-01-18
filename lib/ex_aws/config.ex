@@ -7,7 +7,7 @@ defmodule ExAws.Config do
   # and then merges in the common config from the ex_aws config root,
   # and then finally any config specified for the particular service
 
-  @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
+  @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests, :region]
 
   def build(client, opts \\ []) do
     config = client
@@ -23,7 +23,7 @@ defmodule ExAws.Config do
     config_root = client_module.config_root
     unless config_root, do: raise "A valid configuration root is required in your #{service} client"
 
-    defaults = Application.get_all_env(:ex_aws)
+    defaults = ExAws.Config.Defaults.get
     config   = config_root |> Keyword.get(service, [])
     common   = defaults
     |> Keyword.merge(config_root)
