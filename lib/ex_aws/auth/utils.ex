@@ -7,7 +7,7 @@ defmodule ExAws.Auth.Utils do
   # Space character
   def valid_path_char?(?\ ), do: false
   def valid_path_char?(c) do
-    !URI.char_reserved?(c)
+    URI.char_unescaped?(c) && !URI.char_reserved?(c)
   end
 
   def hash_sha256(data) do

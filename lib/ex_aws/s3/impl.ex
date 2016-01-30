@@ -230,7 +230,7 @@ defmodule ExAws.S3.Impl do
     request(client, :post, bucket, "/?delete", body: body_binary, headers: %{"content-md5" => content_md5})
   end
 
-  @response_params [:content_type, :content_language, :expires, :cach_control, :content_disposition, :content_encoding]
+  @response_params [:content_type, :content_language, :expires, :cache_control, :content_disposition, :content_encoding]
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def get_object(client, bucket, object, opts \\ []) do
     opts = opts |> Enum.into(%{})
