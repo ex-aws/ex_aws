@@ -352,7 +352,7 @@ defmodule ExAws.S3.Impl do
     |> build_encryption_headers
 
     meta = opts
-    |> Map.get(:meta)
+    |> Map.get(:meta, %{})
     |> build_meta_headers
 
     headers = opts

@@ -55,6 +55,11 @@ defmodule ExAws.S3Test do
       meta: [foo: "sqiggles"])
   end
 
+  test "#put_object_copy basic" do
+    expected = %{bucket: "dest-bucket", headers: %{"x-amz-copy-source" => "/src-bucket/src-object"}, path: "dest-object"}
+    assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "src-object")
+  end
+
   test "#complete_multipart_upload" do
     expected = %{
       body: "<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag>foo</ETag></Part><Part><PartNumber>2</PartNumber><ETag>bar</ETag></Part></CompleteMultipartUpload>",
