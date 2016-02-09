@@ -26,6 +26,8 @@ defmodule ExAws.Dynamo.Decoder do
   def decode(%{"BOOL" => false}),   do: false
   def decode(%{"BOOL" => "true"}),  do: true
   def decode(%{"BOOL" => "false"}), do: false
+  def decode(%{"NULL" => true}),    do: nil
+  def decode(%{"NULL" => "true"}),  do: nil
   def decode(%{"B" => value}),      do: value
   def decode(%{"S" => value}),      do: value
   def decode(%{"M" => value}),      do: value |> decode
