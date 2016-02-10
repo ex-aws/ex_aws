@@ -23,6 +23,10 @@ if Code.ensure_loaded?(SweetXml) do
             id: ~x"./ID/text()",
             display_name: ~x"./DisplayName/text()"
           ]
+        ],
+        common_prefixes: [
+          ~x"./CommonPrefixes"l,
+          prefix: ~x"./Prefix/text()"
         ]
       )
       |> list_objects_binaries
@@ -35,6 +39,7 @@ if Code.ensure_loaded?(SweetXml) do
       Enum.into(result, %{}, fn
         {:contents, contents} -> {:contents, Enum.map(contents, &list_objects_binaries/1)}
         {:owner, v} -> {:owner, list_objects_binaries(v)}
+        {:common_prefixes, prefixes} -> {:common_prefixes, Enum.map(prefixes, &list_objects_binaries/1)}
         {k, nil} -> {k, nil}
         {k, v} -> {k, IO.chardata_to_string(v)}
       end)
