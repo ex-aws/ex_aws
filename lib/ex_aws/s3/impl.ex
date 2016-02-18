@@ -224,7 +224,7 @@ defmodule ExAws.S3.Impl do
       "</Delete>"
     ]
 
-    content_md5 = body |> :crypto.md5 |> Base.encode64
+    content_md5 = :crypto.hash(:md5, body) |> Base.encode64
     body_binary = body |> IO.iodata_to_binary
 
     request(client, :post, bucket, "/?delete", body: body_binary, headers: %{"content-md5" => content_md5})
