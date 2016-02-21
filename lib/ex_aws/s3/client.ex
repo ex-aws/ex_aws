@@ -292,7 +292,7 @@ defmodule ExAws.S3.Client do
     | {:content_type, binary}
     | {:expect, binary}
     | {:expires, binary}
-    | {:storage_class, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
     | {:website_redirect_location, binary}
     | {:encryption, encryption_opts}
     | {:meta, amz_meta_opts}
@@ -318,10 +318,19 @@ defmodule ExAws.S3.Client do
     | {:copy_source_if_unmodified_since, binary}
     | {:copy_source_if_match, binary}
     | {:copy_source_if_none_match, binary}
-    | {:storage_class, :standard, :redunced_redundancy}
     | {:website_redirect_location, binary}
     | {:destination_encryption, encryption_opts}
     | {:source_encryption, customer_encryption_opts}
+    | {:cache_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+    | {:content_length, binary}
+    | {:content_type, binary}
+    | {:expect, binary}
+    | {:expires, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
+    | {:website_redirect_location, binary}
+    | {:meta, amz_meta_opts}
     | acl_opts
   ]
 
