@@ -351,16 +351,14 @@ defmodule ExAws.S3.Impl do
     |> Map.get(:destination_encryption, %{})
     |> build_encryption_headers
 
-    meta = opts
-    |> Map.get(:meta, %{})
-    |> build_meta_headers
+    regular_headers = opts
+    |> Map.delete(:encryption)
+    |> put_object_headers
 
-    headers = opts
-    |> format_acl_headers
+    headers = regular_headers
     |> Map.merge(amz_headers)
     |> Map.merge(source_encryption)
     |> Map.merge(destination_encryption)
-    |> Map.merge(meta)
     |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
 
     request(client, :put, dest_bucket, dest_object, headers: headers)

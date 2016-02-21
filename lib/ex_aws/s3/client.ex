@@ -284,14 +284,15 @@ defmodule ExAws.S3.Client do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
-  @type put_object_opts :: [ {:cache_control, binary}
+  @type put_object_opts :: [
+    {:cache_control, binary}
     | {:content_disposition, binary}
     | {:content_encoding, binary}
     | {:content_length, binary}
     | {:content_type, binary}
     | {:expect, binary}
     | {:expires, binary}
-    | {:storage_class, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
     | {:website_redirect_location, binary}
     | {:encryption, encryption_opts}
     | {:meta, amz_meta_opts}
@@ -312,15 +313,24 @@ defmodule ExAws.S3.Client do
   defcallback put_object_acl!(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Request.success_content
 
   @type pub_object_copy_opts :: [
-    {:metadata_directive, :copy | :replace}
+    {:metadata_directive, :COPY | :REPLACE}
     | {:copy_source_if_modified_since, binary}
     | {:copy_source_if_unmodified_since, binary}
     | {:copy_source_if_match, binary}
     | {:copy_source_if_none_match, binary}
-    | {:storage_class, :standard, :redunced_redundancy}
     | {:website_redirect_location, binary}
     | {:destination_encryption, encryption_opts}
     | {:source_encryption, customer_encryption_opts}
+    | {:cache_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+    | {:content_length, binary}
+    | {:content_type, binary}
+    | {:expect, binary}
+    | {:expires, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
+    | {:website_redirect_location, binary}
+    | {:meta, amz_meta_opts}
     | acl_opts
   ]
 
