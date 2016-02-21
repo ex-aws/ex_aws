@@ -284,7 +284,8 @@ defmodule ExAws.S3.Client do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
-  @type put_object_opts :: [ {:cache_control, binary}
+  @type put_object_opts :: [
+    {:cache_control, binary}
     | {:content_disposition, binary}
     | {:content_encoding, binary}
     | {:content_length, binary}
@@ -312,7 +313,7 @@ defmodule ExAws.S3.Client do
   defcallback put_object_acl!(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Request.success_content
 
   @type pub_object_copy_opts :: [
-    {:metadata_directive, :copy | :replace}
+    {:metadata_directive, :COPY | :REPLACE}
     | {:copy_source_if_modified_since, binary}
     | {:copy_source_if_unmodified_since, binary}
     | {:copy_source_if_match, binary}
