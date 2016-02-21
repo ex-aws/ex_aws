@@ -117,20 +117,7 @@ defmodule ExAws.Auth do
     params
     |> URI.query_decoder
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
-    |> Enum.map_join("&", &pair/1)
-  end
-
-  defp pair({k, _}) when is_list(k) do
-    raise ArgumentError, "encode_query/1 keys cannot be lists, got: #{inspect k}"
-  end
-
-  defp pair({_, v}) when is_list(v) do
-    raise ArgumentError, "encode_query/1 values cannot be lists, got: #{inspect v}"
-  end
-
-  defp pair({k, v}) do
-    URI.encode_www_form(Kernel.to_string(k)) <>
-    "=" <> URI.encode(Kernel.to_string(v))
+    |> URI.encode_query
   end
 
   defp canonical_headers(headers) do

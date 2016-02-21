@@ -23,12 +23,14 @@ defmodule ExAws.AuthTest do
     expires = 86400
     actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires)
 
-    expected = "https://examplebucket.s3.amazonaws.com/test.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
+    expected =
+      "https://examplebucket.s3.amazonaws.com/test.txt" <>
+      "?X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
       "&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request" <>
       "&X-Amz-Date=20130524T000000Z" <>
       "&X-Amz-Expires=86400" <>
       "&X-Amz-SignedHeaders=host" <>
-      "&X-Amz-Signature=967eb6d21e6164b944401d81f83d4946b0509ce03ddbae333d14651e2e007cc6"
+      "&X-Amz-Signature=aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404"
 
     assert expected == actual
   end
