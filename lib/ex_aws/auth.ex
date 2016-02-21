@@ -117,8 +117,36 @@ defmodule ExAws.Auth do
     params
     |> URI.query_decoder
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
-    |> URI.encode_query
+    |> Enum.map_join("&", &pair/1)
   end
+
+  defp pair({k, _}) when is_list(k) do
+    raise ArgumentError, "encode_query/1 keys cannot be lists, got: #{inspect k}"
+  end
+
+  defp pair({_, v}) when is_list(v) do
+    raise ArgumentError, "encode_query/1 values cannot be lists, got: #{inspect v}"
+  end
+
+  defp pair({k, v}) do
+    URI.encode_www_form(Kernel.to_string(k)) <>
+    "=" <> aws_encode_www_form(Kernel.to_string(v))
+  end
+
+  # is basically the same as URI.encode_www_form
+  # but doesn't use %20 instead of "+"
+  def aws_encode_www_form(str) when is_binary(str) do
+    import Bitwise
+    for <<c <- str>>, into: "" do
+      case URI.char_unreserved?(c) do
+        true  -> <<c>>
+        false -> "%" <> hex(bsr(c, 4)) <> hex(band(c, 15))
+      end
+    end
+  end
+
+  defp hex(n) when n <= 9, do: <<n + ?0>>
+  defp hex(n), do: <<n + ?A - 10>>
 
   defp canonical_headers(headers) do
     headers

@@ -16,10 +16,11 @@ defmodule ExAws.AuthTest do
     url = "https://examplebucket.s3.amazonaws.com/test.txt"
     service = :s3
     datetime = {{2013, 5, 24}, {0, 0, 0}}
-    config = [access_key_id: "AKIAIOSFODNN7EXAMPLE",
-              secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-              region: "us-east-1"
-             ]
+    config = [
+      access_key_id: "AKIAIOSFODNN7EXAMPLE",
+      secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+      region: "us-east-1"
+     ]
     expires = 86400
     actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires)
 
