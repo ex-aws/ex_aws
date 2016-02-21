@@ -359,7 +359,7 @@ defmodule ExAws.S3.Impl do
     |> Map.merge(amz_headers)
     |> Map.merge(source_encryption)
     |> Map.merge(destination_encryption)
-    |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
+    |> Map.put("x-amz-copy-source", URI.encode "/#{src_bucket}/#{src_object}")
 
     request(client, :put, dest_bucket, dest_object, headers: headers)
   end
