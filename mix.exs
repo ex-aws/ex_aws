@@ -3,7 +3,7 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.4.16",
+     version: "0.4.17",
      elixir: "~> 1.0",
      elixirc_paths: elixirc_paths(Mix.env),
      description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS",
