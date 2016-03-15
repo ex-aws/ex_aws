@@ -40,7 +40,11 @@ defmodule ExAws.S3.Request do
   defp host_and_bucket(host, bucket) do
     case bucket |> String.contains?(".") do
       true  -> [host, "/", bucket]
-      false -> [bucket, ".", host]
+      false ->
+        case host |> String.contains?("s3") do
+          true  -> [bucket, ".", host]
+          false -> [host, "/", bucket]
+        end
     end
   end
 end
