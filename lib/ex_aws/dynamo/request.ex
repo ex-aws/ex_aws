@@ -1,9 +1,13 @@
 defmodule ExAws.Dynamo.Request do
+  alias ExAws.Config
   @moduledoc false
 
   @type response_t :: %{} | ExAws.Request.error_t
 
   def request(client, action, data) do
+    client = client
+    |> Config.parse_host_for_region
+
     {operation, http_method} = ExAws.Dynamo.Impl |> ExAws.Actions.get(action)
     headers = [
       {"x-amz-target", operation},

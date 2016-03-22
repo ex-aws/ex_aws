@@ -76,6 +76,10 @@ defmodule ExAws.S3.Client do
     virtual_host: boolean
   ]
 
+  @type client_opts:: [
+    {:region, binary}
+  ]
+
   @type amz_meta_opts :: [{atom, binary} | {binary, binary}, ...]
 
   ## Bucket functions
@@ -112,7 +116,8 @@ defmodule ExAws.S3.Client do
     {:encoding_type, binary} |
     {:marker, binary} |
     {:max_keys, 0..1000} |
-    {:prefix, binary}
+    {:prefix, binary} |
+    {:client, client_opts}
   ]
   @doc "List objects in bucket"
   defcallback list_objects(bucket :: binary) :: ExAws.Request.response_t
@@ -258,6 +263,7 @@ defmodule ExAws.S3.Client do
     | {:if_unmodified_since, binary}
     | {:if_match, binary}
     | {:if_none_match, binary}
+    | {:client, client_opts}
   ]
 
   @doc "Determine of an object exists"
@@ -296,6 +302,7 @@ defmodule ExAws.S3.Client do
     | {:website_redirect_location, binary}
     | {:encryption, encryption_opts}
     | {:meta, amz_meta_opts}
+    | {:client, client_opts}
     | acl_opts
   ]
   @doc "Create an object within a bucket"
@@ -331,6 +338,7 @@ defmodule ExAws.S3.Client do
     | {:storage_class, :standard | :redunced_redundancy}
     | {:website_redirect_location, binary}
     | {:meta, amz_meta_opts}
+    | {:client, client_opts}
     | acl_opts
   ]
 

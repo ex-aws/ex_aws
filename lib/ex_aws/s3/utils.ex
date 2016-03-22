@@ -60,6 +60,23 @@ defmodule ExAws.S3.Utils do
     |> format_and_take(param_list)
   end
 
+  def apply_client_options([], client), do: client
+  def apply_client_options(opts, %{config: config} = client) do
+    config = opts
+    |> Enum.into(%{})
+    |> set_client_region(config)
+
+    Map.put(client, :config, config)
+  end
+
+  defp set_client_region(opts, %{host: host} = config) when is_binary(host), do: config
+  defp set_client_region(opts, config) do
+    case Map.get(opts, :region) do
+      nil -> config
+      new_region -> Map.put(config, :region, new_region)
+    end
+  end
+
   @acl_headers [:acl, :grant_read, :grant_write, :grant_read_acp, :grant_write_acp, :grant_full_control]
   def format_acl_headers(%{acl: canned_acl}) do
     %{"x-amz-acl" => normalize_param(canned_acl)}

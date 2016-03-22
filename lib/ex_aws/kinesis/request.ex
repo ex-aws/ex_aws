@@ -1,10 +1,14 @@
 defmodule ExAws.Kinesis.Request do
+  alias ExAws.Config
   @moduledoc false
   # Kinesis specific request logic.
 
   @type response_t :: %{} | ExAws.Request.error_t
 
   def request(client, action, data) do
+    client = client
+    |> Config.parse_host_for_region
+
     {operation, http_method} = ExAws.Kinesis.Impl |> ExAws.Actions.get(action)
     headers = [
       {"x-amz-target", operation},

@@ -1,10 +1,14 @@
 defmodule ExAws.Lambda.Request do
+  alias ExAws.Config
   @moduledoc false
   # Lambda specific request logic.
 
   @type response_t :: %{} | ExAws.Request.error_t
 
   def request(client, action, path, data, params \\ [], headers \\ []) do
+    client = client
+    |> Config.parse_host_for_region
+
     {_, http_method} = ExAws.Lambda.Impl |> ExAws.Actions.get(action)
     path = [path, params |> URI.encode_query] |> IO.iodata_to_binary
 
