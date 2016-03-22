@@ -143,7 +143,11 @@ defmodule ExAws.S3.Impl do
     |> IO.iodata_to_binary
 
     body = "<CORSConfiguration>#{rules}</CORSConfiguration>"
-    request(client, :put, bucket, "/", body: body)
+    content_md5 = :crypto.hash(:md5, body) |> Base.encode64
+    headers = %{"content-md5" => content_md5}
+
+    request(client, :put, bucket, "/",
+            resource: "cors", body: body, headers: headers)
   end
 
   def put_bucket_lifecycle(client, bucket, _livecycle_config) do
