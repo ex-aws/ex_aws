@@ -192,7 +192,7 @@ defmodule ExAws.S3.Client do
   defcallback put_bucket_logging(bucket :: binary, logging_config :: %{}) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket notification configuration"
-  defcallback put_bucket_notification(bucket :: binary, notification_config :: %{}) :: ExAws.Request.response_t
+  defcallback put_bucket_notification(bucket :: binary, notification_config :: [%{}]) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket replication configuration"
   defcallback put_bucket_replication(bucket :: binary, replication_config :: %{}) :: ExAws.Request.response_t

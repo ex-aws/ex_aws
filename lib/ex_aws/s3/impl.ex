@@ -168,9 +168,9 @@ defmodule ExAws.S3.Impl do
     request(client, :put, bucket, "/")
   end
 
-  def put_bucket_notification(client, bucket, _notification_config) do
-    raise "not yet implemented"
-    request(client, :put, bucket, "/")
+  def put_bucket_notification(client, bucket, notification_config) do
+    body = build_notification_config(notification_config)
+    request(client, :put, bucket, "/", resource: "notification", body: body)
   end
 
   def put_bucket_replication(client, bucket, _replication_config) do
