@@ -45,6 +45,16 @@ if Code.ensure_loaded?(SweetXml) do
       end)
     end
 
+    def parse_initiate_multipart_upload({:ok, resp = %{body: xml}}) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//InitiateMultipartUploadResult",
+        bucket: ~x"./Bucket/text()"s,
+        key: ~x"./Key/text()"s,
+        upload_id: ~x"./UploadId/text()"s
+      )
+
+      {:ok, %{resp | body: parsed_body}}
+    end
     def parse_initiate_multipart_upload(val), do: val
     def parse_upload_part_copy(val), do: val
     def parse_complete_multipart_upload(val), do: val

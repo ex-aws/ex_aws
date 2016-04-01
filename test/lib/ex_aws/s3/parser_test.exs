@@ -33,4 +33,22 @@ defmodule ExAws.S3.ParserTest do
 
     assert ["photos/"] == prefix_list
   end
+
+
+  test "#initiate_multipart_upload parses response" do
+    initiate_multipart_upload_response = """
+    <InitiateMultipartUploadResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+      <Bucket>somebucket</Bucket>
+      <Key>abcd</Key>
+      <UploadId>bUCMhxUCGCA0GiTAhTj6cq2rChItfIMYBgO7To9yiuUyDk4CWqhtHPx8cGkgjzyavE2aW6HvhQgu9pvDB3.oX73RC7N3zM9dSU3mecTndVRHQLJCAsySsT6lXRd2Id2a</UploadId>
+    </InitiateMultipartUploadResult>
+    """
+
+    result = ExAws.S3.Parsers.parse_initiate_multipart_upload({:ok, %{body: initiate_multipart_upload_response}})
+    {:ok, %{body: %{bucket: bucket, key: key, upload_id: upload_id}}} = result
+
+    assert "somebucket" == bucket
+    assert "abcd" == key
+    assert "bUCMhxUCGCA0GiTAhTj6cq2rChItfIMYBgO7To9yiuUyDk4CWqhtHPx8cGkgjzyavE2aW6HvhQgu9pvDB3.oX73RC7N3zM9dSU3mecTndVRHQLJCAsySsT6lXRd2Id2a" == upload_id
+  end
 end
