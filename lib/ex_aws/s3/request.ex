@@ -9,6 +9,9 @@ defmodule ExAws.S3.Request do
     headers  = data |> Keyword.get(:headers, %{})
 
 
+    IO.inspect bucket
+    IO.inspect path
+    IO.inspect client
     url = client.config
     |> url(bucket, path)
     |> add_query(resource, query)
