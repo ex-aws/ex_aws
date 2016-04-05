@@ -91,7 +91,12 @@ end
 
 defimpl ExAws.Dynamo.Encodable, for: BitString do
   def encode(val, _) do
-    %{"S" => val}
+    replacement = ExAws.Dynamo.config_root[:dynamodb][:empty_string] 
+    if (replacement != nil) and (val == "") do
+      %{"S" => replacement}
+    else
+      %{"S" => val}      
+    end
   end
 end
 

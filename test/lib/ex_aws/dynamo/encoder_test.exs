@@ -15,6 +15,14 @@ defmodule ExAws.Dynamo.EncoderTest do
     assert Encoder.encode(0.4) == %{"N" => "0.4"}
   end
 
+  test "Encoder can handle full strings" do
+    assert Encoder.encode("Val") == %{"S" => "Val"}
+  end
+
+  test "Encoder can handle empty strings" do
+    assert Encoder.encode("") == %{"S" => ""}
+  end
+
   test "Encoder with structs works properly" do
     user = %Test.User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     assert %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},

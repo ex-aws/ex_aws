@@ -29,7 +29,14 @@ defmodule ExAws.Dynamo.Decoder do
   def decode(%{"NULL" => true}),    do: nil
   def decode(%{"NULL" => "true"}),  do: nil
   def decode(%{"B" => value}),      do: value
-  def decode(%{"S" => value}),      do: value
+  def decode(%{"S" => value}) do
+    replacement = ExAws.Dynamo.config_root[:dynamodb][:empty_string] 
+    if (replacement != nil) and (value == replacement) do
+      ""
+    else
+      value
+    end
+  end
   def decode(%{"M" => value}),      do: value |> decode
   def decode(%{"SS" => values}),    do: values
   def decode(%{"BS" => values}),    do: values
