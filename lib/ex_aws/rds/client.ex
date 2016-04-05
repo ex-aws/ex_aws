@@ -20,6 +20,10 @@ defmodule ExAws.RDS.Client do
   """
 
   defcallback describe_db_instances() :: ExAws.Request.response_t
+  defcallback describe_db_instances(opts :: Keyword.t) :: ExAws.Request.response_t
+
+  defcallback reboot_db_instance(instance :: binary) :: ExAws.Request.response_t
+  defcallback reboot_db_instance(insance :: binary, failover :: boolean) :: ExAws.Request.response_t
 
   defmacro __using__(opts) do 
 
@@ -30,11 +34,11 @@ defmodule ExAws.RDS.Client do
       unquote(boilerplate)
 
       @doc false
-      def request(client, http_method, instance, path, data \\ []) do
-        ExAws.RDS.Request.request(client, http_method, instance, path, data)
+      def request(client, http_method, path, data \\ []) do
+        ExAws.RDS.Request.request(client, http_method, path, data)
       end
 
-      defoverridable config_root: 0, request: 4, request: 5
+      defoverridable config_root: 0, request: 3, request: 4
      end
   end
 end

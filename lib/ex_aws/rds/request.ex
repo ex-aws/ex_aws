@@ -3,10 +3,12 @@ defmodule ExAws.RDS.Request do
   @moduledoc false
   # RDS specific request logic
 
-  def request(client, http_method, instance, path, data \\ []) do
+  def request(client, http_method, path, data \\ []) do
+    IO.inspect data
     new_data = data 
                |> Keyword.get(:params, %{}) 
                |> convert_data_keys_to_capitalized_strings
+               |> List.first
 
     body     = data |> Keyword.get(:body, "")
     resource = data |> Keyword.get(:resource, "")
@@ -41,23 +43,10 @@ defmodule ExAws.RDS.Request do
     |> IO.iodata_to_binary
   end
 
-  def add_query(url, "", "") do 
-    url
-  end
-
-  def add_query(url, "", query) do
-    url <> "?" <> query
-  end
-
-  def add_query(url, resource, "") do
-    resource = resource |> Atom.to_string |> String.capitalize
-    url <> "?" <> resource
-  end
-
-  def add_query(url, resource, query) do 
-    resource = resource |> Atom.to_string |> String.capitalize
-    url <> "?" <> resource <> "&" <> query
-  end
+  def add_query(url, "", ""),          do: url
+  def add_query(url, "", query),       do: url <> "?" <> query
+  def add_query(url, resource, ""),    do: url <> "?" <> resource
+  def add_query(url, resource, query), do: url <> "?" <> resource <> "&" <> query
 
   def ensure_slash("/" <> _ = path), do: path
   def ensure_slash(path), do:  "/" <> path
