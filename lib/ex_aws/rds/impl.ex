@@ -1,8 +1,37 @@
 defmodule ExAws.RDS.Impl do
+
+  @version "2014-10-31"
+
+  def add_source_id_to_subscription(client, source_id, subscription) do
+    query_params = Map.new
+    |> Map.put_new("Action", "AddSourceIdentifierToSubscription")
+    |> Map.put_new("SourceIdentifier", source_id)
+    |> Map.put_new("SubscriptionName", subscription)
+    |> Map.put_new("Version", @version)
+
+    request(client, :post, "/", params: query_params)
+  end
+
+  def add_tags_to_resource(client, resource, tags, n) do
+    query_params = Map.new
+    |> Map.put_new("Action", "AddTagsToResource")
+    |> Map.put_new("ResourceName", resource)
+    |> Map.put_new("Version", @version)
+
+    for {k, v} <- tags do 
+      query_params = query_params
+      |> Map.put_new("Tags.member.#{Integer.to_string(n)}.Key", k)
+      |> Map.put_new("Tags.member.#{Integer.to_string(n)}.Value", v)
+    end
+
+    request(client, :post, "/", params: query_params)
+  end
+
   
   def describe_db_instances(client, opts \\ %{}) do 
     query_params = Map.new
     |> Map.put_new("Action", "DescribeDBInstances")
+    |> Map.put_new("Version", @version)
     |> Map.merge(opts)
 
     request(client, :get, "/", params: query_params)
@@ -17,16 +46,35 @@ defmodule ExAws.RDS.Impl do
     |> Map.put_new("DBInstanceIdentifier", instance_id)
     |> Map.put_new("DBInstanceClass", class)
     |> Map.put_new("Engine", engine)
+    |> Map.put_new("Version", @version)
     |> Map.merge(opts)
 
     request(client, :post, "/", params: query_params)
   end
 
-  def delete_db_instance(client, instance_id, opts \\ %{}) do 
+  def modify_db_instance(client, instance_id, opts \\ %{}) do 
+    query_params = Map.new
+    |> Map.put_new("Action", "ModifyDBInstance")
+    |> Map.put_new("DBInstanceIdentifier", instance_id)
+    |> Map.put_new("Version", @version)    
+    |> Map.merge(opts)
+
+    request(client, :patch, "/", params: query_params)
+  end
+
+  def delete_db_instance(client, instance_id, final_snapshot_id \\ :empty, opts \\ %{}) do 
     query_params = Map.new
     |> Map.put_new("Action", "DeleteDBInstance")
     |> Map.put_new("DBInstanceIdentifier", instance_id)
-    |> Map.merge(opts)
+    |> Map.put_new("Version", @version)
+
+    if final_snapshot_id != :empty do 
+      query_params = Map.put_new(query_params, "FinalDBSnapshotIdentifier", final_snapshot_id)
+    else
+      query_params = Map.put_new(query_params, "SkipFinalSnapshot", true)
+    end    
+
+    query_params = Map.merge(query_params, opts)
 
     request(client, :delete, "/", params: query_params)
   end
@@ -35,10 +83,20 @@ defmodule ExAws.RDS.Impl do
     query_params = Map.new
     |> Map.put_new("Action", "RebootDBInstance")
     |> Map.put_new("DBInstanceIdentifier", instance_id)
+    |> Map.put_new("Version", @version)    
 
     if failover != :empty do 
       query_params = Map.merge(query_params, %{"Failover" => failover})
     end
+
+    request(client, :get, "/", params: query_params)
+  end
+
+  def describe_events(client, opts \\ %{}) do 
+    query_params = Map.new
+    |> Map.put_new("Action", "DescribeEvents")
+    |> Map.put_new("Version", @version)    
+    |> Map.merge(opts)
 
     request(client, :get, "/", params: query_params)
   end

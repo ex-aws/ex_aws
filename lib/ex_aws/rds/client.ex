@@ -19,14 +19,30 @@ defmodule ExAws.RDS.Client do
   ```
   """
 
+  defcallback add_source_id_to_subscription(source_id :: binary, subscription :: binary) :: ExAws.Request.response_t
+
+  defcallback add_tags_to_resource(resource :: binary, tags :: List.t, n :: integer) :: ExAws.Request.response_t
+
   defcallback describe_db_instances() :: ExAws.Request.response_t
   defcallback describe_db_instances(opts :: Map.t) :: ExAws.Request.response_t
 
   defcallback create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary) :: ExAws.Request.response_t
   defcallback create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  defcallback modify_db_instance(instance_id :: binary) :: ExAws.Request.response_t
+  defcallback modify_db_instance(instance_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
   defcallback reboot_db_instance(instance_id :: binary) :: ExAws.Request.response_t
   defcallback reboot_db_instance(instance_id :: binary, failover :: boolean) :: ExAws.Request.response_t
+
+  defcallback delete_db_instance(instance_id :: binary, final_snapshot_id :: binary) :: ExAws.Request.response_t
+  defcallback delete_db_instance(instance_id :: binary, final_snapshot_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback delete_db_instance(instance_id :: binary) :: ExAws.Request.response_t
+  defcallback delete_db_instance(instance_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
+
+  defcallback describe_events() :: ExAws.Request.response_t
+  defcallback describe_events(opts :: Map.t) :: ExAws.Request.response_t  
 
   defmacro __using__(opts) do 
 
