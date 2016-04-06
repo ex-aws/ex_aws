@@ -4,11 +4,8 @@ defmodule ExAws.RDS.Request do
   # RDS specific request logic
 
   def request(client, http_method, path, data \\ []) do
-    IO.inspect data
     new_data = data 
                |> Keyword.get(:params, %{}) 
-               |> convert_data_keys_to_capitalized_strings
-               |> List.first
 
     body     = data |> Keyword.get(:body, "")
     resource = data |> Keyword.get(:resource, "")
@@ -50,12 +47,4 @@ defmodule ExAws.RDS.Request do
 
   def ensure_slash("/" <> _ = path), do: path
   def ensure_slash(path), do:  "/" <> path
-
-  defp convert_data_keys_to_capitalized_strings(data) do 
-    new_data = Map.new
-    for {key, val} <- data do
-      key = key |> Atom.to_string |> String.capitalize 
-      new_data = Map.put_new(new_data, key, val)
-    end
-  end
 end

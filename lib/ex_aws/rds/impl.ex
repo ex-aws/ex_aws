@@ -5,13 +5,14 @@ defmodule ExAws.RDS.Impl do
   end
 
   def reboot_db_instance(client, instance_id, failover \\ :empty) do
-    opts = [db_instance_identifier: instance_id]
+    opts = %{"DBInstanceIdentifier" => instance_id}
 
     if failover != :empty do 
-      opts ++ [failover: failover]
+      opts = Map.merge(opts, %{"Failover" => failover})
     end
 
-    request(client, :get, "/", params: [action: "RebootDBInstance"] ++ opts)
+    request(client, :get, "/", 
+      params: Map.merge(%{"Action" => "RebootDBInstance"}, opts))
   end
 
   defp request(%{__struct__: client_module} = client, verb, path, data \\[]) do
