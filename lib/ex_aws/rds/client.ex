@@ -22,6 +22,7 @@ defmodule ExAws.RDS.Client do
   defcallback add_source_id_to_subscription(source_id :: binary, subscription :: binary) :: ExAws.Request.response_t
 
   defcallback add_tags_to_resource(resource :: binary, tags :: List.t, n :: integer) :: ExAws.Request.response_t
+  defcallback apply_pending_maintenance(resource_id :: binary, action :: binary, opt_in_type :: binary) :: ExAws.Request.response_t
 
   defcallback describe_db_instances() :: ExAws.Request.response_t
   defcallback describe_db_instances(opts :: Map.t) :: ExAws.Request.response_t

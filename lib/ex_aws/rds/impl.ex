@@ -27,7 +27,28 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  
+  def apply_pending_maintenance(client, resource_id, action, opt_in_type) when action == "system-update" do 
+    query_params = Map.new
+    |> Map.put_new("Action", "ApplyPendingMaintenanceAction")
+    |> Map.put_new("ResourceIdentifier", resource_id)
+    |> Map.put_new("ApplyAction", action)
+    |> Map.put_new("OptInType", opt_in_type)
+    |> Map.put_new("Version", @version)
+
+    request(client, :post, "/", params: query_params)
+  end
+
+  def apply_pending_maintenance(client, resource_id, action, opt_in_type) when action == "db-upgrade" do 
+    query_params = Map.new
+    |> Map.put_new("Action", "ApplyPendingMaintenanceAction")
+    |> Map.put_new("ResourceIdentifier", resource_id)
+    |> Map.put_new("ApplyAction", action)
+    |> Map.put_new("OptInType", opt_in_type)
+    |> Map.put_new("Version", @version)
+
+    request(client, :post, "/", params: query_params)
+  end  
+
   def describe_db_instances(client, opts \\ %{}) do 
     query_params = Map.new
     |> Map.put_new("Action", "DescribeDBInstances")
