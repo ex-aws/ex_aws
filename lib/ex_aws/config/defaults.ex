@@ -15,8 +15,7 @@ defmodule ExAws.Config.Defaults do
         scheme: "https://",
         host: {"$region", "dynamodb.$region.amazonaws.com"},
         region: "us-east-1",
-        port: 80,
-        empty_string: nil        
+        port: 80
       ],
       lambda: [
         host: {"$region", "lambda.$region.amazonaws.com"},

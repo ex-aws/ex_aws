@@ -79,6 +79,7 @@ defimpl ExAws.Dynamo.Encodable, for: Map do
     Enum.reduce(map, %{}, fn
       ({_, nil}, map) -> map
       ({_, []}, map)  -> map
+      ({_, ""}, map)  -> map
 
       ({k, v}, map) when is_binary(k) ->
         Map.put(map, k, ExAws.Dynamo.Encodable.encode(v, []))
@@ -91,12 +92,7 @@ end
 
 defimpl ExAws.Dynamo.Encodable, for: BitString do
   def encode(val, _) do
-    replacement = ExAws.Dynamo.config_root[:dynamodb][:empty_string] 
-    if (replacement != nil) and (val == "") do
-      %{"S" => replacement}
-    else
-      %{"S" => val}      
-    end
+    %{"S" => val}
   end
 end
 

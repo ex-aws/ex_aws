@@ -15,12 +15,8 @@ defmodule ExAws.Dynamo.EncoderTest do
     assert Encoder.encode(0.4) == %{"N" => "0.4"}
   end
 
-  test "Encoder can handle full strings" do
-    assert Encoder.encode("Val") == %{"S" => "Val"}
-  end
-
-  test "Encoder can handle empty strings" do
-    assert Encoder.encode("") == %{"S" => ""}
+  test "Encoder removes empty strings from a map" do
+    assert Encoder.encode(%{"data" => "value", "nodata" => ""}) == %{"M" => %{"data" => %{"S" => "value"}}}
   end
 
   test "Encoder with structs works properly" do

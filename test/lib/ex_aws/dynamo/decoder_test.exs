@@ -36,12 +36,4 @@ defmodule ExAws.Dynamo.DecoderTest do
     assert user == user |> Encoder.encode |> Decoder.decode(as: Test.User)
   end
 
-  test "Decoder full string works" do
-    assert Decoder.decode(%{"S" => "val"}) == "val"
-  end
-
-  test "Decoder empty string works" do
-    assert Decoder.decode(%{"S" => ""}) == ""
-  end
-
 end
