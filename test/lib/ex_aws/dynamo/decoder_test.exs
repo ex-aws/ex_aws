@@ -35,5 +35,4 @@ defmodule ExAws.Dynamo.DecoderTest do
     user = %Test.User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     assert user == user |> Encoder.encode |> Decoder.decode(as: Test.User)
   end
-
 end
