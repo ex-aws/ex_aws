@@ -6,22 +6,10 @@ defmodule ExAws.RDS.Request do
   #@region Application.get_all_env(:ex_aws) |> Keyword.fetch!(:rds) |> Keyword.fetch!(:region)
 
   def request(client, http_method, path, data \\ []) do
-    new_data = data 
-               |> Keyword.get(:params, %{}) 
-
     body     = data |> Keyword.get(:body, "")
     resource = data |> Keyword.get(:resource, "")
-    query    = new_data |> URI.encode_query
+    query    = data |> Keyword.get(:params, %{}) |> URI.encode_query
     headers  = data |> Keyword.get(:headers, %{})
-
-    new_config = client.config#Map.merge(client.config, 
-                  #         %{
-                   #         host: "rds.amazonaws.com", 
-                    #        scheme: "https://",
-                     #       region: @region
-                      #      })
-
-    client = Map.put(client, :config, new_config)
 
     url = client.config
     |> url(path)

@@ -47,7 +47,7 @@ defmodule ExAws.Config.Defaults do
       rds: [
         scheme: "https://",
         host: {"$region", "rds.amazonaws.com"},
-        region: "us-east-1",
+        region: "eu-central-1",
         port: 80
       ]
     ]
