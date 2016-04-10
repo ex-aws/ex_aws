@@ -12,5 +12,8 @@ config :ex_aws, :dynamodb,
   port: 8000,
   region: "us-east-1"
 
-#config :ex_aws, :rds,
-  #region: "us-east-1"
+config :ex_aws, :rds,
+  scheme: "https://",
+  host: {"$region", "rds.amazonaws.com"},
+  region: "eu-central-1",
+  port: 80
