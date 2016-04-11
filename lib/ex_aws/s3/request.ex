@@ -1,4 +1,5 @@
 defmodule ExAws.S3.Request do
+  alias ExAws.Config
   @moduledoc false
   # S3 specific request logic.
 
@@ -8,6 +9,8 @@ defmodule ExAws.S3.Request do
     query    = data |> Keyword.get(:params, %{}) |> URI.encode_query
     headers  = data |> Keyword.get(:headers, %{})
 
+    client = client
+    |> Config.parse_host_for_region
 
     url = client.config
     |> url(bucket, path)

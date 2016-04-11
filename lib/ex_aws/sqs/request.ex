@@ -1,7 +1,10 @@
 defmodule ExAws.SQS.Request do
+  alias ExAws.Config
   @moduledoc false
 
   def request(client, queue_name, action, params = %{}) do
+    client = client
+    |> Config.parse_host_for_region
 
     query = params
     |> Map.put("Action", action)

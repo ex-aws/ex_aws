@@ -16,7 +16,6 @@ defmodule ExAws.Config do
 
     %{client | config: config}
     |> retrieve_runtime_config
-    |> parse_host_for_region
   end
 
   def get(%{__struct__: client_module, service: service}) do

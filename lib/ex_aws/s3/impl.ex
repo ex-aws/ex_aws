@@ -1,6 +1,7 @@
 defmodule ExAws.S3.Impl do
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
+  alias ExAws.Config
 
   @moduledoc false
   # Implementation of the AWS S3 API.
@@ -14,6 +15,13 @@ defmodule ExAws.S3.Impl do
   defdelegate stream_objects!(client, bucket, opts), to: ExAws.S3.Lazy
 
   def list_buckets(client, opts \\ []) do
+    client = opts
+    |> Keyword.get(:client, [])
+    |> apply_client_options(client)
+
+    opts = opts
+    |> Keyword.delete(:client)
+
     request(client, :get, "", "/", params: opts)
   end
 
@@ -47,8 +55,13 @@ defmodule ExAws.S3.Impl do
 
   @params [:delimiter, :marker, :prefix, :encoding_type, :max_keys]
   def list_objects(client, bucket, opts \\ []) do
+    client = opts
+    |> Keyword.get(:client, [])
+    |> apply_client_options(client)
+
     params = opts
     |> format_and_take(@params)
+
     request(client, :get, bucket, "/", params: params)
     |> Parsers.parse_list_objects
   end
@@ -121,6 +134,10 @@ defmodule ExAws.S3.Impl do
   end
 
   def put_bucket(client, bucket, region, opts \\ []) do
+    client = opts
+    |> Keyword.get(:client, [])
+    |> apply_client_options(client)
+
     headers = opts
     |> Enum.into(%{})
     |> format_acl_headers
@@ -202,6 +219,10 @@ defmodule ExAws.S3.Impl do
   ###########
 
   def delete_object(client, bucket, object, opts \\ []) do
+    client = opts
+    |> Keyword.get(:client, [])
+    |> apply_client_options(client)
+
     request(client, :delete, bucket, object, headers: opts |> Enum.into(%{}))
   end
   def delete_object!(client, bucket, object, opts \\ []) do
@@ -239,6 +260,10 @@ defmodule ExAws.S3.Impl do
   def get_object(client, bucket, object, opts \\ []) do
     opts = opts |> Enum.into(%{})
 
+    client = opts
+    |> Map.get(:client, [])
+    |> apply_client_options(client)
+
     response_opts = opts
     |> Map.get(:response, %{})
     |> format_and_take(@response_params)
@@ -271,6 +296,10 @@ defmodule ExAws.S3.Impl do
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def head_object(client, bucket, object, opts \\ []) do
     opts = opts |> Enum.into(%{})
+
+    client = opts
+    |> Map.get(:client, [])
+    |> apply_client_options(client)
 
     headers = opts
     |> format_and_take(@request_headers)
@@ -339,6 +368,10 @@ defmodule ExAws.S3.Impl do
     website_redirect_location)a
   def put_object_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
     opts = opts |> Enum.into(%{})
+
+    client = opts
+    |> Map.get(:client, [])
+    |> apply_client_options(client)
 
     amz_headers = opts
     |> format_and_take(@amz_headers)
@@ -454,7 +487,7 @@ defmodule ExAws.S3.Impl do
     case expires_in > @one_week do
       true -> {:error, "expires_in_exceeds_one_week"}
       false ->
-        config = client.config
+        config = Config.parse_host_for_region(client).config
         url = url_to_sign(bucket, object, config, virtual_host)
         datetime = :calendar.universal_time
         {:ok, ExAws.Auth.presigned_url(
