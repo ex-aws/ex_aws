@@ -1,5 +1,5 @@
 defmodule ExAws.Config do
-
+  require Logger
   @moduledoc false
 
   # Generates the configuration for a client.
@@ -51,6 +51,45 @@ defmodule ExAws.Config do
     %{client | config: new_config}
   end
 
+  def retrieve_runtime_value({:awscli, key}) do
+    retrieve_runtime_value({:awscli, "credentials", "default", key})
+  end
+  def retrieve_runtime_value({:awscli, profile, key}) do
+    retrieve_runtime_value({:awscli, "credentials", profile, key})
+  end
+  def retrieve_runtime_value({:awscli, file, profile, key}) do
+    case Code.ensure_loaded?(ConfigParser) do
+      false ->
+        Logger.warn("ConfigParser dependency is not loaded, :awscli configuration settings cannot be used.")
+        nil
+      true ->
+        cfg_path = System.user_home |> Path.join(".aws") |> Path.join(file)
+        case File.exists?(cfg_path) do
+          false ->
+            Logger.warn(":awscli config file #{cfg_path} not found")
+            nil
+          true ->
+            nil
+            case ConfigParser.parse_file(cfg_path) do
+              {:ok, parse_result} ->
+                case Map.get(parse_result, profile, nil) do
+                  nil ->
+                    Logger.warn("[#{profile}] profile not found in :awscli file #{cfg_path}")
+                    nil
+                  profile_val ->
+                    case Map.get(profile_val, key, nil) do
+                      nil ->
+                        Logger.warn("#{key} key not found in [#{profile}] profile of :awscli file #{cfg_path}")
+                      key_value -> key_value
+                    end
+                end
+              {:error, reason} ->
+                Logger.warn("Failed to parse :awscli file #{cfg_path}, error: #{inspect reason}")
+                nil
+            end
+        end
+    end
+  end
   def retrieve_runtime_value({:system, env_key}, _) do
     System.get_env(env_key)
   end

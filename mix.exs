@@ -35,7 +35,8 @@ defmodule ExAws.Mixfile do
       {:poison, "~> 1.2", optional: true},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", optional: true},
       {:httpotion, "~> 2.0", optional: true},
-      {:jsx, "~> 2.5", optional: true}
+      {:jsx, "~> 2.5", optional: true},
+      {:configparser_ex, "~> 0.2", optional: true}
     ]
   end
 
