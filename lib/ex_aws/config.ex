@@ -52,42 +52,33 @@ defmodule ExAws.Config do
   end
 
   def retrieve_runtime_value({:awscli, key}) do
-    retrieve_runtime_value({:awscli, "credentials", "default", key})
+    retrieve_runtime_value({:awscli, "default", key})
   end
   def retrieve_runtime_value({:awscli, profile, key}) do
-    retrieve_runtime_value({:awscli, "credentials", profile, key})
-  end
-  def retrieve_runtime_value({:awscli, file, profile, key}) do
-    case Code.ensure_loaded?(ConfigParser) do
-      false ->
-        Logger.warn("ConfigParser dependency is not loaded, :awscli configuration settings cannot be used.")
-        nil
-      true ->
-        cfg_path = System.user_home |> Path.join(".aws") |> Path.join(file)
-        case File.exists?(cfg_path) do
-          false ->
-            Logger.warn(":awscli config file #{cfg_path} not found")
-            nil
+    cfg = case Application.get_env(:ex_aws, :awscli, :not_found) do
+      :not_found ->
+        case Code.ensure_loaded?(ConfigParser) do
           true ->
-            nil
-            case ConfigParser.parse_file(cfg_path) do
-              {:ok, parse_result} ->
-                case Map.get(parse_result, profile, nil) do
-                  nil ->
-                    Logger.warn("[#{profile}] profile not found in :awscli file #{cfg_path}")
-                    nil
-                  profile_val ->
-                    case Map.get(profile_val, key, nil) do
-                      nil ->
-                        Logger.warn("#{key} key not found in [#{profile}] profile of :awscli file #{cfg_path}")
-                      key_value -> key_value
-                    end
+            cfg_path = System.user_home |> Path.join(".aws") |> Path.join("credentials")
+            case File.exists?(cfg_path) do
+              true ->
+                case ConfigParser.parse_file(cfg_path) do
+                  {:ok, parse_result} -> parse_result
+                  {:error, reason} -> nil
                 end
-              {:error, reason} ->
-                Logger.warn("Failed to parse :awscli file #{cfg_path}, error: #{inspect reason}")
-                nil
+              false -> nil
             end
+          _ -> nil
         end
+      result -> result
+    end
+    :application.set_env(:ex_aws, :awscli, cfg)
+    case cfg do
+      nil -> nil
+      _ ->
+        cfg
+        |> Map.get(profile, %{})
+        |> Map.get(key, nil)
     end
   end
   def retrieve_runtime_value({:system, env_key}, _) do
