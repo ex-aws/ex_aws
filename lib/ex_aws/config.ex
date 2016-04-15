@@ -1,5 +1,5 @@
 defmodule ExAws.Config do
-
+  require Logger
   @moduledoc false
 
   # Generates the configuration for a client.
@@ -51,6 +51,36 @@ defmodule ExAws.Config do
     %{client | config: new_config}
   end
 
+  def retrieve_runtime_value({:awscli, key}) do
+    retrieve_runtime_value({:awscli, "default", key})
+  end
+  def retrieve_runtime_value({:awscli, profile, key}) do
+    cfg = case Application.get_env(:ex_aws, :awscli, :not_found) do
+      :not_found ->
+        case Code.ensure_loaded?(ConfigParser) do
+          true ->
+            cfg_path = System.user_home |> Path.join(".aws") |> Path.join("credentials")
+            case File.exists?(cfg_path) do
+              true ->
+                case ConfigParser.parse_file(cfg_path) do
+                  {:ok, parse_result} -> parse_result
+                  {:error, reason} -> nil
+                end
+              false -> nil
+            end
+          _ -> nil
+        end
+      result -> result
+    end
+    :application.set_env(:ex_aws, :awscli, cfg)
+    case cfg do
+      nil -> nil
+      _ ->
+        cfg
+        |> Map.get(profile, %{})
+        |> Map.get(key, nil)
+    end
+  end
   def retrieve_runtime_value({:system, env_key}, _) do
     System.get_env(env_key)
   end
