@@ -398,6 +398,15 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :get, "/", params: query_params)
   end
 
+  def create_subnet(client, vpc_id, cidr_block, opts \\ %{}) do
+    query_params = put_action_and_version("CreateSubnet")
+    |> Map.put_new("VpcId", vpc_id)
+    |> Map.put_new("CidrBlock", cidr_block)
+    |> Map.merge(opts)
+    
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
