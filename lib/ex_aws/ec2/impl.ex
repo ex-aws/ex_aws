@@ -497,6 +497,15 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def describe_volume_attribute(client, volume_id, attribute, opts \\ %{}) do
+    query_params = put_action_and_version("DescribeVolumeAttribute")
+    |> Map.put_new("VolumeId", volume_id)
+    |> Map.put_new("Attribute", attribute)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
