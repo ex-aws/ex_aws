@@ -375,6 +375,12 @@ defmodule ExAws.EC2.Client do
   defcallback modify_volume_attribute(volume_id :: binary) :: ExAws.Request.response_t
   defcallback modify_volume_attribute(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes the status of the specified volumes.
+  """
+  defcallback describe_volume_status() :: ExAws.Request.response_t
+  defcallback describe_volume_status(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
