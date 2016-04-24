@@ -544,6 +544,15 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def copy_snapshot(client, source_snapshot_id, source_region, opts \\ %{}) do
+    query_params = put_action_and_version("CopySnapshot")
+    |> Map.put_new("SourceSnapshotId", source_snapshot_id)
+    |> Map.put_new("SourceRegion", source_region)
+    |> Map.merge(opts)
+    
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

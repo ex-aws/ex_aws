@@ -395,6 +395,14 @@ defmodule ExAws.EC2.Client do
   defcallback create_snapshot(volume_id :: binary) :: ExAws.Request.response_t
   defcallback create_snapshot(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Copies a point-in-time snapshot of an EBS volume and stores it in Amazon S3. 
+  You can copy the snapshot within the same region or from one region to 
+  another.
+  """
+  defcallback copy_snapshot(source_snapshot_id :: binary, source_region :: binary) :: ExAws.Request.response_t
+  defcallback copy_snapshot(source_snapshot_id :: binary, source_region :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
