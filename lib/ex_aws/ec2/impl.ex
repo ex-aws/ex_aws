@@ -166,6 +166,15 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def copy_image(client, name, source_image_id, source_region, opts \\ %{}) do
+    query_params = put_action_and_version("CopyImage")
+    |> Map.put_new("Name", name)
+    |> Map.put_new("SourceImageId", source_image_id)
+    |> Map.put_new("SourceRegion", source_region)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
