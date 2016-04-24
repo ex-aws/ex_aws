@@ -489,6 +489,14 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def detach_volume(client, volume_id, opts \\ %{}) do
+    query_params = put_action_and_version("DetachVolume")
+    |> Map.put_new("VolumeId", volume_id)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

@@ -349,6 +349,12 @@ defmodule ExAws.EC2.Client do
   defcallback attach_volume(instace_id :: binary, volume_id :: binary, device :: binary) :: ExAws.Request.response_t
   defcallback attach_volume(instace_id :: binary, volume_id :: binary, device :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Detaches an EBS volume from an instance. 
+  """
+  defcallback detach_volume(volume_id :: binary) :: ExAws.Request.response_t
+  defcallback detach_volume(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
