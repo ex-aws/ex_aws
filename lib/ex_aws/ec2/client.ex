@@ -277,6 +277,12 @@ defmodule ExAws.EC2.Client do
   defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean) :: ExAws.Request.response_t
   defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes one or more of your subnets.
+  """
+  defcallback describe_subnets() :: ExAws.Request.response_t
+  defcallback describe_subnets(opts :: Map.t) :: ExAws.Request.response_t
+ 
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
