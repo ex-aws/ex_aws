@@ -227,6 +227,12 @@ defmodule ExAws.EC2.Client do
   defcallback authorize_security_group_ingress() :: ExAws.Request.response_t
   defcallback authorize_security_group_ingress(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Adds one or more egress rules to a security group for use with a VPC. 
+  """
+  defcallback authorize_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
+  defcallback authorize_security_group_egress(group_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__

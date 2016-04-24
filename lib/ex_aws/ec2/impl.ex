@@ -313,6 +313,14 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end  
 
+  def authorize_security_group_egress(client, group_id, opts \\ %{}) do
+    query_params = put_action_and_version("AuthorizeSecurityGroupEgress")
+    |> Map.put_new("GroupId", group_id)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
