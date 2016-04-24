@@ -259,6 +259,12 @@ defmodule ExAws.EC2.Client do
   defcallback create_vpc(cidr_block :: binary) :: ExAws.Request.response_t
   defcallback create_vpc(cidr_block :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Deletes the specified VPC.
+  """
+  defcallback delete_vpc(vpc_id :: binary) :: ExAws.Request.response_t
+  defcallback delete_vpc(vpc_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__

@@ -355,6 +355,14 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def delete_vpc(client, vpc_id, opts \\ %{}) do
+    query_params = put_action_and_version("DeleteVpc")
+    |> Map.put_new("VpcId", vpc_id)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
