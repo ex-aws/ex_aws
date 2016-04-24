@@ -416,6 +416,12 @@ defmodule ExAws.EC2.Client do
   defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Adds or removes permission settings for the specified snapshot.
+  """
+  defcallback modify_snapshot_attribute(snapshot_id :: binary) :: ExAws.Request.response_t
+  defcallback modify_snapshot_attribute(snapshot_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
