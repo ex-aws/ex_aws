@@ -409,6 +409,13 @@ defmodule ExAws.EC2.Client do
   defcallback delete_snapshot(snapshot_id :: binary) :: ExAws.Request.response_t
   defcallback delete_snapshot(snapshot_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes the specified attribute of the specified snapshot. You can specify 
+  only one attribute at a time.
+  """
+  defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
+  defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__

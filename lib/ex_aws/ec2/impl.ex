@@ -561,6 +561,15 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def describe_snapshot_attribute(client, snapshot_id, attribute, opts \\ %{}) do
+    query_params = put_action_and_version("DescribeSnapshotAttribute")
+    |> Map.put_new("SnapshotId", snapshot_id)
+    |> Map.put_new("Attribute", attribute)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
