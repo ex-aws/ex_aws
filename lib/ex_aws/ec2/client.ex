@@ -247,6 +247,12 @@ defmodule ExAws.EC2.Client do
   defcallback revoke_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
   defcallback revoke_security_group_egress(group_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes one or more of your VPCs.
+  """
+  defcallback describe_vpcs() :: ExAws.Request.response_t
+  defcallback describe_vpcs(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
