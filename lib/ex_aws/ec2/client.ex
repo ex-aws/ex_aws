@@ -142,8 +142,18 @@ defmodule ExAws.EC2.Client do
   defcallback describe_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_image_attribute(image_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Modifies the specified attribute of the specified AMI. You can specify only 
+  one attribute at a time.
+  """
   defcallback modify_image_attribute(image_id :: binary) :: ExAws.Request.response_t
   defcallback modify_image_attribute(image_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
+  @doc """
+  Resets an attribute of an AMI to its default value.
+  """
+  defcallback reset_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
+  defcallback reset_image_attribute(image_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
 
   defmacro __using__(opts) do 
 
