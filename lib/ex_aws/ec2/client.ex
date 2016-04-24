@@ -209,6 +209,12 @@ defmodule ExAws.EC2.Client do
   defcallback modify_id_format(resource :: binary, use_long_ids :: boolean) :: ExAws.Request.response_t
   defcallback modify_id_format(resource :: binary, use_long_ids :: boolean, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes one or more of your security groups.
+  """
+  defcallback describe_security_groups() :: ExAws.Request.response_t
+  defcallback describe_security_groups(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
