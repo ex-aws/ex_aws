@@ -183,6 +183,12 @@ defmodule ExAws.EC2.Client do
   defcallback create_key_pair(key_name :: binary) :: ExAws.Request.response_t
   defcallback create_key_pair(key_name :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Deletes the specified key pair, by removing the public key from Amazon EC2.
+  """
+  defcallback delete_key_pair(key_name :: binary) :: ExAws.Request.response_t
+  defcallback delete_key_pair(key_name :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
