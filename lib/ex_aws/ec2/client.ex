@@ -327,6 +327,14 @@ defmodule ExAws.EC2.Client do
   defcallback describe_volumes() :: ExAws.Request.response_t
   defcallback describe_volumes(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Creates an EBS volume that can be attached to an instance in the same 
+  Availability Zone. The volume is created in the regional endpoint that you 
+  send the HTTP request to. 
+  """
+  defcallback create_volume(availability_zone :: binary, size :: integer) :: ExAws.Request.response_t
+  defcallback create_volume(availability_zone :: binary, size :: integer, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
