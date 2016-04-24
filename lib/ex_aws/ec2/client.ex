@@ -135,6 +135,13 @@ defmodule ExAws.EC2.Client do
   defcallback describe_images() :: ExAws.Request.response_t
   defcallback describe_images(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes the specified attribute of the specified AMI. You can specify 
+  only one attribute at a time.
+  """
+  defcallback describe_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
+  defcallback describe_image_attribute(image_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
