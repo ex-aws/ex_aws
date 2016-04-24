@@ -241,6 +241,14 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :get, "/", params: query_params)
   end
 
+  def create_key_pair(client, key_name, opts \\ %{}) do
+    query_params = put_action_and_version("CreateKeyPair")
+    |> Map.put_new("KeyName", key_name)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

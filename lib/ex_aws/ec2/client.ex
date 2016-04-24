@@ -175,6 +175,14 @@ defmodule ExAws.EC2.Client do
   defcallback describe_key_pairs() :: ExAws.Request.response_t
   defcallback describe_key_pairs(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Creates a 2048-bit RSA key pair with the specified name. Amazon EC2 stores 
+  the public key and displays the private key for you to save to a file. 
+  The private key is returned as an unencrypted PEM encoded PKCS#8 private key.
+  """
+  defcallback create_key_pair(key_name :: binary) :: ExAws.Request.response_t
+  defcallback create_key_pair(key_name :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
