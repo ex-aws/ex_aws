@@ -342,6 +342,13 @@ defmodule ExAws.EC2.Client do
   defcallback delete_volume(volume_id :: binary) :: ExAws.Request.response_t
   defcallback delete_volume(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Attaches an EBS volume to a running or stopped instance and exposes it to 
+  the instance with the specified device name.
+  """
+  defcallback attach_volume(instace_id :: binary, volume_id :: binary, device :: binary) :: ExAws.Request.response_t
+  defcallback attach_volume(instace_id :: binary, volume_id :: binary, device :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
