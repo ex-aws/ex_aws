@@ -321,6 +321,13 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def revoke_security_group_ingress(client, opts \\ %{}) do
+    query_params = put_action_and_version("RevokeSecurityGroupIngress")
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

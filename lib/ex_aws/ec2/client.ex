@@ -232,7 +232,15 @@ defmodule ExAws.EC2.Client do
   """
   defcallback authorize_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
   defcallback authorize_security_group_egress(group_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
-  
+
+  @doc """
+  Removes one or more ingress rules from a security group. The values that 
+  you specify in the revoke request (for example, ports) must match 
+  the existing rule's values for the rule to be removed.
+  """
+  defcallback revoke_security_group_ingress() :: ExAws.Request.response_t
+  defcallback revoke_security_group_ingress(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
