@@ -215,6 +215,12 @@ defmodule ExAws.EC2.Client do
   defcallback describe_security_groups() :: ExAws.Request.response_t
   defcallback describe_security_groups(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Creates a security group.
+  """
+  defcallback create_security_group(group_name :: binary, group_description :: binary) :: ExAws.Request.response_t
+  defcallback create_security_group(group_name :: binary, group_description :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
