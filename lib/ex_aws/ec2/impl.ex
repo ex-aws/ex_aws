@@ -230,6 +230,17 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  #########################
+  ### Key Pairs Actions ###
+  #########################
+
+  def describe_key_pairs(client, opts \\ %{}) do
+    query_params = put_action_and_version("DescribeKeyPairs")
+    |> Map.merge(opts)
+
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
