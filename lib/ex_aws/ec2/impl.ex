@@ -434,6 +434,15 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :get, "/", params: query_params)
   end
 
+  def create_tags(client, resource_ids, tags, opts \\ %{}) do
+    query_params = put_action_and_version("CreateTags")
+    |> Map.merge(list_builder(resource_ids, "ResourceId", 1, %{}))
+    |> Map.merge(list_builder_key_val(tags, "Tag", 1, %{}))
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
@@ -450,6 +459,22 @@ defmodule ExAws.EC2.Impl do
 
   defp list_builder([h | t], key, count, state) do
     list_builder t, key, count + 1, Map.put_new(state, "#{key}.#{count}", h)
+  end
+
+  defp list_builder_key_val([_h = {f, s} | []], key, count, state) do
+    new_map = Map.new
+    |> Map.put_new("#{key}.#{count}.Key", f)
+    |> Map.put_new("#{key}.#{count}.Value", s)
+
+    Map.merge(state, new_map)    
+  end
+
+  defp list_builder_key_val([_h = {f, s} | t], key, count, state) do
+    new_map = Map.new
+    |> Map.put_new("#{key}.#{count}.Key", f)
+    |> Map.put_new("#{key}.#{count}.Value", s)
+
+    list_builder_key_val t, key, count + 1, Map.merge(state, new_map)
   end
 
 end

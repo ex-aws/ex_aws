@@ -307,6 +307,14 @@ defmodule ExAws.EC2.Client do
   defcallback describe_tags() :: ExAws.Request.response_t
   defcallback describe_tags(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Adds or overwrites one or more tags for the specified Amazon EC2 resource or 
+  resources. Each resource can have a maximum of 10 tags. Each tag consists of 
+  a key and optional value. Tag keys must be unique per resource.
+  """
+  defcallback create_tags(resource_ids :: list(binary), tags :: list({binary, binary})) :: ExAws.Request.response_t
+  defcallback create_tags(resource_ids :: list(binary), tags :: list({binary, binary}), opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
