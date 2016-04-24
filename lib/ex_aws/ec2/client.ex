@@ -203,6 +203,12 @@ defmodule ExAws.EC2.Client do
   defcallback describe_id_format() :: ExAws.Request.response_t
   defcallback describe_id_format(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Modifies the ID format for the specified resource on a per-region basis.
+  """
+  defcallback modify_id_format(resource :: binary, use_long_ids :: boolean) :: ExAws.Request.response_t
+  defcallback modify_id_format(resource :: binary, use_long_ids :: boolean, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
