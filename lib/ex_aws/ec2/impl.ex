@@ -153,6 +153,19 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :get, "/", params: query_params)
   end
 
+  ###################
+  ### AMI Actions ###
+  ###################
+
+  def create_image(client, instance_id, name, opts \\ %{}) do
+    query_params = put_action_and_version("CreateImage")
+    |> Map.put_new("InstanceId", instance_id)
+    |> Map.put_new("Name", name)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

@@ -114,6 +114,13 @@ defmodule ExAws.EC2.Client do
   defcallback describe_regions() :: ExAws.Request.response_t
   defcallback describe_regions(opts :: Map.t) :: ExAws.Request.response_t  
 
+  @doc """
+  Creates an Amazon EBS-backed AMI from an Amazon EBS-backed instance 
+  that is either running or stopped.
+  """
+  defcallback create_image(instace_id :: binary, name :: binary) :: ExAws.Request.response_t
+  defcallback create_image(instace_id :: binary, name :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
