@@ -221,6 +221,12 @@ defmodule ExAws.EC2.Client do
   defcallback create_security_group(group_name :: binary, group_description :: binary) :: ExAws.Request.response_t
   defcallback create_security_group(group_name :: binary, group_description :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Adds one or more ingress rules to a security group.
+  """
+  defcallback authorize_security_group_ingress() :: ExAws.Request.response_t
+  defcallback authorize_security_group_ingress(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
