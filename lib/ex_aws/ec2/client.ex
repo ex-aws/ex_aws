@@ -253,6 +253,12 @@ defmodule ExAws.EC2.Client do
   defcallback describe_vpcs() :: ExAws.Request.response_t
   defcallback describe_vpcs(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Creates a VPC with the specified CIDR block.
+  """
+  defcallback create_vpc(cidr_block :: binary) :: ExAws.Request.response_t
+  defcallback create_vpc(cidr_block :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
