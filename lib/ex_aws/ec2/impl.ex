@@ -171,6 +171,7 @@ defmodule ExAws.EC2.Impl do
     |> Map.put_new("Name", name)
     |> Map.put_new("SourceImageId", source_image_id)
     |> Map.put_new("SourceRegion", source_region)
+    |> Map.merge(opts)
 
     HTTP.request(client, :post, "/", params: query_params)
   end
@@ -370,6 +371,20 @@ defmodule ExAws.EC2.Impl do
     |> Map.merge(opts)
 
     HTTP.request(client, :get, "/", params: query_params)
+  end
+
+  def modify_vpc_attribute(client, vpc_id, attribute, value, opts \\ %{}) when attribute == :dns_hostnames or attribute == :dns_support do
+    query_params = put_action_and_version("ModifyVpcAttribute")
+    |> Map.put_new("VpcId", vpc_id)
+    |> Map.merge(opts)
+
+    query_params = 
+      case attribute do 
+        :dns_hostnames -> query_params |> Map.put_new("EnableDnsHostnames.Value", value)
+        :dns_support   -> query_params |> Map.put_new("EnableDnsSupport.Value", value)
+      end
+
+    HTTP.request(client, :post, "/", params: query_params)
   end
 
   ########################

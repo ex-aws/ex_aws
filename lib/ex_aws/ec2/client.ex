@@ -271,6 +271,12 @@ defmodule ExAws.EC2.Client do
   defcallback describe_vpc_attribute(vpc_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_vpc_attribute(vpc_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Modifies the specified attribute of the specified VPC.
+  """
+  defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean) :: ExAws.Request.response_t
+  defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
