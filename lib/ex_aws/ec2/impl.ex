@@ -615,6 +615,14 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def cancel_bundle_task(client, bundle_id, opts \\ %{}) do
+    query_params = put_action_and_version("CancelBundleTask")
+    |> Map.put_new("BundleId", bundle_id)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
