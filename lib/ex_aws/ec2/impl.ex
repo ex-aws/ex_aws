@@ -119,6 +119,14 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)    
   end
 
+  def get_console_output(client, instance_id, opts \\ %{}) do
+    query_params = put_action_and_version("GetConsoleOutput")
+    |> Map.put_new("InstanceId", instance_id)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

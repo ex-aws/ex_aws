@@ -88,6 +88,12 @@ defmodule ExAws.EC2.Client do
   defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
 
+  @doc """
+  Gets the console output for the specified instance.
+  """
+  defcallback get_console_output(instace_id :: binary) :: ExAws.Request.response_t
+  defcallback get_console_output(instace_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
