@@ -266,6 +266,17 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  ###########################
+  ### Resource ID Actions ###
+  ###########################
+
+  def describe_id_format(client, opts \\ %{}) do
+    query_params = put_action_and_version("DescribeIdFormat")
+    |> Map.merge(opts)
+
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

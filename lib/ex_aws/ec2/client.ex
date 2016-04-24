@@ -196,6 +196,13 @@ defmodule ExAws.EC2.Client do
   defcallback import_key_pair(key_name :: binary, public_key_material :: binary) :: ExAws.Request.response_t
   defcallback import_key_pair(key_name :: binary, public_key_material :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes the ID format settings for your resources on a per-region basis, 
+  for example, to view which resource types are enabled for longer IDs.
+  """
+  defcallback describe_id_format() :: ExAws.Request.response_t
+  defcallback describe_id_format(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
