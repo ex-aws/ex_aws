@@ -423,6 +423,17 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  ####################
+  ### Tags Actions ###
+  ####################
+
+  def describe_tags(client, opts \\ %{}) do
+    query_params = put_action_and_version("DescribeTags")
+    |> Map.merge(opts)
+
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

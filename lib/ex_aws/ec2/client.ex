@@ -301,6 +301,12 @@ defmodule ExAws.EC2.Client do
   defcallback modify_subnet_attribute(subnet_id :: binary) :: ExAws.Request.response_t
   defcallback modify_subnet_attribute(subnet_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes one or more of the tags for your EC2 resources.
+  """
+  defcallback describe_tags() :: ExAws.Request.response_t
+  defcallback describe_tags(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
