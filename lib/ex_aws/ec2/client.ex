@@ -321,6 +321,12 @@ defmodule ExAws.EC2.Client do
   defcallback delete_tags(resource_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback delete_tags(resource_ids :: list(binary), opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes the specified EBS volumes.
+  """
+  defcallback describe_volumes() :: ExAws.Request.response_t
+  defcallback describe_volumes(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
