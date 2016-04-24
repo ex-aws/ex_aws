@@ -257,6 +257,15 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
+  def import_key_pair(client, key_name, public_key_material, opts \\ %{}) do
+    query_params = put_action_and_version("ImportKeyPair")
+    |> Map.put_new("KeyName", key_name)
+    |> Map.put_new("PublicKeyMaterial", Base.url_encode64(public_key_material))
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

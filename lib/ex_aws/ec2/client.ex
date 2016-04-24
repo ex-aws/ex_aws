@@ -189,6 +189,13 @@ defmodule ExAws.EC2.Client do
   defcallback delete_key_pair(key_name :: binary) :: ExAws.Request.response_t
   defcallback delete_key_pair(key_name :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Imports the public key from an RSA key pair that you created with a 
+  third-party tool. 
+  """
+  defcallback import_key_pair(key_name :: binary, public_key_material :: binary) :: ExAws.Request.response_t
+  defcallback import_key_pair(key_name :: binary, public_key_material :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
