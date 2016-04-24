@@ -448,6 +448,12 @@ defmodule ExAws.EC2.Client do
   defcallback cancel_bundle_task(bundle_id :: binary) :: ExAws.Request.response_t
   defcallback cancel_bundle_task(bundle_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes one or more of your bundling tasks.
+  """
+  defcallback describe_bundle_tasks() :: ExAws.Request.response_t
+  defcallback describe_bundle_tasks(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
