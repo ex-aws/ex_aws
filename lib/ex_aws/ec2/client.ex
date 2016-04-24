@@ -94,6 +94,13 @@ defmodule ExAws.EC2.Client do
   defcallback get_console_output(instace_id :: binary) :: ExAws.Request.response_t
   defcallback get_console_output(instace_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
 
+  @doc """
+  Retrieves the encrypted administrator password for an instance running 
+  Windows.
+  """
+  defcallback get_password_data(instace_id :: binary) :: ExAws.Request.response_t
+  defcallback get_password_data(instace_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
