@@ -335,6 +335,13 @@ defmodule ExAws.EC2.Client do
   defcallback create_volume(availability_zone :: binary, size :: integer) :: ExAws.Request.response_t
   defcallback create_volume(availability_zone :: binary, size :: integer, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Deletes the specified EBS volume. The volume must be in the available state 
+  (not attached to an instance).
+  """
+  defcallback delete_volume(volume_id :: binary) :: ExAws.Request.response_t
+  defcallback delete_volume(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
