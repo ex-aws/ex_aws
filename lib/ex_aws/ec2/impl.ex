@@ -536,6 +536,14 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :get, "/", params: query_params)
   end
 
+  def create_snapshot(client, volume_id, opts \\ %{}) do
+    query_params = put_action_and_version("CreateSnapshot")
+    |> Map.put_new("VolumeId", volume_id)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  
