@@ -598,6 +598,23 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :get, "/", params: query_params)
   end
 
+  ############################
+  ### Bundle Tasks Actions ###
+  ############################
+
+  def bundle_instance(client, instance_id, {s3_aws_access_key_id, s3_bucket, s3_prefix, s3_upload_policy, s3_upload_policy_sig}, opts \\ %{}) do
+    query_params = put_action_and_version("BundleInstance")
+    |> Map.put_new("InstanceId", instance_id)
+    |> Map.put_new("Storage.S3.AWSAccessKeyId", s3_aws_access_key_id)
+    |> Map.put_new("Storage.S3.Bucket", s3_bucket)
+    |> Map.put_new("Storage.S3.Prefix", s3_prefix)
+    |> Map.put_new("Storage.S3.UploadPolicy", s3_upload_policy)
+    |> Map.put_new("Storage.S3.UploadPolicySignature", Base.url_encode64(s3_upload_policy_sig))
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

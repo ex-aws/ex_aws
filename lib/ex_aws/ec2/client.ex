@@ -434,6 +434,14 @@ defmodule ExAws.EC2.Client do
   defcallback describe_account_attributes() :: ExAws.Request.response_t
   defcallback describe_account_attributes(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Bundles an Amazon instance store-backed Windows instance.
+  During bundling, only the root device volume (C:\) is bundled. Data on other 
+  instance store volumes is not preserved.
+  """
+  defcallback bundle_instance(instance_id :: binary, {s3_aws_access_key_id :: binary, s3_bucket :: binary, s3_prefix :: binary, s3_upload_policy :: binary, s3_upload_policy_sig :: binary}) :: ExAws.Request.response_t
+  defcallback bundle_instance(instance_id :: binary, {s3_aws_access_key_id :: binary, s3_bucket :: binary, s3_prefix :: binary, s3_upload_policy :: binary, s3_upload_policy_sig :: binary}, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
