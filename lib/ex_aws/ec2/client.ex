@@ -142,6 +142,9 @@ defmodule ExAws.EC2.Client do
   defcallback describe_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_image_attribute(image_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  defcallback modify_image_attribute(image_id :: binary) :: ExAws.Request.response_t
+  defcallback modify_image_attribute(image_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
