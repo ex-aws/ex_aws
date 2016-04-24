@@ -51,8 +51,42 @@ defmodule ExAws.EC2.Client do
   Submits feedback about the status of an instance. The instance must be in the 
   running state.
   """
-  defcallback report_instance_status(instance_ids :: list(binary), reason_codes ::list(binary), status :: binary) :: ExAws.Request.response_t
-  defcallback report_instance_status(instance_ids :: list(binary), reason_codes ::list(binary), status :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback report_instance_status(instance_ids :: list(binary), status :: binary) :: ExAws.Request.response_t
+  defcallback report_instance_status(instance_ids :: list(binary), status :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
+  @doc """
+  Enables monitoring for a running instance.
+  """
+  defcallback monitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
+  defcallback monitor_instances(instance_ids :: list(binary), opts :: Map.pt) :: ExAws.Request.response_t
+
+  @doc """
+  Disables monitoring for a running instance. 
+  """
+  defcallback unmonitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
+  defcallback unmonitor_instances(instance_ids :: list(binary), opts :: Map.pt) :: ExAws.Request.response_t    
+
+  @doc """
+  Describes the specified attribute of the specified instance. You can specify 
+  only one attribute at a time.
+  """
+  defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
+  defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
+  @doc """
+  Modifies the specified attribute of the specified instance. You can 
+  specify only one attribute at a time.
+  """
+  defcallback modify_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
+  defcallback modify_instance_attribute(instace_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
+  @doc """
+  Resets an attribute of an instance to its default value. To reset the kernel 
+  or ramdisk, the instance must be in a stopped state. To reset the 
+  SourceDestCheck, the instance can be either running or stopped.
+  """
+  defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
+  defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
 
   defmacro __using__(opts) do 
 

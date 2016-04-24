@@ -67,18 +67,56 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)
   end
 
-  def report_instance_status(client, instance_ids, reason_codes \\ [], status, opts \\ %{}) do
+  def report_instance_status(client, instance_ids, status, opts \\ %{}) do
     query_params = put_action_and_version("ReportInstanceStatus")
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
     |> Map.put_new("Status", status)
     |> Map.merge(opts)
 
-    query_params = 
-      if reason_codes != [] do 
-        query_params |> Map.merge(list_builder(reason_codes, "ReasonCode", 1, %{}))
-      end
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
+  def monitor_instances(client, instance_ids, opts \\ %{}) do
+    query_params = put_action_and_version("MonitorInstances")
+    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)    
+  end
+
+  def unmonitor_instances(client, instance_ids, opts \\ %{}) do
+    query_params = put_action_and_version("UnmonitorInstances")
+    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)    
+  end
+
+  def describe_instance_attribute(client, instance_id, attribute, opts \\ %{}) do
+    query_params = put_action_and_version("DescribeInstanceAttribute")
+    |> Map.put_new("InstanceId", instance_id)
+    |> Map.put_new("Attribute", attribute)
+    |> Map.merge(opts)
 
     HTTP.request(client, :get, "/", params: query_params)
+  end
+
+  def modify_instance_attribute(client, instance_id, attribute, opts \\ %{}) do
+    query_params = put_action_and_version("ModifyInstanceAttribute")
+    |> Map.put_new("InstanceId", instance_id)
+    |> Map.put_new("Attribute", attribute)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
+  def reset_instance_attribute(client, instance_id, attribute, opts \\ %{}) do
+    query_params = put_action_and_version("ResetInstanceAttribute")
+    |> Map.put_new("InstanceId", instance_id)
+    |> Map.put_new("Attribute", attribute)
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)    
   end
 
   ########################
