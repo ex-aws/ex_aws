@@ -40,6 +40,20 @@ defmodule ExAws.EC2.Client do
   defcallback terminate_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback terminate_instances(instance_ids :: list(binary), opts :: Map.t) :: ExAws.Request.response_t    
 
+  @doc """
+  Requests a reboot of one or more instances. This operation is asynchronous; it
+  only queues a request to reboot the specified instances.
+  """
+  defcallback reboot_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
+  defcallback reboot_instances(instance_ids :: list(binary), opts :: Map.pt) :: ExAws.Request.response_t
+
+  @doc """
+  Submits feedback about the status of an instance. The instance must be in the 
+  running state.
+  """
+  defcallback report_instance_status(instance_ids :: list(binary), reason_codes ::list(binary), status :: binary) :: ExAws.Request.response_t
+  defcallback report_instance_status(instance_ids :: list(binary), reason_codes ::list(binary), status :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__

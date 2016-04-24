@@ -57,7 +57,33 @@ defmodule ExAws.EC2.Impl do
     |> Map.merge(opts)
 
     HTTP.request(client, :post, "/", params: query_params)      
-  end  
+  end
+
+  def reboot_instances(client, instance_ids, opts \\ %{}) do 
+    query_params = put_action_and_version("RebootInstances")
+    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
+    |> Map.merge(opts)
+
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
+  def report_instance_status(client, instance_ids, reason_codes \\ [], status, opts \\ %{}) do
+    query_params = put_action_and_version("ReportInstanceStatus")
+    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
+    |> Map.put_new("Status", status)
+    |> Map.merge(opts)
+
+    query_params = 
+      if reason_codes != [] do 
+        query_params |> Map.merge(list_builder(reason_codes, "ReasonCode", 1, %{}))
+      end
+
+    HTTP.request(client, :get, "/", params: query_params)
+  end
+
+  ########################
+  ### Helper Functions ###
+  ########################  
 
   defp put_action_and_version(action) do
     Map.new
