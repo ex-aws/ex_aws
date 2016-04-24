@@ -315,6 +315,12 @@ defmodule ExAws.EC2.Client do
   defcallback create_tags(resource_ids :: list(binary), tags :: list({binary, binary})) :: ExAws.Request.response_t
   defcallback create_tags(resource_ids :: list(binary), tags :: list({binary, binary}), opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Deletes the specified set of tags from the specified set of resources.
+  """
+  defcallback delete_tags(resource_ids :: list(binary)) :: ExAws.Request.response_t
+  defcallback delete_tags(resource_ids :: list(binary), opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
