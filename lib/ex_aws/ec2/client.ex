@@ -403,6 +403,12 @@ defmodule ExAws.EC2.Client do
   defcallback copy_snapshot(source_snapshot_id :: binary, source_region :: binary) :: ExAws.Request.response_t
   defcallback copy_snapshot(source_snapshot_id :: binary, source_region :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Deletes the specified snapshot.
+  """
+  defcallback delete_snapshot(snapshot_id :: binary) :: ExAws.Request.response_t
+  defcallback delete_snapshot(snapshot_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
