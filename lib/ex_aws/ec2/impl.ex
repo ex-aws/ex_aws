@@ -208,6 +208,28 @@ defmodule ExAws.EC2.Impl do
     HTTP.request(client, :post, "/", params: query_params)     
   end
 
+  def register_image(client, name, parameter_value, parameter_type, opts \\ %{}) when parameter_type == :root_device_name or parameter_type == :image_location do
+    query_params = put_action_and_version("RegisterImage")
+    |> Map.put_new("Name", name)
+    |> Map.merge(opts)
+
+    query_params = 
+      case parameter_type do 
+        :root_device_name -> query_params |> Map.put_new("RootDeviceName", parameter_value)
+        :image_location   -> query_params |> Map.put_new("ImageLocation",  parameter_value)
+      end
+
+    HTTP.request(client, :post, "/", params: query_params)  
+  end
+
+  def deregister_image(client, image_id, opts \\ %{}) do
+    query_params = put_action_and_version("DeregisterImage")
+    |> Map.put_new("ImageId", image_id)
+    |> Map.merge(opts)
+    
+    HTTP.request(client, :post, "/", params: query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################  

@@ -155,6 +155,20 @@ defmodule ExAws.EC2.Client do
   defcallback reset_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback reset_image_attribute(image_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
 
+  @doc """
+  Registers an AMI. When you're creating an AMI, this is the final step you 
+  must complete before you can launch an instance from the AMI.
+  """
+  defcallback register_image(name :: binary, parameter_value :: binary, parameter_type :: :root_device_name | :image_location) :: ExAws.Request.response_t
+  defcallback register_image(name :: binary, parameter_value :: binary, parameter_type :: :root_device_name | :image_location, opts :: Map.t) :: ExAws.Request.response_t
+
+  @doc """
+  Deregisters the specified AMI. After you deregister an AMI, it can't be used 
+  to launch new instances.
+  """
+  defcallback deregister_image(image_id :: binary) :: ExAws.Request.response_t
+  defcallback deregister_image(image_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
