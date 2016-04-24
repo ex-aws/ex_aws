@@ -381,6 +381,12 @@ defmodule ExAws.EC2.Client do
   defcallback describe_volume_status() :: ExAws.Request.response_t
   defcallback describe_volume_status(opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes one or more of the EBS snapshots available to you.
+  """
+  defcallback describe_snapshots() :: ExAws.Request.response_t
+  defcallback describe_snapshots(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
