@@ -129,6 +129,12 @@ defmodule ExAws.EC2.Client do
   defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary) :: ExAws.Request.response_t  
   defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
+  @doc """
+  Describes one or more of the images (AMIs, AKIs, and ARIs) available to you.
+  """
+  defcallback describe_images() :: ExAws.Request.response_t
+  defcallback describe_images(opts :: Map.t) :: ExAws.Request.response_t
+
   defmacro __using__(opts) do 
 
     boilerplate = __MODULE__
