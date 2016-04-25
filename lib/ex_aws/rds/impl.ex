@@ -65,7 +65,7 @@ defmodule ExAws.RDS.Impl do
     query_params = %{
       "Action"               => "CreateDBInstance",
       "MasterUsername"       => username,
-      "MasterUserPassword"   => username,
+      "MasterUserPassword"   => password,
       "AllocatedStorage"     => storage,
       "DBInstanceIdentifier" => instance_id,
       "DBInstanceClass"      => class,
