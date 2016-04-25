@@ -1,13 +1,15 @@
 defmodule ExAws.RDS.Impl do
+  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
 
   @version "2014-10-31"
 
   def add_source_id_to_subscription(client, source_id, subscription) do
-    query_params = Map.new
-    |> Map.put_new("Action", "AddSourceIdentifierToSubscription")
-    |> Map.put_new("SourceIdentifier", source_id)
-    |> Map.put_new("SubscriptionName", subscription)
-    |> Map.put_new("Version", @version)
+    query_params = %{
+      "Action"           => "AddSourceIdentifierToSubscription",
+      "SourceIdentifier" => source_id,
+      "SubscriptionName" => subscription,
+      "Version"          => @version
+    }
 
     request(client, :post, "/", params: query_params)
   end
@@ -49,11 +51,12 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end  
 
-  def describe_db_instances(client, opts \\ %{}) do 
-    query_params = Map.new
-    |> Map.put_new("Action", "DescribeDBInstances")
-    |> Map.put_new("Version", @version)
-    |> Map.merge(opts)
+  def describe_db_instances(client, opts \\ []) do 
+    query_params = %{
+      "Action"  => "DescribeDBInstances",
+      "Version" => @version
+    }
+    |> Map.merge(normalize_opts(opts))
 
     request(client, :get, "/", params: query_params)
   end
@@ -124,5 +127,11 @@ defmodule ExAws.RDS.Impl do
 
   defp request(%{__struct__: client_module} = client, verb, path, data \\[]) do
     client_module.request(client, verb, path, data)
+  end
+
+  defp normalize_opts(opts) do
+    opts
+    |> Enum.into(%{})
+    |> camelize_keys
   end
 end
