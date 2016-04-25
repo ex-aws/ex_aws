@@ -87,19 +87,13 @@ defmodule ExAws.RDS.Impl do
     request(client, :patch, "/", params: query_params)
   end
 
-  def delete_db_instance(client, instance_id, final_snapshot_id \\ :empty, opts \\ %{}) do 
-    query_params = Map.new
-    |> Map.put_new("Action", "DeleteDBInstance")
-    |> Map.put_new("DBInstanceIdentifier", instance_id)
-    |> Map.put_new("Version", @version)
-
-    if final_snapshot_id != :empty do 
-      query_params = Map.put_new(query_params, "FinalDBSnapshotIdentifier", final_snapshot_id)
-    else
-      query_params = Map.put_new(query_params, "SkipFinalSnapshot", true)
-    end    
-
-    query_params = Map.merge(query_params, opts)
+  def delete_db_instance(client, instance_id, opts \\ []) do 
+    query_params = %{
+      "Action"               => "DeleteDBInstance",
+      "DBInstanceIdentifier" => instance_id,
+      "Version"              => @version
+    }
+    |> Map.merge(normalize_opts(opts))
 
     request(client, :delete, "/", params: query_params)
   end

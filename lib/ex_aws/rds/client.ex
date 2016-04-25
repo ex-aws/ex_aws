@@ -61,8 +61,6 @@ defmodule ExAws.RDS.Client do
   @doc """
   Deletes a DB instance.
   """
-  defcallback delete_db_instance(instance_id :: binary, final_snapshot_id :: binary) :: ExAws.Request.response_t
-  defcallback delete_db_instance(instance_id :: binary, final_snapshot_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
   defcallback delete_db_instance(instance_id :: binary) :: ExAws.Request.response_t
   defcallback delete_db_instance(instance_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
 
