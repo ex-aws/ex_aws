@@ -61,17 +61,18 @@ defmodule ExAws.RDS.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def create_db_instance(client, instance_id, username, password, storage, class, engine, opts \\ %{}) do 
-    query_params = Map.new
-    |> Map.put_new("Action", "CreateDBInstance")
-    |> Map.put_new("MasterUsername", username)
-    |> Map.put_new("MasterUserPassword", password)
-    |> Map.put_new("AllocatedStorage", storage)
-    |> Map.put_new("DBInstanceIdentifier", instance_id)
-    |> Map.put_new("DBInstanceClass", class)
-    |> Map.put_new("Engine", engine)
-    |> Map.put_new("Version", @version)
-    |> Map.merge(opts)
+  def create_db_instance(client, instance_id, username, password, storage, class, engine, opts \\ []) do 
+    query_params = %{
+      "Action"               => "CreateDBInstance",
+      "MasterUsername"       => username,
+      "MasterUserPassword"   => username,
+      "AllocatedStorage"     => storage,
+      "DBInstanceIdentifier" => instance_id,
+      "DBInstanceClass"      => class,
+      "Engine"               => engine,
+      "Version"              => @version
+    }
+    |> Map.merge(normalize_opts(opts))
 
     request(client, :post, "/", params: query_params)
   end
