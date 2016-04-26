@@ -160,6 +160,8 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
+  @params [:attribute, :disable_api_termination, :dry_run, :ebs_optimized, :instance_initiated_shutdown_behavior,
+           :kernel, :ramdisk, :source_dest_check, :sriov_net_support, :user_data, :value]
   def modify_instance_attribute(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
