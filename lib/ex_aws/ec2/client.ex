@@ -120,12 +120,16 @@ defmodule ExAws.EC2.Client do
   defcallback terminate_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback terminate_instances(instance_ids :: list(binary), opts :: terminate_instances_opts) :: ExAws.Request.response_t    
 
+  @type reboot_instances_opts :: [
+    {:dry_run, boolean}  
+    #{:instance_id_n}
+  ]
   @doc """
   Requests a reboot of one or more instances. This operation is asynchronous; it
   only queues a request to reboot the specified instances.
   """
   defcallback reboot_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  defcallback reboot_instances(instance_ids :: list(binary), opts :: Map.pt) :: ExAws.Request.response_t
+  defcallback reboot_instances(instance_ids :: list(binary), opts :: reboot_instances_opts) :: ExAws.Request.response_t
 
   @doc """
   Submits feedback about the status of an instance. The instance must be in the 

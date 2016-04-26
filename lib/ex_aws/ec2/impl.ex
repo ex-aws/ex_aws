@@ -93,12 +93,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)      
   end
 
-  def reboot_instances(client, instance_ids, opts \\ %{}) do 
-    query_params = put_action_and_version("RebootInstances")
+  @params [:dry_run]
+  def reboot_instances(client, instance_ids, opts \\ []) do 
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "RebootInstances",
+      "Version" => @version
+      })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
-    |> Map.merge(opts)
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def report_instance_status(client, instance_ids, status, opts \\ %{}) do
