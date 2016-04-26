@@ -53,11 +53,12 @@ defmodule ExAws.RDS.Impl do
 
   @params [:db_instance_identifier, :marker, :max_records]
   def describe_db_instances(client, opts \\ []) do 
-    query_params = %{
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
       "Action"  => "DescribeDBInstances",
       "Version" => @version
-    }
-    |> Map.merge(normalize_opts(opts))
+    })
 
     request(client, :get, "/", params: query_params)
   end
