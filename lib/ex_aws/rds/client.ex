@@ -20,12 +20,12 @@ defmodule ExAws.RDS.Client do
   """
 
   @type db_instance_classes :: [
-    "db.t1.micro"   | "db.m1.small"    | "db.m1.medium"  | "db.m1.large"  | "db.m1.xlarge"  | 
-    "db.m2.xlarge"  | "db.m2.2xlarge"  | "db.m2.4xlarge" | "db.m3.medium" | "db.m3.large"   | 
-    "db.m3.xlarge"  | "db.m3.2xlarge"  | "db.m4.large"   | "db.m4.xlarge" | "db.m4.2xlarge" | 
-    "db.m4.4xlarge" | "db.m4.10xlarge" | "db.r3.large"   | "db.r3.xlarge" | "db.r3.2xlarge" | 
-    "db.r3.4xlarge" | "db.r3.8xlarge"  | "db.t2.micro"   | "db.t2.small"  | "db.t2.medium"  | 
-    "db.t2.large"
+    :db_t1_micro   | :db_m1_small    | :db_m1_medium  | :db_m1_large  | :db_m1_xlarge  | 
+    :db_m2_xlarge  | :db_m2_2xlarge  | :db_m2_4xlarge | :db_m3_medium | :db_m3_large   | 
+    :db_m3_xlarge  | :db_m3_2xlarge  | :db_m4_large   | :db_m4_xlarge | :db_m4_2xlarge | 
+    :db_m4_4xlarge | :db_m4_10xlarge | :db_r3_large   | :db_r3_xlarge | :db_r3_2xlarge | 
+    :db_r3_4xlarge | :db_r3_8xlarge  | :db_t2_micro   | :db_t2_small  | :db_t2_medium  | 
+    :db_t2_large
   ]
 
   @doc """
@@ -38,8 +38,8 @@ defmodule ExAws.RDS.Client do
   """
   defcallback add_tags_to_resource(resource :: binary, tags :: List.t, n :: integer) :: ExAws.Request.response_t
 
-  @type apply_pending_maintenance_actions "system-upgrade" | "db-upgrade"
-  @type apply_pending_maintenance_opt_in_types "immediate" | "next-maintenance" | "undo-opt-in"
+  @type apply_pending_maintenance_actions :: :system_upgrade | :db_upgrade
+  @type apply_pending_maintenance_opt_in_types :: :immediate | :next_maintenance | :undo_opt_in
   @doc """
   Applies a pending maintenance action to a resource.
   """
@@ -80,7 +80,7 @@ defmodule ExAws.RDS.Client do
     {:engine_version, binary} |
     {:iops, integer} | 
     {:kms_key_id, binary} |
-    {:license_model, "license-included" | "bring-your-own-license" | "general-public-license"} | 
+    {:license_model, :license_included | :bring_your_own_license | :general_public_license} | 
     {:monitoring_interval, 0 | 1 | 5 | 10 | 15 | 30 | 60} | 
     {:monitoring_role_arn, binary} | 
     {:multi_az, boolean} | 
@@ -94,7 +94,7 @@ defmodule ExAws.RDS.Client do
     {:storage_type, :standard | :gp2 | :io1} |
     #{:tags.member}
     {:tde_credential_arn, binary} | 
-    {:tde_credential_password, binary} | 
+    {:tde_credential_password, binary} 
     #{:vpc_security_group_ids.member}
   ]
   @doc """
@@ -136,7 +136,7 @@ defmodule ExAws.RDS.Client do
     {:publicly_accessible, boolean} | 
     {:storage_type, :standard | :gp2 | :io1} | 
     {:tde_credential_arn, binary} | 
-    {:tde_credential_password, binary} | 
+    {:tde_credential_password, binary} 
     #{:vpc_security_group_ids}
   ]
   @doc """
@@ -172,7 +172,7 @@ defmodule ExAws.RDS.Client do
     {:marker, binary} | 
     {:max_records, 20..100} | 
     {:source_identifier, binary} | 
-    {:source_type, "db-instance" | "db-parameter-group" | "db-security-group" | "db-snapshot" | "db-cluster" | "db-cluster-snapsot"} | 
+    {:source_type, :db_instance | :db_parameter_group | :db_security_group | :db_snapshot | :db_cluster | :db_cluster_snapsot} 
     #{:start_time, } # Needs regex for ISO 8601 format
   ]
   @doc """
