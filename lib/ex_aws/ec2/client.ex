@@ -226,11 +226,15 @@ defmodule ExAws.EC2.Client do
   defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary, opts :: reset_instance_attribute_opts) :: ExAws.Request.response_t  
 
+  @type get_console_output_opts :: [
+    {:dry_run, boolean} | 
+    {:instance_id, binary}
+  ]
   @doc """
   Gets the console output for the specified instance.
   """
   defcallback get_console_output(instace_id :: binary) :: ExAws.Request.response_t
-  defcallback get_console_output(instace_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback get_console_output(instace_id :: binary, opts :: get_console_output_opts) :: ExAws.Request.response_t  
 
   @doc """
   Retrieves the encrypted administrator password for an instance running 

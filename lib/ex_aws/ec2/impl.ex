@@ -188,12 +188,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  def get_console_output(client, instance_id, opts \\ %{}) do
-    query_params = put_action_and_version("GetConsoleOutput")
-    |> Map.put_new("InstanceId", instance_id)
-    |> Map.merge(opts)
+  @params [:dry_run, :instance_id]
+  def get_console_output(client, instance_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "GetConsoleOutput",
+      "Version"    => @version,
+      "InstanceId" => instance_id
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def get_password_data(client, instance_id, opts \\ %{}) do
