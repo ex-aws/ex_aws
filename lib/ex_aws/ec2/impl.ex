@@ -80,12 +80,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  def terminate_instances(client, instance_ids, opts \\ %{}) do
-    query_params = put_action_and_version("TerminateInstances")
+  @params [:dry_run]
+  def terminate_instances(client, instance_ids, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "TerminateInstances",
+      "Version" => @version
+      })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
-    |> Map.merge(opts)
 
-    HTTP.request(client, :post, "/", params: query_params)      
+    request(client, :post, "/", params: query_params)      
   end
 
   def reboot_instances(client, instance_ids, opts \\ %{}) do 
