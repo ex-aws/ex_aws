@@ -126,7 +126,7 @@ defmodule ExAws.RDS.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action" => "DescribeEvents",
+      "Action"  => "DescribeEvents",
       "Version" => @version,
       })
 
