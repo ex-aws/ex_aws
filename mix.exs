@@ -29,9 +29,9 @@ defmodule ExAws.Mixfile do
   defp deps(:test_dev) do
     [
       {:sweet_xml, "~> 0.5", optional: true},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.7", only: :dev},
-      {:httpoison, "~> 0.7", optional: true},
+      {:earmark, "~> 0.2.1", only: :dev},
+      {:ex_doc, "~> 0.11.4", only: :dev},
+      {:httpoison, "~> 0.8", optional: true},
       {:poison, "~> 1.2", optional: true},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", optional: true},
       {:httpotion, "~> 2.0", optional: true},

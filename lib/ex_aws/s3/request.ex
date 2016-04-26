@@ -8,7 +8,6 @@ defmodule ExAws.S3.Request do
     query    = data |> Keyword.get(:params, %{}) |> URI.encode_query
     headers  = data |> Keyword.get(:headers, %{})
 
-
     url = client.config
     |> url(bucket, path)
     |> add_query(resource, query)
