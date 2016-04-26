@@ -69,7 +69,9 @@ defmodule ExAws.RDS.Impl do
            :promotion_tier, :publicly_accessible, :storage_encrypted, :storage_type, :tde_credential_arn, :tde_credential_password
   ]
   def create_db_instance(client, instance_id, username, password, storage, class, engine, opts \\ []) do 
-    query_params = %{
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
       "Action"               => "CreateDBInstance",
       "MasterUsername"       => username,
       "MasterUserPassword"   => password,
@@ -78,8 +80,7 @@ defmodule ExAws.RDS.Impl do
       "DBInstanceClass"      => class,
       "Engine"               => engine,
       "Version"              => @version
-    }
-    |> Map.merge(normalize_opts(opts))
+    })
 
     request(client, :post, "/", params: query_params)
   end
@@ -91,37 +92,39 @@ defmodule ExAws.RDS.Impl do
            :publicly_accessible, :storage_type, :tde_credential_arn, :tde_credential_password, 
   ]
   def modify_db_instance(client, instance_id, opts \\ []) do
-    opts
+    query_params = opts
     |> normalize_opts
-    |>  Map.merge(%{
+    |> Map.merge(%{
       "Action"               => "ModifyDBInstance",
       "DBInstanceIdentifier" => instance_id,
       "Version"              => @version
-      })
+    })
 
     request(client, :patch, "/", params: query_params)
   end
 
   @params [:final_snapshot_identifier, :skip_final_snapshot]
   def delete_db_instance(client, instance_id, opts \\ []) do 
-    query_params = %{
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
       "Action"               => "DeleteDBInstance",
       "DBInstanceIdentifier" => instance_id,
       "Version"              => @version
-    }
-    |> Map.merge(normalize_opts(opts))
+    })
 
     request(client, :delete, "/", params: query_params)
   end
 
   @params [:force_failover]
   def reboot_db_instance(client, instance_id, opts \\ []) do
-    query_params = %{
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
       "Action"               => "RebootDBInstance",
       "DBInstanceIdentifier" => instance_id,
       "Version"              => @version
-    }
-    |> Map.merge(normalize_opts(opts))
+    })
 
     request(client, :get, "/", params: query_params)
   end
