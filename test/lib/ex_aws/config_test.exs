@@ -14,7 +14,7 @@ defmodule ExAws.ConfigTest do
     value = "security_token"
     System.put_env("AWS_SECURITY_TOKEN", value)
     assert %{
-      __struct__: %{ config_root: [access_key_id: {:system, "AWS_SECURITY_TOKEN"}]},
+      __struct__: %{ config_root: [access_key_id: {:system, "AWS_SECURITY_TOKEN"}, security_token: {:system, "AWS_SECURITY_TOKEN"}]},
       config: %{},
       service: :foo
     }

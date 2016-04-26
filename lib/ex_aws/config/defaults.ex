@@ -3,7 +3,6 @@ defmodule ExAws.Config.Defaults do
     [
       access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
       secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
-      security_token: [{:system, "AWS_SECURITY_TOKEN"}, :instance_role],
       http_client: ExAws.Request.HTTPoison,
       json_codec: Poison,
       kinesis: [
