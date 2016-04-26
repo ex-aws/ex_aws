@@ -36,14 +36,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end  
 
-  def run_instances(client, image_id, max, min, opts \\ %{}) do
-    query_params = put_action_and_version("RunInstances")
-    |> Map.put_new("ImageId", image_id)
-    |> Map.put_new("MaxCount", max)
-    |> Map.put_new("MinCount", min)
-    |> Map.merge(opts)
+  def run_instances(client, image_id, max, min, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"   => "RunInstances",
+      "Version"  => @version,
+      "ImageId"  => image_id,
+      "MaxCount" => max,
+      "MinCount" => min
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def start_instances(client, instance_ids, opts \\ %{}) do
