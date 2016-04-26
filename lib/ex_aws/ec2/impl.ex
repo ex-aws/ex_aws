@@ -1,5 +1,6 @@
 defmodule ExAws.EC2.Impl do
   alias ExAws.EC2.Request, as: HTTP
+  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
   
   @moduledoc """
   
@@ -11,11 +12,15 @@ defmodule ExAws.EC2.Impl do
   ### Instance Actions ###
   ########################
 
-  def describe_instances(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeInstances")
-    |> Map.merge(opts)
+  def describe_instances(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeInstances",
+      "Version" => @version
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def describe_instance_status(client, opts \\ %{}) do
@@ -632,12 +637,23 @@ defmodule ExAws.EC2.Impl do
 
   ########################
   ### Helper Functions ###
-  ########################  
+  ########################
+
+  defp request(%{__struct__: client_module} = client, verb, path, data \\[]) do
+    client_module.request(client, verb, path, data)
+  end
+
+  defp normalize_opts(opts) do
+    opts
+    |> Enum.into(%{})
+    |> camelize_keys
+  end 
 
   defp put_action_and_version(action) do
-    Map.new
-    |> Map.put_new("Action", action)
-    |> Map.put_new("Version", @version)
+    %{
+      "Action"  => action,
+      "Version" => @version
+    }
   end
 
   defp list_builder([h | []], key, count, state) do
