@@ -36,6 +36,10 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end  
 
+  @params [:additional_info, :client_token, :disable_api_termination, :dry_run, :ebs_optimized, 
+           :iam_instance_profile, :instance_initiated_shutdown_behavior, :instance_type, 
+           :kernel_id, :key_name, :monitoring, :placement, :private_ip_address, :ram_disk_id, 
+           :user_data]
   def run_instances(client, image_id, max, min, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -50,10 +54,15 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def start_instances(client, instance_ids, opts \\ %{}) do
-    query_params = put_action_and_version("StartInstances")
+  @params [:additional_info, :dry_run]
+  def start_instances(client, instance_ids, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "StartInstances",
+      "Version" => @version,
+      })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
-    |> Map.merge(opts)
 
     HTTP.request(client, :post, "/", params: query_params)
   end
