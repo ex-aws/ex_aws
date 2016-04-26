@@ -6,16 +6,16 @@ defmodule ExAws.EC2.Client do
   """
 
   @type instance_types :: [
-    "t1.micro"    | "m1.small"    | "m1.medium"  | "m1.large"    | "m1.xlarge"   | "m3.medium"   | 
-    "m3.large"    | "m3.xlarge"   | "m3.2xlarge" | "m4.large"    | "m4.xlarge"   | "m4.2xlarge"  | 
-    "m4.4xlarge"  | "m4.10xlarge" | "t2.nano"    | "t2.micro"    | "t2.small"    | "t2.medium"   | 
-    "t2.large"    | "m2.xlarge"   | "m2.2xlarge" | "m2.4xlarge"  | "cr1.8xlarge" | "i2.xlarge"   | 
-    "i2.2xlarge"  | "i2.4xlarge"  | "i2.8xlarge" | "hi1.4xlarge" | "hs1.8xlarge" | "c1.medium"   | 
-    "c1.xlarge"   | "c3.large"    | "c3.xlarge"  | "c3.2xlarge"  | "c3.4xlarge"  | "c3.8xlarge"  | 
-    "c4.large"    | "c4.xlarge"   | "c4.2xlarge" | "c4.4xlarge"  | "c4.8xlarge"  | "cc1.4xlarge" | 
-    "cc2.8xlarge" | "g2.2xlarge"  | "g2.8xlarge" | "cg1.4xlarge" | "r3.large"    | "r3.xlarge"   | 
-    "r3.2xlarge"  | "r3.4xlarge"  | "r3.8xlarge" | "d2.xlarge"   | "d2.2xlarge"  | "d2.4xlarge"  | 
-    "d2.8xlarge"
+    :t1_micro    | :m1_small    | :m1_medium  | :m1_large    | :m1_xlarge   | :m3_medium   | 
+    :m3_large    | :m3_xlarge   | :m3_2xlarge | :m4_large    | :m4_xlarge   | :m4_2xlarge  | 
+    :m4_4xlarge  | :m4_10xlarge | :t2_nano    | :t2_micro    | :t2_small    | :t2_medium   | 
+    :t2_large    | :m2_xlarge   | :m2_2xlarge | :m2_4xlarge  | :cr1_8xlarge | :i2_xlarge   | 
+    :i2_2xlarge  | :i2_4xlarge  | :i2_8xlarge | :hi1_4xlarge | :hs1_8xlarge | :c1_medium   | 
+    :c1_xlarge   | :c3_large    | :c3_xlarge  | :c3_2xlarge  | :c3_4xlarge  | :c3_8xlarge  | 
+    :c4_large    | :c4_xlarge   | :c4_2xlarge | :c4_4xlarge  | :c4_8xlarge  | :cc1_4xlarge | 
+    :cc2_8xlarge | :g2_2xlarge  | :g2_8xlarge | :cg1_4xlarge | :r3_large    | :r3_xlarge   | 
+    :r3_2xlarge  | :r3_4xlarge  | :r3_8xlarge | :d2_xlarge   | :d2_2xlarge  | :d2_4xlarge  | 
+    :d2_8xlarge
   ]
 
   @type run_instances_monitoring_enabled :: [
@@ -147,11 +147,15 @@ defmodule ExAws.EC2.Client do
   defcallback report_instance_status(instance_ids :: list(binary), status :: binary) :: ExAws.Request.response_t
   defcallback report_instance_status(instance_ids :: list(binary), status :: binary, opts :: report_instance_status_opts) :: ExAws.Request.response_t  
 
+  @type monitor_instances_opts :: [
+    {:dry_run, boolean} | 
+    #{:instance_id_n, }
+  ]
   @doc """
   Enables monitoring for a running instance.
   """
   defcallback monitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  defcallback monitor_instances(instance_ids :: list(binary), opts :: Map.pt) :: ExAws.Request.response_t
+  defcallback monitor_instances(instance_ids :: list(binary), opts :: monitor_instances_opts) :: ExAws.Request.response_t
 
   @doc """
   Disables monitoring for a running instance. 

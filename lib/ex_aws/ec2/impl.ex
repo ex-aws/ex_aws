@@ -120,12 +120,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def monitor_instances(client, instance_ids, opts \\ %{}) do
-    query_params = put_action_and_version("MonitorInstances")
-    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def monitor_instances(client, instance_ids, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "MonitorInstances",
+      "Version" => @version
+      })
+    Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
-    HTTP.request(client, :post, "/", params: query_params)    
+    request(client, :post, "/", params: query_params)    
   end
 
   def unmonitor_instances(client, instance_ids, opts \\ %{}) do
