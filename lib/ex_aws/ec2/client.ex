@@ -45,7 +45,7 @@ defmodule ExAws.EC2.Client do
   defcallback describe_instances() :: ExAws.Request.response_t
   defcallback describe_instances(opts :: describe_instances_opts) :: ExAws.Request.response_t
 
-  @type describe_instances_opts :: [
+  @type describe_instance_status_opts :: [
     {:dry_run, boolean} | 
     #{:filter_n}
     #{:instance_id_n}
@@ -58,7 +58,7 @@ defmodule ExAws.EC2.Client do
   instances are described, unless specified otherwise.
   """
   defcallback describe_instance_status() :: ExAws.Request.response_t
-  defcallback describe_instance_status(opts :: describe_instances_opts) :: ExAws.Request.response_t
+  defcallback describe_instance_status(opts :: describe_instance_status_opts) :: ExAws.Request.response_t
 
   @type run_instances_opts :: [
     {:additional_info, binary} | 
@@ -131,12 +131,21 @@ defmodule ExAws.EC2.Client do
   defcallback reboot_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback reboot_instances(instance_ids :: list(binary), opts :: reboot_instances_opts) :: ExAws.Request.response_t
 
+  @type report_instance_status_opts :: [
+    {:description, binary} | 
+    {:dry_run, boolean} | 
+    #{:end_time, } | 
+    #{:instance_id_n} | 
+    #{:reason_code_n} | 
+    #{:start_time, } | 
+    {:status, :ok | :impaired}
+  ]
   @doc """
   Submits feedback about the status of an instance. The instance must be in the 
   running state.
   """
   defcallback report_instance_status(instance_ids :: list(binary), status :: binary) :: ExAws.Request.response_t
-  defcallback report_instance_status(instance_ids :: list(binary), status :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback report_instance_status(instance_ids :: list(binary), status :: binary, opts :: report_instance_status_opts) :: ExAws.Request.response_t  
 
   @doc """
   Enables monitoring for a running instance.

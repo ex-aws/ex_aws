@@ -29,7 +29,7 @@ defmodule ExAws.EC2.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"  => "DescribeInstanceStatus"
+      "Action"  => "DescribeInstanceStatus",
       "Version" => @version
       })
 
@@ -75,7 +75,7 @@ defmodule ExAws.EC2.Impl do
       "Action"  => "StopInstances",
       "Version" => @version
       })
-    |> Map..merge(list_builder(instance_ids, "InstanceId", 1, %{}))
+    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
     request(client, :post, "/", params: query_params)    
   end
@@ -106,13 +106,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def report_instance_status(client, instance_ids, status, opts \\ %{}) do
-    query_params = put_action_and_version("ReportInstanceStatus")
+  @params [:description, :dry_run, :end_time, :start_time, :status]
+  def report_instance_status(client, instance_ids, status, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "ReportInstanceStatus",
+      "Version" => @version,
+      "Status"  => status
+      })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
-    |> Map.put_new("Status", status)
-    |> Map.merge(opts)
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def monitor_instances(client, instance_ids, opts \\ %{}) do
