@@ -34,11 +34,17 @@ defmodule ExAws.RDS.Client do
   """
   defcallback apply_pending_maintenance(resource_id :: binary, action :: binary, opt_in_type :: binary) :: ExAws.Request.response_t
 
+  @type describe_db_instances_opts :: [
+    {:db_instance_identifier, binary} | 
+    #{:filter_member_n}
+    {:marker, binary} |
+    {:max_records, 20..100}
+  ]
   @doc """
   Returns information about provisioned RDS instances.
   """
   defcallback describe_db_instances() :: ExAws.Request.response_t
-  defcallback describe_db_instances(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_db_instances(opts :: describe_db_instances_opts) :: ExAws.Request.response_t
 
   @type mysql_port_range :: 1150..65535
   @type maria_db_port_range :: 1150..65535

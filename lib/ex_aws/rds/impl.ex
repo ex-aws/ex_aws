@@ -51,6 +51,7 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end  
 
+  @params [:db_instance_identifier, :marker, :max_records]
   def describe_db_instances(client, opts \\ []) do 
     query_params = %{
       "Action"  => "DescribeDBInstances",
