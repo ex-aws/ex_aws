@@ -35,6 +35,12 @@ defmodule ExAws.EC2.Client do
     {:name, binary}
   ]
 
+  @type attributes :: [
+    :instance_type | :kernel | :ramdisk | :user_data | :disable_api_termination |
+    :instance_initiated_shutdown_behavior | :root_device_name | :block_device_mapping |
+    :product_codes | :source_dest_check | :group_set | :ebs_optimized | :sriov_net_support
+  ]
+
   @type describe_instances_opts :: [
     {:dry_run, boolean} | 
     #{:filter_n}
@@ -167,12 +173,17 @@ defmodule ExAws.EC2.Client do
   defcallback unmonitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback unmonitor_instances(instance_ids :: list(binary), opts :: unmonitor_instances_opts) :: ExAws.Request.response_t    
 
+  @type describe_instance_attribute_opts :: [
+    {:attribte, attributes} | 
+    {:dry_run, boolean} | 
+    {:intance_id, boolean}
+  ]
   @doc """
   Describes the specified attribute of the specified instance. You can specify 
   only one attribute at a time.
   """
   defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary, opts :: describe_instance_attribute_opts) :: ExAws.Request.response_t  
 
   @doc """
   Modifies the specified attribute of the specified instance. You can 
