@@ -84,12 +84,20 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def modify_db_instance(client, instance_id, opts \\ %{}) do 
-    query_params = Map.new
-    |> Map.put_new("Action", "ModifyDBInstance")
-    |> Map.put_new("DBInstanceIdentifier", instance_id)
-    |> Map.put_new("Version", @version)    
-    |> Map.merge(opts)
+  @params [:allocated_storage, :allow_major_version_upgrade, :apply_immediately, :auto_minor_version_upgrade, :backup_retention_period, 
+           :ca_certificate_identifier, :copy_tags_to_snapshot, :db_instance_class, :db_parameter_group_name, :db_port_number, 
+           :domain, :domain_iam_role_name, :engine_version, :iops, :master_user_password, :monitoring_interval, :monitoring_role_arn, 
+           :multi_az, :new_db_instance_identifier, :option_group_name, :preferred_backup_window, :preferred_maintenance_window, :promotion_tier, 
+           :publicly_accessible, :storage_type, :tde_credential_arn, :tde_credential_password, 
+  ]
+  def modify_db_instance(client, instance_id, opts \\ []) do
+    opts
+    |> normalize_opts
+    |>  Map.merge(%{
+      "Action"               => "ModifyDBInstance",
+      "DBInstanceIdentifier" => instance_id,
+      "Version"              => @version
+      })
 
     request(client, :patch, "/", params: query_params)
   end

@@ -19,6 +19,16 @@ defmodule ExAws.RDS.Client do
   ```
   """
 
+  @type db_instance_classes :: [
+    "db.t1.micro" | "db.m1.small" | "db.m1.medium" | "db.m1.large" | "db.m1.xlarge" | 
+    "db.m2.xlarge" | "db.m2.2xlarge" | "db.m2.4xlarge" | "db.m3.medium" | "db.m3.large" | 
+    "db.m3.xlarge" | "db.m3.2xlarge" | "db.m4.large" | "db.m4.xlarge" | "db.m4.2xlarge" | 
+    "db.m4.4xlarge" | "db.m4.10xlarge" | "db.r3.large" | "db.r3.xlarge" | "db.r3.2xlarge" | 
+    "db.r3.4xlarge" | "db.r3.8xlarge" | "db.t2.micro" | "db.t2.small" | "db.t2.medium" | 
+    "db.t2.large"
+  ]
+
+
   @doc """
   Adds a source identifier to an existing RDS event notification subscription.
   """
@@ -92,11 +102,47 @@ defmodule ExAws.RDS.Client do
   defcallback create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary) :: ExAws.Request.response_t
   defcallback create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary, opts :: create_db_instance_opts) :: ExAws.Request.response_t
 
+  @type mysql_allowed_storage :: 5..6144
+  @type maria_db_allowed_storage :: 5..6144
+  @type postgres_sql_allowed_storage :: 5..6144
+  @type oracle_allowed_storage :: 10..6144
+
+  @type modify_db_instance_opts :: [
+    {:allocated_storage, mysql_allowed_storage | maria_db_allowed_storage | postgres_sql_allowed_storage | oracle_allowed_storage} | 
+    {:allow_major_version_upgrade, boolean} | 
+    {:apply_immediately, boolean} | 
+    {:auto_minor_version_upgrade, boolean} |
+    {:backup_retention_period, integer} | 
+    {:ca_certificate_identifier, binary} | 
+    {:copy_tags_to_snapshot, boolean} | 
+    {:db_instance_class, db_instance_classes} | 
+    {:db_parameter_group_name, binary} | 
+    {:db_port_number, mysql_port_range | maria_db_port_range | postgres_sql_port_range | oracle_port_range | sql_server_port_range} | 
+    #{:sb_security_groups_member_n}
+    {:domain, binary} | 
+    {:domain_iam_role_name, binary} | 
+    {:engine_version, binary}| 
+    {:iops, integer} | 
+    {:master_user_password, binary} | # Needs a regex to remove '/', '@' and '"'
+    {:monitoring_interval, 0 | 1 | 5 | 10 | 15 | 30 | 60} | 
+    {:monitoring_role_arn, binary} | 
+    {:multi_az, boolean} | 
+    {:new_db_instance_identifier, binary} | # Needs regex to allow 1 to 63 char length, first char must be a letter and cannot end with hyphen or have two consecutive ones
+    {:option_group_name, binary} | 
+    {:preferred_backup_window, binary} | # Needs regex for hh24:mi-hh24:mi format
+    {:preferred_maintenance_window, binary} | # Needs regex for ddd:hh24:mi-ddd:hh24:mi format
+    {:promotion_tier, 0..15} | 
+    {:publicly_accessible, boolean} | 
+    {:storage_type, :standard | :gp2 | :io1} | 
+    {:tde_credential_arn, binary} | 
+    {:tde_credential_password, binary} | 
+    #{:vpc_security_group_ids}
+  ]
   @doc """
   Modify settings for a DB instance. 
   """
   defcallback modify_db_instance(instance_id :: binary) :: ExAws.Request.response_t
-  defcallback modify_db_instance(instance_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback modify_db_instance(instance_id :: binary, opts :: modify_db_instance_opts) :: ExAws.Request.response_t  
 
   @type reboot_db_instance_opts :: [
     {:force_failover, boolean}
