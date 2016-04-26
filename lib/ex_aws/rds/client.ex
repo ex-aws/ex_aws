@@ -38,10 +38,12 @@ defmodule ExAws.RDS.Client do
   """
   defcallback add_tags_to_resource(resource :: binary, tags :: List.t, n :: integer) :: ExAws.Request.response_t
 
+  @type apply_pending_maintenance_actions "system-upgrade" | "db-upgrade"
+  @type apply_pending_maintenance_opt_in_types "immediate" | "next-maintenance" | "undo-opt-in"
   @doc """
   Applies a pending maintenance action to a resource.
   """
-  defcallback apply_pending_maintenance(resource_id :: binary, action :: binary, opt_in_type :: binary) :: ExAws.Request.response_t
+  defcallback apply_pending_maintenance(resource_id :: binary, action :: apply_pending_maintenance_actions, opt_in_type :: apply_pending_maintenance_opt_in_types) :: ExAws.Request.response_t
 
   @type describe_db_instances_opts :: [
     {:db_instance_identifier, binary} | 
