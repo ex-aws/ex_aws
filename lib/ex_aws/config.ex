@@ -7,10 +7,7 @@ defmodule ExAws.Config do
   # and then merges in the common config from the ex_aws config root,
   # and then finally any config specified for the particular service
 
-  @common_config [
-    :http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests,
-    :region, :security_token
-  ]
+  @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests, :region]
 
   def build(client, opts \\ []) do
     config = client
