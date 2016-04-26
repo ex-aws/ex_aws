@@ -152,7 +152,7 @@ defmodule ExAws.EC2.Impl do
     |> normalize_opts
     |> Map.merge(%{
       "Action"     => "DescribeInstanceAttribute",
-      "Version"    => @version
+      "Version"    => @version,
       "InstanceId" => instance_id,
       "Attribute"  => attribute
       })
@@ -160,13 +160,16 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def modify_instance_attribute(client, instance_id, attribute, opts \\ %{}) do
-    query_params = put_action_and_version("ModifyInstanceAttribute")
-    |> Map.put_new("InstanceId", instance_id)
-    |> Map.put_new("Attribute", attribute)
-    |> Map.merge(opts)
+  def modify_instance_attribute(client, instance_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "ModifyInstanceAttribute",
+      "Version"    => @version,
+      "InstanceId" => instance_id,
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def reset_instance_attribute(client, instance_id, attribute, opts \\ %{}) do

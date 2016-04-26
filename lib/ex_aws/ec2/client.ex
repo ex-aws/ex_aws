@@ -41,6 +41,14 @@ defmodule ExAws.EC2.Client do
     :product_codes | :source_dest_check | :group_set | :ebs_optimized | :sriov_net_support
   ]
 
+  @type attribute_boolean_value :: [
+    {:value, boolean}
+  ]
+
+  @type attribute_value :: [
+    {:value, binary}
+  ]
+
   @type describe_instances_opts :: [
     {:dry_run, boolean} | 
     #{:filter_n}
@@ -154,7 +162,7 @@ defmodule ExAws.EC2.Client do
   defcallback report_instance_status(instance_ids :: list(binary), status :: binary, opts :: report_instance_status_opts) :: ExAws.Request.response_t  
 
   @type monitor_instances_opts :: [
-    {:dry_run, boolean} | 
+    {:dry_run, boolean} 
     #{:instance_id_n, }
   ]
   @doc """
@@ -164,7 +172,7 @@ defmodule ExAws.EC2.Client do
   defcallback monitor_instances(instance_ids :: list(binary), opts :: monitor_instances_opts) :: ExAws.Request.response_t
 
   @type unmonitor_instances_opts :: [
-    {:dry_run, boolean} | 
+    {:dry_run, boolean} 
     #{:instance_id_n}
   ]
   @doc """
@@ -185,12 +193,27 @@ defmodule ExAws.EC2.Client do
   defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary, opts :: describe_instance_attribute_opts) :: ExAws.Request.response_t  
 
+  @type modify_instance_attribute_opts :: [
+    {:attribute, attributes} | 
+    #{:block_device_mapping} |
+    {:disable_api_termination, attribute_boolean_value} | 
+    {:dry_run, boolean} | 
+    {:ebs_optimized, attribute_boolean_value} | 
+    #{:group_id_n} | 
+    {:instance_initiated_shutdown_behavior, attribute_value} |
+    {:kernel, attribute_value} | 
+    {:ramdisk, attribute_value} | 
+    {:source_dest_check, attribute_boolean_value} | 
+    {:sriov_net_support, attribute_value} | 
+    {:user_data, attribute_value} | 
+    {:value, binary}
+  ]
   @doc """
   Modifies the specified attribute of the specified instance. You can 
   specify only one attribute at a time.
   """
-  defcallback modify_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback modify_instance_attribute(instace_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback modify_instance_attribute(instace_id :: binary) :: ExAws.Request.response_t
+  defcallback modify_instance_attribute(instace_id :: binary, opts :: modify_instance_attribute_opts) :: ExAws.Request.response_t  
 
   @doc """
   Resets an attribute of an instance to its default value. To reset the kernel 
