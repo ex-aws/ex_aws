@@ -15,6 +15,14 @@ defmodule ExAws.EC2.Client do
   defcallback describe_instances() :: ExAws.Request.response_t
   defcallback describe_instances(opts :: describe_instances_opts) :: ExAws.Request.response_t
 
+  @type describe_instances_opts :: [
+    {:dry_run, boolean} | 
+    #{:filter_n}
+    #{:instance_id_n}
+    {:include_all_instances, boolean} | 
+    {:max_results, integer} | 
+    {:next_token, binary}
+  ]
   @doc """
   Describes the status of one or more instances. By default, only running
   instances are described, unless specified otherwise.
