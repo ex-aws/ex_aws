@@ -163,12 +163,23 @@ defmodule ExAws.RDS.Client do
   defcallback delete_db_instance(instance_id :: binary) :: ExAws.Request.response_t
   defcallback delete_db_instance(instance_id :: binary, opts :: delete_db_instance_opts) :: ExAws.Request.response_t
 
+  @type describe_events_opts :: [
+    {:duration, integer} | 
+    # {:end_time, binary} # Needs regex for ISO 8601 format
+    #{:event_categories_member_n}
+    #:filter_member_n
+    {:marker, binary} | 
+    {:max_records, 20..100} | 
+    {:source_identifier, binary} | 
+    {:source_type, "db-instance" | "db-parameter-group" | "db-security-group" | "db-snapshot" | "db-cluster" | "db-cluster-snapsot"} | 
+    #{:start_time, } # Needs regex for ISO 8601 format
+  ]
   @doc """
   Returns events related to DB instances, DB security groups, DB snapshots, 
   and DB parameter groups for the past 14 days.
   """
   defcallback describe_events() :: ExAws.Request.response_t
-  defcallback describe_events(opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback describe_events(opts :: describe_db_instances_opts) :: ExAws.Request.response_t  
 
   defmacro __using__(opts) do 
 

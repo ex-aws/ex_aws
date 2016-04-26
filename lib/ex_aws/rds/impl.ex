@@ -130,11 +130,14 @@ defmodule ExAws.RDS.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def describe_events(client, opts \\ %{}) do 
-    query_params = Map.new
-    |> Map.put_new("Action", "DescribeEvents")
-    |> Map.put_new("Version", @version)    
-    |> Map.merge(opts)
+  @params [:duration, :end_time, :marker, :max_records, :source_identifier, :source_type, :start_time] 
+  def describe_events(client, opts \\ []) do 
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action" => "DescribeEvents",
+      "Version" => @version,
+      })
 
     request(client, :get, "/", params: query_params)
   end
