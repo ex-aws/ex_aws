@@ -174,13 +174,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def reset_instance_attribute(client, instance_id, attribute, opts \\ %{}) do
-    query_params = put_action_and_version("ResetInstanceAttribute")
-    |> Map.put_new("InstanceId", instance_id)
-    |> Map.put_new("Attribute", attribute)
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def reset_instance_attribute(client, instance_id, attribute, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "ResetInstanceAttribute",
+      "Version"    => @version,
+      "InstanceId" => instance_id,
+      "Attribute"  => attribute
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)    
+    request(client, :post, "/", params: query_params)    
   end
 
   def get_console_output(client, instance_id, opts \\ %{}) do

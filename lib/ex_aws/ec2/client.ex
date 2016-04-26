@@ -215,13 +215,16 @@ defmodule ExAws.EC2.Client do
   defcallback modify_instance_attribute(instace_id :: binary) :: ExAws.Request.response_t
   defcallback modify_instance_attribute(instace_id :: binary, opts :: modify_instance_attribute_opts) :: ExAws.Request.response_t  
 
+  @type reset_instance_attribute_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Resets an attribute of an instance to its default value. To reset the kernel 
   or ramdisk, the instance must be in a stopped state. To reset the 
   SourceDestCheck, the instance can be either running or stopped.
   """
   defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback reset_instance_attribute(instace_id :: binary, attribute :: binary, opts :: reset_instance_attribute_opts) :: ExAws.Request.response_t  
 
   @doc """
   Gets the console output for the specified instance.
