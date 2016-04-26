@@ -157,11 +157,15 @@ defmodule ExAws.EC2.Client do
   defcallback monitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback monitor_instances(instance_ids :: list(binary), opts :: monitor_instances_opts) :: ExAws.Request.response_t
 
+  @type unmonitor_instances_opts :: [
+    {:dry_run, boolean} | 
+    #{:instance_id_n}
+  ]
   @doc """
   Disables monitoring for a running instance. 
   """
   defcallback unmonitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  defcallback unmonitor_instances(instance_ids :: list(binary), opts :: Map.pt) :: ExAws.Request.response_t    
+  defcallback unmonitor_instances(instance_ids :: list(binary), opts :: unmonitor_instances_opts) :: ExAws.Request.response_t    
 
   @doc """
   Describes the specified attribute of the specified instance. You can specify 
