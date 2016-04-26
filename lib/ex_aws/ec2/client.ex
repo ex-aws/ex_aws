@@ -236,12 +236,16 @@ defmodule ExAws.EC2.Client do
   defcallback get_console_output(instace_id :: binary) :: ExAws.Request.response_t
   defcallback get_console_output(instace_id :: binary, opts :: get_console_output_opts) :: ExAws.Request.response_t  
 
+  @type get_password_data_opts :: [
+    {:dry_run, boolean} | 
+    {:instance_id, binary}
+  ]
   @doc """
   Retrieves the encrypted administrator password for an instance running 
   Windows.
   """
   defcallback get_password_data(instace_id :: binary) :: ExAws.Request.response_t
-  defcallback get_password_data(instace_id :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback get_password_data(instace_id :: binary, opts :: get_password_data_opts) :: ExAws.Request.response_t  
 
   @doc """
   Describes one or more of the Availability Zones that are available to you. 
