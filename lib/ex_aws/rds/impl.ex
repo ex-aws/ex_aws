@@ -15,10 +15,11 @@ defmodule ExAws.RDS.Impl do
   end
 
   def add_tags_to_resource(client, resource, tags, n) do
-    query_params = Map.new
-    |> Map.put_new("Action", "AddTagsToResource")
-    |> Map.put_new("ResourceName", resource)
-    |> Map.put_new("Version", @version)
+    query_params = %{
+      "Action" => "AddTagsToResource",
+      "ResourceName" => resource,
+      "Version" => @version
+    }
 
     for {k, v} <- tags do 
       query_params = query_params
