@@ -64,15 +64,20 @@ defmodule ExAws.EC2.Impl do
       })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
-  def stop_instances(client, instance_ids, opts \\ %{}) do
-    query_params = put_action_and_version("StopInstances")
-    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
-    |> Map.merge(opts)
+  @params [:dry_run, :force]
+  def stop_instances(client, instance_ids, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "StopInstances",
+      "Version" => @version
+      })
+    |> Map..merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
-    HTTP.request(client, :post, "/", params: query_params)    
+    request(client, :post, "/", params: query_params)    
   end
 
   def terminate_instances(client, instance_ids, opts \\ %{}) do

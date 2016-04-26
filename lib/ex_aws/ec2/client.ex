@@ -89,7 +89,7 @@ defmodule ExAws.EC2.Client do
 
   @type start_instances_opts :: [
     {:additional_info, binary} | 
-    {:dry_run, boolean} | 
+    {:dry_run, boolean}
     #{:instance_id_n}
   ]
   @doc """
@@ -98,11 +98,16 @@ defmodule ExAws.EC2.Client do
   defcallback start_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t  
   defcallback start_instances(instance_ids :: list(binary), opts :: start_instances_opts) :: ExAws.Request.response_t  
 
+  @type stop_instances_opts :: [
+    {:dry_run, boolean} | 
+    {:force, boolean}
+    #{:instance_id_n, }
+  ]
   @doc """
   Stops an Amazon EBS-backed AMI that was previously started.
   """
   defcallback stop_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  defcallback stop_instances(instance_ids :: list(binary), opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback stop_instances(instance_ids :: list(binary), opts :: stop_instances_opts) :: ExAws.Request.response_t  
 
   @doc """
   Shuts down one or more instances. Terminated instances remain visible after 
