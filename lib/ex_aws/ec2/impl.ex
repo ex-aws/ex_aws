@@ -246,13 +246,18 @@ defmodule ExAws.EC2.Impl do
   ### AMI Actions ###
   ###################
 
-  def create_image(client, instance_id, name, opts \\ %{}) do
-    query_params = put_action_and_version("CreateImage")
-    |> Map.put_new("InstanceId", instance_id)
-    |> Map.put_new("Name", name)
-    |> Map.merge(opts)
+  @params [:description, :dry_run, :no_reboot]
+  def create_image(client, instance_id, name, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "CreateImage",
+      "Version"    => @version,
+      "InstanceId" => instance_id,
+      "Name"       => name
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def copy_image(client, name, source_image_id, source_region, opts \\ %{}) do

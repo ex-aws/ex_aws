@@ -54,6 +54,26 @@ defmodule ExAws.EC2.Client do
     {:value, binary}
   ]
 
+  @type io1_volume_iops_range :: 100..20000
+
+  @type gp2_volume_iops_range :: 100..10000
+
+  @type ebs_block_device :: [
+    {:delete_on_termination, boolean} | 
+    {:encrypted, boolean} | 
+    {:iops, io1_volume_iops_range | gp2_volume_iops_range} | 
+    {:snapshot_id, binary} | 
+    {:volume_size, integer} | 
+    {:volume_type, :standard | :io1 | :gp2 | :sc1 | :st1}
+  ]
+
+  @type block_device_mapping_list :: [
+    {:device_name, binary} | 
+    {:ebs, ebs_block_device} |
+    {:no_device, binary} | 
+    {:virtual_name, binary}
+  ]
+
   @type describe_instances_opts :: [
     {:dry_run, boolean} | 
     #{:filter_n}
@@ -273,14 +293,20 @@ defmodule ExAws.EC2.Client do
   Describes one or more regions that are currently available to you.
   """
   defcallback describe_regions() :: ExAws.Request.response_t
-  defcallback describe_regions(opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback describe_regions(opts :: describe_regions_opts) :: ExAws.Request.response_t  
 
+  @type create_image_opts :: [
+    #{:block_device_mapping_n} | 
+    {:description, binary} | 
+    {:dry_run, boolean} | 
+    {:no_reboot, boolean}
+  ]
   @doc """
   Creates an Amazon EBS-backed AMI from an Amazon EBS-backed instance 
   that is either running or stopped.
   """
   defcallback create_image(instace_id :: binary, name :: binary) :: ExAws.Request.response_t
-  defcallback create_image(instace_id :: binary, name :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback create_image(instace_id :: binary, name :: binary, opts :: create_image_opts) :: ExAws.Request.response_t  
 
   @doc """
   Initiates the copy of an AMI from the specified source region to the current 
