@@ -382,12 +382,24 @@ defmodule ExAws.EC2.Client do
   defcallback reset_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback reset_image_attribute(image_id :: binary, attribute :: binary, opts :: reset_image_attribute_opts) :: ExAws.Request.response_t  
 
+  @type register_image_opts :: [
+    {:architecture, :i386 | :x86_64} | 
+    #{:block_device_mapping_n} | 
+    {:description, binary} | 
+    {:dry_run, boolean} | 
+    {:image_location, binary} | 
+    {:kernel_id, binary} | 
+    {:ram_disk_id, binary} | 
+    {:root_device_name, binary} | 
+    {:sriov_net_support, binary} | 
+    {:virtualization_type, binary}
+  ]
   @doc """
   Registers an AMI. When you're creating an AMI, this is the final step you 
   must complete before you can launch an instance from the AMI.
   """
-  defcallback register_image(name :: binary, parameter_value :: binary, parameter_type :: :root_device_name | :image_location) :: ExAws.Request.response_t
-  defcallback register_image(name :: binary, parameter_value :: binary, parameter_type :: :root_device_name | :image_location, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback register_image(name :: ~r/[a-zA-Z0-9-()-\_\@ \'\/\[\]\.]{3,127}/) :: ExAws.Request.response_t
+  defcallback register_image(name :: ~r/[a-zA-Z0-9-()-\_\@ \'\/\[\]\.]{3,127}/, opts :: register_image_opts) :: ExAws.Request.response_t
 
   @doc """
   Deregisters the specified AMI. After you deregister an AMI, it can't be used 

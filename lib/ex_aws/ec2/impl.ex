@@ -328,19 +328,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)     
   end
 
+  @params [:architecture, :description, :dry_run, :image_location, :kernel_id, :ram_disk_id, 
+           :root_device_name, :sriov_net_support, :virtualization_type] 
+  def register_image(client, name, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "RegisterImage",
+      "Version" => @version,
+      "Name"    => name
+      })
 
-  def register_image(client, name, parameter_value, parameter_type, opts \\ %{}) when parameter_type == :root_device_name or parameter_type == :image_location do
-    query_params = put_action_and_version("RegisterImage")
-    |> Map.put_new("Name", name)
-    |> Map.merge(opts)
-
-    query_params = 
-      case parameter_type do 
-        :root_device_name -> query_params |> Map.put_new("RootDeviceName", parameter_value)
-        :image_location   -> query_params |> Map.put_new("ImageLocation",  parameter_value)
-      end
-
-    HTTP.request(client, :post, "/", params: query_params)  
+    request(client, :post, "/", params: query_params)  
   end
 
   def deregister_image(client, image_id, opts \\ %{}) do
