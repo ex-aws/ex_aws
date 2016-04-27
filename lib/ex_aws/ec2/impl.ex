@@ -275,11 +275,16 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def describe_images(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeImages")
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def describe_images(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeImages",
+      "Version" => @version
+      })
     
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def describe_image_attribute(client, image_id, attribute, opts \\ %{}) do

@@ -323,11 +323,18 @@ defmodule ExAws.EC2.Client do
   defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary) :: ExAws.Request.response_t  
   defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary, opts :: copy_image_opts) :: ExAws.Request.response_t
 
+  @type describe_images_opts :: [
+    {:dry_run, boolean} #| 
+    #{:executable_by_n} | 
+    #{:filter_n} | 
+    #{:image_id_n} ! 
+    #{:owner_n}
+  ]
   @doc """
   Describes one or more of the images (AMIs, AKIs, and ARIs) available to you.
   """
   defcallback describe_images() :: ExAws.Request.response_t
-  defcallback describe_images(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_images(opts :: describe_images_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes the specified attribute of the specified AMI. You can specify 
