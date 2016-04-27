@@ -342,12 +342,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)  
   end
 
-  def deregister_image(client, image_id, opts \\ %{}) do
-    query_params = put_action_and_version("DeregisterImage")
-    |> Map.put_new("ImageId", image_id)
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def deregister_image(client, image_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DeregisterImage",
+      "Version" => @version,
+      "ImageId" => image_id
+      })
     
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   #########################

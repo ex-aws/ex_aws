@@ -401,12 +401,15 @@ defmodule ExAws.EC2.Client do
   defcallback register_image(name :: ~r/[a-zA-Z0-9-()-\_\@ \'\/\[\]\.]{3,127}/) :: ExAws.Request.response_t
   defcallback register_image(name :: ~r/[a-zA-Z0-9-()-\_\@ \'\/\[\]\.]{3,127}/, opts :: register_image_opts) :: ExAws.Request.response_t
 
+  @type deregister_image_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Deregisters the specified AMI. After you deregister an AMI, it can't be used 
   to launch new instances.
   """
   defcallback deregister_image(image_id :: binary) :: ExAws.Request.response_t
-  defcallback deregister_image(image_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback deregister_image(image_id :: binary, opts :: deregister_image_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of your key pairs.
