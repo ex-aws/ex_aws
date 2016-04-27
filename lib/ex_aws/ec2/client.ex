@@ -373,11 +373,14 @@ defmodule ExAws.EC2.Client do
   defcallback modify_image_attribute(image_id :: binary) :: ExAws.Request.response_t
   defcallback modify_image_attribute(image_id :: binary, opts :: modify_image_attribute_opts) :: ExAws.Request.response_t
 
+  @type reset_image_attribute_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Resets an attribute of an AMI to its default value.
   """
   defcallback reset_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback reset_image_attribute(image_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback reset_image_attribute(image_id :: binary, attribute :: binary, opts :: reset_image_attribute_opts) :: ExAws.Request.response_t  
 
   @doc """
   Registers an AMI. When you're creating an AMI, this is the final step you 
