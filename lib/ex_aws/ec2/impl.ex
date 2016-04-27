@@ -218,11 +218,16 @@ defmodule ExAws.EC2.Impl do
   ### Regions and Availability Zones Actions ###
   ##############################################
 
-  def describe_availability_zones(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeAvailabilityZones")
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def describe_availability_zones(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeAvailabilityZones",
+      "Version" => @version
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def describe_regions(client, opts \\ %{}) do

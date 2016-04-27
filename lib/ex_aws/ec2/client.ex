@@ -22,6 +22,11 @@ defmodule ExAws.EC2.Client do
     {:enabled, boolean}
   ]
 
+  @type filter :: [
+    {:name, binary} | 
+    {:value, [binary]}
+  ]
+
   @type placement :: [
     {:affinity, binary} | 
     {:availability_zone, binary} | 
@@ -247,12 +252,17 @@ defmodule ExAws.EC2.Client do
   defcallback get_password_data(instace_id :: binary) :: ExAws.Request.response_t
   defcallback get_password_data(instace_id :: binary, opts :: get_password_data_opts) :: ExAws.Request.response_t  
 
+  @type describe_availability_zones_opts :: [
+    {:dry_run, boolean}# | 
+    #{:filter_n} | 
+    #{:zone_name_n}
+  ]
   @doc """
   Describes one or more of the Availability Zones that are available to you. 
   The results include zones only for the region you're currently using.
   """
   defcallback describe_availability_zones() :: ExAws.Request.response_t
-  defcallback describe_availability_zones(opts :: Map.t) :: ExAws.Request.response_t  
+  defcallback describe_availability_zones(opts :: describe_availability_zones_opts) :: ExAws.Request.response_t  
 
   @doc """
   Describes one or more regions that are currently available to you.
