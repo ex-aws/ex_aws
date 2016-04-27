@@ -264,6 +264,11 @@ defmodule ExAws.EC2.Client do
   defcallback describe_availability_zones() :: ExAws.Request.response_t
   defcallback describe_availability_zones(opts :: describe_availability_zones_opts) :: ExAws.Request.response_t  
 
+  @type describe_regions_opts :: [
+    {:dry_run, boolean} #| 
+    #{:filter_nl} |
+    #{:region_name_n}
+  ]
   @doc """
   Describes one or more regions that are currently available to you.
   """

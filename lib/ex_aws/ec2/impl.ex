@@ -230,11 +230,16 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def describe_regions(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeRegions")
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def describe_regions(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeRegions",
+      "Version" => @version
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   ###################
