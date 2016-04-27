@@ -308,13 +308,20 @@ defmodule ExAws.EC2.Client do
   defcallback create_image(instace_id :: binary, name :: binary) :: ExAws.Request.response_t
   defcallback create_image(instace_id :: binary, name :: binary, opts :: create_image_opts) :: ExAws.Request.response_t  
 
+  @type copy_image_opts :: [
+    {:client_token, binary} | 
+    {:description, binary} | 
+    {:dry_run, boolean} | 
+    {:encrypted, boolean} | 
+    {:kms_key_id, binary}
+  ]
   @doc """
   Initiates the copy of an AMI from the specified source region to the current 
   region. You specify the destination region by using its endpoint when 
   making the request.
   """
   defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary) :: ExAws.Request.response_t  
-  defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary, opts :: copy_image_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of the images (AMIs, AKIs, and ARIs) available to you.

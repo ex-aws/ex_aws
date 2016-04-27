@@ -260,14 +260,19 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def copy_image(client, name, source_image_id, source_region, opts \\ %{}) do
-    query_params = put_action_and_version("CopyImage")
-    |> Map.put_new("Name", name)
-    |> Map.put_new("SourceImageId", source_image_id)
-    |> Map.put_new("SourceRegion", source_region)
-    |> Map.merge(opts)
+  @params [:client_token, :description, :dry_run, :encrypted, :kms_key_id]
+  def copy_image(client, name, source_image_id, source_region, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"        => "CopyImage",
+      "Version"       => @version,
+      "Name"          => name,
+      "SourceImageId" => source_image_id,
+      "SourceRegion"  => source_region
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def describe_images(client, opts \\ %{}) do
