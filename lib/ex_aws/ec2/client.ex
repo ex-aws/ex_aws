@@ -336,12 +336,15 @@ defmodule ExAws.EC2.Client do
   defcallback describe_images() :: ExAws.Request.response_t
   defcallback describe_images(opts :: describe_images_opts) :: ExAws.Request.response_t
 
+  @type describe_image_attribute_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Describes the specified attribute of the specified AMI. You can specify 
   only one attribute at a time.
   """
   defcallback describe_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback describe_image_attribute(image_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_image_attribute(image_id :: binary, attribute :: binary, opts :: describe_image_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Modifies the specified attribute of the specified AMI. You can specify only 
