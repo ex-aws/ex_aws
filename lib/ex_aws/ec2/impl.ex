@@ -301,12 +301,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)    
   end
 
-  def modify_image_attribute(client, image_id, opts \\ %{}) do
-    query_params = put_action_and_version("ModifyImageAttribute")
-    |> Map.put_new("ImageId", image_id)
-    |> Map.merge(opts)
+  @params [:attribute, :description, :dry_run, :launch_permission, :operation_type, :value]
+  def modify_image_attribute(client, image_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "ModifyImageAttribute",
+      "Version" => @version,
+      "ImageId" => image_id
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)        
+    request(client, :post, "/", params: query_params)        
   end
 
   def reset_image_attribute(client, image_id, attribute, opts \\ %{}) do

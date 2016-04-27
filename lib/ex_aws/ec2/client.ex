@@ -54,6 +54,16 @@ defmodule ExAws.EC2.Client do
     {:value, binary}
   ]
 
+  @type launch_permission_list :: [
+    {:group, binary} | 
+    {:user_id, binary}
+  ]
+
+  @type launch_permission_modifications :: [
+    {:add, launch_permission_list} | 
+    {:remove, launch_permission_lista}
+  ]
+
   @type io1_volume_iops_range :: 100..20000
 
   @type gp2_volume_iops_range :: 100..10000
@@ -346,12 +356,22 @@ defmodule ExAws.EC2.Client do
   defcallback describe_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_image_attribute(image_id :: binary, attribute :: binary, opts :: describe_image_attribute_opts) :: ExAws.Request.response_t
 
+  @type modify_image_attribute_opts :: [
+    {:attribute, binary} | 
+    {:description, attribute_value} | 
+    {:dry_run, boolean} | 
+    {:launch_permission, launch_permission_modifications} | 
+    {:operation_type, :add | :remove} |
+    #{:product_code_n} |
+    #{:user_group_n} | 
+    {:value, binary}
+  ]
   @doc """
   Modifies the specified attribute of the specified AMI. You can specify only 
   one attribute at a time.
   """
   defcallback modify_image_attribute(image_id :: binary) :: ExAws.Request.response_t
-  defcallback modify_image_attribute(image_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback modify_image_attribute(image_id :: binary, opts :: modify_image_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Resets an attribute of an AMI to its default value.
