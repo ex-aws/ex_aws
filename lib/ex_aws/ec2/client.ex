@@ -545,11 +545,23 @@ defmodule ExAws.EC2.Client do
   defcallback revoke_security_group_ingress() :: ExAws.Request.response_t
   defcallback revoke_security_group_ingress(opts :: revoke_security_group_ingress_opts) :: ExAws.Request.response_t
 
+  @type revoke_security_group_egress_opts :: [
+    {:cidr_ip, binary} | 
+    {:dry_run, boolean} | 
+    {:from_port, integer} | 
+    {:group_id, binary} | 
+    {:group_name, binary} | 
+    #{:ip_permissions_n} | 
+    {:ip_protocol, binary} | 
+    {:source_security_group_name, binary} | 
+    {:source_security_group_owner_id, binary} | 
+    {:to_port, integer}
+  ]    
   @doc """
   Removes one or more egress rules from a security group for EC2-VPC.
   """
   defcallback revoke_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
-  defcallback revoke_security_group_egress(group_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback revoke_security_group_egress(group_id :: binary, opts :: revoke_security_group_egress_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of your VPCs.
