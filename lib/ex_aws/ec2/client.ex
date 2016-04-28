@@ -679,11 +679,15 @@ defmodule ExAws.EC2.Client do
   defcallback create_tags(resource_ids :: list(binary), tags :: tag) :: ExAws.Request.response_t
   defcallback create_tags(resource_ids :: list(binary), tags :: tag, opts :: create_tags_opts) :: ExAws.Request.response_t
 
+  @type delete_tags_opts :: [
+    {:dry_run, boolean} | 
+    {:tags, [{:tag_1, tag}, {:tag_2, tag}, {:tag_n, tag}]}
+  ]
   @doc """
   Deletes the specified set of tags from the specified set of resources.
   """
   defcallback delete_tags(resource_ids :: list(binary)) :: ExAws.Request.response_t
-  defcallback delete_tags(resource_ids :: list(binary), opts :: Map.t) :: ExAws.Request.response_t
+  defcallback delete_tags(resource_ids :: list(binary), opts :: delete_tags_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes the specified EBS volumes.
