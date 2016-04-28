@@ -61,7 +61,7 @@ defmodule ExAws.EC2.Client do
 
   @type launch_permission_modifications :: [
     {:add, launch_permission_list} | 
-    {:remove, launch_permission_lista}
+    {:remove, launch_permission_list}
   ]
 
   @type io1_volume_iops_range :: 100..20000
@@ -398,8 +398,8 @@ defmodule ExAws.EC2.Client do
   Registers an AMI. When you're creating an AMI, this is the final step you 
   must complete before you can launch an instance from the AMI.
   """
-  defcallback register_image(name :: ~r/[a-zA-Z0-9-()-\_\@ \'\/\[\]\.]{3,127}/) :: ExAws.Request.response_t
-  defcallback register_image(name :: ~r/[a-zA-Z0-9-()-\_\@ \'\/\[\]\.]{3,127}/, opts :: register_image_opts) :: ExAws.Request.response_t
+  defcallback register_image(name :: binary) :: ExAws.Request.response_t
+  defcallback register_image(name :: binary, opts :: register_image_opts) :: ExAws.Request.response_t
 
   @type deregister_image_opts :: [
     {:dry_run, boolean}
@@ -422,13 +422,17 @@ defmodule ExAws.EC2.Client do
   defcallback describe_key_pairs() :: ExAws.Request.response_t
   defcallback describe_key_pairs(opts :: describe_key_pairs_opts) :: ExAws.Request.response_t
 
+  @type create_key_pair_opts :: [
+    {:dry_run, boolean} |
+    {:key_name, binary}
+  ]
   @doc """
   Creates a 2048-bit RSA key pair with the specified name. Amazon EC2 stores 
   the public key and displays the private key for you to save to a file. 
   The private key is returned as an unencrypted PEM encoded PKCS#8 private key.
   """
   defcallback create_key_pair(key_name :: binary) :: ExAws.Request.response_t
-  defcallback create_key_pair(key_name :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback create_key_pair(key_name :: binary, opts :: create_key_pair_opts) :: ExAws.Request.response_t
 
   @doc """
   Deletes the specified key pair, by removing the public key from Amazon EC2.
