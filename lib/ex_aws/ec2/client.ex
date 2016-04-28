@@ -642,11 +642,14 @@ defmodule ExAws.EC2.Client do
   defcallback delete_subnet(subnet_id :: binary) :: ExAws.Request.response_t
   defcallback delete_subnet(subnet_id :: binary, opts :: delete_subnet_opts) :: ExAws.Request.response_t
 
+  @type modify_subnet_attribute_opts :: [
+    {:map_public_ip_on_launch, attribute_boolean_value}
+  ]
   @doc """
   Modifies a subnet attribute.
   """
   defcallback modify_subnet_attribute(subnet_id :: binary) :: ExAws.Request.response_t
-  defcallback modify_subnet_attribute(subnet_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback modify_subnet_attribute(subnet_id :: binary, opts :: modify_subnet_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of the tags for your EC2 resources.
