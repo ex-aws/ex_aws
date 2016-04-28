@@ -651,11 +651,17 @@ defmodule ExAws.EC2.Client do
   defcallback modify_subnet_attribute(subnet_id :: binary) :: ExAws.Request.response_t
   defcallback modify_subnet_attribute(subnet_id :: binary, opts :: modify_subnet_attribute_opts) :: ExAws.Request.response_t
 
+  @type describe_tags_opts :: [
+    {:dry_run, boolean} | 
+    #{:filter_n} | 
+    {:max_results, integer} | 
+    {:next_token, binary}
+  ]
   @doc """
   Describes one or more of the tags for your EC2 resources.
   """
   defcallback describe_tags() :: ExAws.Request.response_t
-  defcallback describe_tags(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_tags(opts :: describe_tags_opts) :: ExAws.Request.response_t
 
   @doc """
   Adds or overwrites one or more tags for the specified Amazon EC2 resource or 
