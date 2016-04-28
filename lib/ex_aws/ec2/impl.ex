@@ -562,13 +562,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def describe_vpc_attribute(client, vpc_id, attribute, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeVpcAttribute")
-    |> Map.put_new("VpcId", vpc_id)
-    |> Map.put_new("Attribute", attribute)
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def describe_vpc_attribute(client, vpc_id, attribute, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"    => "DescribeVpcAttribute",
+      "Version"   => @version,
+      "VpcId"     => vpc_id,
+      "Attribute" => attribute
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def modify_vpc_attribute(client, vpc_id, attribute, value, opts \\ %{}) when attribute == :dns_hostnames or attribute == :dns_support do
