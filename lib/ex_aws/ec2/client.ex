@@ -801,11 +801,20 @@ defmodule ExAws.EC2.Client do
   defcallback describe_volume_status() :: ExAws.Request.response_t
   defcallback describe_volume_status(opts :: describe_volume_status_opts) :: ExAws.Request.response_t
 
+  @type describe_snapshots_opts :: [
+    {:dry_run, boolean} | 
+    #{:filter_n}
+    {:max_results, integer} | 
+    {:next_token, binary} #| 
+    #{:owner_n}
+    #{:restorable_by_n} |
+    #{:snapshot_id_n}
+  ]
   @doc """
   Describes one or more of the EBS snapshots available to you.
   """
   defcallback describe_snapshots() :: ExAws.Request.response_t
-  defcallback describe_snapshots(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_snapshots(opts :: describe_snapshots_opts) :: ExAws.Request.response_t
 
   @doc """
   Creates a snapshot of an EBS volume and stores it in Amazon S3. 
