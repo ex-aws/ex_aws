@@ -875,12 +875,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def modify_snapshot_attribute(client, snapshot_id, opts \\ %{}) do
-    query_params = put_action_and_version("ModifySnapshotAttribute")
-    |> Map.put_new("SnapshotId", snapshot_id)
-    |> Map.merge(opts)
+  @params [:attribute, :create_volume_permission, :dry_run, :operation_type]
+  def modify_snapshot_attribute(client, snapshot_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "ModifySnapshotAttribute",
+      "Version"    => @version,
+      "SnapshotId" => snapshot_id
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def reset_snapshot_attribute(client, snapshot_id, attribute, opts \\ %{}) do

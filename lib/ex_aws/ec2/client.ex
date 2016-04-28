@@ -96,6 +96,16 @@ defmodule ExAws.EC2.Client do
     {:virtual_name, binary}
   ]
 
+  @type create_volume_permission :: [
+    {:group, binary} |
+    {:user_id, binary}
+  ]
+
+  @type create_volume_permission_modifications :: [
+    {:add, [create_volume_permission]} |
+    {:remove, [create_volume_permission]}
+  ]
+
   @type describe_instances_opts :: [
     {:dry_run, boolean} | 
     #{:filter_n}
@@ -864,11 +874,19 @@ defmodule ExAws.EC2.Client do
   defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: describe_snapshot_attribute_opts) :: ExAws.Request.response_t
 
+  @type modify_snapshot_attribute_opts :: [
+    {:attribute, :product_codes | :create_volume_permission} | 
+    {:create_volume_permission, create_volume_permission_modifications} | 
+    {:dry_run, boolean} | 
+    #{:user_group_n}
+    {:operation_type, :add | :remove} #|
+    #{:user_id_n}
+  ]
   @doc """
   Adds or removes permission settings for the specified snapshot.
   """
   defcallback modify_snapshot_attribute(snapshot_id :: binary) :: ExAws.Request.response_t
-  defcallback modify_snapshot_attribute(snapshot_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback modify_snapshot_attribute(snapshot_id :: binary, opts :: modify_snapshot_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Resets permission settings for the specified snapshot.
