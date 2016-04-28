@@ -584,11 +584,14 @@ defmodule ExAws.EC2.Client do
   defcallback create_vpc(cidr_block :: binary) :: ExAws.Request.response_t
   defcallback create_vpc(cidr_block :: binary, opts :: create_vpc_opts) :: ExAws.Request.response_t
 
+  @type delete_vpc_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Deletes the specified VPC.
   """
   defcallback delete_vpc(vpc_id :: binary) :: ExAws.Request.response_t
-  defcallback delete_vpc(vpc_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback delete_vpc(vpc_id :: binary, opts :: delete_vpc_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes the specified attribute of the specified VPC. You can specify only one attribute at a time.
