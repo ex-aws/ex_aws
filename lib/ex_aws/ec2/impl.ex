@@ -765,8 +765,7 @@ defmodule ExAws.EC2.Impl do
     |> Map.merge(%{
       "Action"    => "DescribeVolumeAttribute",
       "Version"   => @version,
-      "VolumeId"  => volume_id,
-      "Attribute" => attribute
+      "VolumeId"  => volume_id
       })
 
     request(client, :get, "/", params: query_params)
@@ -835,21 +834,31 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def copy_snapshot(client, source_snapshot_id, source_region, opts \\ %{}) do
-    query_params = put_action_and_version("CopySnapshot")
-    |> Map.put_new("SourceSnapshotId", source_snapshot_id)
-    |> Map.put_new("SourceRegion", source_region)
-    |> Map.merge(opts)
-    
-    HTTP.request(client, :post, "/", params: query_params)
+  @params [:description, :destination_region, :dry_run, :encrypted, :kms_key_id, :presigned_url]
+  def copy_snapshot(client, source_snapshot_id, source_region, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"           => "CopySnapshot",
+      "Version"          => @version,
+      "SourceSnapshotId" => source_snapshot_id,
+      "SourceRegion"     => source_region
+      })
+
+    request(client, :post, "/", params: query_params)
   end
 
-  def delete_snapshot(client, snapshot_id, opts \\ %{}) do
-    query_params = put_action_and_version("DeleteSnapshot")
-    |> Map.put_new("SnapshotId", snapshot_id)
-    |> Map.merge(opts)
+  @params [:dry_run, :snapshot_id]
+  def delete_snapshot(client, snapshot_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "DeleteSnapshot",
+      "Version"    => @version,
+      "SnapshotId" => snapshot_id
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def describe_snapshot_attribute(client, snapshot_id, attribute, opts \\ %{}) do

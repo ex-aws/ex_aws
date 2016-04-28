@@ -828,19 +828,31 @@ defmodule ExAws.EC2.Client do
   defcallback create_snapshot(volume_id :: binary) :: ExAws.Request.response_t
   defcallback create_snapshot(volume_id :: binary, opts :: create_snapshot_opts) :: ExAws.Request.response_t
 
+  @type copy_snapshot_opts :: [
+    {:description, :binary} | 
+    {:destination_region, binary} | 
+    {:dry_run, boolean} | 
+    {:encrypted, boolean} | 
+    {:kms_key_id, binary} | 
+    {:presigned_url, binary}
+  ]
   @doc """
   Copies a point-in-time snapshot of an EBS volume and stores it in Amazon S3. 
   You can copy the snapshot within the same region or from one region to 
   another.
   """
   defcallback copy_snapshot(source_snapshot_id :: binary, source_region :: binary) :: ExAws.Request.response_t
-  defcallback copy_snapshot(source_snapshot_id :: binary, source_region :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback copy_snapshot(source_snapshot_id :: binary, source_region :: binary, opts :: copy_snapshot_opts) :: ExAws.Request.response_t
 
+  @type delete_snapshot_opts :: [
+    {:dry_run, boolean} | 
+    {:snapshot_id}
+  ]
   @doc """
   Deletes the specified snapshot.
   """
   defcallback delete_snapshot(snapshot_id :: binary) :: ExAws.Request.response_t
-  defcallback delete_snapshot(snapshot_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback delete_snapshot(snapshot_id :: binary, opts :: delete_snapshot_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes the specified attribute of the specified snapshot. You can specify 
