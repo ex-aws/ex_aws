@@ -555,7 +555,7 @@ defmodule ExAws.EC2.Impl do
     |> normalize_opts
     |> Map.merge(%{
       "Action"  => "DeleteVpc",
-      "Version" => @version
+      "Version" => @version,
       "VpcId"   => vpc_id
       })
 

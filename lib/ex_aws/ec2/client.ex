@@ -609,8 +609,8 @@ defmodule ExAws.EC2.Client do
   @doc """
   Modifies the specified attribute of the specified VPC.
   """
-  defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean) :: ExAws.Request.response_t
-  defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean, opts :: modify_vpc_attribute_opts) :: ExAws.Request.response_t
+  defcallback modify_vpc_attribute(vpc_id :: binary) :: ExAws.Request.response_t
+  defcallback modify_vpc_attribute(vpc_id :: binary, opts :: modify_vpc_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of your subnets.
