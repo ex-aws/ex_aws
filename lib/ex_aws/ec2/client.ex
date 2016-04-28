@@ -466,13 +466,18 @@ defmodule ExAws.EC2.Client do
   Modifies the ID format for the specified resource on a per-region basis.
   """
   defcallback modify_id_format(resource :: binary, use_long_ids :: boolean) :: ExAws.Request.response_t
-  defcallback modify_id_format(resource :: binary, use_long_ids :: boolean, opts :: Map.t) :: ExAws.Request.response_t
 
+  @type describe_security_groups_opts :: [
+    {:dry_run, boolean} #|
+    #{:filter_n} | 
+    #{:group_id_n} |
+    #{:group_name_n}
+  ]
   @doc """
   Describes one or more of your security groups.
   """
   defcallback describe_security_groups() :: ExAws.Request.response_t
-  defcallback describe_security_groups(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_security_groups(opts :: describe_security_groups_opts) :: ExAws.Request.response_t
 
   @doc """
   Creates a security group.
