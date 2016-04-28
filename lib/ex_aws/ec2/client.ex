@@ -18,22 +18,17 @@ defmodule ExAws.EC2.Client do
     :d2_8xlarge
   ]
 
-  @type run_instances_monitoring_enabled :: [
-    {:enabled, boolean}
-  ]
+  @type run_instances_monitoring_enabled :: enabled :: boolean
 
-  @type filter :: [
-    {:name, binary} | 
-    {:value, [binary]}
-  ]
+  @type filter :: {name :: binary, value :: [binary]}
 
-  @type placement :: [
-    {:affinity, binary} | 
-    {:availability_zone, binary} | 
-    {:group_name, binary} | 
-    {:host_id, binary} | 
-    {:tenancy, :default | :dedicated | :host}
-  ]
+  @type placement :: {
+    affinity :: binary, 
+    availability_zone :: binary,
+    group_name :: binary,
+    host_id :: binary,
+    tenancy :: :default | :dedicated | :host
+  } 
 
   @type iam_instance_profile :: [
     {:arn, binary} | 
@@ -54,28 +49,17 @@ defmodule ExAws.EC2.Client do
     :product_codes | :source_dest_check | :group_set | :ebs_optimized | :sriov_net_support
   ]
 
-  @type attribute_boolean_value :: [
-    {:value, boolean}
-  ]
+  @type attribute_boolean_value :: value :: boolean
 
-  @type attribute_value :: [
-    {:value, binary}
-  ]
+  @type attribute_value :: value :: binary
+ 
+  @type tag :: {key :: binary, value :: binary}
 
-  @type tag :: [
-    {:key, binary} | 
-    {:value, binary}
-  ]
+  @type launch_permission :: {group :: binary, user_id :: binary}
 
-  @type launch_permission_list :: [
-    {:group, binary} | 
-    {:user_id, binary}
-  ]
+  @type launch_permission_list :: [launch_permission]
 
-  @type launch_permission_modifications :: [
-    {:add, launch_permission_list} | 
-    {:remove, launch_permission_list}
-  ]
+  @type launch_permission_modifications :: {add :: launch_permission_list, remove :: launch_permission_list}
 
   @type io1_volume_iops_range :: 100..20000
   @type gp2_volume_iops_range :: 100..10000
@@ -88,31 +72,27 @@ defmodule ExAws.EC2.Client do
 
   @type available_size_ranges :: io1_size_range | gp2_size_range | st1_size_range | sc1_size_range | standard_size_range
 
-  @type ebs_block_device :: [
-    {:delete_on_termination, boolean} | 
-    {:encrypted, boolean} | 
-    {:iops, io1_volume_iops_range | gp2_volume_iops_range} | 
-    {:snapshot_id, binary} | 
-    {:volume_size, integer} | 
-    {:volume_type, :standard | :io1 | :gp2 | :sc1 | :st1}
-  ]
+  @type ebs_block_device :: {
+    delete_on_termination :: boolean,
+    encrypted :: boolean,
+    iops :: io1_volume_iops_range | gp2_volume_iops_range,
+    snapshot_id :: binary,
+    volume_size :: integer,
+    volume_type :: :standard | :io1 | :gp2 | :sc1 | :st1
+  }
 
-  @type block_device_mapping_list :: [
-    {:device_name, binary} | 
-    {:ebs, ebs_block_device} |
-    {:no_device, binary} | 
-    {:virtual_name, binary}
-  ]
+  @type block_device_mapping :: {
+    device_name :: binary,
+    ebs :: ebs_block_device, 
+    no_device :: binary,
+    virtual_name :: binary
+  }
 
-  @type create_volume_permission :: [
-    {:group, binary} |
-    {:user_id, binary}
-  ]
+  @type block_device_mapping_list :: [block_device_mapping]
 
-  @type create_volume_permission_modifications :: [
-    {:add, [create_volume_permission]} |
-    {:remove, [create_volume_permission]}
-  ]
+  @type create_volume_permission :: {group :: binary, user_id :: binary}
+
+  @type create_volume_permission_modifications :: {add :: [create_volume_permission], remove :: [create_volume_permission]}
 
   @type describe_instances_opts :: [
     {:dry_run, boolean} | 
@@ -121,6 +101,9 @@ defmodule ExAws.EC2.Client do
     {:max_results, integer} | 
     {:next_token, binary}
   ]
+  @doc """
+  Describes one or more of your instances.
+  """
   defcallback describe_instances() :: ExAws.Request.response_t
   defcallback describe_instances(opts :: describe_instances_opts) :: ExAws.Request.response_t
 
