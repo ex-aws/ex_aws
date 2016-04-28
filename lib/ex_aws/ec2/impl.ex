@@ -619,12 +619,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def delete_subnet(client, subnet_id, opts \\ %{}) do
-    query_params = put_action_and_version("DeleteSubnet")
-    |> Map.put_new("SubnetId", subnet_id)
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def delete_subnet(client, subnet_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"   => "DeleteSubnet",
+      "Version"  => @version,
+      "SubnetId" => subnet_id
+      })
     
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def modify_subnet_attribute(client, subnet_id, opts \\ %{}) do

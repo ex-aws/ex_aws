@@ -633,11 +633,14 @@ defmodule ExAws.EC2.Client do
   defcallback create_subnet(vpc_id :: binary, cidr_block :: binary) :: ExAws.Request.response_t
   defcallback create_subnet(vpc_id :: binary, cidr_block :: binary, opts :: create_subnet_opts) :: ExAws.Request.response_t
 
+  @type delete_subnet_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Deletes the specified subnet.
   """
   defcallback delete_subnet(subnet_id :: binary) :: ExAws.Request.response_t
-  defcallback delete_subnet(subnet_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback delete_subnet(subnet_id :: binary, opts :: delete_subnet_opts) :: ExAws.Request.response_t
 
   @doc """
   Modifies a subnet attribute.
