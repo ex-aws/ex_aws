@@ -411,11 +411,16 @@ defmodule ExAws.EC2.Client do
   defcallback deregister_image(image_id :: binary) :: ExAws.Request.response_t
   defcallback deregister_image(image_id :: binary, opts :: deregister_image_opts) :: ExAws.Request.response_t
 
+  @type describe_key_pairs_opts :: [
+    {:dry_run, boolean}
+    #{:filter_n} | 
+    #{:key_name_n}
+  ]
   @doc """
   Describes one or more of your key pairs.
   """
   defcallback describe_key_pairs() :: ExAws.Request.response_t
-  defcallback describe_key_pairs(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_key_pairs(opts :: describe_key_pairs_opts) :: ExAws.Request.response_t
 
   @doc """
   Creates a 2048-bit RSA key pair with the specified name. Amazon EC2 stores 
