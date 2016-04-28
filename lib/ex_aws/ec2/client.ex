@@ -689,11 +689,18 @@ defmodule ExAws.EC2.Client do
   defcallback delete_tags(resource_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback delete_tags(resource_ids :: list(binary), opts :: delete_tags_opts) :: ExAws.Request.response_t
 
+  @type describe_volumes_opts :: [
+    {:dry_run, boolean} | 
+    #{:filter_n, }
+    {:max_results, integer} | 
+    {:next_token, binary} #| 
+    #{:volume_id_n}
+  ]
   @doc """
   Describes the specified EBS volumes.
   """
   defcallback describe_volumes() :: ExAws.Request.response_t
-  defcallback describe_volumes(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_volumes(opts :: describe_volumes_opts) :: ExAws.Request.response_t
 
   @doc """
   Creates an EBS volume that can be attached to an instance in the same 

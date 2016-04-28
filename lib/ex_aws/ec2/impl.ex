@@ -692,11 +692,16 @@ defmodule ExAws.EC2.Impl do
   ### Elastic Block Stores Actions ###
   ####################################
 
-  def describe_volumes(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeVolumes")
-    |> Map.merge(opts)
+  @params [:dry_run, :max_results, :next_token]
+  def describe_volumes(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeVolumes",
+      "Version" => @version
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def create_volume(client, availability_zone, size, opts \\ %{}) do
