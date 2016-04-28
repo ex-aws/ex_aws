@@ -593,11 +593,16 @@ defmodule ExAws.EC2.Impl do
   ### Subnets Actions ###
   #######################
 
-  def describe_subnets(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeSubnets")
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def describe_subnets(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeSubnets",
+      "Version" => @version
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def create_subnet(client, vpc_id, cidr_block, opts \\ %{}) do

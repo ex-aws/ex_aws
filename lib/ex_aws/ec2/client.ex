@@ -612,11 +612,16 @@ defmodule ExAws.EC2.Client do
   defcallback modify_vpc_attribute(vpc_id :: binary) :: ExAws.Request.response_t
   defcallback modify_vpc_attribute(vpc_id :: binary, opts :: modify_vpc_attribute_opts) :: ExAws.Request.response_t
 
+  @type describe_subnets_opts :: [
+    {:dry_run, boolean}# | 
+    #{:filter_n} |
+    #{:subnet_id_n}
+  ]
   @doc """
   Describes one or more of your subnets.
   """
   defcallback describe_subnets() :: ExAws.Request.response_t
-  defcallback describe_subnets(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_subnets(opts :: describe_subnets_opts) :: ExAws.Request.response_t
  
   @doc """
   Creates a subnet in an existing VPC.
