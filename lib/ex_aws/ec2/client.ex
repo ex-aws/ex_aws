@@ -434,11 +434,15 @@ defmodule ExAws.EC2.Client do
   defcallback create_key_pair(key_name :: binary) :: ExAws.Request.response_t
   defcallback create_key_pair(key_name :: binary, opts :: create_key_pair_opts) :: ExAws.Request.response_t
 
+  @type delete_key_pair_opts :: [
+    {:dry_run, boolean} | 
+    {:key_name, binary}
+  ]
   @doc """
   Deletes the specified key pair, by removing the public key from Amazon EC2.
   """
   defcallback delete_key_pair(key_name :: binary) :: ExAws.Request.response_t
-  defcallback delete_key_pair(key_name :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback delete_key_pair(key_name :: binary, opts :: delete_key_pair_opts) :: ExAws.Request.response_t
 
   @doc """
   Imports the public key from an RSA key pair that you created with a 

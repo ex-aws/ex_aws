@@ -384,12 +384,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def delete_key_pair(client, key_name, opts \\ %{}) do
-    query_params = put_action_and_version("DeleteKeyPair")
-    |> Map.put_new("KeyName", key_name)
-    |> Map.merge(opts)
+  @params [:dry_run, :key_name]
+  def delete_key_pair(client, key_name, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DeleteKeyPair",
+      "Version" => @version,
+      "KeyName" => key_name
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def import_key_pair(client, key_name, public_key_material, opts \\ %{}) do
