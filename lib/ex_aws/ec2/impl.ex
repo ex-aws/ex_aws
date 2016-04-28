@@ -798,11 +798,16 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def describe_volume_status(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeVolumeStatus")
-    |> Map.merge(opts)
-
-    HTTP.request(client, :get, "/", params: query_params)
+  @params [:dry_run, :max_results, :next_token]
+  def describe_volume_status(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeVolumeStatus",
+      "Version" => @version
+      })
+    
+    request(client, :get, "/", params: query_params)
   end
 
   def describe_snapshots(client, opts \\ %{}) do

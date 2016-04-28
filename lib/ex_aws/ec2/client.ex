@@ -788,11 +788,18 @@ defmodule ExAws.EC2.Client do
   defcallback enable_volume_io(volume_id :: binary) :: ExAws.Request.response_t
   defcallback enable_volume_io(volume_id :: binary, opts :: enable_volume_io_opts) :: ExAws.Request.response_t
 
+  @type describe_volume_status_opts :: [
+    {:dry_run, boolean} | 
+    #{:filter_n} | 
+    {:max_results, integer} | 
+    {:next_token, binary} #| 
+    #{:volume_id_n}
+  ]
   @doc """
   Describes the status of the specified volumes.
   """
   defcallback describe_volume_status() :: ExAws.Request.response_t
-  defcallback describe_volume_status(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_volume_status(opts :: describe_volume_status_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of the EBS snapshots available to you.
