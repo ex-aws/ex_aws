@@ -423,8 +423,7 @@ defmodule ExAws.EC2.Client do
   defcallback describe_key_pairs(opts :: describe_key_pairs_opts) :: ExAws.Request.response_t
 
   @type create_key_pair_opts :: [
-    {:dry_run, boolean} |
-    {:key_name, binary}
+    {:dry_run, boolean}
   ]
   @doc """
   Creates a 2048-bit RSA key pair with the specified name. Amazon EC2 stores 
@@ -435,8 +434,7 @@ defmodule ExAws.EC2.Client do
   defcallback create_key_pair(key_name :: binary, opts :: create_key_pair_opts) :: ExAws.Request.response_t
 
   @type delete_key_pair_opts :: [
-    {:dry_run, boolean} | 
-    {:key_name, binary}
+    {:dry_run, boolean}
   ]
   @doc """
   Deletes the specified key pair, by removing the public key from Amazon EC2.
@@ -444,12 +442,15 @@ defmodule ExAws.EC2.Client do
   defcallback delete_key_pair(key_name :: binary) :: ExAws.Request.response_t
   defcallback delete_key_pair(key_name :: binary, opts :: delete_key_pair_opts) :: ExAws.Request.response_t
 
+  @type import_key_pair_opts :: [
+    {:dry_run, boolean}
+  ]  
   @doc """
   Imports the public key from an RSA key pair that you created with a 
   third-party tool. 
   """
   defcallback import_key_pair(key_name :: binary, public_key_material :: binary) :: ExAws.Request.response_t
-  defcallback import_key_pair(key_name :: binary, public_key_material :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback import_key_pair(key_name :: binary, public_key_material :: binary, opts :: import_key_pair_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes the ID format settings for your resources on a per-region basis, 

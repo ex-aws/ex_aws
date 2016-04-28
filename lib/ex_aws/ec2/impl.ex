@@ -371,7 +371,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, :key_name]
+  @params [:dry_run]
   def create_key_pair(client, key_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -384,7 +384,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, :key_name]
+  @params [:dry_run]
   def delete_key_pair(client, key_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -397,13 +397,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def import_key_pair(client, key_name, public_key_material, opts \\ %{}) do
-    query_params = put_action_and_version("ImportKeyPair")
-    |> Map.put_new("KeyName", key_name)
-    |> Map.put_new("PublicKeyMaterial", Base.url_encode64(public_key_material))
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def import_key_pair(client, key_name, public_key_material, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"            => "ImportKeyPair",
+      "Version"           => @version,
+      "KeyName"           => key_name,
+      "PublicKeyMaterial" => Base.url_encode64(public_key_material)
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   ###########################
