@@ -772,20 +772,30 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def modify_volume_attribute(client, volume_id, opts \\ %{}) do
-    query_params = put_action_and_version("ModifyVolumeAttribute")
-    |> Map.put_new("VolumeId", volume_id)
-    |> Map.merge(opts)
+  @params [:auto_enable_io, :dry_run]
+  def modify_volume_attribute(client, volume_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"   => "ModifyVolumeAttribute",
+      "Version"  => @version,
+      "VolumeId" => volume_id
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
-  def enable_volume_io(client, volume_id, opts \\ %{}) do
-    query_params = put_action_and_version("EnableVolumeIO")
-    |> Map.put_new("VolumeId", volume_id)
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def enable_volume_io(client, volume_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"   => "EnableVolumeIO",
+      "Version"  => @version,
+      "VolumeId" => volume_id
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def describe_volume_status(client, opts \\ %{}) do

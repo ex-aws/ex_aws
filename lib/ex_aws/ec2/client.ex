@@ -768,18 +768,25 @@ defmodule ExAws.EC2.Client do
   defcallback describe_volume_attribute(volume_id :: binary) :: ExAws.Request.response_t
   defcallback describe_volume_attribute(volume_id :: binary, opts :: describe_volume_attribute_opts) :: ExAws.Request.response_t
 
+  @type modify_volume_attribute_opts :: [
+    {:auto_enable_io, attribute_boolean_value} | 
+    {:dry_run, boolean}
+  ]
+  @doc """
+  Modifies a volume attribute.
+  """
+  defcallback modify_volume_attribute(volume_id :: binary) :: ExAws.Request.response_t
+  defcallback modify_volume_attribute(volume_id :: binary, opts :: modify_volume_attribute_opts) :: ExAws.Request.response_t
+
+  @type enable_volume_io_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Enables I/O operations for a volume that had I/O operations disabled because 
   the data on the volume was potentially inconsistent.
   """
   defcallback enable_volume_io(volume_id :: binary) :: ExAws.Request.response_t
-  defcallback enable_volume_io(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
-
-  @doc """
-  Modifies a volume attribute.
-  """
-  defcallback modify_volume_attribute(volume_id :: binary) :: ExAws.Request.response_t
-  defcallback modify_volume_attribute(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback enable_volume_io(volume_id :: binary, opts :: enable_volume_io_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes the status of the specified volumes.
