@@ -70,8 +70,15 @@ defmodule ExAws.EC2.Client do
   ]
 
   @type io1_volume_iops_range :: 100..20000
-
   @type gp2_volume_iops_range :: 100..10000
+
+  @type io1_size_range :: 4..16384
+  @type gp2_size_range :: 1..16384
+  @type st1_size_range :: 500..16384
+  @type sc1_size_range :: 500..16384
+  @type standard_size_range :: 1..1024
+
+  @type available_size_ranges :: io1_size_range | gp2_size_range | st1_size_range | sc1_size_range | standard_size_range
 
   @type ebs_block_device :: [
     {:delete_on_termination, boolean} | 
@@ -702,13 +709,21 @@ defmodule ExAws.EC2.Client do
   defcallback describe_volumes() :: ExAws.Request.response_t
   defcallback describe_volumes(opts :: describe_volumes_opts) :: ExAws.Request.response_t
 
+  @type create_volume_opts :: [
+    {:dry_run, boolean} | 
+    {:encrypted, boolean} | 
+    {:iops, 100..20000} | 
+    {:kms_key_id, binary} | 
+    {:snapshot_id, binary} | 
+    {:volume_type, :standard | :op1 | :gp2 | :sc1 | :st1}
+  ]
   @doc """
   Creates an EBS volume that can be attached to an instance in the same 
   Availability Zone. The volume is created in the regional endpoint that you 
   send the HTTP request to. 
   """
-  defcallback create_volume(availability_zone :: binary, size :: integer) :: ExAws.Request.response_t
-  defcallback create_volume(availability_zone :: binary, size :: integer, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback create_volume(availability_zone :: binary, size :: available_size_ranges) :: ExAws.Request.response_t
+  defcallback create_volume(availability_zone :: binary, size :: available_size_ranges, opts :: create_volume_opts) :: ExAws.Request.response_t
 
   @doc """
   Deletes the specified EBS volume. The volume must be in the available state 

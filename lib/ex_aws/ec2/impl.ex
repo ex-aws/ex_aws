@@ -704,13 +704,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def create_volume(client, availability_zone, size, opts \\ %{}) do
-    query_params = put_action_and_version("CreateVolume")
-    |> Map.put_new("AvailabilityZone", availability_zone)
-    |> Map.put_new("Size", size)
-    |> Map.merge(opts)
+  def create_volume(client, availability_zone, size, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"           => "CreateVolume", 
+      "Version"          => @version,
+      "AvailabilityZone" => availability_zone,
+      "Size"             => size
+      })
     
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def delete_volume(client, volume_id, opts \\ %{}) do
