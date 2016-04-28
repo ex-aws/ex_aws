@@ -725,12 +725,15 @@ defmodule ExAws.EC2.Client do
   defcallback create_volume(availability_zone :: binary, size :: available_size_ranges) :: ExAws.Request.response_t
   defcallback create_volume(availability_zone :: binary, size :: available_size_ranges, opts :: create_volume_opts) :: ExAws.Request.response_t
 
+  @type delete_volume_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Deletes the specified EBS volume. The volume must be in the available state 
   (not attached to an instance).
   """
   defcallback delete_volume(volume_id :: binary) :: ExAws.Request.response_t
-  defcallback delete_volume(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback delete_volume(volume_id :: binary, opts :: delete_volume_opts) :: ExAws.Request.response_t
 
   @doc """
   Attaches an EBS volume to a running or stopped instance and exposes it to 
