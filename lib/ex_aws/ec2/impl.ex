@@ -906,36 +906,50 @@ defmodule ExAws.EC2.Impl do
   ### Account Attributes Actions ###
   ##################################
 
-  def describe_account_attributes(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeAccountAttributes")
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def describe_account_attributes(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeAccountAttributes",
+      "Version" => @version
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   ############################
   ### Bundle Tasks Actions ###
   ############################
 
-  def bundle_instance(client, instance_id, {s3_aws_access_key_id, s3_bucket, s3_prefix, s3_upload_policy, s3_upload_policy_sig}, opts \\ %{}) do
-    query_params = put_action_and_version("BundleInstance")
-    |> Map.put_new("InstanceId", instance_id)
-    |> Map.put_new("Storage.S3.AWSAccessKeyId", s3_aws_access_key_id)
-    |> Map.put_new("Storage.S3.Bucket", s3_bucket)
-    |> Map.put_new("Storage.S3.Prefix", s3_prefix)
-    |> Map.put_new("Storage.S3.UploadPolicy", s3_upload_policy)
-    |> Map.put_new("Storage.S3.UploadPolicySignature", Base.url_encode64(s3_upload_policy_sig))
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def bundle_instance(client, instance_id, {s3_aws_access_key_id, s3_bucket, s3_prefix, s3_upload_policy, s3_upload_policy_sig}, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "BundleInstance",
+      "Version" => @version,
+      "Storage.S3.AWSAccessKeyId"        => s3_aws_access_key_id,
+      "Storage.S3.Bucket"                => s3_bucket,
+      "Storage.S3.Prefix"                => s3_prefix,
+      "Storage.S3.UploadPolicy"          => s3_upload_policy,
+      "Storage.S3.UploadPolicySignature" => s3_upload_policy_sig
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
-  def cancel_bundle_task(client, bundle_id, opts \\ %{}) do
-    query_params = put_action_and_version("CancelBundleTask")
-    |> Map.put_new("BundleId", bundle_id)
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def cancel_bundle_task(client, bundle_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"   => "CancelBundleTask",
+      "Version"  => @version,
+      "BundleId" => bundle_id
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def describe_bundle_tasks(client, opts \\ %{}) do

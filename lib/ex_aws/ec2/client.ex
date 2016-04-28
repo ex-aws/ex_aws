@@ -40,6 +40,14 @@ defmodule ExAws.EC2.Client do
     {:name, binary}
   ]
 
+  @type s3_storage :: {
+    aws_access_key_id :: binary, 
+    bucket :: binary, 
+    prefix :: binary,
+    upload_policy :: binary,
+    upload_policy_signature :: Base.url_encode64(binary)
+  }
+
   @type attributes :: [
     :instance_type | :kernel | :ramdisk | :user_data | :disable_api_termination |
     :instance_initiated_shutdown_behavior | :root_device_name | :block_device_mapping |
@@ -897,25 +905,35 @@ defmodule ExAws.EC2.Client do
   defcallback reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: reset_snapshot_attribute_opts) :: ExAws.Request.response_t
 
+  @type describe_account_attributes_opts :: [
+    #{:attributes_name_n} |
+    {:dry_run, boolean}
+  ]
   @doc """
   Describes attributes of your AWS account.
   """
   defcallback describe_account_attributes() :: ExAws.Request.response_t
-  defcallback describe_account_attributes(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_account_attributes(opts :: describe_account_attributes_opts) :: ExAws.Request.response_t
 
+  @type bundle_instance_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Bundles an Amazon instance store-backed Windows instance.
   During bundling, only the root device volume (C:\) is bundled. Data on other 
   instance store volumes is not preserved.
   """
-  defcallback bundle_instance(instance_id :: binary, {s3_aws_access_key_id :: binary, s3_bucket :: binary, s3_prefix :: binary, s3_upload_policy :: binary, s3_upload_policy_sig :: binary}) :: ExAws.Request.response_t
-  defcallback bundle_instance(instance_id :: binary, {s3_aws_access_key_id :: binary, s3_bucket :: binary, s3_prefix :: binary, s3_upload_policy :: binary, s3_upload_policy_sig :: binary}, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback bundle_instance(instance_id :: binary, s3_storage) :: ExAws.Request.response_t
+  defcallback bundle_instance(instance_id :: binary, s3_storage, opts :: bundle_instance_opts) :: ExAws.Request.response_t
 
+  @type cancel_bundle_task_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Cancels a bundling operation for an instance store-backed Windows instance.
   """
   defcallback cancel_bundle_task(bundle_id :: binary) :: ExAws.Request.response_t
-  defcallback cancel_bundle_task(bundle_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback cancel_bundle_task(bundle_id :: binary, opts :: cancel_bundle_task_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of your bundling tasks.
