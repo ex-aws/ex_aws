@@ -854,12 +854,15 @@ defmodule ExAws.EC2.Client do
   defcallback delete_snapshot(snapshot_id :: binary) :: ExAws.Request.response_t
   defcallback delete_snapshot(snapshot_id :: binary, opts :: delete_snapshot_opts) :: ExAws.Request.response_t
 
+  @type describe_snapshot_attribute_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Describes the specified attribute of the specified snapshot. You can specify 
   only one attribute at a time.
   """
   defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: describe_snapshot_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Adds or removes permission settings for the specified snapshot.

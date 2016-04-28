@@ -861,13 +861,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def describe_snapshot_attribute(client, snapshot_id, attribute, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeSnapshotAttribute")
-    |> Map.put_new("SnapshotId", snapshot_id)
-    |> Map.put_new("Attribute", attribute)
-    |> Map.merge(opts)
+  @params [:dry_run]
+  def describe_snapshot_attribute(client, snapshot_id, attribute, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "DescribeSnapshotAttribute",
+      "Version"    => @version,
+      "SnapshotId" => snapshot_id, 
+      "Attribute"  => attribute
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def modify_snapshot_attribute(client, snapshot_id, opts \\ %{}) do
