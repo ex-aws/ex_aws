@@ -730,14 +730,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def attach_volume(client, instance_id, volume_id, device, opts \\ %{}) do
-    query_params = put_action_and_version("AttachVolume")
-    |> Map.put_new("InstanceId", instance_id)
-    |> Map.put_new("VolumeId", volume_id)
-    |> Map.put_new("Device", device)
-    |> Map.merge(opts)
+  def attach_volume(client, instance_id, volume_id, device, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"     => "AttachVolume", 
+      "Version"    => @version,
+      "InstanceId" => instance_id,
+      "VolumeId"   => volume_id,
+      "Device"     => device
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def detach_volume(client, volume_id, opts \\ %{}) do
