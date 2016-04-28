@@ -757,12 +757,16 @@ defmodule ExAws.EC2.Client do
   defcallback detach_volume(volume_id :: binary) :: ExAws.Request.response_t
   defcallback detach_volume(volume_id :: binary, opts :: detach_volume_opts) :: ExAws.Request.response_t
 
+  @type describe_volume_attribute_opts :: [
+    {:attribute, :auto_enable_io | :product_codes} | 
+    {:dry_run, boolean}
+  ]
   @doc """
   Describes the specified attribute of the specified volume. You can specify 
   only one attribute at a time.
   """
-  defcallback describe_volume_attribute(volume_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback describe_volume_attribute(volume_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback describe_volume_attribute(volume_id :: binary) :: ExAws.Request.response_t
+  defcallback describe_volume_attribute(volume_id :: binary, opts :: describe_volume_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Enables I/O operations for a volume that had I/O operations disabled because 
