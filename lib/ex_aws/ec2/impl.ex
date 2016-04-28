@@ -454,13 +454,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end 
 
-  def create_security_group(client, group_name, group_description, opts \\ %{}) do
-    query_params = put_action_and_version("CreateSecurityGroup")
-    |> Map.put_new("GroupName", group_name)
-    |> Map.put_new("GroupDescription", group_description)
-    |> Map.merge(opts)
+  @params [:dry_run, :vpc_id]
+  def create_security_group(client, group_name, group_description, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"           => "CreateSecurityGroup",
+      "Version"          => @version,
+      "GroupName"        => group_name,
+      "GroupDescription" => group_description
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def authorize_security_group_ingress(client, opts \\ %{}) do

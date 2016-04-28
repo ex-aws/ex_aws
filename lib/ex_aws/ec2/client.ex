@@ -479,11 +479,15 @@ defmodule ExAws.EC2.Client do
   defcallback describe_security_groups() :: ExAws.Request.response_t
   defcallback describe_security_groups(opts :: describe_security_groups_opts) :: ExAws.Request.response_t
 
+  @type create_security_group_opts :: [
+    {:dry_run, boolean} | 
+    {:vpc_id, binary}
+  ]
   @doc """
   Creates a security group.
   """
   defcallback create_security_group(group_name :: binary, group_description :: binary) :: ExAws.Request.response_t
-  defcallback create_security_group(group_name :: binary, group_description :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback create_security_group(group_name :: binary, group_description :: binary, opts :: create_security_group_opts) :: ExAws.Request.response_t
 
   @doc """
   Adds one or more ingress rules to a security group.
