@@ -888,11 +888,14 @@ defmodule ExAws.EC2.Client do
   defcallback modify_snapshot_attribute(snapshot_id :: binary) :: ExAws.Request.response_t
   defcallback modify_snapshot_attribute(snapshot_id :: binary, opts :: modify_snapshot_attribute_opts) :: ExAws.Request.response_t
 
+  @type reset_snapshot_attribute_opts :: [
+    {:dry_run, boolean}
+  ]
   @doc """
   Resets permission settings for the specified snapshot.
   """
   defcallback reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  defcallback reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: reset_snapshot_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes attributes of your AWS account.
