@@ -481,12 +481,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end  
 
-  def authorize_security_group_egress(client, group_id, opts \\ %{}) do
-    query_params = put_action_and_version("AuthorizeSecurityGroupEgress")
-    |> Map.put_new("GroupId", group_id)
-    |> Map.merge(opts)
+  @params [:cidr_ip, :dry_run, :from_port, :group_id, :group_name, :ip_protocol, :source_security_group_name, 
+           :source_security_group_owner_id, :to_port]  
+  def authorize_security_group_egress(client, group_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "AuthorizeSecurityGroupEgress", 
+      "Version" => @version
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def revoke_security_group_ingress(client, opts \\ %{}) do

@@ -507,11 +507,23 @@ defmodule ExAws.EC2.Client do
   defcallback authorize_security_group_ingress() :: ExAws.Request.response_t
   defcallback authorize_security_group_ingress(opts :: authorize_security_group_ingress_opts) :: ExAws.Request.response_t
 
+  @type authorize_security_group_egress_opts :: [
+    {:cidr_ip, binary} | 
+    {:dry_run, boolean} | 
+    {:from_port, integer} | 
+    {:group_id, binary} | 
+    {:group_name, binary} | 
+    #{:ip_permissions_n} | 
+    {:ip_protocol, binary} | 
+    {:source_security_group_name, binary} | 
+    {:source_security_group_owner_id, binary} | 
+    {:to_port, integer}
+  ]
   @doc """
   Adds one or more egress rules to a security group for use with a VPC. 
   """
   defcallback authorize_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
-  defcallback authorize_security_group_egress(group_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback authorize_security_group_egress(group_id :: binary, opts :: authorize_security_group_egress_opts) :: ExAws.Request.response_t
 
   @doc """
   Removes one or more ingress rules from a security group. The values that 
