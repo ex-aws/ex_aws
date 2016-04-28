@@ -415,11 +415,16 @@ defmodule ExAws.EC2.Impl do
   ### Resource ID Actions ###
   ###########################
 
-  def describe_id_format(client, opts \\ %{}) do
-    query_params = put_action_and_version("DescribeIdFormat")
-    |> Map.merge(opts)
+  @params [:resource]
+  def describe_id_format(client, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "DescribeIdFormat",
+      "Version" => @version
+      })
 
-    HTTP.request(client, :get, "/", params: query_params)
+    request(client, :get, "/", params: query_params)
   end
 
   def modify_id_format(client, resource, use_long_ids, opts \\ %{}) do
