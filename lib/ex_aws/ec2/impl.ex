@@ -730,6 +730,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
+  @params [:dry_run]
   def attach_volume(client, instance_id, volume_id, device, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -744,12 +745,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def detach_volume(client, volume_id, opts \\ %{}) do
-    query_params = put_action_and_version("DetachVolume")
-    |> Map.put_new("VolumeId", volume_id)
-    |> Map.merge(opts)
+  @params [:dry_run, :device, :force, :instance_id]
+  def detach_volume(client, volume_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"   => "DetachVolume",
+      "Version"  => @version
+      "VolumeId" => volume_id,
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def describe_volume_attribute(client, volume_id, attribute, opts \\ %{}) do

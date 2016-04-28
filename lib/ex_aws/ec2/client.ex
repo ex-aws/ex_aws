@@ -745,11 +745,17 @@ defmodule ExAws.EC2.Client do
   defcallback attach_volume(instace_id :: binary, volume_id :: binary, device :: binary) :: ExAws.Request.response_t
   defcallback attach_volume(instace_id :: binary, volume_id :: binary, device :: binary, opts :: attach_volume_opts) :: ExAws.Request.response_t
 
+  @type detach_volume_opts :: [
+    {:dry_run, boolean} | 
+    {:device, binary} | 
+    {:force, boolean} | 
+    {:instance_id, binary}
+  ]
   @doc """
   Detaches an EBS volume from an instance. 
   """
   defcallback detach_volume(volume_id :: binary) :: ExAws.Request.response_t
-  defcallback detach_volume(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback detach_volume(volume_id :: binary, opts :: detach_volume_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes the specified attribute of the specified volume. You can specify 
