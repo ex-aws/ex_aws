@@ -536,12 +536,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def create_vpc(client, cidr_block, opts \\ %{}) do
-    query_params = put_action_and_version("CreateVpc")
-    |> Map.put_new("CidrBlock", cidr_block)
-    |> Map.merge(opts)
+  @params [:dry_run, :instance_tenancy]
+  def create_vpc(client, cidr_block, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"    => "CreateVpc",
+      "Version"   => @version,
+      "CidrBlock" => cidr_block
+      })
     
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def delete_vpc(client, vpc_id, opts \\ %{}) do

@@ -574,11 +574,15 @@ defmodule ExAws.EC2.Client do
   defcallback describe_vpcs() :: ExAws.Request.response_t
   defcallback describe_vpcs(opts :: describe_vpcs_opts) :: ExAws.Request.response_t
 
+  @type create_vpc_opts :: [
+    {:dry_run, boolean} | 
+    {:instance_tenancy, :default | :dedicated | :host}
+  ]
   @doc """
   Creates a VPC with the specified CIDR block.
   """
   defcallback create_vpc(cidr_block :: binary) :: ExAws.Request.response_t
-  defcallback create_vpc(cidr_block :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback create_vpc(cidr_block :: binary, opts :: create_vpc_opts) :: ExAws.Request.response_t
 
   @doc """
   Deletes the specified VPC.
