@@ -427,13 +427,15 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def modify_id_format(client, resource, use_long_ids, opts \\ %{}) do
-    query_params = put_action_and_version("ModifyIdFormat")
-    |> Map.put_new("Resource", resource)
-    |> Map.put_new("UseLongIds", use_long_ids)
-    |> Map.merge(opts)
+  def modify_id_format(client, resource, use_long_ids) do
+    query_params = %{
+      "Action"     => "ModifyIdFormat",
+      "Version"    => @version,
+      "Resource"   => resource,
+      "UseLongIds" => use_long_ids
+    }
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   ###############################
