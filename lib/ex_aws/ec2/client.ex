@@ -489,11 +489,23 @@ defmodule ExAws.EC2.Client do
   defcallback create_security_group(group_name :: binary, group_description :: binary) :: ExAws.Request.response_t
   defcallback create_security_group(group_name :: binary, group_description :: binary, opts :: create_security_group_opts) :: ExAws.Request.response_t
 
+  @type authorize_security_group_ingress_opts :: [
+    {:cidr_ip, binary} | 
+    {:dry_run, boolean} | 
+    {:from_port, integer} | 
+    {:group_id, binary} | 
+    {:group_name, binary} | 
+    #{:ip_permissions_n} | 
+    {:ip_protocol, binary} | 
+    {:source_security_group_name, binary} | 
+    {:source_security_group_owner_id, binary} | 
+    {:to_port, integer}
+  ]
   @doc """
   Adds one or more ingress rules to a security group.
   """
   defcallback authorize_security_group_ingress() :: ExAws.Request.response_t
-  defcallback authorize_security_group_ingress(opts :: Map.t) :: ExAws.Request.response_t
+  defcallback authorize_security_group_ingress(opts :: authorize_security_group_ingress_opts) :: ExAws.Request.response_t
 
   @doc """
   Adds one or more egress rules to a security group for use with a VPC. 
