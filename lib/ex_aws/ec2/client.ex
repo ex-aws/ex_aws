@@ -623,11 +623,15 @@ defmodule ExAws.EC2.Client do
   defcallback describe_subnets() :: ExAws.Request.response_t
   defcallback describe_subnets(opts :: describe_subnets_opts) :: ExAws.Request.response_t
  
+  @type create_subnet_opts :: [
+    {:availability_zone, binary} | 
+    {:dry_run, boolean}
+  ]
   @doc """
   Creates a subnet in an existing VPC.
   """
   defcallback create_subnet(vpc_id :: binary, cidr_block :: binary) :: ExAws.Request.response_t
-  defcallback create_subnet(vpc_id :: binary, cidr_block :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback create_subnet(vpc_id :: binary, cidr_block :: binary, opts :: create_subnet_opts) :: ExAws.Request.response_t
 
   @doc """
   Deletes the specified subnet.
