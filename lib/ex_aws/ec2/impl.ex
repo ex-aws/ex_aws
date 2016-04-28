@@ -822,12 +822,17 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def create_snapshot(client, volume_id, opts \\ %{}) do
-    query_params = put_action_and_version("CreateSnapshot")
-    |> Map.put_new("VolumeId", volume_id)
-    |> Map.merge(opts)
+  @params [:description, :dry_run]
+  def create_snapshot(client, volume_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"   => "CreateSnapshot",
+      "Version"  => @version,
+      "VolumeId" => volume_id
+      })
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def copy_snapshot(client, source_snapshot_id, source_region, opts \\ %{}) do

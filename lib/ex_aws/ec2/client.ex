@@ -816,13 +816,17 @@ defmodule ExAws.EC2.Client do
   defcallback describe_snapshots() :: ExAws.Request.response_t
   defcallback describe_snapshots(opts :: describe_snapshots_opts) :: ExAws.Request.response_t
 
+  @type create_snapshot_opts :: [
+    {:description, binary} | 
+    {:dry_run, boolean}
+  ]
   @doc """
   Creates a snapshot of an EBS volume and stores it in Amazon S3. 
   You can use snapshots for backups, to make copies of EBS volumes, and to 
   save data before shutting down an instance.
   """
   defcallback create_snapshot(volume_id :: binary) :: ExAws.Request.response_t
-  defcallback create_snapshot(volume_id :: binary, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback create_snapshot(volume_id :: binary, opts :: create_snapshot_opts) :: ExAws.Request.response_t
 
   @doc """
   Copies a point-in-time snapshot of an EBS volume and stores it in Amazon S3. 
