@@ -602,11 +602,15 @@ defmodule ExAws.EC2.Client do
   defcallback describe_vpc_attribute(vpc_id :: binary, attribute :: binary) :: ExAws.Request.response_t
   defcallback describe_vpc_attribute(vpc_id :: binary, attribute :: binary, opts :: describe_vpc_attribute_opts) :: ExAws.Request.response_t
 
+  @type modify_vpc_attribute_opts :: [
+    {:enable_dns_hostnames, attribute_boolean_value} | 
+    {:enable_dns_support, attribute_boolean_value}
+  ]
   @doc """
   Modifies the specified attribute of the specified VPC.
   """
   defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean) :: ExAws.Request.response_t
-  defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean, opts :: Map.t) :: ExAws.Request.response_t
+  defcallback modify_vpc_attribute(vpc_id :: binary, attribute :: atom, value :: binary | boolean, opts :: modify_vpc_attribute_opts) :: ExAws.Request.response_t
 
   @doc """
   Describes one or more of your subnets.
