@@ -661,13 +661,18 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def create_tags(client, resource_ids, tags, opts \\ %{}) do
-    query_params = put_action_and_version("CreateTags")
+  @params [:dry_run]
+  def create_tags(client, resource_ids, tags, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+      "Action"  => "CreateTags",
+      "Version" => @version
+      })
     |> Map.merge(list_builder(resource_ids, "ResourceId", 1, %{}))
     |> Map.merge(list_builder_key_val(tags, "Tag", 1, %{}))
-    |> Map.merge(opts)
 
-    HTTP.request(client, :post, "/", params: query_params)
+    request(client, :post, "/", params: query_params)
   end
 
   def delete_tags(client, resource_ids, opts \\ %{}) do
