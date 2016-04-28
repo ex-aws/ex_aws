@@ -12,7 +12,7 @@ defmodule ExAws.EC2.Impl do
   ### Instance Actions ###
   ########################
 
-  @params [:dry_run, :max_results, :next_token]
+  @params [:dry_run, [:filter], [:instance], :max_results, :next_token]
   def describe_instances(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -24,7 +24,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, :include_all_instances, :max_results, :next_token]
+  @params [:dry_run, [:filter], [:instance], :include_all_instances, :max_results, :next_token]
   def describe_instance_status(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -36,10 +36,10 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end  
 
-  @params [:additional_info, :client_token, :disable_api_termination, :dry_run, :ebs_optimized, 
+  @params [:additional_info, [:block_device_mapping], :client_token, :disable_api_termination, :dry_run, :ebs_optimized, 
            :iam_instance_profile, :instance_initiated_shutdown_behavior, :instance_type, 
-           :kernel_id, :key_name, :monitoring, :placement, :private_ip_address, :ram_disk_id, 
-           :user_data]
+           :kernel_id, :key_name, :monitoring, [:network_interface], :placement, :private_ip_address, :ram_disk_id, 
+           [:security_group_id], [:security_group], :user_data]
   def run_instances(client, image_id, max, min, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -54,7 +54,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:additional_info, :dry_run]
+  @params [:additional_info, :dry_run, [:instance_id]]
   def start_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -67,7 +67,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, :force]
+  @params [:dry_run, :force, [:instance_id]]
   def stop_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -80,7 +80,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:dry_run]
+  @params [:dry_run, [:instance_id]]
   def terminate_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -93,7 +93,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)      
   end
 
-  @params [:dry_run]
+  @params [:dry_run, [:instance_id]]
   def reboot_instances(client, instance_ids, opts \\ []) do 
     query_params = opts
     |> normalize_opts
@@ -106,7 +106,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:description, :dry_run, :end_time, :start_time, :status]
+  @params [:description, :dry_run, :end_time, [:instance_id], [:reason_code], :start_time, :status]
   def report_instance_status(client, instance_ids, status, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -120,7 +120,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run]
+  @params [:dry_run, [:instance_id]]
   def monitor_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -133,7 +133,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:dry_run]
+  @params [:dry_run, [:instance_id]]
   def unmonitor_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -160,8 +160,8 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:attribute, :disable_api_termination, :dry_run, :ebs_optimized, :instance_initiated_shutdown_behavior,
-           :kernel, :ramdisk, :source_dest_check, :sriov_net_support, :user_data, :value]
+  @params [:attribute, [:block_device_mapping], :disable_api_termination, :dry_run, :ebs_optimized, :instance_initiated_shutdown_behavior,
+           [:group_id], :kernel, :ramdisk, :source_dest_check, :sriov_net_support, :user_data, :value]
   def modify_instance_attribute(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts

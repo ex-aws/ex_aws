@@ -18,6 +18,17 @@ defmodule ExAws.EC2.Client do
     :d2_8xlarge
   ]
 
+  @type datetime :: {
+    calendar    :: term, 
+    day         :: term, 
+    hour        :: term, 
+    millisecond :: term, 
+    minute      :: term, 
+    month       :: term, 
+    second      :: term, 
+    timezone    :: term, 
+    year        :: term}
+
   @type run_instances_monitoring_enabled :: enabled :: boolean
 
   @type filter :: {name :: binary, value :: [binary]}
@@ -69,6 +80,30 @@ defmodule ExAws.EC2.Client do
 
   @type available_size_ranges :: io1_size_range | gp2_size_range | st1_size_range | sc1_size_range | standard_size_range
 
+  @type private_ip_address_specification :: {private_ip_address :: boolean, private_ip_address :: binary}
+
+  @type instance_network_interface_specification :: {
+    associate_public_ip_address        :: boolean,
+    delete_on_termination              :: boolean,
+    description                        :: binary,
+    device_index                       :: integer,
+    security_group_id                  :: [binary],
+    network_interface_id               :: binary,
+    private_ip_address                 :: binary,
+    private_ip_address_set             :: [private_ip_address_specification],
+    secondary_private_ip_address_count :: integer,
+    subnet_id                          :: binary
+  }
+
+  @type ebs_instance_block_device_specification :: {delete_on_termination :: boolean, volume_id :: binary}
+
+  @type instance_block_device_mapping_specification :: {
+    device_name :: binary,
+    ebs :: ebs_instance_block_device_specification,
+    no_device :: binary,
+    virtual_name :: binary
+  }
+
   @type ebs_block_device :: {
     delete_on_termination :: boolean,
     encrypted             :: boolean,
@@ -92,10 +127,10 @@ defmodule ExAws.EC2.Client do
   @type create_volume_permission_modifications :: {add :: [create_volume_permission], remove :: [create_volume_permission]}
 
   @type describe_instances_opts :: [
-    {:dry_run, boolean}     | 
-    #{:filter_n}
-    #{:instance_id_n}
-    {:max_results, integer} | 
+    {:dry_run, boolean}            | 
+    [{:filter_1, filter}, ...]     | 
+    [{:instance_1, [binary]}, ...] | 
+    {:max_results, integer}        | 
     {:next_token, binary}
   ]
   @doc """
@@ -106,8 +141,8 @@ defmodule ExAws.EC2.Client do
 
   @type describe_instance_status_opts :: [
     {:dry_run, boolean}               | 
-    #{:filter_n}
-    #{:instance_id_n}
+    [{:filter_1, filter}, ...]        |
+    [{:instance_1, [binary]}, ...]    |
     {:include_all_instances, boolean} | 
     {:max_results, integer}           | 
     {:next_token, binary}
@@ -120,24 +155,24 @@ defmodule ExAws.EC2.Client do
   defcallback describe_instance_status(opts :: describe_instance_status_opts) :: ExAws.Request.response_t
 
   @type run_instances_opts :: [
-    {:additional_info, binary}                                  | 
-    #{:block_device_mapping.n}
-    {:client_token, binary}                                     | 
-    {:disable_api_termination, boolean}                         | 
-    {:dry_run, boolean}                                         | 
-    {:ebs_optimized, boolean}                                   | 
-    {:iam_instance_profile, iam_instance_profile}               | 
-    {:instance_initiated_shutdown_behavior, :stop | :terminate} | 
-    {:instance_type, instance_types}                            | 
-    {:kernel_id, binary}                                        | 
-    {:key_name, binary}                                         | 
-    {:monitoring, run_instances_monitoring_enabled}             | 
-    #{:network_interface_n}
-    {:placement, placement}                                     | 
-    {:private_ip_address, binary}                               | 
-    {:ram_disk_id, binary}                                      | 
-    #{:security_group_id_n} | 
-    #{:security_group_n} | 
+    {:additional_info, binary}                                                | 
+    [{:block_device_mapping_1, block_device_mapping_list}, ...]               |
+    {:client_token, binary}                                                   | 
+    {:disable_api_termination, boolean}                                       | 
+    {:dry_run, boolean}                                                       | 
+    {:ebs_optimized, boolean}                                                 | 
+    {:iam_instance_profile, iam_instance_profile}                             | 
+    {:instance_initiated_shutdown_behavior, :stop | :terminate}               | 
+    {:instance_type, instance_types}                                          | 
+    {:kernel_id, binary}                                                      | 
+    {:key_name, binary}                                                       | 
+    {:monitoring, run_instances_monitoring_enabled}                           | 
+    [{:network_interface_1, [instance_network_interface_specification]}, ...] | 
+    {:placement, placement}                                                   | 
+    {:private_ip_address, binary}                                             | 
+    {:ram_disk_id, binary}                                                    | 
+    [{:security_group_id_1, [binary]}, ...]                                   | 
+    [{:security_group_1, [binary]}, ...]                                      | 
     {:user_data, binary}
   ]
   @doc """
@@ -148,8 +183,8 @@ defmodule ExAws.EC2.Client do
 
   @type start_instances_opts :: [
     {:additional_info, binary} | 
-    {:dry_run, boolean}
-    #{:instance_id_n}
+    {:dry_run, boolean}        |
+    [{:instance_id_1, [binary]}, ...]
   ]
   @doc """
   Starts an Amazon EBS-backed AMI that was previously stopped.
@@ -159,8 +194,8 @@ defmodule ExAws.EC2.Client do
 
   @type stop_instances_opts :: [
     {:dry_run, boolean} | 
-    {:force, boolean}
-    #{:instance_id_n, }
+    {:force, boolean}   |
+    [{:instance_id_1, [binary]}, ...]
   ]
   @doc """
   Stops an Amazon EBS-backed AMI that was previously started.
@@ -169,8 +204,8 @@ defmodule ExAws.EC2.Client do
   defcallback stop_instances(instance_ids :: list(binary), opts :: stop_instances_opts) :: ExAws.Request.response_t  
 
   @type terminate_instances_opts :: [
-    {:dry_run, boolean}  
-    #{:instance_id_n}
+    {:dry_run, boolean} |
+    [{:instance_id_1, [binary]}, ...]
   ]
   @doc """
   Shuts down one or more instances. Terminated instances remain visible after 
@@ -180,8 +215,8 @@ defmodule ExAws.EC2.Client do
   defcallback terminate_instances(instance_ids :: list(binary), opts :: terminate_instances_opts) :: ExAws.Request.response_t    
 
   @type reboot_instances_opts :: [
-    {:dry_run, boolean}  
-    #{:instance_id_n}
+    {:dry_run, boolean} |
+    [{:instance_id_1, [binary]}, ...]
   ]
   @doc """
   Requests a reboot of one or more instances. This operation is asynchronous; it
@@ -190,13 +225,15 @@ defmodule ExAws.EC2.Client do
   defcallback reboot_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback reboot_instances(instance_ids :: list(binary), opts :: reboot_instances_opts) :: ExAws.Request.response_t
 
+  @type reason_code :: :instance_stuck_in_state | :unresponsive | :not_accepting_credentials | :password_not_available | :performance_network | :performance_instance_store | :perforamce_ebs_volume | :performance_other | :other
+
   @type report_instance_status_opts :: [
-    {:description, binary} | 
-    {:dry_run, boolean}    | 
-    #{:end_time, } | 
-    #{:instance_id_n} | 
-    #{:reason_code_n} | 
-    #{:start_time, } | 
+    {:description, binary}               | 
+    {:dry_run, boolean}                  | 
+    {:end_time, datetime}                | 
+    [{:instance_id_1, [binary]}, ...]    |  
+    [{:reason_code_1, reason_code}, ...] | 
+    {:start_time, datetime}              | 
     {:status, :ok | :impaired}
   ]
   @doc """
@@ -207,8 +244,8 @@ defmodule ExAws.EC2.Client do
   defcallback report_instance_status(instance_ids :: list(binary), status :: binary, opts :: report_instance_status_opts) :: ExAws.Request.response_t  
 
   @type monitor_instances_opts :: [
-    {:dry_run, boolean} 
-    #{:instance_id_n, }
+    {:dry_run, boolean} | 
+    [{:instance_id_1, [binary]}, ...]
   ]
   @doc """
   Enables monitoring for a running instance.
@@ -217,8 +254,8 @@ defmodule ExAws.EC2.Client do
   defcallback monitor_instances(instance_ids :: list(binary), opts :: monitor_instances_opts) :: ExAws.Request.response_t
 
   @type unmonitor_instances_opts :: [
-    {:dry_run, boolean} 
-    #{:instance_id_n}
+    {:dry_run, boolean} |
+    [{:instance_id_1, [binary]}, ...]
   ]
   @doc """
   Disables monitoring for a running instance. 
@@ -239,18 +276,18 @@ defmodule ExAws.EC2.Client do
   defcallback describe_instance_attribute(instace_id :: binary, attribute :: binary, opts :: describe_instance_attribute_opts) :: ExAws.Request.response_t  
 
   @type modify_instance_attribute_opts :: [
-    {:attribute, attributes}                                 | 
-    #{:block_device_mapping} |
-    {:disable_api_termination, attribute_boolean_value}      | 
-    {:dry_run, boolean}                                      | 
-    {:ebs_optimized, attribute_boolean_value}                | 
-    #{:group_id_n} | 
-    {:instance_initiated_shutdown_behavior, attribute_value} |
-    {:kernel, attribute_value}                               | 
-    {:ramdisk, attribute_value}                              | 
-    {:source_dest_check, attribute_boolean_value}            | 
-    {:sriov_net_support, attribute_value}                    | 
-    {:user_data, attribute_value}                            | 
+    {:attribute, attributes}                                                        | 
+    [{:block_device_mapping_1, [instance_block_device_mapping_specification]}, ...] |
+    {:disable_api_termination, attribute_boolean_value}                             | 
+    {:dry_run, boolean}                                                             | 
+    {:ebs_optimized, attribute_boolean_value}                                       | 
+    [{:group_id_1, [binary]}, ...]                                                  | 
+    {:instance_initiated_shutdown_behavior, attribute_value}                        |
+    {:kernel, attribute_value}                                                      | 
+    {:ramdisk, attribute_value}                                                     | 
+    {:source_dest_check, attribute_boolean_value}                                   | 
+    {:sriov_net_support, attribute_value}                                           | 
+    {:user_data, attribute_value}                                                   | 
     {:value, binary}
   ]
   @doc """
@@ -686,7 +723,7 @@ defmodule ExAws.EC2.Client do
 
   @type delete_tags_opts :: [
     {:dry_run, boolean} | 
-    {:tags, [{:tag_1, tag}, {:tag_2, tag}, {:tag_n, tag}]}
+    {:tags, [{:tag_1, tag}, ...]}
   ]
   @doc """
   Deletes the specified set of tags from the specified set of resources.
