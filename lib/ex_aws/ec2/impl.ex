@@ -953,7 +953,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
+  @params [[:bundle_id], :dry_run, [:filter]]
   def describe_bundle_tasks(client, opts \\ []) do
     query_params = opts
     |> normalize_opts

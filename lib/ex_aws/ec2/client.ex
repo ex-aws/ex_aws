@@ -120,9 +120,9 @@ defmodule ExAws.EC2.Client do
   @type ebs_instance_block_device_specification :: {delete_on_termination :: boolean, volume_id :: binary}
 
   @type instance_block_device_mapping_specification :: {
-    device_name :: binary,
-    ebs :: ebs_instance_block_device_specification,
-    no_device :: binary,
+    device_name  :: binary,
+    ebs          :: ebs_instance_block_device_specification,
+    no_device    :: binary,
     virtual_name :: binary
   }
 
@@ -148,9 +148,92 @@ defmodule ExAws.EC2.Client do
 
   @type create_volume_permission_modifications :: {add :: [create_volume_permission], remove :: [create_volume_permission]}
 
+  @type describe_instances_filters :: 
+    affinity                                            :: (:default | :host)                                                          | 
+    architecture                                        :: (:i386 | :x86_64)                                                           | 
+    availability_zone                                   :: binary                                                                      | 
+    block_device_mapping_attach_time                    :: binary                                                                      | 
+    block_device_mapping_delete_on_termination          :: boolean                                                                     |
+    block_device_mapping_device_name                    :: binary                                                                      |
+    block_device_mapping_status                         :: (:attaching | :attached | :detaching | :detached)                           | 
+    block_device_mapping_volume_id                      :: binary                                                                      | 
+    client_token                                        :: binary                                                                      |
+    dns_name                                            :: binary                                                                      | 
+    group_id                                            :: binary                                                                      | 
+    group_name                                          :: binary                                                                      | 
+    host_id                                             :: binary                                                                      | 
+    hypervisor                                          :: (:ovm | :xen)                                                               | 
+    iam_instance_profile_arn                            :: binary                                                                      |
+    image_id                                            :: binary                                                                      |
+    instance_id                                         :: binary                                                                      | 
+    instance_lifecycle                                  :: binary                                                                      | 
+    instance_state_code                                 :: integer                                                                     | 
+    instance_state_name                                 :: (:pending | :running | :shutting_down | :terminated | :stopping | :stopped) |
+    instance_type                                       :: binary                                                                      | 
+    instance_group_id                                   :: binary                                                                      |
+    instance_group_name                                 :: binary                                                                      | 
+    ip_address                                          :: binary                                                                      |
+    kernel_id                                           :: binary                                                                      |
+    key_name                                            :: binary                                                                      |  
+    launch_index                                        :: (pos_integer | 0)                                                           |
+    launch_time                                         :: binary                                                                      | 
+    monitoring_state                                    :: (:disabled | :enabled)                                                      | 
+    owner_id                                            :: binary                                                                      | 
+    placement_group_name                                :: binary                                                                      | 
+    platform                                            :: (binary | :windows)                                                         | 
+    private_dns_name                                    :: binary                                                                      | 
+    private_ip_address                                  :: binary                                                                      | 
+    product_code                                        :: binary                                                                      | 
+    product_code_type                                   :: (:devpay | :marketplace)                                                    | 
+    ramdisk_id                                          :: binary                                                                      | 
+    reason                                              :: binary                                                                      | 
+    requester_id                                        :: binary                                                                      | 
+    reservation_id                                      :: binary                                                                      |
+    root_device_name                                    :: binary                                                                      | 
+    root_device_type                                    :: binary                                                                      | 
+    source_dest_check                                   :: binary                                                                      |  
+    spot_instance_request_id                            :: binary                                                                      |
+    state_reason_code                                   :: binary                                                                      | 
+    state_reason_message                                :: binary                                                                      | 
+    subnet_id                                           :: binary                                                                      |
+    tag                                                 :: tag_key <> tag_value                                                        | 
+    tag_key                                             :: binary                                                                      | 
+    tag_value                                           :: binary                                                                      | 
+    tenancy                                             :: (:default | :default | :host)                                               |
+    virtualization_type                                 :: (:paravirtual | :hvm)                                                       |
+    vpc_id                                              :: binary                                                                      | 
+    network_interface_description                       :: binary                                                                      | 
+    network_interface_subnet_id                         :: binary                                                                      | 
+    network_interface_vpc_id                            :: binary                                                                      | 
+    network_interface_network_interface_id              :: binary                                                                      | 
+    network_interface_owner_id                          :: binary                                                                      | 
+    network_interface_availability_zone                 :: binary                                                                      | 
+    network_interface_requester_id                      :: binary                                                                      |
+    network_interface_requester_managed                 :: binary                                                                      |
+    network_interface_status                            :: (:available | :in_use)                                                      | 
+    network_interface_mac_address                       :: binary                                                                      | 
+    network_interface_private_dns_name                  :: binary                                                                      | 
+    network_interface_source_dest_check                 :: binary                                                                      | 
+    network_interface_group_id                          :: binary                                                                      | 
+    network_interface_group_name                        :: binary                                                                      | 
+    network_interface_attachment_attachment_id          :: binary                                                                      | 
+    network_interface_attachment_instance_id            :: binary                                                                      |
+    network_interface_attachment_instance_owner_id      :: binary                                                                      | 
+    network_interface_addresses_private_ip_address      :: binary                                                                      | 
+    network_interface_attachment_device_index           :: binary                                                                      | 
+    network_interface_attachment_status                 :: (:attaching | :attached | :detaching | :detached)                           | 
+    network_interface_attachment_attach_time            :: binary                                                                      | 
+    network_interface_attachment_delete_on_termination  :: boolean                                                                     | 
+    network_interface_addresses_primary                 :: binary                                                                      | 
+    network_interface_addresses_association_public_ip   :: binary                                                                      | 
+    network_interface_addresses_association_ip_owner_id :: binary                                                                      | 
+    association_public_ip                               :: binary                                                                      | 
+    association_allocation_id                           :: binary                                                                      | 
+    association_association_id                          :: binary 
+
   @type describe_instances_opts :: [
     {:dry_run, boolean}            | 
-    [{:filter_1, filter}, ...]     | 
+    [{:filter_1, describe_instances_filters}, ...]     | 
     [{:instance_1, [binary]}, ...] | 
     {:max_results, integer}        | 
     {:next_token, binary}
@@ -161,12 +244,29 @@ defmodule ExAws.EC2.Client do
   defcallback describe_instances() :: ExAws.Request.response_t
   defcallback describe_instances(opts :: describe_instances_opts) :: ExAws.Request.response_t
 
+  @type event_codes :: :instance_reboot | :system_reboot | :system_maintenance | :instance_retirement | :instance_stop
+
+  @type instance_state_names :: :pending | :running | :shutting_down | :terminated | :stopping | :stopped
+
+  @type describe_instance_status_filters ::
+    availability_zone            :: binary                                                                   |
+    event_code                   :: event_codes                                                              | 
+    event_description            :: binary                                                                   | 
+    event_not_after              :: binary                                                                   | 
+    event_not_before             :: binary                                                                   | 
+    instance_state_code          :: integer                                                                  | 
+    instance_state_name          :: instance_state_names                                                     |
+    instance_status_reachability :: (:passed | :failed | :initializing | :insufficient_data)                 | 
+    instance_status_status       :: (:ok | :impaired | :initializing | :insufficient_data | :not_applicable) | 
+    system_status_reachability   :: (:passed | :failed | :initializing | :insufficient_data)                 |
+    system_status_status         :: (:ok | :impaired | :initializing | :insufficient_data | :not_applicable)       
+
   @type describe_instance_status_opts :: [
-    {:dry_run, boolean}               | 
-    [{:filter_1, filter}, ...]        |
-    [{:instance_1, [binary]}, ...]    |
-    {:include_all_instances, boolean} | 
-    {:max_results, integer}           | 
+    {:dry_run, boolean}                                  | 
+    [{:filter_1, describe_instance_status_filters}, ...] |
+    [{:instance_1, [binary]}, ...]                       |
+    {:include_all_instances, boolean}                    | 
+    {:max_results, integer}                              | 
     {:next_token, binary}
   ]
   @doc """
@@ -351,7 +451,13 @@ defmodule ExAws.EC2.Client do
   defcallback get_password_data(instace_id :: binary) :: ExAws.Request.response_t
   defcallback get_password_data(instace_id :: binary, opts :: get_password_data_opts) :: ExAws.Request.response_t  
 
-  @type describe_availability_zones_filters :: message :: binary | region_name :: binary | state :: (:available | :information | :impaired | :unavailable) | zone_name :: binary
+  @type availability_zone_states :: :available | :information | :impaired | :unavailable
+
+  @type describe_availability_zones_filters :: 
+    message     :: binary                   | 
+    region_name :: binary                   | 
+    state       :: availability_zone_states | 
+    zone_name   :: binary
 
   @type describe_availability_zones_opts :: [
     {:dry_run, boolean}                                     | 
@@ -1119,10 +1225,24 @@ defmodule ExAws.EC2.Client do
   defcallback cancel_bundle_task(bundle_id :: binary) :: ExAws.Request.response_t
   defcallback cancel_bundle_task(bundle_id :: binary, opts :: cancel_bundle_task_opts) :: ExAws.Request.response_t
 
+  @type bundle_instance_states :: :pending | :waiting_for_shutdown | :bundling | :storing | :cancelling | :complete | :failed  
+
+  @type describe_bundle_tasks_filters ::
+    bundle_id     :: binary                 |
+    error_code    :: binary                 | 
+    error_message :: binary                 |
+    instance_id   :: binary                 | 
+    progress      :: binary                 | 
+    s3_bucket     :: binary                 | 
+    s3_prefix     :: binary                 | 
+    start_time    :: binary                 |
+    state         :: bundle_instance_states | 
+    update_time   :: binary
+
   @type describe_bundle_tasks_opts :: [
-    #{:bundle_id_n, } |
-    {:dry_run, boolean}# |
-    #{:filter_n}
+    [{:bundle_id_1, [binary]}, ...] |
+    {:dry_run, boolean}             |
+    [{:filter_1, describe_bundle_tasks_filters}, ...]
   ]
   @doc """
   Describes one or more of your bundling tasks.
