@@ -738,7 +738,6 @@ defmodule ExAws.EC2.Client do
     {:cidr_ip, binary}                          | 
     {:dry_run, boolean}                         |  
     {:from_port, integer}                       |  
-    {:group_id, binary}                         | 
     {:group_name, binary}                       | 
     [{:ip_permissions_1, [ip_permission]}, ...] | 
     {:ip_protocol, binary}                      | 
@@ -776,7 +775,6 @@ defmodule ExAws.EC2.Client do
     {:cidr_ip, binary}                          | 
     {:dry_run, boolean}                         |  
     {:from_port, integer}                       |  
-    {:group_id, binary}                         | 
     {:group_name, binary}                       | 
     [{:ip_permissions_1, [ip_permission]}, ...] | 
     {:ip_protocol, binary}                      | 

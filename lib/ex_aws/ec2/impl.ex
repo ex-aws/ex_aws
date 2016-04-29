@@ -1,5 +1,4 @@
 defmodule ExAws.EC2.Impl do
-  alias ExAws.EC2.Request, as: HTTP
   import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
   
   @moduledoc """
@@ -489,7 +488,8 @@ defmodule ExAws.EC2.Impl do
     |> normalize_opts
     |> Map.merge(%{
       "Action"  => "AuthorizeSecurityGroupEgress", 
-      "Version" => @version
+      "Version" => @version,
+      "GroupId" => group_id
       })
 
     request(client, :post, "/", params: query_params)
@@ -508,14 +508,15 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:cidr_ip, :dry_run, :from_port, :group_id, :group_name, [:ip_permission], :ip_protocol, :source_security_group_name, 
+  @params [:cidr_ip, :dry_run, :from_port, :group_name, [:ip_permission], :ip_protocol, :source_security_group_name, 
            :source_security_group_owner_id, :to_port] 
   def revoke_security_group_egress(client, group_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
       "Action"  => "RevokeSecurityGroupEgress", 
-      "Version" => @version
+      "Version" => @version,
+      "GroupId" => group_id
       })
 
     request(client, :post, "/", params: query_params)
@@ -928,8 +929,9 @@ defmodule ExAws.EC2.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"  => "BundleInstance",
-      "Version" => @version,
+      "Action"                           => "BundleInstance",
+      "Version"                          => @version,
+      "InstanceId"                       => instance_id,
       "Storage.S3.AWSAccessKeyId"        => s3_aws_access_key_id,
       "Storage.S3.Bucket"                => s3_bucket,
       "Storage.S3.Prefix"                => s3_prefix,
@@ -969,7 +971,7 @@ defmodule ExAws.EC2.Impl do
   ### Helper Functions ###
   ########################
 
-  defp request(%{__struct__: client_module} = client, verb, path, data \\[]) do
+  defp request(%{__struct__: client_module} = client, verb, path, data) do
     client_module.request(client, verb, path, data)
   end
 
@@ -978,13 +980,6 @@ defmodule ExAws.EC2.Impl do
     |> Enum.into(%{})
     |> camelize_keys
   end 
-
-  defp put_action_and_version(action) do
-    %{
-      "Action"  => action,
-      "Version" => @version
-    }
-  end
 
   defp list_builder([h | []], key, count, state) do
     Map.put_new(state, "#{key}.#{count}", h)
