@@ -51,6 +51,28 @@ defmodule ExAws.EC2.Client do
     upload_policy_signature :: Base.url_encode64(binary)
   }
 
+  @type prefix_list_id :: prefix_list_id :: binary
+
+  @type ip_range :: cidr_ip :: binary
+
+  @type user_id_group_pair :: {
+    group_id                  :: binary,
+    group_name                :: binary, 
+    peering_status            :: binary,
+    user_id                   :: binary, 
+    vpc_id                    :: binary, 
+    vpc_peering_connection_id :: binary
+  }
+
+  @type ip_permission :: {
+    from_port       :: pos_integer, 
+    ip_protocol     :: (:tcp | :udp | :icmp | integer),
+    ip_ranges       :: ip_range, 
+    prefix_list_ids :: [prefix_list_id], 
+    to_port         :: pos_integer, 
+    groups          :: [user_id_group_pair]
+  }
+
   @type attributes :: [
     :instance_type | :kernel | :ramdisk | :user_data | :disable_api_termination |
     :instance_initiated_shutdown_behavior | :root_device_name | :block_device_mapping |
@@ -329,10 +351,12 @@ defmodule ExAws.EC2.Client do
   defcallback get_password_data(instace_id :: binary) :: ExAws.Request.response_t
   defcallback get_password_data(instace_id :: binary, opts :: get_password_data_opts) :: ExAws.Request.response_t  
 
+  @type describe_availability_zones_filters :: message :: binary | region_name :: binary | state :: (:available | :information | :impaired | :unavailable) | zone_name :: binary
+
   @type describe_availability_zones_opts :: [
-    {:dry_run, boolean}# | 
-    #{:filter_n} | 
-    #{:zone_name_n}
+    {:dry_run, boolean}                                     | 
+    [{:filter_1, describe_availability_zones_filters}, ...] | 
+    [{:zone_name_1, [binary]}, ...]
   ]
   @doc """
   Describes one or more of the Availability Zones that are available to you. 
@@ -341,10 +365,12 @@ defmodule ExAws.EC2.Client do
   defcallback describe_availability_zones() :: ExAws.Request.response_t
   defcallback describe_availability_zones(opts :: describe_availability_zones_opts) :: ExAws.Request.response_t  
 
+  @type describe_regions_filters :: endpoint :: binary | region_name :: binary
+
   @type describe_regions_opts :: [
-    {:dry_run, boolean} #| 
-    #{:filter_nl} |
-    #{:region_name_n}
+    {:dry_run, boolean}                          | 
+    [{:filter_1, describe_regions_filters}, ...] |
+    [{:region_name_1, [binary]}, ...]
   ]
   @doc """
   Describes one or more regions that are currently available to you.
@@ -353,9 +379,9 @@ defmodule ExAws.EC2.Client do
   defcallback describe_regions(opts :: describe_regions_opts) :: ExAws.Request.response_t  
 
   @type create_image_opts :: [
-    #{:block_device_mapping_n} | 
-    {:description, binary} | 
-    {:dry_run, boolean}    | 
+    [{:block_device_mapping_1, block_device_mapping_list}, ...] | 
+    {:description, binary}                                      | 
+    {:dry_run, boolean}                                         | 
     {:no_reboot, boolean}
   ]
   @doc """
@@ -380,12 +406,42 @@ defmodule ExAws.EC2.Client do
   defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary) :: ExAws.Request.response_t  
   defcallback copy_image(name :: binary, source_image_id :: binary, source_region :: binary, opts :: copy_image_opts) :: ExAws.Request.response_t
 
+  @type describe_images_filters :: 
+    architecture :: (:i386 | :x86_64)                                           |
+    block_device_mapping_delete_on_termination :: boolean                       | 
+    block_device_mapping_device_name :: binary                                  | 
+    block_device_mapping_snapshot_id :: binary                                  | 
+    block_device_mapping_volume_size :: integer                                 | 
+    block_device_mapping_volume_type :: (:gp2 | :io1 | :st1 | :sc1 | :standard) | 
+    description :: binary                                                       | 
+    hypervisor :: (:ovm | :xen)                                                 |
+    image_id :: binary                                                          |
+    image_type :: (:machine | :kernel | :ramdisk)                               | 
+    is_public :: boolean                                                        | 
+    kernel_id :: binary                                                         | 
+    manifest_location :: binary                                                 | 
+    name :: binary                                                              | 
+    owner_alias :: binary                                                       | 
+    platform :: (binary | :windows)                                             |
+    product_code :: binary                                                      | 
+    product_code_type :: (:devpay | :marketplace)                               | 
+    ramdisk_id :: binary                                                        | 
+    root_device_name :: binary                                                  | 
+    root_device_type :: (:ebs | :instance_store)                                | 
+    state :: (:available | :pending | :failed)                                  | 
+    state_reason_code :: binary                                                 | 
+    state_reason_message :: binary                                              | 
+    tag :: tag_key <> tag_value                                                 | 
+    tag_key :: binary                                                           | 
+    tag_value :: binary                                                         |
+    virtualization_type :: (:paravirtual | :hvm)
+
   @type describe_images_opts :: [
-    {:dry_run, boolean} #| 
-    #{:executable_by_n} | 
-    #{:filter_n} | 
-    #{:image_id_n} ! 
-    #{:owner_n}
+    {:dry_run, boolean}                         | 
+    [{:executable_by_1, [binary]}, ...]         | 
+    [{:filter_1, describe_images_filters}, ...] | 
+    [{:image_id_1, [binary]}, ...]              |
+    [{:owner_1, [binary]}, ...]
   ]
   @doc """
   Describes one or more of the images (AMIs, AKIs, and ARIs) available to you.
@@ -409,8 +465,8 @@ defmodule ExAws.EC2.Client do
     {:dry_run, boolean}                                   | 
     {:launch_permission, launch_permission_modifications} | 
     {:operation_type, :add | :remove}                     |
-    #{:product_code_n} |
-    #{:user_group_n} | 
+    [{:product_code_1, :add | :remove}, ...]              |
+    [{:user_group_1, [binary]}, ...]                      | 
     {:value, binary}
   ]
   @doc """
@@ -430,15 +486,15 @@ defmodule ExAws.EC2.Client do
   defcallback reset_image_attribute(image_id :: binary, attribute :: binary, opts :: reset_image_attribute_opts) :: ExAws.Request.response_t  
 
   @type register_image_opts :: [
-    {:architecture, :i386 | :x86_64} | 
-    #{:block_device_mapping_n} | 
-    {:description, binary}           | 
-    {:dry_run, boolean}              | 
-    {:image_location, binary}        | 
-    {:kernel_id, binary}             | 
-    {:ram_disk_id, binary}           | 
-    {:root_device_name, binary}      | 
-    {:sriov_net_support, binary}     | 
+    {:architecture, :i386 | :x86_64}                            | 
+    [{:block_device_mapping_1, block_device_mapping_list}, ...] | 
+    {:description, binary}                                      | 
+    {:dry_run, boolean}                                         | 
+    {:image_location, binary}                                   | 
+    {:kernel_id, binary}                                        | 
+    {:ram_disk_id, binary}                                      | 
+    {:root_device_name, binary}                                 | 
+    {:sriov_net_support, binary}                                | 
     {:virtualization_type, binary}
   ]
   @doc """
@@ -458,10 +514,12 @@ defmodule ExAws.EC2.Client do
   defcallback deregister_image(image_id :: binary) :: ExAws.Request.response_t
   defcallback deregister_image(image_id :: binary, opts :: deregister_image_opts) :: ExAws.Request.response_t
 
+  @type describe_key_pairs_filters :: fingerprint :: binary | key_name :: binary
+
   @type describe_key_pairs_opts :: [
-    {:dry_run, boolean}
-    #{:filter_n} | 
-    #{:key_name_n}
+    {:dry_run, boolean}                            | 
+    [{:filter_1, describe_key_pairs_filters}, ...] | 
+    [{:key_name_1, [binary]}, ...]
   ]
   @doc """
   Describes one or more of your key pairs.
@@ -514,11 +572,27 @@ defmodule ExAws.EC2.Client do
   """
   defcallback modify_id_format(resource :: binary, use_long_ids :: boolean) :: ExAws.Request.response_t
 
+  @type describe_security_groups_filters :: 
+    description :: binary                                     | 
+    egress_ip_permission_prefix_list_id :: binary             | 
+    group_id :: binary                                        | 
+    group_name :: binary                                      | 
+    ip_permission_cidr :: binary                              | 
+    ip_permission_from_port :: pos_integer                    |
+    ip_permission_group_id :: binary                          | 
+    ip_permission_protocol :: (:tcp | :udp | :icmp | integer) | 
+    ip_permission_to_port :: pos_integer                      | 
+    ip_permission_user_id :: binary                           | 
+    owner_id :: binary                                        | 
+    tag_key :: binary                                         | 
+    tag_value :: binary                                       | 
+    vpc_id :: binary
+
   @type describe_security_groups_opts :: [
-    {:dry_run, boolean} #|
-    #{:filter_n} | 
-    #{:group_id_n} |
-    #{:group_name_n}
+    {:dry_run, boolean}                                  |
+    [{:filter_1, describe_security_groups_filters}, ...] | 
+    [{:group_id_1, [binary]}, ...]                       |
+    [{:group_name_1, [binary]}, ...]                      
   ]
   @doc """
   Describes one or more of your security groups.
@@ -537,15 +611,15 @@ defmodule ExAws.EC2.Client do
   defcallback create_security_group(group_name :: binary, group_description :: binary, opts :: create_security_group_opts) :: ExAws.Request.response_t
 
   @type authorize_security_group_ingress_opts :: [
-    {:cidr_ip, binary}                        | 
-    {:dry_run, boolean}                       | 
-    {:from_port, integer}                     | 
-    {:group_id, binary}                       | 
-    {:group_name, binary}                     | 
-    #{:ip_permissions_n} | 
-    {:ip_protocol, binary}                    | 
-    {:source_security_group_name, binary}     | 
-    {:source_security_group_owner_id, binary} | 
+    {:cidr_ip, binary}                          | 
+    {:dry_run, boolean}                         |  
+    {:from_port, integer}                       |  
+    {:group_id, binary}                         | 
+    {:group_name, binary}                       | 
+    [{:ip_permissions_1, [ip_permission]}, ...] | 
+    {:ip_protocol, binary}                      | 
+    {:source_security_group_name, binary}       | 
+    {:source_security_group_owner_id, binary}   | 
     {:to_port, integer}
   ]
   @doc """
@@ -555,15 +629,15 @@ defmodule ExAws.EC2.Client do
   defcallback authorize_security_group_ingress(opts :: authorize_security_group_ingress_opts) :: ExAws.Request.response_t
 
   @type authorize_security_group_egress_opts :: [
-    {:cidr_ip, binary}                        | 
-    {:dry_run, boolean}                       | 
-    {:from_port, integer}                     | 
-    {:group_id, binary}                       | 
-    {:group_name, binary}                     | 
-    #{:ip_permissions_n} | 
-    {:ip_protocol, binary}                    | 
-    {:source_security_group_name, binary}     | 
-    {:source_security_group_owner_id, binary} | 
+    {:cidr_ip, binary}                          | 
+    {:dry_run, boolean}                         |  
+    {:from_port, integer}                       |  
+    {:group_id, binary}                         | 
+    {:group_name, binary}                       | 
+    [{:ip_permissions_1, [ip_permission]}, ...] | 
+    {:ip_protocol, binary}                      | 
+    {:source_security_group_name, binary}       | 
+    {:source_security_group_owner_id, binary}   | 
     {:to_port, integer}
   ]
   @doc """
@@ -573,15 +647,15 @@ defmodule ExAws.EC2.Client do
   defcallback authorize_security_group_egress(group_id :: binary, opts :: authorize_security_group_egress_opts) :: ExAws.Request.response_t
 
   @type revoke_security_group_ingress_opts :: [
-    {:cidr_ip, binary}                        | 
-    {:dry_run, boolean}                       | 
-    {:from_port, integer}                     | 
-    {:group_id, binary}                       | 
-    {:group_name, binary}                     | 
-    #{:ip_permissions_n} | 
-    {:ip_protocol, binary}                    | 
-    {:source_security_group_name, binary}     | 
-    {:source_security_group_owner_id, binary} | 
+    {:cidr_ip, binary}                          | 
+    {:dry_run, boolean}                         |  
+    {:from_port, integer}                       |  
+    {:group_id, binary}                         | 
+    {:group_name, binary}                       | 
+    [{:ip_permissions_1, [ip_permission]}, ...] | 
+    {:ip_protocol, binary}                      | 
+    {:source_security_group_name, binary}       | 
+    {:source_security_group_owner_id, binary}   | 
     {:to_port, integer}
   ]  
   @doc """
@@ -593,15 +667,15 @@ defmodule ExAws.EC2.Client do
   defcallback revoke_security_group_ingress(opts :: revoke_security_group_ingress_opts) :: ExAws.Request.response_t
 
   @type revoke_security_group_egress_opts :: [
-    {:cidr_ip, binary}                        | 
-    {:dry_run, boolean}                       | 
-    {:from_port, integer}                     |  
-    {:group_id, binary}                       | 
-    {:group_name, binary}                     | 
-    #{:ip_permissions_n} | 
-    {:ip_protocol, binary}                    | 
-    {:source_security_group_name, binary}     | 
-    {:source_security_group_owner_id, binary} | 
+    {:cidr_ip, binary}                          | 
+    {:dry_run, boolean}                         |  
+    {:from_port, integer}                       |  
+    {:group_id, binary}                         | 
+    {:group_name, binary}                       | 
+    [{:ip_permissions_1, [ip_permission]}, ...] | 
+    {:ip_protocol, binary}                      | 
+    {:source_security_group_name, binary}       | 
+    {:source_security_group_owner_id, binary}   | 
     {:to_port, integer}
   ]    
   @doc """
@@ -610,10 +684,20 @@ defmodule ExAws.EC2.Client do
   defcallback revoke_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
   defcallback revoke_security_group_egress(group_id :: binary, opts :: revoke_security_group_egress_opts) :: ExAws.Request.response_t
 
+  @type describe_vpcs_filters :: 
+    cidr            :: binary                  | 
+    dhcp_options_id :: binary                  | 
+    is_default      :: binary                  | 
+    state           :: (:pending | :available) | 
+    tag             :: tag_key <> tag_value    | 
+    tag_key         :: binary                  |
+    tag_value       :: binary                  | 
+    vpc_id          :: binary
+
   @type describe_vpcs_opts :: [
-    {:dry_run, boolean}# | 
-    #{:filter_n} | 
-    #{:vpc_id_n}
+    {:dry_run, boolean}                       | 
+    [{:filter_1, describe_vpcs_filters}, ...] | 
+    [{:vpc_id_1, [binary]}, ...]
   ]
   @doc """
   Describes one or more of your VPCs.
@@ -659,10 +743,22 @@ defmodule ExAws.EC2.Client do
   defcallback modify_vpc_attribute(vpc_id :: binary) :: ExAws.Request.response_t
   defcallback modify_vpc_attribute(vpc_id :: binary, opts :: modify_vpc_attribute_opts) :: ExAws.Request.response_t
 
+  @type describe_subnets_filters :: 
+    availability_zone          :: binary                  | 
+    available_ip_address_count :: integer                 | 
+    cidr_block                 :: binary                  | 
+    default_for_az             :: boolean                 | 
+    state                      :: (:pending | :available) | 
+    subnet_id                  :: binary                  | 
+    tag                        :: tag_key <> tag_value    | 
+    tag_key                    :: binary                  | 
+    tag_value                  :: binary                  |    
+    vpc_id                     :: binary
+
   @type describe_subnets_opts :: [
-    {:dry_run, boolean}# | 
-    #{:filter_n} |
-    #{:subnet_id_n}
+    {:dry_run, boolean}                          | 
+    [{:filter_1, describe_subnets_filters}, ...] |
+    [{:subnet_id_1, [binary]}, ...]
   ]
   @doc """
   Describes one or more of your subnets.
@@ -698,10 +794,35 @@ defmodule ExAws.EC2.Client do
   defcallback modify_subnet_attribute(subnet_id :: binary) :: ExAws.Request.response_t
   defcallback modify_subnet_attribute(subnet_id :: binary, opts :: modify_subnet_attribute_opts) :: ExAws.Request.response_t
 
+  @type resource_types :: 
+    :customer_gateway      | 
+    :dhcp_options          | 
+    :image                 | 
+    :instance              |
+    :internet_gateway      | 
+    :network_acl           |
+    :network_interface     | 
+    :reserved_instance     |
+    :route_table           | 
+    :security_group        | 
+    :snapshot              | 
+    :spot_instance_request | 
+    :subnet                |
+    :volume                | 
+    :vpc                   | 
+    :vpn_connection        | 
+    :vpn_gateway
+
+  @type describe_tags_filters :: 
+    key           :: binary         | 
+    resource_id   :: binary         | 
+    resource_type :: resource_types | 
+    value         :: binary
+
   @type describe_tags_opts :: [
-    {:dry_run, boolean}     | 
-    #{:filter_n} | 
-    {:max_results, integer} | 
+    {:dry_run, boolean}                       | 
+    [{:filter_1, describe_tags_filters}, ...] | 
+    {:max_results, integer}                   |  
     {:next_token, binary}
   ]
   @doc """
@@ -731,12 +852,30 @@ defmodule ExAws.EC2.Client do
   defcallback delete_tags(resource_ids :: list(binary)) :: ExAws.Request.response_t
   defcallback delete_tags(resource_ids :: list(binary), opts :: delete_tags_opts) :: ExAws.Request.response_t
 
+  @type describe_volumes_filters ::
+    attachment_attach_time           :: binary                                                            | 
+    attachment_delete_on_termination :: boolean                                                           | 
+    attachment_device                :: binary                                                            | 
+    attacment_instance_id            :: binary                                                            | 
+    attacment_status                 :: (:attaching | :attached | :detaching | :detached)                 | 
+    availability_zone                :: binary                                                            | 
+    create_time                      :: binary                                                            | 
+    encrypted                        :: boolean                                                           | 
+    size                             :: pos_integer                                                       | 
+    snapshot_id                      :: binary                                                            |
+    status                           :: (:created | :available | :in_use | :deleting | :deleted | :error) | 
+    tag                              :: tag_key <> tag_value                                              | 
+    tag_key                          :: binary                                                            |
+    tag_value                        :: binary                                                            | 
+    volume_id                        :: binary                                                            |
+    volume_type                      :: (:gp2 | :io1 | :st1 | :sc1 | :standard)
+
   @type describe_volumes_opts :: [
-    {:dry_run, boolean}     | 
-    #{:filter_n, }
-    {:max_results, integer} | 
-    {:next_token, binary} #| 
-    #{:volume_id_n}
+    {:dry_run, boolean}                          | 
+    [{:filter_1, describe_volumes_filters}, ...] | 
+    {:max_results, integer}                      | 
+    {:next_token, binary}                        | 
+    [{:volume_id_1, [binary]}, ...]  
   ]
   @doc """
   Describes the specified EBS volumes.
@@ -823,12 +962,26 @@ defmodule ExAws.EC2.Client do
   defcallback enable_volume_io(volume_id :: binary) :: ExAws.Request.response_t
   defcallback enable_volume_io(volume_id :: binary, opts :: enable_volume_io_opts) :: ExAws.Request.response_t
 
+  @type describe_volume_status_filters ::
+    action_code                  :: binary | 
+    action_description           :: binary |
+    action_event_id              :: binary | 
+    availability_zone            :: binary | 
+    event_description            :: binary | 
+    event_event_id               :: binary | 
+    event_event_type             :: binary | 
+    event_not_after              :: binary | 
+    event_not_before             :: binary | 
+    volume_status_details_name   :: binary |
+    volume_status_details_status :: binary |
+    volume_status_status         :: binary
+
   @type describe_volume_status_opts :: [
-    {:dry_run, boolean}     | 
-    #{:filter_n} | 
-    {:max_results, integer} | 
-    {:next_token, binary} #| 
-    #{:volume_id_n}
+    {:dry_run, boolean}                                 | 
+    [{:filter_1, describe_volume_status_filters}, ...] | 
+    {:max_results, integer}                             | 
+    {:next_token, binary}                               | 
+    [{:volume_id_1, [binary]}, ...]
   ]
   @doc """
   Describes the status of the specified volumes.
@@ -836,14 +989,28 @@ defmodule ExAws.EC2.Client do
   defcallback describe_volume_status() :: ExAws.Request.response_t
   defcallback describe_volume_status(opts :: describe_volume_status_opts) :: ExAws.Request.response_t
 
+  @type describe_snapshots_filters ::
+    description :: binary                           | 
+    owner_alias :: binary                           |   
+    owner_id    :: binary                           | 
+    progress    :: binary                           | 
+    snapshot_id :: binary                           |
+    start_time  :: binary                           | 
+    status      :: (:pending | :completed | :error) | 
+    tag         :: tag_key <> tag_value             | 
+    tag_key     :: binary                           | 
+    tag_value   :: binary                           | 
+    volume_id   :: binary                           | 
+    volume_size :: pos_integer
+
   @type describe_snapshots_opts :: [
-    {:dry_run, boolean}     | 
-    #{:filter_n}
-    {:max_results, integer} | 
-    {:next_token, binary} #| 
-    #{:owner_n}
-    #{:restorable_by_n} |
-    #{:snapshot_id_n}
+    {:dry_run, boolean}                            | 
+    [{:filter_1, describe_snapshots_filters}, ...] |
+    {:max_results, integer}                        | 
+    {:next_token, binary}                          | 
+    [{:owner_1, [binary]}, ...]                    | 
+    [{:restorable_by_1, [binary]}, ...]            |
+    [{:snapshot_id_1, [binary]}, ...]
   ]
   @doc """
   Describes one or more of the EBS snapshots available to you.
@@ -903,9 +1070,9 @@ defmodule ExAws.EC2.Client do
     {:attribute, :product_codes | :create_volume_permission}            | 
     {:create_volume_permission, create_volume_permission_modifications} | 
     {:dry_run, boolean}                                                 | 
-    #{:user_group_n}
-    {:operation_type, :add | :remove} #|
-    #{:user_id_n}
+    [{:user_group_1, [binary]}, ...]                                    | 
+    {:operation_type, :add | :remove}                                   |
+    [{:user_id_1, [binary]}, ...]
   ]
   @doc """
   Adds or removes permission settings for the specified snapshot.
@@ -923,7 +1090,7 @@ defmodule ExAws.EC2.Client do
   defcallback reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: reset_snapshot_attribute_opts) :: ExAws.Request.response_t
 
   @type describe_account_attributes_opts :: [
-    #{:attributes_name_n} |
+    [{:attributes_name_1, [(:supported_platforms | :default_vpc)]}, ...] |
     {:dry_run, boolean}
   ]
   @doc """
