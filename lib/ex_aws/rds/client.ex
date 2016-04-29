@@ -28,6 +28,9 @@ defmodule ExAws.RDS.Client do
     :db_t2_large
   ]
 
+  @type filter :: {name :: binary, values :: [binary]}
+
+  @type tag :: {key :: binary, value :: binary}
   @doc """
   Adds a source identifier to an existing RDS event notification subscription.
   """
@@ -46,10 +49,10 @@ defmodule ExAws.RDS.Client do
   defcallback apply_pending_maintenance(resource_id :: binary, action :: apply_pending_maintenance_actions, opt_in_type :: apply_pending_maintenance_opt_in_types) :: ExAws.Request.response_t
 
   @type describe_db_instances_opts :: [
-    {:db_instance_identifier, binary} | 
-    #{:filter_member_n}
-    {:marker, binary} |
-    {:max_records, 20..100}
+    {:db_instance_identifier, binary} 
+    | [{:filter_member_1, filter}, ...] 
+    | {:marker, binary}                 
+    | {:max_records, 20..100}
   ]
   @doc """
   Returns information about provisioned RDS instances.
@@ -65,37 +68,37 @@ defmodule ExAws.RDS.Client do
   @type amazon_aurora_port_rage :: 1150..65535
 
   @type create_db_instance_opts :: [
-    {:auto_minor_version_upgrade, boolean} |
-    {:availability_zone, binary} |
-    {:backup_retention_period, integer} |
-    {:character_set_name, binary} |
-    {:copy_tags_to_snapshot, boolean} |
-    {:db_cluster_identifier, binary} |
-    {:db_name, binary} | 
-    {:db_parameter_group_name, binary} |
-    #{:db_security_groups}
-    {:db_subnet_group_name, binary} |
-    {:domain, binary} |
-    {:domain_iam_role_name, binary} |
-    {:engine_version, binary} |
-    {:iops, integer} | 
-    {:kms_key_id, binary} |
-    {:license_model, :license_included | :bring_your_own_license | :general_public_license} | 
-    {:monitoring_interval, 0 | 1 | 5 | 10 | 15 | 30 | 60} | 
-    {:monitoring_role_arn, binary} | 
-    {:multi_az, boolean} | 
-    {:option_group_name, binary} | 
-    {:port, mysql_port_range | maria_db_port_range | postgres_sql_port_range | oracle_port_range | sql_server_port_range | amazon_aurora_port_rage} |
-    {:preferred_backup_window, binary} | 
-    {:preferred_maintenance_window, binary} |
-    {:promotion_tier, 0..15} | 
-    {:publicly_accessible, boolean} | 
-    {:storage_encrypted, boolean} | 
-    {:storage_type, :standard | :gp2 | :io1} |
-    #{:tags.member}
-    {:tde_credential_arn, binary} | 
-    {:tde_credential_password, binary} 
-    #{:vpc_security_group_ids.member}
+    {:auto_minor_version_upgrade, boolean} 
+    | {:availability_zone, binary} 
+    | {:backup_retention_period, integer} 
+    | {:character_set_name, binary} 
+    | {:copy_tags_to_snapshot, boolean} 
+    | {:db_cluster_identifier, binary} 
+    | {:db_name, binary} 
+    | {:db_parameter_group_name, binary} 
+    | [{:db_security_groups_member_1, [binary]}, ...] 
+    | {:db_subnet_group_name, binary} 
+    | {:domain, binary}
+    | {:domain_iam_role_name, binary} 
+    | {:engine_version, binary} 
+    | {:iops, integer} 
+    | {:kms_key_id, binary} 
+    | {:license_model, :license_included | :bring_your_own_license | :general_public_license} 
+    | {:monitoring_interval, 0 | 1 | 5 | 10 | 15 | 30 | 60} 
+    | {:monitoring_role_arn, binary} 
+    | {:multi_az, boolean} 
+    | {:option_group_name, binary} 
+    | {:port, mysql_port_range | maria_db_port_range | postgres_sql_port_range | oracle_port_range | sql_server_port_range | amazon_aurora_port_rage} 
+    | {:preferred_backup_window, binary} 
+    | {:preferred_maintenance_window, binary} 
+    | {:promotion_tier, 0..15} 
+    | {:publicly_accessible, boolean} 
+    | {:storage_encrypted, boolean} 
+    | {:storage_type, :standard | :gp2 | :io1} 
+    | [{:tags_member_1, [tag]}, ...] 
+    | {:tde_credential_arn, binary} 
+    | {:tde_credential_password, binary} 
+    | [{:vpc_security_group_ids_member_1, [binary]}, ...]
   ]
   @doc """
   Creates a new DB instance. 
@@ -109,35 +112,35 @@ defmodule ExAws.RDS.Client do
   @type oracle_allowed_storage :: 10..6144
 
   @type modify_db_instance_opts :: [
-    {:allocated_storage, mysql_allowed_storage | maria_db_allowed_storage | postgres_sql_allowed_storage | oracle_allowed_storage} | 
-    {:allow_major_version_upgrade, boolean} | 
-    {:apply_immediately, boolean} | 
-    {:auto_minor_version_upgrade, boolean} |
-    {:backup_retention_period, integer} | 
-    {:ca_certificate_identifier, binary} | 
-    {:copy_tags_to_snapshot, boolean} | 
-    {:db_instance_class, db_instance_classes} | 
-    {:db_parameter_group_name, binary} | 
-    {:db_port_number, mysql_port_range | maria_db_port_range | postgres_sql_port_range | oracle_port_range | sql_server_port_range} | 
-    #{:sb_security_groups_member_n}
-    {:domain, binary} | 
-    {:domain_iam_role_name, binary} | 
-    {:engine_version, binary}| 
-    {:iops, integer} | 
-    {:master_user_password, binary} | # Needs a regex to remove '/', '@' and '"'
-    {:monitoring_interval, 0 | 1 | 5 | 10 | 15 | 30 | 60} | 
-    {:monitoring_role_arn, binary} | 
-    {:multi_az, boolean} | 
-    {:new_db_instance_identifier, binary} | # Needs regex to allow 1 to 63 char length, first char must be a letter and cannot end with hyphen or have two consecutive ones
-    {:option_group_name, binary} | 
-    {:preferred_backup_window, binary} | # Needs regex for hh24:mi-hh24:mi format
-    {:preferred_maintenance_window, binary} | # Needs regex for ddd:hh24:mi-ddd:hh24:mi format
-    {:promotion_tier, 0..15} | 
-    {:publicly_accessible, boolean} | 
-    {:storage_type, :standard | :gp2 | :io1} | 
-    {:tde_credential_arn, binary} | 
-    {:tde_credential_password, binary} 
-    #{:vpc_security_group_ids}
+    {:allocated_storage, mysql_allowed_storage | maria_db_allowed_storage | postgres_sql_allowed_storage | oracle_allowed_storage} 
+    | {:allow_major_version_upgrade, boolean} 
+    | {:apply_immediately, boolean} 
+    | {:auto_minor_version_upgrade, boolean} 
+    | {:backup_retention_period, integer} 
+    | {:ca_certificate_identifier, binary} 
+    | {:copy_tags_to_snapshot, boolean} 
+    | {:db_instance_class, db_instance_classes} 
+    | {:db_parameter_group_name, binary} 
+    | {:db_port_number, mysql_port_range | maria_db_port_range | postgres_sql_port_range | oracle_port_range | sql_server_port_range} 
+    | [{:sb_security_groups_member_1, [binary]}, ...] 
+    | {:domain, binary} 
+    | {:domain_iam_role_name, binary} 
+    | {:engine_version, binary}
+    | {:iops, integer} 
+    | {:master_user_password, binary} 
+    | {:monitoring_interval, 0 | 1 | 5 | 10 | 15 | 30 | 60} 
+    | {:monitoring_role_arn, binary} 
+    | {:multi_az, boolean} 
+    | {:new_db_instance_identifier, binary} 
+    | {:option_group_name, binary} 
+    | {:preferred_backup_window, binary} 
+    | {:preferred_maintenance_window, binary} 
+    | {:promotion_tier, 0..15} 
+    | {:publicly_accessible, boolean} 
+    | {:storage_type, :standard | :gp2 | :io1} 
+    | {:tde_credential_arn, binary} 
+    | {:tde_credential_password, binary} 
+    | [{:vpc_security_group_ids_member_1, [binary]}, ...]
   ]
   @doc """
   Modify settings for a DB instance. 
@@ -165,15 +168,15 @@ defmodule ExAws.RDS.Client do
   defcallback delete_db_instance(instance_id :: binary, opts :: delete_db_instance_opts) :: ExAws.Request.response_t
 
   @type describe_events_opts :: [
-    {:duration, integer} | 
-    # {:end_time, binary} # Needs regex for ISO 8601 format
-    #{:event_categories_member_n}
-    #:filter_member_n
-    {:marker, binary} | 
-    {:max_records, 20..100} | 
-    {:source_identifier, binary} | 
-    {:source_type, :db_instance | :db_parameter_group | :db_security_group | :db_snapshot | :db_cluster | :db_cluster_snapsot} 
-    #{:start_time, } # Needs regex for ISO 8601 format
+    {:duration, integer} 
+    | {:end_time, binary} 
+    | [{:event_categories_member_1, [binary]}, ...]
+    | [{:filter_member_1, filter}, ...] 
+    | {:marker, binary} 
+    | {:max_records, 20..100} 
+    | {:source_identifier, binary} 
+    | {:source_type, :db_instance | :db_parameter_group | :db_security_group | :db_snapshot | :db_cluster | :db_cluster_snapsot} 
+    | {:start_time, binary} 
   ]
   @doc """
   Returns events related to DB instances, DB security groups, DB snapshots, 

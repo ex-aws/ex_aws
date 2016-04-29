@@ -25,7 +25,7 @@ defmodule ExAws.RDS.Request do
     ExAws.Request.request(http_method, url, body, headers, client)
   end
 
-  def url(%{scheme: scheme, host: host} = config, path) do 
+  def url(%{scheme: scheme, host: host} = _config, path) do 
     (scheme <> host <> path)
     |> IO.iodata_to_binary
   end
