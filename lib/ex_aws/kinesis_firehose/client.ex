@@ -16,6 +16,7 @@ defmodule ExAws.KinesisFirehose.Client do
   ```
   config :my_otp_app, :ex_aws,
     kinesis:  [], # kinesis config goes here
+    firehose: [],
     dynamodb: [], # you get the idea
   ```
 
@@ -39,7 +40,7 @@ defmodule ExAws.KinesisFirehose.Client do
 
   ```elixir
   config :my_aws_config_root
-    kinesis: [] # KinesisFirehose config goes here
+    firehose: [] # Kinesis Firehose config goes here
   ```
 
   Default config values can be found in ExAws.Config
@@ -117,7 +118,7 @@ defmodule ExAws.KinesisFirehose.Client do
     |> ExAws.Client.generate_boilerplate(opts)
 
     quote do
-      defstruct config: nil, service: :kinesis
+      defstruct config: nil, service: :firehose
       unquote(boilerplate)
 
       @doc false

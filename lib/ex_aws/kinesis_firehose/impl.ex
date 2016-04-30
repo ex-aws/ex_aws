@@ -8,7 +8,7 @@ defmodule ExAws.KinesisFirehose.Impl do
   #
   # See ExAws.KinesisFirehose.Client for usage.
 
-  @namespace "KinesisFirehose_20160402"
+  @namespace "Firehose_20150804"
   @actions [
     create_delivery_stream:   :post,
     delete_delivery_stream:   :post,
@@ -27,7 +27,7 @@ defmodule ExAws.KinesisFirehose.Impl do
     |> camelize_keys
     |> Map.merge(%{})
 
-    request(client, :list_delivery_streams, opts)
+    request(client, :list_delivery_streams, data)
   end
 
   def describe_delivery_stream(client, stream_name, opts \\ []) do
