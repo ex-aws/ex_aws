@@ -37,9 +37,9 @@ defmodule ExAws.RDS.Client do
   defcallback add_source_id_to_subscription(source_id :: binary, subscription :: binary) :: ExAws.Request.response_t
 
   @doc """
-  Adds metadata tags to an Amazon RDS resource where 'n' is the number of tags.
+  Adds metadata tags to an Amazon RDS resource.
   """
-  defcallback add_tags_to_resource(resource :: binary, tags :: List.t, n :: integer) :: ExAws.Request.response_t
+  defcallback add_tags_to_resource(resource :: binary, tags :: List.t) :: ExAws.Request.response_t
 
   @type apply_pending_maintenance_actions :: :system_upgrade | :db_upgrade
   @type apply_pending_maintenance_opt_in_types :: :immediate | :next_maintenance | :undo_opt_in

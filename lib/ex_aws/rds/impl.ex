@@ -14,21 +14,30 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def add_tags_to_resource(client, resource, tags, n) do
+  def add_tags_to_resource(client, resource, tags) do
     query_params = %{
       "Action" => "AddTagsToResource",
       "ResourceName" => resource,
       "Version" => @version
     }
 
-    query_params =
-    for {k, v} <- tags do 
-      query_params
-      |> Map.put_new("Tags.member.#{Integer.to_string(n)}.Key", k)
-      |> Map.put_new("Tags.member.#{Integer.to_string(n)}.Value", v)
+    tags_map = %{}
+
+    tags_map = 
+    for {{k, v}, n} <- Stream.with_index(tags, 1) do 
+      tags_map
+      |> Map.put("Tags.member.#{Integer.to_string(n)}.Key", k)
+      |> Map.put("Tags.member.#{Integer.to_string(n)}.Value", v)
     end
 
+    query_params = tags_helper tags_map, query_params
+
     request(client, :post, "/", params: query_params)
+  end
+
+  defp tags_helper([h | []], state), do: Map.merge(state, h)
+  defp tags_helper([h | t], state) do 
+    tags_helper t, Map.merge(state, h)
   end
 
   def apply_pending_maintenance(client, resource_id, action, opt_in_type) do 
