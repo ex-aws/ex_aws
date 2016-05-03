@@ -127,7 +127,7 @@ defmodule ExAws.EC2.Impl do
       "Action"  => "MonitorInstances",
       "Version" => @version
       })
-    Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
+    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
     request(client, :post, "/", params: query_params)    
   end
@@ -145,7 +145,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:attribute, :dry_run, :instance_id]
+  @params [:attribute, :dry_run]
   def describe_instance_attribute(client, instance_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -187,7 +187,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:dry_run, :instance_id]
+  @params [:dry_run]
   def get_console_output(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -200,7 +200,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, :instance_id]
+  @params [:dry_run]
   def get_password_data(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
