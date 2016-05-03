@@ -17,6 +17,10 @@ defmodule ExAws.EC2Test do
 
   @version "2015-10-01"
 
+  ######################
+  ### Instance Tests ###
+  ######################
+
   test "describe_instances no options" do 
     expected = 
       %{
@@ -543,5 +547,82 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.get_password_data("instance_1", [dry_run: true])    
-  end      
+  end   
+
+  test "get_password_data no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "GetPasswordData",
+          "Version"    => @version,
+          "InstanceId" => "instance_1"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.get_password_data("instance_1")    
+  end       
+
+  ############################################
+  ### Regions and Availability Zones Tests ###
+  ############################################
+
+  test "describe_availability_zones no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeAvailabilityZones",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_availability_zones    
+  end   
+
+  test "describe_availability_zones with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeAvailabilityZones",
+          "Version" => @version,
+          "DryRun"  => true,
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_availability_zones [dry_run: true]
+  end     
+
+  test "describe_regions no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeRegions",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_regions 
+  end     
+
+  test "describe_regions with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeRegions",
+          "Version" => @version,
+          "DryRun"  => true
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_regions [dry_run: true]
+  end       
 end
