@@ -1019,4 +1019,283 @@ test "delete_key_pair with options" do
 
     assert expected == EC2.import_key_pair("keyname", "pkm", [dry_run: true])
   end             
+
+  #########################
+  ### Resource ID Tests ###
+  #########################
+
+  test "describe_id_format no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeIdFormat",
+          "Version" => @version,
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_id_format
+  end             
+
+  test "describe_id_format with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeIdFormat",
+          "Version" => @version,
+          "Resource" => "some_resource"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_id_format [resource: "some_resource"]
+  end               
+
+  test "modify_id_format no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "ModifyIdFormat",
+          "Version"    => @version,
+          "Resource"   => "resource",
+          "UseLongIds" => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_id_format "resource", true
+  end              
+
+  #############################
+  ### Security Groups Tests ###
+  #############################
+
+  test "describe_security_groups no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeSecurityGroups",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_security_groups
+  end                
+
+  test "describe_security_groups with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"      => "DescribeSecurityGroups",
+          "Version"     => @version,
+          "DryRun"      => true,
+          "GroupId.1"   => "group1",
+          "GroupName.1" => "name"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_security_groups [dry_run: true, "GroupId.1": "group1", "GroupName.1": "name"]
+  end                  
+
+  test "create_security_group no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"           => "CreateSecurityGroup",
+          "Version"          => @version,
+          "GroupName"        => "groupname",
+          "GroupDescription" => "desc"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_security_group "groupname", "desc"
+  end                  
+
+  test "create_security_group with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"           => "CreateSecurityGroup",
+          "Version"          => @version,
+          "GroupName"        => "groupname",
+          "GroupDescription" => "desc",
+          "DryRun"           => true,
+          "VpcId"            => "vpc_id"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_security_group "groupname", "desc", [dry_run: true, vpc_id: "vpc_id"]
+  end                    
+
+  test "authorize_security_group_ingress no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "AuthorizeSecurityGroupIngress",
+          "Version" => @version,
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.authorize_security_group_ingress
+  end                    
+
+  test "authorize_security_group_ingress with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "AuthorizeSecurityGroupIngress",
+          "Version"  => @version,
+          "CidrIp"   => "cidr",
+          "DryRun"   => true,
+          "FromPort" => 10,
+          "ToPort"   => 20
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.authorize_security_group_ingress(
+      [
+        cidr_ip: "cidr",
+        dry_run: true,
+        from_port: 10,
+        to_port: 20
+      ]
+    )
+  end                      
+
+  test "authorize_security_group_egress no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "AuthorizeSecurityGroupEgress",
+          "Version" => @version,
+          "GroupId" => "groupid"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.authorize_security_group_egress "groupid"
+  end             
+
+  test "authorize_security_group_egress with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "AuthorizeSecurityGroupEgress",
+          "Version"  => @version,
+          "GroupId"  => "groupid",
+          "CidrIp"   => "cidr",
+          "DryRun"   => true,
+          "FromPort" => 10,
+          "ToPort"   => 20
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.authorize_security_group_egress("groupid",
+      [
+        cidr_ip: "cidr",
+        dry_run: true,
+        from_port: 10,
+        to_port: 20
+      ]
+    )
+  end               
+
+  test "revoke_security_group_ingress no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "RevokeSecurityGroupIngress",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.revoke_security_group_ingress
+  end               
+
+  test "revoke_security_group_ingress with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "RevokeSecurityGroupIngress",
+          "Version" => @version,
+          "CidrIp"   => "cidr",
+          "DryRun"   => true,
+          "FromPort" => 10,
+          "ToPort"   => 20          
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.revoke_security_group_ingress(
+      [
+        cidr_ip: "cidr",
+        dry_run: true,
+        from_port: 10,
+        to_port: 20
+      ]
+    )
+  end                 
+
+  test "revoke_security_group_egress no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "RevokeSecurityGroupEgress",
+          "Version" => @version,
+          "GroupId" => "group"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.revoke_security_group_egress "group"
+  end  
+
+  test "revoke_security_group_egress with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "RevokeSecurityGroupEgress",
+          "Version"  => @version,
+          "GroupId"  => "group",
+          "CidrIp"   => "cidr",
+          "DryRun"   => true,
+          "FromPort" => 10,
+          "ToPort"   => 20                    
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.revoke_security_group_egress(
+      "group",
+      [
+        cidr_ip: "cidr",
+        dry_run: true,
+        from_port: 10,
+        to_port: 20
+      ]
+    )
+  end    
 end
