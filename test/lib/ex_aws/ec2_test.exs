@@ -625,4 +625,269 @@ defmodule ExAws.EC2Test do
 
     assert expected == EC2.describe_regions [dry_run: true]
   end       
+
+  #################
+  ### AMI Tests ###
+  #################
+
+  test "create_image no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "CreateImage",
+          "Version"    => @version,
+          "InstanceId" => "instance",
+          "Name"       => "name"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_image "instance", "name"
+  end      
+
+  test "create_image with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"               => "CreateImage",
+          "Version"              => @version,
+          "InstanceId"           => "instance",
+          "Name"                 => "name",
+          "Description"          => "description",
+          "BlockDeviceMapping.1" => "bdm"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_image "instance", "name", [description: "description", "BlockDeviceMapping.1": "bdm"]
+  end        
+
+  test "copy_image no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"        => "CopyImage",
+          "Version"       => @version,
+          "Name"          => "name",
+          "SourceImageId" => "source_image_id",
+          "SourceRegion"  => "region"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.copy_image "name", "source_image_id", "region"
+  end   
+
+  test "copy_image with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"        => "CopyImage",
+          "Version"       => @version,
+          "Name"          => "name",
+          "SourceImageId" => "source_image_id",
+          "SourceRegion"  => "region",
+          "ClientToken"   => "token",
+          "Encrypted"     => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.copy_image "name", "source_image_id", "region", [client_token: "token", encrypted: true]
+  end   
+
+  test "describe_images no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeImages",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_images
+  end   
+
+  test "describe_images with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "DescribeImages",
+          "Version"   => @version,
+          "DryRun"    => true,
+          "ImageId.1" => "image_1"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_images([dry_run: true, "ImageId.1": "image_1"])
+  end  
+
+  test "describe_image_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "DescribeImageAttribute",
+          "Version"   => @version,
+          "ImageId"   => "image",
+          "Attribute" => "attr"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_image_attribute "image", "attr"
+  end        
+
+  test "describe_image_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "DescribeImageAttribute",
+          "Version"   => @version,
+          "ImageId"   => "image",
+          "Attribute" => "attr",
+          "DryRun"    => true
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_image_attribute "image", "attr", [dry_run: true]
+  end 
+
+  test "modify_image_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "ModifyImageAttribute",
+          "Version" => @version,
+          "ImageId" => "image"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_image_attribute "image"
+  end       
+
+  test "modify_image_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "ModifyImageAttribute",
+          "Version"   => @version,
+          "ImageId"   => "image",
+          "Attribute" => "attr",
+          "Value"     => "value"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_image_attribute "image", [attribute: "attr", value: "value"]
+  end    
+
+  test "reset_image_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "ResetImageAttribute",
+          "Version"   => @version,
+          "ImageId"   => "image",
+          "Attribute" => "attr"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.reset_image_attribute "image", "attr"
+  end            
+
+  test "reset_image_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "ResetImageAttribute",
+          "Version"   => @version,
+          "ImageId"   => "image",
+          "Attribute" => "attr",
+          "DryRun"    => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.reset_image_attribute "image", "attr", [dry_run: true]
+  end       
+
+  test "register_image no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "RegisterImage",
+          "Version" => @version,
+          "Name"    => "name"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.register_image "name"
+  end                           
+
+  test "register_image no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"          => "RegisterImage",
+          "Version"         => @version,
+          "Name"            => "name",
+          "SriovNetSupport" => true,
+          "Architecture"    => "archi"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.register_image "name", [sriov_net_support: true, architecture: "archi"]
+  end                             
+
+  test "deregister_image no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DeregisterImage",
+          "Version" => @version,
+          "ImageId" => "image"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.deregister_image "image"
+  end     
+
+  test "deregister_image with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DeregisterImage",
+          "Version" => @version,
+          "ImageId" => "image",
+          "DryRun"  => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.deregister_image "image", [dry_run: true]
+  end  
 end
