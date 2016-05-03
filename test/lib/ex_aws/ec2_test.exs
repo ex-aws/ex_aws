@@ -889,5 +889,134 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.deregister_image "image", [dry_run: true]
-  end  
+  end
+
+  #######################
+  ### Key Pairs Tests ###
+  #######################
+
+  test "describe_key_pairs no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeKeyPairs",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_key_pairs
+  end     
+
+  test "describe_key_pairs with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "DescribeKeyPairs",
+          "Version"   => @version,
+          "DryRun"    => true,
+          "KeyName.1" => "some_key"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_key_pairs [dry_run: true, "KeyName.1": "some_key"]
+  end     
+
+  test "create_key_pair no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "CreateKeyPair",
+          "Version" => @version,
+          "KeyName" => "keyname"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_key_pair("keyname")
+  end       
+
+  test "create_key_pair with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "CreateKeyPair",
+          "Version" => @version,
+          "KeyName" => "keyname",
+          "DryRun"  => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_key_pair("keyname", [dry_run: true])
+  end         
+
+  test "delete_key_pair no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DeleteKeyPair",
+          "Version" => @version,
+          "KeyName" => "keyname"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_key_pair("keyname")
+  end         
+
+test "delete_key_pair with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DeleteKeyPair",
+          "Version" => @version,
+          "KeyName" => "keyname",
+          "DryRun"  => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_key_pair("keyname", [dry_run: true])
+  end           
+
+  test "import_key_pair no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"            => "ImportKeyPair",
+          "Version"           => @version,
+          "KeyName"           => "keyname",
+          "PublicKeyMaterial" => Base.url_encode64("pkm")
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.import_key_pair("keyname", "pkm")
+  end           
+
+  test "import_key_pair with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"            => "ImportKeyPair",
+          "Version"           => @version,
+          "KeyName"           => "keyname",
+          "PublicKeyMaterial" => Base.url_encode64("pkm"),
+          "DryRun"            => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.import_key_pair("keyname", "pkm", [dry_run: true])
+  end             
 end
