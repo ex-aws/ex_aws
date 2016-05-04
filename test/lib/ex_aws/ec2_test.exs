@@ -2241,4 +2241,111 @@ test "delete_key_pair with options" do
 
     assert expected == EC2.describe_account_attributes [dry_run: true, "AttributeName.1": "name"]
   end      
+
+  ##########################
+  ### Bundle Tasks Tests ###
+  ##########################
+
+  test "bundle_instance no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"                           => "BundleInstance",
+          "Version"                          => @version,
+          "InstanceId"                       => "instance",
+          "Storage.S3.AWSAccessKeyId"        => "key_id",
+          "Storage.S3.Bucket"                => "bucket",
+          "Storage.S3.Prefix"                => "prefix",
+          "Storage.S3.UploadPolicy"          => "policy",
+          "Storage.S3.UploadPolicySignature" => "signature"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.bundle_instance "instance", {"key_id", "bucket", "prefix", "policy", "signature"}
+  end  
+
+  test "bundle_instance with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"                           => "BundleInstance",
+          "Version"                          => @version,
+          "InstanceId"                       => "instance",
+          "Storage.S3.AWSAccessKeyId"        => "key_id",
+          "Storage.S3.Bucket"                => "bucket",
+          "Storage.S3.Prefix"                => "prefix",
+          "Storage.S3.UploadPolicy"          => "policy",
+          "Storage.S3.UploadPolicySignature" => "signature",
+          "DryRun"                           => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.bundle_instance "instance", {"key_id", "bucket", "prefix", "policy", "signature"}, [dry_run: true]
+  end    
+
+  test "cancel_bundle_task no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "CancelBundleTask",
+          "Version"  => @version,
+          "BundleId" => "bundle"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.cancel_bundle_task "bundle"
+  end  
+
+  test "cancel_bundle_task with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "CancelBundleTask",
+          "Version"  => @version,
+          "BundleId" => "bundle",
+          "DryRun"   => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.cancel_bundle_task "bundle", [dry_run: true]
+  end    
+
+  test "describe_bundle_tasks no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DescribeBundleTasks",
+          "Version"  => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_bundle_tasks
+  end   
+
+  test "describe_bundle_tasks with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeBundleTasks",
+          "Version"    => @version,
+          "DryRun"     => true,
+          "BundleId.1" => "id1",
+          "BundleId.2" => "id2"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_bundle_tasks [dry_run: true, "BundleId.1": "id1", "BundleId.2": "id2"]
+  end     
 end
