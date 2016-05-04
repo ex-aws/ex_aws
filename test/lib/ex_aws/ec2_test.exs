@@ -1679,5 +1679,532 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_tags ["abc", "def"], [dry_run: true]
+  end     
+
+  ##################################
+  ### Elastic Block Stores Tests ###
+  ##################################
+
+  test "describe_volumes no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeVolumes",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_volumes
+  end     
+
+  test "describe_volumes with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeVolumes",
+          "Version"    => @version,
+          "DryRun"     => true,
+          "MaxResults" => 10,
+          "VolumeId.1" => "volume"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_volumes [dry_run: true, max_results: 10, "VolumeId.1": "volume"]
+  end       
+
+  test "create_volume no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"           => "CreateVolume",
+          "Version"          => @version,
+          "AvailabilityZone" => "az",
+          "Size"             => 400
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_volume "az", 400
+  end    
+
+  test "create_volume with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"           => "CreateVolume",
+          "Version"          => @version,
+          "AvailabilityZone" => "az",
+          "Size"             => 400,
+          "DryRun"           => true,
+          "Encrypted"        => false,
+          "SnapshotId"       => "snap"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_volume(
+      "az", 
+      400,
+      [
+        dry_run:     true,
+        encrypted:   false,
+        snapshot_id: "snap"
+      ]
+    )
+  end     
+
+  test "delete_volume no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DeleteVolume",
+          "Version"  => @version,
+          "VolumeId" => "volume"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_volume "volume"
+  end    
+
+  test "delete_volume with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DeleteVolume",
+          "Version"  => @version,
+          "VolumeId" => "volume",
+          "DryRun"   => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_volume "volume", [dry_run: true]
+  end    
+
+  test "attach_volume no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "AttachVolume",
+          "Version"    => @version,
+          "InstanceId" => "instance",
+          "VolumeId"   => "volume",
+          "Device"     => "device"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.attach_volume "instance", "volume", "device"
+  end    
+
+  test "attach_volume with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "AttachVolume",
+          "Version"    => @version,
+          "InstanceId" => "instance",
+          "VolumeId"   => "volume",
+          "Device"     => "device",
+          "DryRun"     => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.attach_volume "instance", "volume", "device", [dry_run: true]
+  end      
+
+  test "detach_volume no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DetachVolume",
+          "Version"  => @version,
+          "VolumeId" => "volume"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.detach_volume "volume"
+  end      
+
+  test "detach_volume with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DetachVolume",
+          "Version"  => @version,
+          "VolumeId" => "volume",
+          "DryRun"   => true,
+          "Device"   => "device",
+          "Force"    => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.detach_volume "volume", [dry_run: true, device: "device", "force": true]
+  end      
+
+  test "describe_volume_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DescribeVolumeAttribute",
+          "Version"  => @version,
+          "VolumeId" => "volume"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_volume_attribute "volume"
   end        
+
+  test "describe_volume_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "DescribeVolumeAttribute",
+          "Version"   => @version,
+          "VolumeId"  => "volume",
+          "DryRun"    => true,
+          "Attribute" => "attr"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_volume_attribute "volume", [dry_run: true, attribute: "attr"]
+  end    
+
+  test "modify_volume_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "ModifyVolumeAttribute",
+          "Version"  => @version,
+          "VolumeId" => "volume"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_volume_attribute "volume"
+  end         
+
+  test "modify_volume_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"       => "ModifyVolumeAttribute",
+          "Version"      => @version,
+          "VolumeId"     => "volume",
+          "AutoEnableIo" => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_volume_attribute "volume", [auto_enable_io: true]
+  end     
+
+  test "enable_volume_io no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "EnableVolumeIO",
+          "Version"  => @version,
+          "VolumeId" => "volume"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.enable_volume_io "volume"
+  end          
+
+  test "enable_volume_io with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "EnableVolumeIO",
+          "Version"  => @version,
+          "VolumeId" => "volume",
+          "DryRun"   => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.enable_volume_io "volume", [dry_run: true]
+  end    
+
+  test "describe_volume_status no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeVolumeStatus",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_volume_status
+  end            
+
+  test "describe_volume_status with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeVolumeStatus",
+          "Version"    => @version,
+          "VolumeId.1" => "abc",
+          "VolumeId.2" => "def"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_volume_status ["VolumeId.1": "abc", "VolumeId.2": "def"]
+  end      
+
+  test "describe_snapshots no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeSnapshots",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_snapshots
+  end           
+
+  test "describe_snapshots with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeSnapshots",
+          "Version"    => @version,
+          "DryRun"     => true,
+          "MaxResults" => 10,
+          "Owner.1"    => "owner"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_snapshots [dry_run: true, max_results: 10, "Owner.1": "owner"]
+  end    
+
+  test "create_snapshot no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "CreateSnapshot",
+          "Version"  => @version,
+          "VolumeId" => "volume"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_snapshot "volume"
+  end            
+
+  test "create_snapshot with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"      => "CreateSnapshot",
+          "Version"     => @version,
+          "VolumeId"    => "volume",
+          "Description" => "desc",
+          "DryRun"      => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_snapshot "volume", [dry_run: true, description: "desc"]
+  end    
+
+  test "copy_snapshot no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"           => "CopySnapshot",
+          "Version"          => @version,
+          "SourceSnapshotId" => "ssid",
+          "SourceRegion"     => "region"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.copy_snapshot "ssid", "region"
+  end               
+
+  test "copy_snapshot with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"            => "CopySnapshot",
+          "Version"           => @version,
+          "SourceSnapshotId"  => "ssid",
+          "SourceRegion"      => "region",
+          "DestinationRegion" => "dest",
+          "Encrypted"         => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.copy_snapshot "ssid", "region", [destination_region: "dest", encrypted: true]
+  end    
+
+  test "delete_snapshot no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DeleteSnapshot",
+          "Version"    => @version,
+          "SnapshotId" => "snap"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_snapshot "snap"
+  end                  
+
+  test "delete_snapshot with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DeleteSnapshot",
+          "Version"    => @version,
+          "SnapshotId" => "snap",
+          "DryRun"     => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_snapshot "snap", [dry_run: true]
+  end     
+
+  test "describe_snapshot_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeSnapshotAttribute",
+          "Version"    => @version,
+          "SnapshotId" => "snap",
+          "Attribute"  => "attr"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_snapshot_attribute "snap", "attr"
+  end                      
+
+  test "describe_snapshot_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeSnapshotAttribute",
+          "Version"    => @version,
+          "SnapshotId" => "snap",
+          "Attribute"  => "attr",
+          "DryRun"     => true
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_snapshot_attribute "snap", "attr", [dry_run: true]
+  end          
+
+  test "modify_snapshot_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "ModifySnapshotAttribute",
+          "Version"    => @version,
+          "SnapshotId" => "snap"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_snapshot_attribute "snap"
+  end                  
+
+  test "modify_snapshot_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "ModifySnapshotAttribute",
+          "Version"    => @version,
+          "SnapshotId" => "snap",
+          "Attribute"  => "attr",
+          "Value"      => "value"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_snapshot_attribute "snap", [attribute: "attr", value: "value"]
+  end           
+
+  test "reset_snapshot_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "ResetSnapshotAttribute",
+          "Version"    => @version,
+          "SnapshotId" => "snap",
+          "Attribute"  => "attr"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.reset_snapshot_attribute "snap", "attr"
+  end              
+
+  test "reset_snapshot_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "ResetSnapshotAttribute",
+          "Version"    => @version,
+          "SnapshotId" => "snap",
+          "Attribute"  => "attr",
+          "DryRun"     => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.reset_snapshot_attribute "snap", "attr", [dry_run: true]
+  end   
 end

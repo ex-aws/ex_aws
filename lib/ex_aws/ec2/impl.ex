@@ -706,6 +706,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
+  @params [:dry_run, :encrypted, :iops, :kms_key_id, :snapshot_id, :volume_type]
   def create_volume(client, availability_zone, size, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -850,7 +851,7 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, :snapshot_id]
+  @params [:dry_run]
   def delete_snapshot(client, snapshot_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
