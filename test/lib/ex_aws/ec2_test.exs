@@ -1573,5 +1573,111 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_subnet_attribute "subnet", [map_public_ip_on_launch: true]
+  end    
+
+  ##################
+  ### Tags Tests ###
+  ##################
+
+  test "describe_tags no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DescribeTags",
+          "Version"  => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_tags
+  end       
+
+  test "describe_tags with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeTags",
+          "Version"    => @version,
+          "MaxResults" => 10,
+          "NextToken"  => "abc"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_tags [max_results: 10, next_token: "abc"]
+  end     
+
+  test "create_tags no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"       => "CreateTags",
+          "Version"      => @version,
+          "ResourceId.1" => "abc",
+          "Tag.1.Key"    => "key1",
+          "Tag.1.Value"  => "value1",
+          "Tag.2.Key"    => "key2",
+          "Tag.2.Value"  => "value2"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_tags ["abc"], [{"key1", "value1"}, {"key2", "value2"}]
+  end       
+
+  test "create_tags with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"       => "CreateTags",
+          "Version"      => @version,
+          "ResourceId.1" => "abc",
+          "Tag.1.Key"    => "key1",
+          "Tag.1.Value"  => "value1",
+          "Tag.2.Key"    => "key2",
+          "Tag.2.Value"  => "value2",
+          "DryRun"       => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_tags ["abc"], [{"key1", "value1"}, {"key2", "value2"}], [dry_run: true]
+  end  
+
+  test "delete_tags no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"       => "DeleteTags",
+          "Version"      => @version,
+          "ResourceId.1" => "abc",
+          "ResourceId.2" => "def"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_tags ["abc", "def"]
+  end      
+
+  test "delete_tags with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"       => "DeleteTags",
+          "Version"      => @version,
+          "ResourceId.1" => "abc",
+          "ResourceId.2" => "def",
+          "DryRun"       => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_tags ["abc", "def"], [dry_run: true]
   end        
 end
