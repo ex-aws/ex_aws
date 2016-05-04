@@ -547,22 +547,7 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.get_password_data("instance_1", [dry_run: true])    
-  end   
-
-  test "get_password_data no options" do 
-    expected = 
-      %{
-        params: %{
-          "Action"     => "GetPasswordData",
-          "Version"    => @version,
-          "InstanceId" => "instance_1"
-        },
-        path: "/",
-        http_method: :get
-      }
-
-    assert expected == EC2.get_password_data("instance_1")    
-  end       
+  end      
 
   ############################################
   ### Regions and Availability Zones Tests ###
@@ -843,7 +828,7 @@ defmodule ExAws.EC2Test do
     assert expected == EC2.register_image "name"
   end                           
 
-  test "register_image no options" do 
+  test "register_image with options" do 
     expected = 
       %{
         params: %{
@@ -1297,5 +1282,167 @@ test "delete_key_pair with options" do
         to_port: 20
       ]
     )
+  end   
+
+  ##################
+  ### VPCs Tests ###
+  ##################
+
+  test "describe_vpcs no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeVpcs",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_vpcs
+  end     
+
+  test "describe_vpcs with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeVpcs",
+          "Version" => @version,
+          "DryRun"  => true,
+          "VpcId.1" => "id1",
+          "VpcId.2" => "id2"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_vpcs [dry_run: true, "VpcId.1": "id1", "VpcId.2": "id2"]
+  end       
+
+  test "create_vpc no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "CreateVpc",
+          "Version"   => @version,
+          "CidrBlock" => "cidr"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_vpc "cidr"
+  end       
+
+  test "create_vpc wit options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"          => "CreateVpc",
+          "Version"         => @version,
+          "CidrBlock"       => "cidr",
+          "DryRun"          => true,
+          "InstanceTenancy" => "tenancy"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_vpc "cidr", [dry_run: true, instance_tenancy: "tenancy"]
+  end     
+
+  test "delete_vpc no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DeleteVpc",
+          "Version" => @version,
+          "VpcId"   => "vpc"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_vpc "vpc"
+  end      
+
+  test "delete_vpc with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DeleteVpc",
+          "Version" => @version,
+          "VpcId"   => "vpc",
+          "DryRun"  => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_vpc "vpc", [dry_run: true]
+  end    
+
+  test "describe_vpc_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "DescribeVpcAttribute",
+          "Version"   => @version,
+          "VpcId"     => "vpc",
+          "Attribute" => "attr"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_vpc_attribute "vpc", "attr"
+  end         
+
+  test "describe_vpc_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "DescribeVpcAttribute",
+          "Version"   => @version,
+          "VpcId"     => "vpc",
+          "Attribute" => "attr",
+          "DryRun"    => true
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_vpc_attribute "vpc", "attr", [dry_run: true]
+  end         
+
+  test "modify_vpc_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "ModifyVpcAttribute",
+          "Version" => @version,
+          "VpcId"   => "vpc"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_vpc_attribute "vpc"
+  end       
+
+  test "modify_vpc_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"             => "ModifyVpcAttribute",
+          "Version"            => @version,
+          "VpcId"              => "vpc",
+          "EnableDnsHostnames" => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_vpc_attribute "vpc", [enable_dns_hostnames: true]
   end    
 end
