@@ -1445,4 +1445,133 @@ test "delete_key_pair with options" do
 
     assert expected == EC2.modify_vpc_attribute "vpc", [enable_dns_hostnames: true]
   end    
+
+  #####################
+  ### Subnets Tests ###
+  #####################
+
+  test "describe_subnets no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeSubnets",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_subnets
+  end    
+
+  test "describe_subnets with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"     => "DescribeSubnets",
+          "Version"    => @version,
+          "DryRun"     => true,
+          "SubnetId.1" => "subnet"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_subnets [dry_run: true, "SubnetId.1": "subnet"]
+  end     
+
+  test "create_subnet no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "CreateSubnet",
+          "Version"   => @version,
+          "VpcId"     => "vpc",
+          "CidrBlock" => "cidr"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_subnet "vpc", "cidr"
+  end    
+
+  test "create_subnet with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"    => "CreateSubnet",
+          "Version"   => @version,
+          "VpcId"     => "vpc",
+          "CidrBlock" => "cidr",
+          "DryRun"    => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.create_subnet "vpc", "cidr", [dry_run: true]
+  end      
+
+  test "delete_subnet no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DeleteSubnet",
+          "Version"  => @version,
+          "SubnetId" => "subnet"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_subnet "subnet"
+  end    
+
+  test "delete_subnet with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "DeleteSubnet",
+          "Version"  => @version,
+          "SubnetId" => "subnet",
+          "DryRun"   => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.delete_subnet "subnet", [dry_run: true]
+  end      
+
+  test "modify_subnet_attribute no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"   => "ModifySubnetAttribute",
+          "Version"  => @version,
+          "SubnetId" => "subnet"
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_subnet_attribute "subnet"
+  end      
+
+  test "modify_subnet_attribute with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"              => "ModifySubnetAttribute",
+          "Version"             => @version,
+          "SubnetId"            => "subnet",
+          "MapPublicIpOnLaunch" => true
+        },
+        path: "/",
+        http_method: :post
+      }
+
+    assert expected == EC2.modify_subnet_attribute "subnet", [map_public_ip_on_launch: true]
+  end        
 end
