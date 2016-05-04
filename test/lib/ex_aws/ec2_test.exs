@@ -2207,4 +2207,38 @@ test "delete_key_pair with options" do
 
     assert expected == EC2.reset_snapshot_attribute "snap", "attr", [dry_run: true]
   end   
+
+  ################################
+  ### Account Attributes Tests ###
+  ################################
+
+  test "describe_account_attributes no options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"  => "DescribeAccountAttributes",
+          "Version" => @version
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_account_attributes
+  end    
+
+  test "describe_account_attributes with options" do 
+    expected = 
+      %{
+        params: %{
+          "Action"          => "DescribeAccountAttributes",
+          "Version"         => @version,
+          "DryRun"          => true,
+          "AttributeName.1" => "name"
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_account_attributes [dry_run: true, "AttributeName.1": "name"]
+  end      
 end
