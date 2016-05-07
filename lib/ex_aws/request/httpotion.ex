@@ -3,7 +3,7 @@ defmodule ExAws.Request.HTTPotion do
 
   @moduledoc false
 
-  def request(method, url, body, headers) do
+  def request(method, url, body \\ "", headers \\ []) do
     {:ok, HTTPotion.request(method, url, [body: body, headers: headers, ibrowse: [headers_as_is: true]])}
   end
 end

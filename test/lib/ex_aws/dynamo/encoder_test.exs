@@ -15,6 +15,10 @@ defmodule ExAws.Dynamo.EncoderTest do
     assert Encoder.encode(0.4) == %{"N" => "0.4"}
   end
 
+  test "Encoder removes empty strings from a map" do
+    assert Encoder.encode(%{"data" => "value", "nodata" => ""}) == %{"M" => %{"data" => %{"S" => "value"}}}
+  end
+
   test "Encoder with structs works properly" do
     user = %Test.User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     assert %{"admin" => %{"BOOL" => "false"}, "age" => %{"N" => "23"},
