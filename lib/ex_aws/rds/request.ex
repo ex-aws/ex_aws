@@ -1,15 +1,18 @@
-defmodule ExAws.S3.Request do
+defmodule ExAws.RDS.Request do
+  
   @moduledoc false
-  # S3 specific request logic.
+  # RDS specific request logic
 
-  def request(client, http_method, bucket, path, data \\ []) do
+  #@region Application.get_all_env(:ex_aws) |> Keyword.fetch!(:rds) |> Keyword.fetch!(:region)
+
+  def request(client, http_method, path, data \\ []) do
     body     = data |> Keyword.get(:body, "")
     resource = data |> Keyword.get(:resource, "")
     query    = data |> Keyword.get(:params, %{}) |> URI.encode_query
     headers  = data |> Keyword.get(:headers, %{})
 
     url = client.config
-    |> url(bucket, path)
+    |> url(path)
     |> add_query(resource, query)
 
     hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
@@ -22,8 +25,8 @@ defmodule ExAws.S3.Request do
     ExAws.Request.request(http_method, url, body, headers, client)
   end
 
-  def url(%{scheme: scheme, host: host}, bucket, path) do
-    [ scheme, host_and_bucket(host, bucket), ensure_slash(path) ]
+  def url(%{scheme: scheme, host: host} = config, path) do 
+    (scheme <> host <> path)
     |> IO.iodata_to_binary
   end
 
@@ -34,12 +37,4 @@ defmodule ExAws.S3.Request do
 
   def ensure_slash("/" <> _ = path), do: path
   def ensure_slash(path), do:  "/" <> path
-
-  defp host_and_bucket(host, ""), do: host
-  defp host_and_bucket(host, bucket) do
-    case bucket |> String.contains?(".") do
-      true  -> [host, "/", bucket]
-      false -> [bucket, ".", host]
-    end
-  end
 end
