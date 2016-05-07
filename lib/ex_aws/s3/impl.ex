@@ -210,7 +210,9 @@ defmodule ExAws.S3.Impl do
   end
 
   def delete_multiple_objects(client, bucket, objects, opts \\ []) do
-    objects_xml = Enum.map(objects, fn
+    {hd, tail} = Enum.split(objects, 1000)
+
+    objects_xml = Enum.map(hd, fn
       {key, version} -> ["<Object><Key>", key, "</Key><VersionId>", version, "</VersionId></Object>"]
       key -> ["<Object><Key>", key, "</Key></Object>"]
     end)
@@ -232,6 +234,14 @@ defmodule ExAws.S3.Impl do
     body_binary = body |> IO.iodata_to_binary
 
     request(client, :post, bucket, "/?delete", body: body_binary, headers: %{"content-md5" => content_md5})
+    |> case do
+      {:ok, body} -> 
+        case tail == [] do
+          true -> {:ok, body}
+          false -> delete_multiple_objects(client, bucket, tail, opts)
+        end
+      response -> response
+    end
   end
 
   @response_params [:content_type, :content_language, :expires, :cache_control, :content_disposition, :content_encoding]
