@@ -32,7 +32,7 @@ defmodule ExAws.Mixfile do
       {:earmark, "~> 0.2.1", only: :dev},
       {:ex_doc, "~> 0.11.4", only: :dev},
       {:httpoison, "~> 0.8", optional: true},
-      {:poison, "~> 1.2", optional: true},
+      {:poison, "~> 1.2 or ~> 2.0", optional: true},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", optional: true},
       {:httpotion, "~> 2.0", optional: true},
       {:jsx, "~> 2.5", optional: true}
