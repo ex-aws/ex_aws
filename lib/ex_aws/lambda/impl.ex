@@ -102,7 +102,7 @@ defmodule ExAws.Lambda.Impl do
         [header | headers]
     end
     url = "/2015-03-31/functions/#{function_name}/invocations"
-    url = if qualifier != nil, do: url <> "?Qualifier=#{qualifier}", else: url
+    url = if qualifier, do: url <> "?Qualifier=#{qualifier}", else: url
     request(client, :invoke, payload, url, [], headers)
   end
 
