@@ -15,6 +15,7 @@ defmodule ExAws.Dynamo.Request do
   end
 
   def parse({:error, result}, _), do: {:error, result}
+  def parse({:ok, %{body: ""}}, config), do: {:ok, ""}
   def parse({:ok, %{body: body}}, config) do
     {:ok, config[:json_codec].decode!(body)}
   end
