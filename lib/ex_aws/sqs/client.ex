@@ -39,7 +39,7 @@ defmodule ExAws.SQS.Client do
     | :maximum_message_size
     | :message_retention_period
     | :approximate_number_of_messages
-    | :approximate_number_of_messags_not_visible
+    | :approximate_number_of_messages_not_visible
     | :created_timestamp
     | :last_modified_timestamp
     | :queue_arn
@@ -54,7 +54,7 @@ defmodule ExAws.SQS.Client do
     | {:maximum_message_size, 1024..262144}
     | {:message_retention_period, 60..1209600}
     | {:approximate_number_of_messages, binary}
-    | {:approximate_number_of_messags_not_visible, binary}
+    | {:approximate_number_of_messages_not_visible, binary}
     | {:created_timestamp, binary}
     | {:last_modified_timestamp, binary}
     | {:queue_arn, binary}
