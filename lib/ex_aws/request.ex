@@ -2,7 +2,9 @@ defmodule ExAws.Request do
   require Logger
   @max_attempts 10
 
-  @moduledoc false
+  @moduledoc """
+  Makes requests to AWS.
+  """
 
   @type http_status :: pos_integer
   @type success_content :: %{body: binary, headers: [{binary, binary}]}

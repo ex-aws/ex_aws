@@ -457,8 +457,7 @@ defmodule ExAws.S3.Impl do
         config = client.config
         url = url_to_sign(bucket, object, config, virtual_host)
         datetime = :calendar.universal_time
-        {:ok, ExAws.Auth.presigned_url(
-            http_method, url, client.service, datetime, client.config, expires_in)}
+        {:ok, ExAws.Auth.presigned_url(http_method, url, client.service, datetime, client.config, expires_in)}
     end
   end
 
