@@ -20,8 +20,11 @@ defmodule ExAws.Kinesis.Request do
     {:ok, config[:json_codec].decode!(body)}
   end
 
-  defp url(%{scheme: scheme, host: host}) do
-    [scheme, host, "/"]
+  defp url(%{scheme: scheme, host: host, port: port}) do
+    [scheme, host, port |> port, "/"]
     |> IO.iodata_to_binary
   end
+
+  defp port(80), do: ""
+  defp port(p),  do: ":#{p}"
 end
