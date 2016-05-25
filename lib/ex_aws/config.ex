@@ -43,7 +43,7 @@ defmodule ExAws.Config do
     new_config = config
     |> Enum.reduce(%{}, fn
       {:host, host}, config ->
-        Map.put(config, :host, host)
+        Map.put(config, :host, retrieve_runtime_value(host, client))
       {k, v}, config ->
         case retrieve_runtime_value(v, client) do
           %{} = result -> Map.merge(config, result)
