@@ -22,20 +22,20 @@ defmodule ExAws.Request do
       _   -> config[:json_codec].encode!(data)
     end
 
-    headers = ExAws.Auth.headers(http_method, url, service, config, headers, body)
     request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
   end
 
   def request_and_retry(_method, _url, _service, _config, _headers, _req_body, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
+    full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
     if config[:debug_requests] do
       Logger.debug("Request URL: #{inspect url}")
-      Logger.debug("Request HEADERS: #{inspect headers}")
+      Logger.debug("Request HEADERS: #{inspect full_headers}")
       Logger.debug("Request BODY: #{req_body}")
     end
 
-    case config[:http_client].request(method, url, req_body, headers) do
+    case config[:http_client].request(method, url, req_body, full_headers) do
       {:ok, response = %{status_code: status}} when status in 200..299 ->
         {:ok, response}
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
