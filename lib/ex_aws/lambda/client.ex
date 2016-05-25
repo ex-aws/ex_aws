@@ -128,7 +128,8 @@ defmodule ExAws.Lambda.Client do
   @doc "Invoke a lambda function"
   @type invoke_opts :: [
     {:invocation_type, :event | :request_response | :dry_run} |
-    {:log_type, :none | :tail}
+    {:log_type, :none | :tail} |
+    {:qualifier, String.t}
   ]
   defcallback invoke(function_name :: binary, payload :: %{}, client_context :: %{}) :: Request.response_t
   defcallback invoke(function_name :: binary, payload :: %{}, client_context :: %{}, opts :: invoke_opts) :: Request.response_t
