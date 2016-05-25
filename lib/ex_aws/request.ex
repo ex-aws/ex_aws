@@ -32,7 +32,7 @@ defmodule ExAws.Request do
     if config[:debug_requests] do
       Logger.debug("Request URL: #{inspect url}")
       Logger.debug("Request HEADERS: #{inspect full_headers}")
-      Logger.debug("Request BODY: #{req_body}")
+      Logger.debug("Request BODY: #{inspect req_body}")
     end
 
     case config[:http_client].request(method, url, req_body, full_headers) do
