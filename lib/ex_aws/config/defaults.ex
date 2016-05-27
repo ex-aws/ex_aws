@@ -46,13 +46,13 @@ defmodule ExAws.Config.Defaults do
       ],
       ec2: [
         scheme: "https://",
-        host: {"$region", "ec2.amazonaws.com"},
+        host: {"$region", "ec2.$region.amazonaws.com"},
         region: "us-east-1",
         port: 80
       ],      
       rds: [
         scheme: "https://",
-        host: {"$region", "rds.amazonaws.com"},
+        host: {"$region", "rds.$region.amazonaws.com"},
         region: "us-east-1",
         port: 80
       ]
