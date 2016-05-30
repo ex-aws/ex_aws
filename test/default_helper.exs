@@ -18,6 +18,12 @@ defmodule Test.S3 do
   def config_root, do: Application.get_all_env(:ex_aws)
 end
 
+defmodule Test.SNS do
+  use ExAws.SNS.Client
+
+  def config_root, do: Application.get_all_env(:ex_aws)
+end
+
 ## Other
 
 defmodule Test.JSONCodec do
