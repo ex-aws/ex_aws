@@ -1,7 +1,13 @@
 defmodule ExAws.Auth.Utils do
+  def uri_encode(url) do
+    URI.encode(url, &valid_path_char?/1)
+  end
+
   def valid_path_char?(?/), do: true
+  # Space character
+  def valid_path_char?(?\ ), do: false
   def valid_path_char?(c) do
-    !URI.char_reserved?(c)
+    URI.char_unescaped?(c) && !URI.char_reserved?(c)
   end
 
   def hash_sha256(data) do
@@ -26,6 +32,10 @@ defmodule ExAws.Auth.Utils do
     method
     |> Atom.to_string
     |> String.upcase
+  end
+
+  def date({date, _time}) do
+    date |> quasi_iso_format
   end
 
   def amz_date({date, time}) do

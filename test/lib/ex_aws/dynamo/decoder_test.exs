@@ -26,6 +26,11 @@ defmodule ExAws.Dynamo.DecoderTest do
     assert Decoder.decode(%{"N" => 23.1}) == 23.1
   end
 
+  test "Decoder nil works" do
+    assert Decoder.decode(%{"NULL" => "true"}) == nil
+    assert Decoder.decode(%{"NULL" => true}) == nil
+  end
+
   test "Decoder structs works properly" do
     user = %Test.User{email: "foo@bar.com", name: "Bob", age: 23, admin: false}
     assert user == user |> Encoder.encode |> Decoder.decode(as: Test.User)

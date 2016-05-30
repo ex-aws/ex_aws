@@ -11,6 +11,7 @@ A flexible easy to use set of clients AWS APIs.
 - Elixir protocols allow easy customization of Dynamo encoding / decoding.
 - `mix kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
 - Simple. ExAws aims to provide a clear and consistent elixir wrapping around AWS APIs, not abstract them away entirely. For every action in a given AWS API there is a corresponding function within the appropriate module. Higher level abstractions like the aforementioned streams are in addition to and not instead of basic API calls.
+- Erlang user? Easily configure erlang friendly module names like `ex_aws_s3` instead of `'Elixir.ExAws.S3'`
 
 ## Getting started
 
@@ -19,6 +20,7 @@ Add ex_aws to your mix.exs, along with your json parser and http client of choic
 - Dynamo: json
 - Kinesis: json
 - Lambda: json
+- SQS: xml
 - S3: xml
 
 If you wish to use instance roles to obtain AWS access keys you will need to add a JSON codec whether the particular API requires one or not.
@@ -26,9 +28,9 @@ If you wish to use instance roles to obtain AWS access keys you will need to add
 ```elixir
 def deps do
   [
-    ex_aws:    "~> 0.4.8",
-    poison:    "~> 1.2.0",
-    httpoison: "~> 0.7.0"
+    {:ex_aws, "~> 0.4.10"},
+    {:poison, "~> 1.2"},
+    {:httpoison, "~> 0.7"}
   ]
 end
 ```
@@ -94,6 +96,7 @@ Consult the relevant documentation for the API of interest.
 - Dynamo
 - Kinesis
 - Lambda
+- SQS
 - S3 (in progress)
 - Many more planned
 

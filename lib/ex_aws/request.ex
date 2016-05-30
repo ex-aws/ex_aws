@@ -2,10 +2,15 @@ defmodule ExAws.Request do
   require Logger
   @max_attempts 10
 
-  @moduledoc false
+  @moduledoc """
+  Makes requests to AWS.
+  """
 
-  @type response_t :: {:ok, %{body: binary, headers: [{binary, binary}] }}
-    | {:error, {:http_error, pos_integer, binary}}
+  @type http_status :: pos_integer
+  @type success_content :: %{body: binary, headers: [{binary, binary}]}
+  @type success_t :: {:ok, success_content}
+  @type error_t :: {:error, {:http_error, http_status, binary}}
+  @type response_t :: success_t | error_t
 
   def request(http_method, url, data, headers, client) do
     config = client.config
@@ -17,20 +22,20 @@ defmodule ExAws.Request do
       _   -> config[:json_codec].encode!(data)
     end
 
-    headers = ExAws.Auth.headers(http_method, url, service, config, headers, body)
     request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
   end
 
   def request_and_retry(_method, _url, _service, _config, _headers, _req_body, {:error, reason}), do: {:error, reason}
 
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
+    full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
     if config[:debug_requests] do
       Logger.debug("Request URL: #{inspect url}")
-      Logger.debug("Request HEADERS: #{inspect headers}")
-      Logger.debug("Request BODY: #{req_body}")
+      Logger.debug("Request HEADERS: #{inspect full_headers}")
+      Logger.debug("Request BODY: #{inspect req_body}")
     end
 
-    case config[:http_client].request(method, url, req_body, headers) do
+    case config[:http_client].request(method, url, req_body, full_headers) do
       {:ok, response = %{status_code: status}} when status in 200..299 ->
         {:ok, response}
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
@@ -73,9 +78,6 @@ defmodule ExAws.Request do
     {:error, {type, message}}
   end
 
-  def attempt_again?(_, {:http_error, _, _} = reason) do
-    {:error, reason}
-  end
   def attempt_again?(attempt, reason) when attempt >= @max_attempts do
     {:error, reason}
   end

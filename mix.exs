@@ -3,9 +3,10 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.4.8",
+     version: "0.4.18",
      elixir: "~> 1.0",
-     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
+     elixirc_paths: elixirc_paths(Mix.env),
+     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
      package: package,
@@ -15,9 +16,11 @@ defmodule ExAws.Mixfile do
 
   def application do
     [applications: [:logger, :crypto],
-     mod: {ExAws, []},
-     env: env]
+     mod: {ExAws, []}]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib",]
 
   defp deps do
     deps(:test_dev)
@@ -25,59 +28,22 @@ defmodule ExAws.Mixfile do
 
   defp deps(:test_dev) do
     [
-      {:sweet_xml, "~> 0.2.1", optional: true},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.7", only: :dev},
-      {:httpoison, "~> 0.7", optional: true},
-      {:poison, "~> 1.2.0", optional: true},
+      {:sweet_xml, "~> 0.5", optional: true},
+      {:earmark, "~> 0.2.1", only: :dev},
+      {:ex_doc, "~> 0.11.4", only: :dev},
+      {:httpoison, "~> 0.8", optional: true},
+      {:poison, "~> 1.2 or ~> 2.0", optional: true},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", optional: true},
-      {:httpotion, "~> 2.0.0", optional: true},
-      {:jsx, "~> 2.5.2", optional: true}
+      {:httpotion, "~> 2.0", optional: true},
+      {:jsx, "~> 2.5", optional: true}
     ]
   end
 
   defp package do
     [description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
      files: ["lib", "config", "mix.exs", "README*"],
-     contributors: ["Ben Wilson"],
+     maintainers: ["Ben Wilson"],
      licenses: ["MIT"],
      links: %{github: "https://github.com/CargoSense/ex_aws"}]
-  end
-
-  defp env do
-    [
-      access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
-      secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
-      http_client: ExAws.Request.HTTPoison,
-      json_codec: Poison,
-      kinesis: [
-        scheme: "https://",
-        host: "kinesis.us-east-1.amazonaws.com",
-        region: "us-east-1",
-        port: 80
-      ],
-      dynamodb: [
-        scheme: "https://",
-        host: "dynamodb.us-east-1.amazonaws.com",
-        region: "us-east-1",
-        port: 80
-      ],
-      lambda: [
-        host: "lambda.us-east-1.amazonaws.com",
-        scheme: "https://",
-        region: "us-east-1",
-        port: 80
-      ],
-      s3: [
-        scheme: "https://",
-        host: "s3.amazonaws.com",
-        region: "us-east-1"
-      ],
-      sns: [
-        host: "sns.us-east-1.amazonaws.com",
-        scheme: "https://",
-        region: "us-east-1"
-      ]
-    ]
   end
 end

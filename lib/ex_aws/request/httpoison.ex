@@ -27,11 +27,12 @@ defmodule ExAws.Request.HTTPoison do
   # HTTPoison it couldn't be set as an option to httpoison directly.
   @default_opts [
     recv_timeout: @default_timeout,
-    hackney: [recv_timeout: @default_timeout, pool: false]
+    hackney: [recv_timeout: @default_timeout]
   ]
 
   def request(method, url, body \\ "", headers \\ []) do
     opts = Application.get_env(:ex_aws, :httpoison_opts, @default_opts)
-    HTTPoison.request(method, url, body, headers, opts)
+    {status, resp} = HTTPoison.request(method, url, body, headers, opts)
+    {status, Map.from_struct(resp)}
   end
 end

@@ -46,6 +46,38 @@ defmodule ExAws.S3.Client do
   and then the configuration of a particular client is merged in and overrides the defaults.
   """
 
+  # Common general types
+  @type acl_opts :: [{:acl, canned_acl} | grant]
+  @type grant :: {:grant_read, grantee}
+    | {:grant_read_acp, grantee}
+    | {:grant_write_acp, grantee}
+    | {:grant_full_control, grantee}
+  @type canned_acl :: :private
+    | :public_read
+    | :public_read_write
+    | :authenticated_read
+    | :bucket_owner_read
+    | :bucket_owner_full_control
+  @type grantee :: [ {:email, binary}
+    | {:id, binary}
+    | {:uri, binary}
+  ]
+
+  @type customer_encryption_opts :: [
+    customer_algorithm: binary,
+    customer_key: binary,
+    customer_key_md5: binary]
+  @type encryption_opts :: binary
+    | [aws_kms_key_id: binary]
+    | customer_encryption_opts
+
+  @type presigned_url_opts :: [
+    expires_in: integer,
+    virtual_host: boolean
+  ]
+
+  @type amz_meta_opts :: [{atom, binary} | {binary, binary}, ...]
+
   ## Bucket functions
 
   # Delete
@@ -87,8 +119,8 @@ defmodule ExAws.S3.Client do
   defcallback list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
 
   @doc "Same as list_objects/1,2 but returns the result and raises on failure."
-  defcallback list_objects!(bucket :: binary) :: ExAws.Request.response_t
-  defcallback list_objects!(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
+  defcallback list_objects!(bucket :: binary) :: ExAws.Request.success_content
+  defcallback list_objects!(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.success_content
 
   @doc "Stream list of objects in bucket"
   defcallback stream_objects!(bucket :: binary) :: Enumerable.t
@@ -145,7 +177,7 @@ defmodule ExAws.S3.Client do
   defcallback put_bucket(bucket :: binary, region :: binary) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket bucket access control"
-  defcallback put_bucket_acl(bucket :: binary, grants :: %{}) :: ExAws.Request.response_t
+  defcallback put_bucket_acl(bucket :: binary, opts :: acl_opts) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket CORS policy"
   defcallback put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Request.response_t
@@ -168,8 +200,8 @@ defmodule ExAws.S3.Client do
   @doc "Update or create a bucket tagging configuration"
   defcallback put_bucket_tagging(bucket :: binary, tags :: %{}) :: ExAws.Request.response_t
 
-  @doc "Update or create a bucket requestpayment configuration"
-  defcallback put_bucket_requestpayment(bucket :: binary, payer :: :requester | :bucket_owner) :: ExAws.Request.response_t
+  @doc "Update or create a bucket requestPayment configuration"
+  defcallback put_bucket_request_payment(bucket :: binary, payer :: :requester | :bucket_owner) :: ExAws.Request.response_t
 
   @doc "Update or create a bucket versioning configuration"
   defcallback put_bucket_versioning(bucket :: binary, version_config :: binary) :: ExAws.Request.response_t
@@ -183,14 +215,16 @@ defmodule ExAws.S3.Client do
   defcallback delete_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
 
   @doc "Same as delete_object/2 but returns just the response or raises on error"
-  defcallback delete_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+  defcallback delete_object!(bucket :: binary, object :: binary) :: ExAws.Request.success_content
 
   @doc "Delete multiple objects within a bucket"
   defcallback delete_multiple_objects(
     bucket  :: binary,
     objects :: [binary | {binary, binary}, ...]):: ExAws.Request.response_t
+  defcallback delete_multiple_objects(
+    bucket  :: binary,
+    objects :: [binary | {binary, binary}, ...], opts :: [quiet: true]):: ExAws.Request.response_t
 
-  @type customer_encryption_opts :: [customer_algorithm: binary, customer_key: binary, customer_key_md5: binary]
   @type get_object_response_opts :: [
     {:content_language, binary}
     | {:expires, binary}
@@ -200,20 +234,15 @@ defmodule ExAws.S3.Client do
   ]
   @type get_object_opts :: [
     {:response, get_object_response_opts}
-    | {:encryption, customer_encryption_opts}
-    | {:range, binary}
-    | {:if_modified_since, binary}
-    | {:if_unmodified_since, binary}
-    | {:if_match, binary}
-    | {:if_none_match, binary}
+    | head_object_opts
   ]
   @doc "Get an object from a bucket"
   defcallback get_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
   defcallback get_object(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
 
   @doc "Same as get_object/2,3 but returns just the response or raises on error"
-  defcallback get_object!(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback get_object!(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
+  defcallback get_object!(bucket :: binary, object :: binary) :: ExAws.Request.success_content
+  defcallback get_object!(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.success_content
 
   @doc "Get an object's access control policy"
   defcallback get_object_acl(bucket :: binary, object :: binary) :: ExAws.Request.response_t
@@ -222,9 +251,18 @@ defmodule ExAws.S3.Client do
   @doc "Get a torrent for a bucket"
   defcallback get_object_torrent(bucket :: binary, object :: binary) :: ExAws.Request.response_t
 
+  @type head_object_opts :: [
+    {:encryption, customer_encryption_opts}
+    | {:range, binary}
+    | {:if_modified_since, binary}
+    | {:if_unmodified_since, binary}
+    | {:if_match, binary}
+    | {:if_none_match, binary}
+  ]
+
   @doc "Determine of an object exists"
   defcallback head_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback head_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback head_object(bucket :: binary, object :: binary, opts :: head_object_opts) :: ExAws.Request.response_t
 
   @doc "Determine the CORS configuration for an object"
   defcallback options_object(
@@ -239,15 +277,6 @@ defmodule ExAws.S3.Client do
     request_method  :: atom,
     request_headers :: [binary, ...]) :: ExAws.Request.response_t
 
-  @doc """
-  Create an object within a bucket.
-
-  Generally speaking put_object ought to be used. AWS POST object exists to
-  support the AWS UI.
-  """
-  defcallback post_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback post_object(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
-
   @doc "Restore an object to a particular version FIXME"
   defcallback post_object_restore(
     bucket         :: binary,
@@ -255,43 +284,55 @@ defmodule ExAws.S3.Client do
     version_id     :: binary,
     number_of_days :: pos_integer) :: ExAws.Request.response_t
 
-  @type canned_acl :: :private
-    | :public_read
-    | :public_read_write
-    | :authenticated_read
-    | :bucket_owner_read
-    | :bucket_owner_full_control
-  @type grant :: [ {:email, binary}
-    | {:id, binary}
-    | {:uri, binary}
-  ]
-  @type encryption_opts :: binary | [aws_kms_key_id: binary] | customer_encryption_opts
-  @type put_object_opts :: [ {:cache_control, binary}
+  @type put_object_opts :: [
+    {:cache_control, binary}
     | {:content_disposition, binary}
     | {:content_encoding, binary}
     | {:content_length, binary}
     | {:content_type, binary}
     | {:expect, binary}
     | {:expires, binary}
-    | {:storage_class, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
     | {:website_redirect_location, binary}
-    | {:grant_read, grant}
-    | {:grant_read_acp, grant}
-    | {:grant_write_acp, grant}
-    | {:grant_full_control, grant}
-    | {:acl, canned_acl}
     | {:encryption, encryption_opts}
+    | {:meta, amz_meta_opts}
+    | acl_opts
   ]
   @doc "Create an object within a bucket"
   defcallback put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
   defcallback put_object(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
 
   @doc "Same as put_object/2 but returns just the response or raises on error"
-  defcallback put_object!(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
-  defcallback put_object!(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.success_content
+  defcallback put_object!(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.success_content
 
   @doc "Create or update an object's access control FIXME"
-  defcallback put_object_acl(bucket :: binary, object :: binary, acl :: %{}) :: ExAws.Request.response_t
+  defcallback put_object_acl(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Request.response_t
+
+  @doc "Same as put_object_acl/3 but raise on error"
+  defcallback put_object_acl!(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Request.success_content
+
+  @type pub_object_copy_opts :: [
+    {:metadata_directive, :COPY | :REPLACE}
+    | {:copy_source_if_modified_since, binary}
+    | {:copy_source_if_unmodified_since, binary}
+    | {:copy_source_if_match, binary}
+    | {:copy_source_if_none_match, binary}
+    | {:website_redirect_location, binary}
+    | {:destination_encryption, encryption_opts}
+    | {:source_encryption, customer_encryption_opts}
+    | {:cache_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+    | {:content_length, binary}
+    | {:content_type, binary}
+    | {:expect, binary}
+    | {:expires, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
+    | {:website_redirect_location, binary}
+    | {:meta, amz_meta_opts}
+    | acl_opts
+  ]
 
   @doc "Copy an object"
   defcallback put_object_copy(
@@ -304,18 +345,60 @@ defmodule ExAws.S3.Client do
     dest_object :: binary,
     src_bucket  :: binary,
     src_object  :: binary,
-    opts        :: %{}) :: ExAws.Request.response_t
+    opts        :: pub_object_copy_opts) :: ExAws.Request.response_t
+
+  @doc "Same as put_object_copy but raise on error"
+  defcallback put_object_copy!(
+    dest_bucket :: binary,
+    dest_object :: binary,
+    src_bucket  :: binary,
+    src_object  :: binary) :: ExAws.Request.success_content
+  defcallback put_object_copy!(
+    dest_bucket :: binary,
+    dest_object :: binary,
+    src_bucket  :: binary,
+    src_object  :: binary,
+    opts        :: pub_object_copy_opts) :: ExAws.Request.success_content
+
+  @type initiate_multipart_upload_opts :: [ {:cache_control, binary}
+    | {:content_disposition, binary}
+    | {:content_encoding, binary}
+    | {:content_type, binary}
+    | {:expires, binary}
+    | {:storage_class, :standard | :redunced_redundancy}
+    | {:website_redirect_location, binary}
+    | {:encryption, encryption_opts}
+    | acl_opts
+  ]
 
   @doc "Initiate a multipart upload"
   defcallback initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  defcallback initiate_multipart_upload(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  defcallback initiate_multipart_upload(bucket :: binary, object :: binary, opts :: initiate_multipart_upload_opts) :: ExAws.Request.response_t
 
   @doc "Upload a part for a multipart upload"
   defcallback upload_part(
     bucket      :: binary,
     object      :: binary,
     upload_id   :: binary,
-    part_number :: pos_integer) :: ExAws.Request.response_t
+    part_number :: pos_integer,
+    body        :: binary) :: ExAws.Request.response_t
+  defcallback upload_part(
+    bucket      :: binary,
+    object      :: binary,
+    upload_id   :: binary,
+    part_number :: pos_integer,
+    body        :: binary,
+    opts :: [encryption_opts | {:expect, binary}]) :: ExAws.Request.response_t
+
+  @type upload_part_copy_opts :: [
+    {:copy_source_range, Range.t}
+    | {:copy_source_if_modified_since, binary}
+    | {:copy_source_if_unmodified_since, binary}
+    | {:copy_source_if_match, binary}
+    | {:copy_source_if_none_match, binary}
+    | {:destination_encryption, encryption_opts}
+    | {:source_encryption, customer_encryption_opts}
+  ]
 
   @doc "Upload a part for a multipart copy"
   defcallback upload_part_copy(
@@ -328,14 +411,14 @@ defmodule ExAws.S3.Client do
     dest_object :: binary,
     src_bucket  :: binary,
     src_object  :: binary,
-    opts        :: %{}) :: ExAws.Request.response_t
+    opts        :: upload_part_copy_opts) :: ExAws.Request.response_t
 
   @doc "Complete a multipart upload"
   defcallback complete_multipart_upload(
     bucket    :: binary,
     object    :: binary,
     upload_id :: binary,
-    parts     :: %{}) :: ExAws.Request.response_t
+    parts     :: [{binary | pos_integer, binary}, ...]) :: ExAws.Request.response_t
 
   @doc "Abort a multipart upload"
   defcallback abort_multipart_upload(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
@@ -343,6 +426,14 @@ defmodule ExAws.S3.Client do
   @doc "List the parts of a multipart upload"
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
   defcallback list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+
+  @doc """
+  Generates a pre-signed URL for this object.
+
+  When option param :virtual_host is `true`, the {#bucket} name will be used as
+  the hostname. This will cause the returned URL to be 'http' and not 'https'.
+  """
+  defcallback presigned_url(http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: {:ok, binary} | {:error, binary}
 
   @doc """
   Enables custom request handling.

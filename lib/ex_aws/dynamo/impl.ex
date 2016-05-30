@@ -261,10 +261,10 @@ defmodule ExAws.Dynamo.Impl do
   ################
 
   defp add_upcased_opt(data, opts, key) do
-    case Map.get(opts, key) do
-      nil -> data
-      value ->
-        Map.put(data, key, value |> upcase)
+    case Map.fetch(opts, key) do
+      :error     -> data
+      {:ok, nil} -> data
+      {:ok, v}   -> Map.put(data, key, v |> upcase)
     end
   end
 

@@ -7,7 +7,10 @@ defmodule ExAws.Config do
   # and then merges in the common config from the ex_aws config root,
   # and then finally any config specified for the particular service
 
-  @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests]
+  @common_config [
+    :http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests,
+    :region, :security_token
+  ]
 
   def build(client, opts \\ []) do
     config = client
@@ -16,13 +19,14 @@ defmodule ExAws.Config do
 
     %{client | config: config}
     |> retrieve_runtime_config
+    |> parse_host_for_region
   end
 
   def get(%{__struct__: client_module, service: service}) do
     config_root = client_module.config_root
     unless config_root, do: raise "A valid configuration root is required in your #{service} client"
 
-    defaults = Application.get_all_env(:ex_aws)
+    defaults = ExAws.Config.Defaults.get
     config   = config_root |> Keyword.get(service, [])
     common   = defaults
     |> Keyword.merge(config_root)
@@ -37,11 +41,14 @@ defmodule ExAws.Config do
 
   def retrieve_runtime_config(%{config: config} = client) do
     new_config = config
-    |> Enum.reduce(%{}, fn {k, v}, config ->
-      case retrieve_runtime_value(v, client) do
-        %{} = result -> Map.merge(config, result)
-        value -> Map.put(config, k, value)
-      end
+    |> Enum.reduce(%{}, fn
+      {:host, host}, config ->
+        Map.put(config, :host, retrieve_runtime_value(host, client))
+      {k, v}, config ->
+        case retrieve_runtime_value(v, client) do
+          %{} = result -> Map.merge(config, result)
+          value -> Map.put(config, k, value)
+        end
     end)
 
     %{client | config: new_config}
@@ -61,5 +68,16 @@ defmodule ExAws.Config do
     |> Enum.find(&(&1))
   end
   def retrieve_runtime_value(value, _), do: value
+
+  def parse_host_for_region(%{config: %{host: {stub, host}, region: region} = config} = client) do
+    %{client | config: Map.put(config, :host, String.replace(host, stub, region))}
+  end
+  def parse_host_for_region(%{config: %{host: map, region: region} = config} = client) when is_map(map) do
+    case Map.fetch(map, region) do
+      {:ok, host} -> %{client | config: Map.put(config, :host, host)}
+      :error      -> "A host for region #{region} was not found in host map #{inspect(map)}"
+    end
+  end
+  def parse_host_for_region(client), do: client
 
 end

@@ -21,7 +21,8 @@ Running the test suite for ex_aws requires a few things:
               "kinesis:ListStreams",
               "lambda:ListFunctions",
               "s3:ListAllMyBuckets",
-              "sns:ListTopics"
+              "sns:ListTopics",
+              "sqs:ListQueues",
           ],
           "Resource": "*"
       }

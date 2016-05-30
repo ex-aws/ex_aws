@@ -84,13 +84,14 @@ defmodule ExAws.Lambda.Impl do
   end
 
   def invoke(client, function_name, payload, client_context, opts \\ []) do
-    opts = Enum.into(opts, %{})
+    {qualifier, opts} = Map.pop(Enum.into(opts, %{}), :qualifier)
 
     headers = [invocation_type: "X-Amz-Invocation-Type", log_type: "X-Amz-Log-Type"]
     |> Enum.reduce([], fn({opt, header}, headers) ->
-      case Map.get(opts, opt) do
-        nil -> headers
-        value -> [{header, value} |headers]
+      case Map.fetch(opts, opt) do
+        :error       -> headers
+        {:ok, nil}   -> headers
+        {:ok, value} -> [{header, value} |headers]
       end
     end)
 
@@ -100,7 +101,9 @@ defmodule ExAws.Lambda.Impl do
         header = {"X-Amz-Client-Context", context |> client.config[:json_codec].encode! |> Base.encode64}
         [header | headers]
     end
-    request(client, :invoke, payload, "/2015-03-31/functions/#{function_name}/invocations", [], headers)
+    url = "/2015-03-31/functions/#{function_name}/invocations"
+    url = if qualifier, do: url <> "?Qualifier=#{qualifier}", else: url
+    request(client, :invoke, payload, url, [], headers)
   end
 
   def invoke_async(client, function_name, args) do
