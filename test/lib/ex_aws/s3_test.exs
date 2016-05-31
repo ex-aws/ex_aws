@@ -5,7 +5,7 @@ defmodule Test.Dummy.S3 do
 
   def request(_client, _http_method, bucket, path, data \\ []) do
     data
-    |> Enum.into(%{})
+    |> Map.new
     |> Map.put(:bucket, bucket)
     |> Map.put(:path, path)
   end

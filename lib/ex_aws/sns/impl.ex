@@ -11,7 +11,7 @@ defmodule ExAws.SNS.Impl do
 
   def list_topics(client, opts \\ []) do
     opts = opts
-    |> Enum.into(%{})
+    |> Map.new
     |> camelize_keys
 
     request(client, :list_topics, opts)
@@ -38,7 +38,7 @@ defmodule ExAws.SNS.Impl do
   end
 
   def publish(client, message, opts) do
-    opts = opts |> Enum.into(%{})
+    opts = opts |> Map.new
 
     message_attrs = opts
     |> Map.get(:message_attributes, [])

@@ -5,13 +5,13 @@ defmodule Test.Dummy.SQS do
 
   def request(_client, "", action, params) do
     params
-    |> Enum.into(%{})
+    |> Map.new
     |> Map.put("Action", action)
   end
 
   def request(_client, queue_name, action, params) do
     params
-    |> Enum.into(%{})
+    |> Map.new
     |> Map.put("QueueName", queue_name)
     |> Map.put("Action", action)
   end

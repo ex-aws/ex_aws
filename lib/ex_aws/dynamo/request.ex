@@ -3,20 +3,14 @@ defmodule ExAws.Dynamo.Request do
 
   @type response_t :: %{} | ExAws.Request.error_t
 
-  def request(client, action, data) do
-    {operation, http_method} = ExAws.Dynamo.Impl |> ExAws.Actions.get(action)
-    headers = [
-      {"x-amz-target", operation},
-      {"content-type", "application/x-amz-json-1.0"},
-      {"x-amz-content-sha256", ""}
-    ]
-    ExAws.Request.request(http_method, client.config |> url, data, headers, client)
-    |> parse(client.config)
+  def request(operation, config) do
+    ExAws.Request.request(operation.http_method, config |> url, operation.data, operation.headers, config, operation.service)
+    |> parse(config)
   end
 
   def parse({:error, result}, _), do: {:error, result}
   def parse({:ok, %{body: body}}, config) do
-    {:ok, config[:json_codec].decode!(body)}
+    {:ok, config.json_codec.decode!(body)}
   end
 
   defp url(%{scheme: scheme, host: host, port: port}) do

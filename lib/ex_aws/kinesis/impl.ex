@@ -120,7 +120,7 @@ defmodule ExAws.Kinesis.Impl do
 
   def get_shard_iterator(client, stream_name, shard_id, shard_iterator_type, opts \\ []) do
     data = opts
-    |> Enum.into(%{})
+    |> Map.new
     |> camelize_keys
     |> Map.merge(%{
       "StreamName" => stream_name,
@@ -155,13 +155,13 @@ defmodule ExAws.Kinesis.Impl do
   ######################
 
   def add_tags_to_stream(client, stream_name, tags) do
-    data = %{"StreamName" => stream_name, "Tags" => tags |> Enum.into(%{})}
+    data = %{"StreamName" => stream_name, "Tags" => tags |> Map.new}
     request(client, :add_tags_to_stream, data)
   end
 
   def list_tags_for_stream(client, stream_name, opts \\ []) do
     data = opts
-    |> Enum.into(%{})
+    |> Map.new
     |> camelize_keys
     |> Map.merge(%{"StreamName" => stream_name})
 

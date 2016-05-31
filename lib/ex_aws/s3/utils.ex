@@ -6,7 +6,7 @@ defmodule ExAws.S3.Utils do
     :expect, :expires]
   @amz_headers [:storage_class, :website_redirect_location]
   def put_object_headers(opts) do
-    opts = opts |> Enum.into(%{})
+    opts = opts |> Map.new
 
     regular_headers = opts
     |> format_and_take(@headers)
@@ -56,7 +56,7 @@ defmodule ExAws.S3.Utils do
 
   def format_and_take(opts, param_list) do
     opts
-    |> Enum.into(%{})
+    |> Map.new
     |> format_and_take(param_list)
   end
 
@@ -118,7 +118,7 @@ defmodule ExAws.S3.Utils do
   def namespace(list, value) do
     list
     |> Enum.map(fn {k ,v} -> {"#{value}-#{k}", v} end)
-    |> Enum.into(%{})
+    |> Map.new
   end
 
   def build_encryption_headers("AES256") do

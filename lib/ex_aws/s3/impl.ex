@@ -122,7 +122,7 @@ defmodule ExAws.S3.Impl do
 
   def put_bucket(client, bucket, region, opts \\ []) do
     headers = opts
-    |> Enum.into(%{})
+    |> Map.new
     |> format_acl_headers
 
     body = """
@@ -202,7 +202,7 @@ defmodule ExAws.S3.Impl do
   ###########
 
   def delete_object(client, bucket, object, opts \\ []) do
-    request(client, :delete, bucket, object, headers: opts |> Enum.into(%{}))
+    request(client, :delete, bucket, object, headers: opts |> Map.new)
   end
   def delete_object!(client, bucket, object, opts \\ []) do
     {:ok, resp} = delete_object(client, bucket, object, opts)
@@ -237,7 +237,7 @@ defmodule ExAws.S3.Impl do
   @response_params [:content_type, :content_language, :expires, :cache_control, :content_disposition, :content_encoding]
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def get_object(client, bucket, object, opts \\ []) do
-    opts = opts |> Enum.into(%{})
+    opts = opts |> Map.new
 
     response_opts = opts
     |> Map.get(:response, %{})
@@ -261,7 +261,7 @@ defmodule ExAws.S3.Impl do
   end
 
   def get_object_acl(client, bucket, object, opts \\ []) do
-    request(client, :get, bucket, object, resource: "acl", headers: opts |> Enum.into(%{}))
+    request(client, :get, bucket, object, resource: "acl", headers: opts |> Map.new)
   end
 
   def get_object_torrent(client, bucket, object) do
@@ -270,7 +270,7 @@ defmodule ExAws.S3.Impl do
 
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def head_object(client, bucket, object, opts \\ []) do
-    opts = opts |> Enum.into(%{})
+    opts = opts |> Map.new
 
     headers = opts
     |> format_and_take(@request_headers)
@@ -320,7 +320,7 @@ defmodule ExAws.S3.Impl do
   end
 
   def put_object_acl(client, bucket, object, acl) do
-    headers = acl |> Enum.into(%{}) |> format_acl_headers
+    headers = acl |> Map.new |> format_acl_headers
     request(client, :put, bucket, object, headers: headers, resource: "acl")
   end
 
@@ -338,7 +338,7 @@ defmodule ExAws.S3.Impl do
     storage_class
     website_redirect_location)a
   def put_object_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
-    opts = opts |> Enum.into(%{})
+    opts = opts |> Map.new
 
     amz_headers = opts
     |> format_and_take(@amz_headers)
@@ -389,7 +389,7 @@ defmodule ExAws.S3.Impl do
     copy_source_if_match
     copy_source_if_none_match)a
   def upload_part_copy(client, dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
-    opts = opts |> Enum.into(%{})
+    opts = opts |> Map.new
 
     source_encryption = opts
     |> Map.get(:source_encryption, %{})
@@ -440,7 +440,7 @@ defmodule ExAws.S3.Impl do
 
   def list_parts(client, bucket, object, upload_id, opts \\ []) do
     params = opts
-    |> Enum.into(%{})
+    |> Map.new
     |> Map.merge(%{"uploadId" => upload_id})
 
     request(client, :get, bucket, object, params: params)

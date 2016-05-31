@@ -25,7 +25,7 @@ defmodule ExAws.Utils do
   def camelize_keys(opts, depth) do
     try do
       opts
-      |> Enum.into(%{})
+      |> Map.new
       |> camelize_keys(depth)
     rescue
       [Protocol.UndefinedError, ArgumentError] -> opts

@@ -146,7 +146,7 @@ defmodule ExAws.Lambda.Impl do
 
   defp normalize_opts(opts) do
     opts
-    |> Enum.into(%{})
+    |> Map.new
     |> camelize_keys
   end
 

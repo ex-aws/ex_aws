@@ -3,9 +3,10 @@ defmodule ExAws.Dynamo.Lazy do
   ## Implimentation of the lazy functions surfaced by ExAws.Dynamo.Client
 
   @doc "Generates a scan stream"
-  def stream_scan(client, table, opts \\ []) do
+  def stream_scan(table, opts, config) do
     request_fun = fn fun_opts ->
-      ExAws.Dynamo.Impl.scan(client, table, Keyword.merge(opts, fun_opts))
+      ExAws.Dynamo.scan(table, Keyword.merge(opts, fun_opts))
+      |> ExAws.request
     end
 
     build_request_stream(request_fun)
