@@ -657,8 +657,10 @@ defmodule ExAws.Dynamo do
 
     ExAws.Operation.JSON.new(:dynamodb, %{
       data: data,
-      target: "#{@namespace}.#{operation}",
-      headers: [{"content-type", "application/x-amz-json-1.0"}]
+      headers: [
+        {"x-amz-target", "#{@namespace}.#{operation}"},
+        {"content-type", "application/x-amz-json-1.0"},
+      ]
     } |> Map.merge(opts))
   end
 

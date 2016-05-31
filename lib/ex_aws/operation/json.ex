@@ -1,11 +1,19 @@
 defmodule ExAws.Operation.JSON do
+
+  @moduledoc """
+  Datastructure representing an operation on a JSON based AWS service
+
+  These include:
+  - DynamoDB
+  - Kinesis
+  """
+
   defstruct [
     stream_builder: nil,
     http_method: :post,
     path: "/",
     data: %{},
     headers: [],
-    target: nil,
     service: nil,
   ]
 
@@ -21,11 +29,10 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
 
   def perform(operation, config) do
     headers = [
-      {"x-amz-target", operation.target},
       {"x-amz-content-sha256", ""} | operation.headers
     ]
 
-    ExAws.Request.request(operation.http_method, config |> url, operation.data, headers, config, operation.service)
+    ExAws.Request.request(operation.http_method, config |> url(operation.path), operation.data, headers, config, operation.service)
     |> parse(config)
   end
 
@@ -44,8 +51,8 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
     {:ok, config[:json_codec].decode!(body)}
   end
 
-  defp url(%{scheme: scheme, host: host, port: port}) do
-    [scheme, host, port |> port, "/"]
+  defp url(%{scheme: scheme, host: host, port: port}, path) do
+    [scheme, host, port |> port, path]
     |> IO.iodata_to_binary
   end
 

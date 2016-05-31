@@ -271,8 +271,10 @@ defmodule ExAws.Kinesis do
 
     ExAws.Operation.JSON.new(:kinesis, %{
       data: data,
-      target: "#{@namespace}.#{operation}",
-      headers: [{"content-type", "application/x-amz-json-1.1"}]
+      headers: [
+        {"x-amz-target", "#{@namespace}.#{operation}"},
+        {"content-type", "application/x-amz-json-1.1"}
+      ]
     } |> Map.merge(opts))
   end
 
