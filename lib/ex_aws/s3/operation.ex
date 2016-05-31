@@ -1,16 +1,34 @@
-defmodule ExAws.S3.Request do
+defmodule ExAws.S3.Operation do
+  defstruct [
+    stream_builder: nil,
+    bucket: "",
+    path: "/",
+    http_method: nil,
+    body: "",
+    resource: "",
+    params: %{},
+    headers: %{},
+    service: :s3
+  ]
+end
+
+defimpl ExAws.Operation, for: ExAws.S3.Operation do
   @moduledoc false
   # S3 specific request logic.
 
-  def request(client, http_method, bucket, path, data \\ []) do
-    body     = data |> Keyword.get(:body, "")
-    resource = data |> Keyword.get(:resource, "")
-    query    = data |> Keyword.get(:params, %{}) |> URI.encode_query
-    headers  = data |> Keyword.get(:headers, %{})
+  def perform(operation, config) do
+    bucket   = operation.bucket
+    body     = operation.body
+    resource = operation.resource
+    query    = operation.params |> URI.encode_query
+    headers  = operation.headers
+    path     = operation.path
+    http_method = operation.http_method
 
-    url = client.config
-    |> url(bucket, path)
-    |> add_query(resource, query)
+    url =
+      config
+      |> url(bucket, path)
+      |> add_query(resource, query)
 
     hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
 
@@ -19,11 +37,11 @@ defmodule ExAws.S3.Request do
     |> Map.put("content-length", byte_size(body))
     |> Map.to_list
 
-    ExAws.Request.request(http_method, url, body, headers, client)
+    ExAws.Request.request(http_method, url, body, headers, config, operation.service)
   end
 
   def url(%{scheme: scheme, host: host}, bucket, path) do
-    [ scheme, host_and_bucket(host, bucket), ensure_slash(path) ]
+    [ scheme, host_and_bucket(host, bucket), ExAws.S3.Utils.ensure_slash(path) ]
     |> IO.iodata_to_binary
   end
 
@@ -31,9 +49,6 @@ defmodule ExAws.S3.Request do
   def add_query(url, "", query),       do: url <> "?" <> query
   def add_query(url, resource, ""),    do: url <> "?" <> resource
   def add_query(url, resource, query), do: url <> "?" <> resource <> "&" <> query
-
-  def ensure_slash("/" <> _ = path), do: path
-  def ensure_slash(path), do:  "/" <> path
 
   defp host_and_bucket(host, ""), do: host
   defp host_and_bucket(host, bucket) do

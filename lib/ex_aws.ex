@@ -2,29 +2,62 @@ defmodule ExAws do
   @moduledoc File.read!("#{__DIR__}/../README.md")
   use Application
 
-  def request(%ExAws.Operation{request_module: request_module} = op, config_overrides \\ []) do
-    request_module.request(op, ExAws.Config.build(op, config_overrides))
+  @doc """
+  Perform an AWS request
+
+  First build an operation from one of the services, and then pass it to this
+  function to perform it.
+
+  This function takes an optional second parameter of configuration overrides.
+  This is useful if you want to have certain configuration changed on a per
+  request basis.
+
+  ## Examples
+
+  ```
+  ExAws.S3.list_buckets |> ExAws.request
+
+  ExAws.S3.list_buckets |> ExAws.request(region: "eu-west-1")
+
+  ExAws.Dynamo.get_object("users", "foo@bar.com") |> ExAws.request
+  ```
+
+  """
+  @spec request(ExAws.Operation.t) :: term
+  @spec request(ExAws.Operation.t, Keyword.t) :: {:ok, term} | {:error, term}
+  def request(op, config_overrides \\ []) do
+    ExAws.Operation.perform(op, ExAws.Config.build(op.service, config_overrides))
   end
 
+  @doc """
+  Build a stream
+  """
+  @spec stream!(ExAws.Operation.t) :: Enumerable.t
+  @spec stream!(ExAws.Operation.t, Keyword.t) :: Enumerable.t
+  def stream!(op, config_overrides \\ []) do
+    ExAws.Operation.stream(op, ExAws.Config.build(op.service, config_overrides))
+  end
+
+  @doc """
+  Perform an AWS request, raise if it fails.
+
+  Same as `request/1,2` except it will either return the successful response from
+  AWS or raise an exception.
+  """
+  @spec request!(ExAws.Operation.t) :: term | no_return
+  @spec request!(ExAws.Operation.t, Keyword.t) :: term | no_return
   def request!(op, config_overrides \\ []) do
     case request(op, config_overrides) do
-      {:ok, result} -> result
-      other -> raise ExAws.Error, """
-      ExAws Request Error!
+      {:ok, result} ->
+        result
 
-      #{inspect other}
-      """
+      error ->
+        raise ExAws.Error, """
+          ExAws Request Error!
+
+          #{inspect error}
+          """
     end
-  end
-
-  def stream!(op, config_overrides \\ [])
-  def stream!(%ExAws.Operation{stream_builder: nil}, _) do
-    raise ArgumentError, """
-    This operation does not support streaming!
-    """
-  end
-  def stream!(%ExAws.Operation{stream_builder: stream_builder}, config_overrides) do
-    stream_builder.(config_overrides)
   end
 
   @doc false

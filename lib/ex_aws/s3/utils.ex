@@ -2,6 +2,9 @@ defmodule ExAws.S3.Utils do
   ## Formatting and helpers
   @moduledoc false
 
+  def ensure_slash("/" <> _ = path), do: path
+  def ensure_slash(path), do:  "/" <> path
+
   @headers [:cache_control, :content_disposition, :content_encoding, :content_length, :content_type,
     :expect, :expires]
   @amz_headers [:storage_class, :website_redirect_location]

@@ -12,10 +12,10 @@ defmodule ExAws.Config do
     :region, :security_token
   ]
 
-  def build(operation, opts \\ []) do
+  def build(service, opts \\ []) do
     overrides = Map.new(opts)
 
-    operation
+    service
     |> ExAws.Config.get(overrides)
     |> retrieve_runtime_config
     |> parse_host_for_region
@@ -29,10 +29,10 @@ defmodule ExAws.Config do
   3) Keys set on the individual service e.g `config :ex_aws, :s3` are merged in
   4) Finally, any configuration overrides are merged in
   """
-  def get(op, overrides) do
-    defaults = ExAws.Config.Defaults.get(op.service)
+  def get(service, overrides) do
+    defaults = ExAws.Config.Defaults.get(service)
     common_config = Application.get_all_env(:ex_aws) |> Map.new |> Map.take(@common_config)
-    service_config = Application.get_env(:ex_aws, op.service) |> Map.new
+    service_config = Application.get_env(:ex_aws, service) |> Map.new
 
     defaults
     |> Map.merge(common_config)

@@ -6,7 +6,7 @@ defmodule ExAws.Dynamo.Lazy do
   def stream_scan(table, opts, config) do
     request_fun = fn fun_opts ->
       ExAws.Dynamo.scan(table, Keyword.merge(opts, fun_opts))
-      |> ExAws.request
+      |> ExAws.request!(config)
     end
 
     build_request_stream(request_fun)
@@ -18,19 +18,20 @@ defmodule ExAws.Dynamo.Lazy do
 
       {fun, args} -> case fun.(args) do
 
-        {:ok, %{"Items" => items, "LastEvaluatedKey" => key}} ->
+        %{"Items" => items, "LastEvaluatedKey" => key} ->
           {items, {fun, [exclusive_start_key: key]}}
 
-        {:ok, %{"Items" => items}} ->
+        %{"Items" => items} ->
           {items, :quit}
       end
     end, &pass/1)
   end
 
   @doc "Generates a query stream"
-  def stream_query(client, table, opts \\ []) do
+  def stream_query(table, opts, config) do
     request_fun = fn fun_opts ->
-      ExAws.Dynamo.Impl.query(client, table, Keyword.merge(opts, fun_opts))
+      ExAws.Dynamo.query(table, Keyword.merge(opts, fun_opts))
+      |> ExAws.request!(config)
     end
 
     build_request_stream(request_fun)

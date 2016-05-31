@@ -1,14 +1,5 @@
-defmodule ExAws.Operation do
-  defstruct [
-    request_module: nil,
-    post_processor: nil,
-    stream_builder: nil,
-    http_method: nil,
-    path: "/",
-    data: "",
-    headers: [],
-    service: nil
-  ]
+defprotocol ExAws.Operation do
+  def perform(operation, config)
 
-  @type t :: %__MODULE__{}
+  def stream(operation, config)
 end
