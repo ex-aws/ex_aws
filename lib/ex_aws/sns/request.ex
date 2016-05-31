@@ -6,7 +6,7 @@ defmodule ExAws.SNS.Request do
 
   def request(client, action, params) do
     query = params
-    |> Map.put("Action", Mix.Utils.camelize(Atom.to_string(action)))
+    |> Map.put("Action", ExAws.Utils.camelize(Atom.to_string(action)))
     |> URI.encode_query
     |> String.replace("+", "%20")
     |> String.replace("%7E", "~")

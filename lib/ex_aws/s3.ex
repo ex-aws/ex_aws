@@ -760,8 +760,16 @@ defmodule ExAws.S3 do
     end
   end
 
+  defp url_to_sign(bucket, object, config, virtual_host) do
+    object = ensure_slash(object)
+    case virtual_host do
+      true -> "#{config[:scheme]}#{bucket}.#{config[:host]}#{object}"
+      false -> "#{config[:scheme]}#{config[:host]}/#{bucket}#{object}"
+    end
+  end
+
   defp request(http_method, bucket, path, data \\ [], opts \\ %{}) do
-    %__MODULE__.Operation{
+    %ExAws.Operation.S3{
       http_method: http_method,
       bucket: bucket,
       path: path,
@@ -770,14 +778,6 @@ defmodule ExAws.S3 do
       resource: data[:resource] || "",
       params: data[:params] || %{}
     } |> struct(opts)
-  end
-
-  defp url_to_sign(bucket, object, config, virtual_host) do
-    object = ensure_slash(object)
-    case virtual_host do
-      true -> "#{config[:scheme]}#{bucket}.#{config[:host]}#{object}"
-      false -> "#{config[:scheme]}#{config[:host]}/#{bucket}#{object}"
-    end
   end
 
 end

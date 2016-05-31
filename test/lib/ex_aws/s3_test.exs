@@ -1,14 +1,14 @@
 defmodule ExAws.S3Test do
   use ExUnit.Case, async: true
-  alias ExAws.S3
+  alias ExAws.{S3, Operation}
 
   test "#get_object" do
-    expected = %S3.Operation{bucket: "bucket", headers: %{"x-amz-server-side-encryption-customer-algorithm" => "md5"}, params: %{"response-content-type" => "application/json"}, path: "object.json", http_method: :get}
+    expected = %Operation.S3{bucket: "bucket", headers: %{"x-amz-server-side-encryption-customer-algorithm" => "md5"}, params: %{"response-content-type" => "application/json"}, path: "object.json", http_method: :get}
     assert expected == S3.get_object("bucket", "object.json", response: [content_type: "application/json"], encryption: [customer_algorithm: "md5"])
   end
 
   test "#put_object" do
-    expected = %S3.Operation{
+    expected = %Operation.S3{
       body: "data", bucket: "bucket",
       headers: %{
         "content-encoding" => "application/json",
@@ -30,7 +30,7 @@ defmodule ExAws.S3Test do
   end
 
   test "#put_object_copy" do
-    expected = %S3.Operation{bucket: "dest-bucket",
+    expected = %Operation.S3{bucket: "dest-bucket",
       headers: %{"x-amz-acl" => "public-read",
         "x-amz-copy-source" => "/src-bucket/src-object",
         "x-amz-server-side-encryption-customer-algorithm" => "md5",
@@ -45,24 +45,24 @@ defmodule ExAws.S3Test do
   end
 
   test "#put_object_copy basic" do
-    expected = %S3.Operation{bucket: "dest-bucket", headers: %{"x-amz-copy-source" => "/src-bucket/src-object"}, path: "dest-object", http_method: :put}
+    expected = %Operation.S3{bucket: "dest-bucket", headers: %{"x-amz-copy-source" => "/src-bucket/src-object"}, path: "dest-object", http_method: :put}
     assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "src-object")
   end
 
   test "#put_object_copy utf8" do
-    expected = %S3.Operation{bucket: "dest-bucket", headers: %{"x-amz-copy-source" => "/src-bucket//foo/%C3%BC.txt"}, path: "dest-object", http_method: :put}
+    expected = %Operation.S3{bucket: "dest-bucket", headers: %{"x-amz-copy-source" => "/src-bucket//foo/%C3%BC.txt"}, path: "dest-object", http_method: :put}
     assert expected == S3.put_object_copy("dest-bucket", "dest-object", "src-bucket", "/foo/ü.txt")
   end
 
   test "#complete_multipart_upload" do
-    expected = %S3.Operation{
+    expected = %Operation.S3{
       body: "<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag>foo</ETag></Part><Part><PartNumber>2</PartNumber><ETag>bar</ETag></Part></CompleteMultipartUpload>",
       bucket: "bucket", params: %{"uploadId" => "upload-id"}, path: "object", http_method: :post}
     assert expected == S3.complete_multipart_upload("bucket", "object", "upload-id", %{1 => "foo", 2 => "bar"})
   end
 
   test "#upload_part_copy" do
-    expected = %S3.Operation{bucket: "dest-bucket",
+    expected = %Operation.S3{bucket: "dest-bucket",
       headers: %{"x-amz-copy-source" => "/src-bucket/src-object",
         "x-amz-copy-source-range" => "bytes=1-9",
         "x-amz-copy-source-server-side-encryption-customer-algorithm" => "md5"},
@@ -72,21 +72,21 @@ defmodule ExAws.S3Test do
   end
 
   test "#delete_multiple_objects" do
-    expected = %S3.Operation{body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Delete><Object><Key>foo</Key></Object><Object><Key>bar</Key><VersionId>v1</VersionId></Object></Delete>",
+    expected = %Operation.S3{body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Delete><Object><Key>foo</Key></Object><Object><Key>bar</Key><VersionId>v1</VersionId></Object></Delete>",
       bucket: "bucket", path: "/?delete", headers: %{"content-md5" => "lvfX5nHeLllWDA7QnpsnrA=="}, http_method: :post}
 
     assert expected == S3.delete_multiple_objects("bucket", ["foo", {"bar", "v1"}])
   end
 
   test "#post_object_restore" do
-    expected = %S3.Operation{body: "<RestoreRequest xmlns=\"http://s3.amazonaws.com/doc/2006-3-01\">\n  <Days>5</Days>\n</RestoreRequest>\n",
+    expected = %Operation.S3{body: "<RestoreRequest xmlns=\"http://s3.amazonaws.com/doc/2006-3-01\">\n  <Days>5</Days>\n</RestoreRequest>\n",
       bucket: "bucket", params: %{"versionId" => 123}, path: "object",
       resource: "restore", http_method: :post}
     assert expected == S3.post_object_restore("bucket", "object", 5, version_id: 123)
   end
 
   test "#head_object" do
-    expected = %S3.Operation{bucket: "bucket",
+    expected = %Operation.S3{bucket: "bucket",
       headers: %{"x-amz-server-side-encryption-customer-algorithm" => "md5"},
       params: %{"versionId" => 123}, path: "object", http_method: :head}
 

@@ -1,4 +1,8 @@
-defmodule ExAws.S3.Operation do
+defmodule ExAws.Operation.S3 do
+  @moduledoc """
+  Holds data necessary for an operation on the S3 service.
+  """
+
   defstruct [
     stream_builder: nil,
     bucket: "",
@@ -12,9 +16,7 @@ defmodule ExAws.S3.Operation do
   ]
 end
 
-defimpl ExAws.Operation, for: ExAws.S3.Operation do
-  @moduledoc false
-  # S3 specific request logic.
+defimpl ExAws.Operation, for: ExAws.Operation.S3 do
 
   def perform(operation, config) do
     bucket   = operation.bucket
