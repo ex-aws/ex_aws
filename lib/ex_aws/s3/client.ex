@@ -225,6 +225,13 @@ defmodule ExAws.S3.Client do
     bucket  :: binary,
     objects :: [binary | {binary, binary}, ...], opts :: [quiet: true]):: ExAws.Request.response_t
 
+  defcallback delete_all_objects(
+    bucket  :: binary,
+    objects :: [binary | {binary, binary}, ...]):: {:ok, [ExAws.Request.success_content, ...]} | ExAws.Request.error_t
+  defcallback delete_all_objects(
+    bucket  :: binary,
+    objects :: [binary | {binary, binary}, ...], opts :: [quiet: true]):: {:ok, [ExAws.Request.success_content, ...]} | ExAws.Request.error_t
+
   @type get_object_response_opts :: [
     {:content_language, binary}
     | {:expires, binary}
