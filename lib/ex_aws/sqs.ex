@@ -72,7 +72,7 @@ defmodule ExAws.SQS do
   Adds a permission with the provided label to the Queue
   for a specific action for a specific account.
   """
-  @spec add_permission(queue_url :: binary, label :: binary, permissions :: sqs_acl) :: SQS.Request.response_t
+  @spec add_permission(queue_url :: binary, label :: binary, permissions :: sqs_acl) :: ExAws.Operation.Query.t
   def add_permission(queue, label, permissions \\ %{}) do
     params =
       permissions
@@ -86,7 +86,7 @@ defmodule ExAws.SQS do
   Extends the read lock timeout for the specified message from
   the specified queue to the specified value
   """
-  @spec change_message_visibility(queue_url :: binary, receipt_handle :: binary, visibility_timeout :: visibility_timeout) :: SQS.Request.response_t
+  @spec change_message_visibility(queue_url :: binary, receipt_handle :: binary, visibility_timeout :: visibility_timeout) :: ExAws.Operation.Query.t
   def change_message_visibility(queue, receipt_handle, visibility_timeout) do
     request(queue, "ChangeMessageVisibility", %{"ReceiptHandle" => receipt_handle, "VisibilityTimeout" => visibility_timeout})
   end
@@ -99,7 +99,7 @@ defmodule ExAws.SQS do
     :receipt_handle => binary,
     :visibility_timeout => visibility_timeout
   }
-  @spec change_message_visibility_batch(queue_url :: binary, opts :: [message_visibility_batch_item, ...]) :: SQS.Request.response_t
+  @spec change_message_visibility_batch(queue_url :: binary, opts :: [message_visibility_batch_item, ...]) :: ExAws.Operation.Query.t
   def change_message_visibility_batch(queue, messages) do
     params =
       messages
@@ -112,8 +112,8 @@ defmodule ExAws.SQS do
   end
 
   @doc "Create queue"
-  @spec create_queue(queue_name :: binary) :: SQS.Request.response_t
-  @spec create_queue(queue_name :: binary, queue_attributes :: queue_attributes) :: SQS.Request.response_t
+  @spec create_queue(queue_name :: binary) :: ExAws.Operation.Query.t
+  @spec create_queue(queue_name :: binary, queue_attributes :: queue_attributes) :: ExAws.Operation.Query.t
   def create_queue(queue, attributes \\ []) do
     params =
       attributes
@@ -124,7 +124,7 @@ defmodule ExAws.SQS do
   end
 
   @doc "Delete a message from a SQS Queue"
-  @spec delete_message(queue_url :: binary, receipt_handle :: binary) :: SQS.Request.response_t
+  @spec delete_message(queue_url :: binary, receipt_handle :: binary) :: ExAws.Operation.Query.t
   def delete_message(queue, receipt_handle) do
     request(queue, "DeleteMessage", %{"ReceiptHandle" => receipt_handle})
   end
@@ -134,7 +134,7 @@ defmodule ExAws.SQS do
     :id => binary,
     :receipt_handle => binary
   }
-  @spec delete_message_batch(queue_url :: binary, message_receipts :: [delete_message_batch_item, ...]) :: SQS.Request.response_t
+  @spec delete_message_batch(queue_url :: binary, message_receipts :: [delete_message_batch_item, ...]) :: ExAws.Operation.Query.t
   def delete_message_batch(queue, messages) do
     params =
       messages
@@ -147,14 +147,14 @@ defmodule ExAws.SQS do
   end
 
   @doc "Delete a queue"
-  @spec delete_queue(queue_url :: binary) :: SQS.Request.response_t
+  @spec delete_queue(queue_url :: binary) :: ExAws.Operation.Query.t
   def delete_queue(queue) do
     request(queue, "DeleteQueue", %{})
   end
 
   @doc "Gets attributes of a SQS Queue"
-  @spec get_queue_attributes(queue_url :: binary) :: SQS.Request.response_t
-  @spec get_queue_attributes(queue_url :: binary, attribute_names :: :all | [sqs_queue_attribute_name, ...]) :: SQS.Request.response_t
+  @spec get_queue_attributes(queue_url :: binary) :: ExAws.Operation.Query.t
+  @spec get_queue_attributes(queue_url :: binary, attribute_names :: :all | [sqs_queue_attribute_name, ...]) :: ExAws.Operation.Query.t
   def get_queue_attributes(queue, attributes \\ :all) do
     params =
     attributes
@@ -164,8 +164,8 @@ defmodule ExAws.SQS do
   end
 
   @doc "Get queue URL"
-  @spec get_queue_url(queue_name :: binary) :: SQS.Request.response_t
-  @spec get_queue_url(queue_name :: binary, opts :: [queue_owner_aws_account_id: binary]) :: SQS.Request.response_t
+  @spec get_queue_url(queue_name :: binary) :: ExAws.Operation.Query.t
+  @spec get_queue_url(queue_name :: binary, opts :: [queue_owner_aws_account_id: binary]) :: ExAws.Operation.Query.t
   def get_queue_url(queue_name, opts \\ []) do
     params = opts
       |> format_regular_opts
@@ -174,20 +174,20 @@ defmodule ExAws.SQS do
   end
 
   @doc "Retrieves the dead letter source queues for a given SQS Queue"
-  @spec list_dead_letter_source_queues(queue_url :: binary) :: SQS.Request.response_t
+  @spec list_dead_letter_source_queues(queue_url :: binary) :: ExAws.Operation.Query.t
   def list_dead_letter_source_queues(queue) do
     request(queue, "ListDeadLetterSourceQueues", %{})
   end
 
   @doc "Retrieves a list of all the SQS Queues"
-  @spec list_queues() :: SQS.Request.response_t
-  @spec list_queues(opts :: [queue_name_prefix: binary]) :: SQS.Request.response_t
+  @spec list_queues() :: ExAws.Operation.Query.t
+  @spec list_queues(opts :: [queue_name_prefix: binary]) :: ExAws.Operation.Query.t
   def list_queues(opts \\ []) do
     request("", "ListQueues", Enum.into(opts, %{}))
   end
 
   @doc "Purge all messages in a SQS Queue"
-  @spec purge_queue(queue_url :: binary) :: SQS.Request.response_t
+  @spec purge_queue(queue_url :: binary) :: ExAws.Operation.Query.t
   def purge_queue(queue) do
     request(queue, "PurgeQueue", %{})
   end
@@ -200,8 +200,8 @@ defmodule ExAws.SQS do
   ]
 
   @doc "Read messages from a SQS Queue"
-  @spec receive_message(queue_name :: binary) :: SQS.Request.response_t
-  @spec receive_message(queue_name :: binary, opts :: receive_message_opts) :: SQS.Request.response_t
+  @spec receive_message(queue_name :: binary) :: ExAws.Operation.Query.t
+  @spec receive_message(queue_name :: binary, opts :: receive_message_opts) :: ExAws.Operation.Query.t
   def receive_message(queue, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:attribute_names, [])
@@ -215,7 +215,7 @@ defmodule ExAws.SQS do
   end
 
   @doc "Removes permission with the given label from the Queue"
-  @spec remove_permission(queue_name :: binary, label :: binary) :: SQS.Request.response_t
+  @spec remove_permission(queue_name :: binary, label :: binary) :: ExAws.Operation.Query.t
   def remove_permission(queue, label) do
     request(queue, "RemovePermission", %{"Label" => label})
   end
@@ -226,8 +226,8 @@ defmodule ExAws.SQS do
   ]
 
   @doc "Send a message to a SQS Queue"
-  @spec send_message(queue_name :: binary, message_body :: binary) :: SQS.Request.response_t
-  @spec send_message(queue_name :: binary, message_body :: binary, opts :: sqs_message_opts) :: SQS.Request.response_t
+  @spec send_message(queue_name :: binary, message_body :: binary) :: ExAws.Operation.Query.t
+  @spec send_message(queue_name :: binary, message_body :: binary, opts :: sqs_message_opts) :: ExAws.Operation.Query.t
   def send_message(queue, message, opts \\ []) do
     {attrs, opts} = opts
     |> Keyword.pop(:message_attributes, [])
@@ -250,7 +250,7 @@ defmodule ExAws.SQS do
     ]
 
   @doc "Send up to 10 messages to a SQS Queue in a single request"
-  @spec send_message_batch(queue_name :: binary, messages :: [sqs_batch_message, ...]) :: SQS.Request.response_t
+  @spec send_message_batch(queue_name :: binary, messages :: [sqs_batch_message, ...]) :: ExAws.Operation.Query.t
   def send_message_batch(queue, messages) do
     params =
       messages
@@ -263,7 +263,7 @@ defmodule ExAws.SQS do
   end
 
   @doc "Set attributes of a SQS Queue"
-  @spec set_queue_attributes(queue_name :: binary, attributes :: queue_attributes) :: SQS.Request.response_t
+  @spec set_queue_attributes(queue_name :: binary, attributes :: queue_attributes) :: ExAws.Operation.Query.t
   def set_queue_attributes(queue, attributes \\ []) do
     params =
       attributes
@@ -349,8 +349,8 @@ defmodule ExAws.SQS do
     |> format_regular_opts
     |> Map.merge(attrs)
     |> Enum.reduce(%{}, fn({key, value}, params) ->
-         Map.put(params, prefix <> key, value)
-       end)
+       Map.put(params, prefix <> key, value)
+     end)
   end
 
   defp format_batch_deletion(message, index) do

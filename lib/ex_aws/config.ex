@@ -32,7 +32,7 @@ defmodule ExAws.Config do
   def get(service, overrides) do
     defaults = ExAws.Config.Defaults.get(service)
     common_config = Application.get_all_env(:ex_aws) |> Map.new |> Map.take(@common_config)
-    service_config = Application.get_env(:ex_aws, service) |> Map.new
+    service_config = Application.get_env(:ex_aws, service, []) |> Map.new
 
     defaults
     |> Map.merge(common_config)

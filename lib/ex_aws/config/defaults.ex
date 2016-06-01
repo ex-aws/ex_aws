@@ -52,7 +52,7 @@ defmodule ExAws.Config.Defaults do
       port: 80
     },
     sns: %{
-      host: "sns.us-east-1.amazonaws.com",
+      host: {"$region", "sns.$region.amazonaws.com"},
       scheme: "https://",
       region: "us-east-1",
       port: 80

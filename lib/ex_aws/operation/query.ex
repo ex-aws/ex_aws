@@ -12,6 +12,8 @@ defmodule ExAws.Operation.Query do
     params: %{},
     service: nil
   ]
+
+  @type t :: %__MODULE__{}
 end
 
 defimpl ExAws.Operation, for: ExAws.Operation.Query do
@@ -32,13 +34,10 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
       scheme,
       host,
       port |> port(),
-      queue_name |> with_slash
+      queue_name
     ] |> IO.iodata_to_binary
   end
 
   defp port(80), do: ""
   defp port(p),  do: ":#{p}"
-
-  def with_slash(""), do: "/"
-  def with_slash(queue), do: ["/", queue]
 end

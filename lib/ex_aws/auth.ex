@@ -49,7 +49,6 @@ defmodule ExAws.Auth do
 
   defp signature(http_method, url, headers, body, service, datetime, config) do
     request = build_canonical_request(http_method, url, headers, body)
-    IO.puts request
     string_to_sign = string_to_sign(request, service, datetime, config)
     signing_key = signing_key(service, datetime, config)
     hmac_sha256(signing_key, string_to_sign) |> bytes_to_hex
