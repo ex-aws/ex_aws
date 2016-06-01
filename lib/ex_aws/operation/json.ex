@@ -1,11 +1,11 @@
 defmodule ExAws.Operation.JSON do
-
   @moduledoc """
   Datastructure representing an operation on a JSON based AWS service
 
   These include:
   - DynamoDB
   - Kinesis
+  - Lambda (Rest style)
   """
 
   defstruct [

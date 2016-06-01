@@ -3,9 +3,10 @@ defmodule ExAws.SQS.Request do
 
   def request(client, queue_name, action, params = %{}) do
 
-    query = params
-    |> Map.put("Action", action)
-    |> URI.encode_query
+    query =
+      params
+      |> Map.put("Action", action)
+      |> URI.encode_query
 
     headers = [
       {"content-type", "application/x-www-form-urlencoded"},
