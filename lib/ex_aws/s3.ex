@@ -137,7 +137,11 @@ defmodule ExAws.S3 do
     {:encoding_type, binary} |
     {:max_keys, 0..1000}
   ]
-  @doc "List objects in bucket"
+  @doc """
+  List objects in bucket
+
+  Can be streamed.
+  """
   @spec list_objects(bucket :: binary) :: ExAws.Operation.S3.t
   @spec list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Operation.S3.t
   @params [:delimiter, :marker, :prefix, :encoding_type, :max_keys]
@@ -352,7 +356,11 @@ defmodule ExAws.S3 do
     request(:delete, bucket, object, headers: opts |> Map.new)
   end
 
-  @doc "Delete multiple objects within a bucket"
+  @doc """
+  Delete multiple objects within a bucket
+
+  Limited to 1000 objects.
+  """
   @spec delete_multiple_objects(
     bucket  :: binary,
     objects :: [binary | {binary, binary}, ...]):: ExAws.Operation.S3.t
@@ -382,6 +390,24 @@ defmodule ExAws.S3 do
     body_binary = body |> IO.iodata_to_binary
 
     request(:post, bucket, "/?delete", body: body_binary, headers: %{"content-md5" => content_md5})
+  end
+
+  @doc """
+  Delete all listed objects.
+
+  When performed, this function will continue making `delete_multiple_objects`
+  requests deleting 1000 objects at a time until all are deleted.
+
+  Can be streamed.
+  """
+  @spec delete_all_objects(
+    bucket  :: binary,
+    objects :: [binary | {binary, binary}, ...]):: ExAws.Operation.S3DeleteAllObjects.t
+  @spec delete_all_objects(
+    bucket  :: binary,
+    objects :: [binary | {binary, binary}, ...], opts :: [quiet: true]):: ExAws.Operation.S3DeleteAllObjects.t
+  def delete_all_objects(bucket, objects, opts \\ []) do
+    %ExAws.Operation.S3DeleteAllObjects{bucket: bucket, objects: objects, opts: opts}
   end
 
   @type get_object_response_opts :: [

@@ -70,12 +70,14 @@ defmodule ExAws.Operation.S3 do
 end
 
 
-defmodule ExAws.Operation.S3DeleteAll do
+defmodule ExAws.Operation.S3DeleteAllObjects do
   defstruct [
     bucket: nil,
     objects: [],
     opts: []
   ]
+
+  @type t :: %__MODULE__{}
 
   defimpl ExAws.Operation do
 
@@ -97,15 +99,15 @@ defmodule ExAws.Operation.S3DeleteAll do
         do_delete_all(request_fun, rest, opts, [result | acc])
       end
     end
-  end
 
-  def stream!(%{bucket: bucket, files: files, opts: opts}, config) do
-    files
-    |> Stream.chunk(1000, 1000, [])
-    |> Stream.flat_map(fn objects ->
-      bucket
-      |> ExAws.S3.delete_multiple_objects(objects, opts)
-      |> ExAws.request!(config)
-    end)
+    def stream!(%{bucket: bucket, files: files, opts: opts}, config) do
+      files
+      |> Stream.chunk(1000, 1000, [])
+      |> Stream.flat_map(fn objects ->
+        bucket
+        |> ExAws.S3.delete_multiple_objects(objects, opts)
+        |> ExAws.request!(config)
+      end)
+    end
   end
 end
