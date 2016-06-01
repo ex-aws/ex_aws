@@ -29,6 +29,8 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
     ExAws.Request.request(:post, url(config, operation.path), query, headers, config, operation.service)
   end
 
+  def stream!(_, _), do: nil
+
   def url(%{scheme: scheme, host: host, port: port}, queue_name) do
     [
       scheme,

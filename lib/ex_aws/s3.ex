@@ -82,50 +82,50 @@ defmodule ExAws.S3 do
   ## Buckets
   #############
   @doc "List buckets"
-  @spec list_buckets() :: ExAws.Request.response_t
-  @spec list_buckets(opts :: Keyword.t) :: ExAws.Request.response_t
+  @spec list_buckets() :: ExAws.Operation.S3.t
+  @spec list_buckets(opts :: Keyword.t) :: ExAws.Operation.S3.t
   def list_buckets(opts \\ []) do
     request(:get, "", "/", params: opts)
   end
 
   @doc "Delete a bucket"
-  @spec delete_bucket(bucket :: binary) :: ExAws.Request.response_t
+  @spec delete_bucket(bucket :: binary) :: ExAws.Operation.S3.t
   def delete_bucket(bucket) do
     request(:delete, bucket, "/")
   end
 
   @doc "Delete a bucket cors"
-  @spec delete_bucket_cors(bucket :: binary) :: ExAws.Request.response_t
+  @spec delete_bucket_cors(bucket :: binary) :: ExAws.Operation.S3.t
   def delete_bucket_cors(bucket) do
     request(:delete, bucket, "/", resource: "cors")
   end
 
   @doc "Delete a bucket lifecycle"
-  @spec delete_bucket_lifecycle(bucket :: binary) :: ExAws.Request.response_t
+  @spec delete_bucket_lifecycle(bucket :: binary) :: ExAws.Operation.S3.t
   def delete_bucket_lifecycle(bucket) do
     request(:delete, bucket, "/", resource: "lifecycle")
   end
 
   @doc "Delete a bucket policy"
-  @spec delete_bucket_policy(bucket :: binary) :: ExAws.Request.response_t
+  @spec delete_bucket_policy(bucket :: binary) :: ExAws.Operation.S3.t
   def delete_bucket_policy(bucket) do
     request(:delete, bucket, "/", resource: "policy")
   end
 
   @doc "Delete a bucket replication"
-  @spec delete_bucket_replication(bucket :: binary) :: ExAws.Request.response_t
+  @spec delete_bucket_replication(bucket :: binary) :: ExAws.Operation.S3.t
   def delete_bucket_replication(bucket) do
     request(:delete, bucket, "/", resource: "replication")
   end
 
   @doc "Delete a bucket tagging"
-  @spec delete_bucket_tagging(bucket :: binary) :: ExAws.Request.response_t
+  @spec delete_bucket_tagging(bucket :: binary) :: ExAws.Operation.S3.t
   def delete_bucket_tagging(bucket) do
     request(:delete, bucket, "/", resource: "tagging")
   end
 
   @doc "Delete a bucket website"
-  @spec delete_bucket_website(bucket :: binary) :: ExAws.Request.response_t
+  @spec delete_bucket_website(bucket :: binary) :: ExAws.Operation.S3.t
   def delete_bucket_website(bucket) do
     request(:delete, bucket, "/", resource: "website")
   end
@@ -138,104 +138,107 @@ defmodule ExAws.S3 do
     {:max_keys, 0..1000}
   ]
   @doc "List objects in bucket"
-  @spec list_objects(bucket :: binary) :: ExAws.Request.response_t
-  @spec list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Request.response_t
+  @spec list_objects(bucket :: binary) :: ExAws.Operation.S3.t
+  @spec list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Operation.S3.t
   @params [:delimiter, :marker, :prefix, :encoding_type, :max_keys]
   def list_objects(bucket, opts \\ []) do
     params = opts
     |> format_and_take(@params)
-    request(:get, bucket, "/", params: params)
-    |> Parsers.parse_list_objects
+
+    request(:get, bucket, "/", [params: params],
+      stream_builder: &ExAws.S3.Lazy.stream_objects!(bucket, opts, &1),
+      parser: &ExAws.S3.Parsers.parse_list_objects/1
+    )
   end
 
   @doc "Get bucket acl"
-  @spec get_bucket_acl(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_acl(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_acl(bucket) do
     request(:get, bucket, "/", resource: "acl")
   end
 
   @doc "Get bucket cors"
-  @spec get_bucket_cors(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_cors(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_cors(bucket) do
     request(:get, bucket, "/", resource: "cors")
   end
 
   @doc "Get bucket lifecycle"
-  @spec get_bucket_lifecycle(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_lifecycle(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_lifecycle(bucket) do
     request(:get, bucket, "/", resource: "lifecycle")
   end
 
   @doc "Get bucket policy"
-  @spec get_bucket_policy(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_policy(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_policy(bucket) do
     request(:get, bucket, "/", resource: "policy")
   end
 
   @doc "Get bucket location"
-  @spec get_bucket_location(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_location(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_location(bucket) do
     request(:get, bucket, "/", resource: "location")
   end
 
   @doc "Get bucket logging"
-  @spec get_bucket_logging(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_logging(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_logging(bucket) do
     request(:get, bucket, "/", resource: "logging")
   end
 
   @doc "Get bucket notification"
-  @spec get_bucket_notification(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_notification(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_notification(bucket) do
     request(:get, bucket, "/", resource: "notification")
   end
 
   @doc "Get bucket replication"
-  @spec get_bucket_replication(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_replication(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_replication(bucket) do
     request(:get, bucket, "/", resource: "replication")
   end
 
   @doc "Get bucket tagging"
-  @spec get_bucket_tagging(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_tagging(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_tagging(bucket) do
     request(:get, bucket, "/", resource: "tagging")
   end
 
   @doc "Get bucket object versions"
-  @spec get_bucket_object_versions(bucket :: binary) :: ExAws.Request.response_t
-  @spec get_bucket_object_versions(bucket :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  @spec get_bucket_object_versions(bucket :: binary) :: ExAws.Operation.S3.t
+  @spec get_bucket_object_versions(bucket :: binary, opts :: Keyword.t) :: ExAws.Operation.S3.t
   def get_bucket_object_versions(bucket, opts \\ []) do
     request(:get, bucket, "/", resource: "versions", params: opts)
   end
 
   @doc "Get bucket payment configuration"
-  @spec get_bucket_request_payment(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_request_payment(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_request_payment(bucket) do
     request(:get, bucket, "/", resource: "requestPayment")
   end
 
   @doc "Get bucket versioning"
-  @spec get_bucket_versioning(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_versioning(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_versioning(bucket) do
     request(:get, bucket, "/", resource: "versioning")
   end
 
   @doc "Get bucket website"
-  @spec get_bucket_website(bucket :: binary) :: ExAws.Request.response_t
+  @spec get_bucket_website(bucket :: binary) :: ExAws.Operation.S3.t
   def get_bucket_website(bucket) do
     request(:get, bucket, "/", resource: "website")
   end
 
   @doc "Determine if a bucket exists"
-  @spec head_bucket(bucket :: binary) :: ExAws.Request.response_t
+  @spec head_bucket(bucket :: binary) :: ExAws.Operation.S3.t
   def head_bucket(bucket) do
     request(:head, bucket, "/")
   end
 
   @doc "List multipart uploads for a bucket"
-  @spec list_multipart_uploads(bucket :: binary) :: ExAws.Request.response_t
-  @spec list_multipart_uploads(bucket :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  @spec list_multipart_uploads(bucket :: binary) :: ExAws.Operation.S3.t
+  @spec list_multipart_uploads(bucket :: binary, opts :: Keyword.t) :: ExAws.Operation.S3.t
   @params [:delimiter, :encoding_type, :max_uploads, :key_marker, :prefix, :upload_id_marker]
   def list_multipart_uploads(bucket, opts \\ []) do
     params = opts |> format_and_take(@params)
@@ -243,7 +246,7 @@ defmodule ExAws.S3 do
   end
 
   @doc "Creates a bucket. Same as create_bucket/2"
-  @spec put_bucket(bucket :: binary, region :: binary) :: ExAws.Request.response_t
+  @spec put_bucket(bucket :: binary, region :: binary) :: ExAws.Operation.S3.t
   def put_bucket(bucket, region, opts \\ []) do
     headers = opts
     |> Map.new
@@ -258,13 +261,13 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket bucket access control"
-  @spec put_bucket_acl(bucket :: binary, opts :: acl_opts) :: ExAws.Request.response_t
+  @spec put_bucket_acl(bucket :: binary, opts :: acl_opts) :: ExAws.Operation.S3.t
   def put_bucket_acl(bucket, grants) do
     request(:put, bucket, "/", headers: format_acl_headers(grants))
   end
 
   @doc "Update or create a bucket CORS policy"
-  @spec put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Request.response_t
+  @spec put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Operation.S3.t
   def put_bucket_cors(bucket, cors_rules) do
     rules = cors_rules
     |> Enum.map(&build_cors_rule/1)
@@ -279,65 +282,62 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket lifecycle configuration"
-  @spec put_bucket_lifecycle(bucket :: binary, lifecycle_config :: %{}) :: ExAws.Request.response_t
+  @spec put_bucket_lifecycle(bucket :: binary, lifecycle_config :: %{}) :: no_return
   def put_bucket_lifecycle(bucket, _livecycle_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket policy configuration"
-  @spec put_bucket_policy(bucket :: binary, policy :: %{}) :: ExAws.Request.response_t
-  def put_bucket_policy(bucket, policy) when is_binary(policy) do
-    request(:put, bucket, "/", resource: "policy", body: policy)
-  end
+  @spec put_bucket_policy(bucket :: binary, policy :: %{}) :: ExAws.Operation.S3.t
   def put_bucket_policy(bucket, policy) do
-    raise "FIX THIS"
+    request(:put, bucket, "/", resource: "policy", body: policy)
   end
 
   @doc "Update or create a bucket logging configuration"
-  @spec put_bucket_logging(bucket :: binary, logging_config :: %{}) :: ExAws.Request.response_t
+  @spec put_bucket_logging(bucket :: binary, logging_config :: %{}) :: no_return
   def put_bucket_logging(bucket, _logging_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket notification configuration"
-  @spec put_bucket_notification(bucket :: binary, notification_config :: %{}) :: ExAws.Request.response_t
+  @spec put_bucket_notification(bucket :: binary, notification_config :: %{}) :: no_return
   def put_bucket_notification(bucket, _notification_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket replication configuration"
-  @spec put_bucket_replication(bucket :: binary, replication_config :: %{}) :: ExAws.Request.response_t
+  @spec put_bucket_replication(bucket :: binary, replication_config :: %{}) :: no_return
   def put_bucket_replication(bucket, _replication_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket tagging configuration"
-  @spec put_bucket_tagging(bucket :: binary, tags :: %{}) :: ExAws.Request.response_t
+  @spec put_bucket_tagging(bucket :: binary, tags :: %{}) :: no_return
   def put_bucket_tagging(bucket, _tags) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket requestPayment configuration"
-  @spec put_bucket_request_payment(bucket :: binary, payer :: :requester | :bucket_owner) :: ExAws.Request.response_t
+  @spec put_bucket_request_payment(bucket :: binary, payer :: :requester | :bucket_owner) :: no_return
   def put_bucket_request_payment(bucket, _payer) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket versioning configuration"
-  @spec put_bucket_versioning(bucket :: binary, version_config :: binary) :: ExAws.Request.response_t
+  @spec put_bucket_versioning(bucket :: binary, version_config :: binary) :: no_return
   def put_bucket_versioning(bucket, _version_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket website configuration"
-  @spec put_bucket_website(bucket :: binary, website_config :: binary) :: ExAws.Request.response_t
+  @spec put_bucket_website(bucket :: binary, website_config :: binary) :: no_return
   def put_bucket_website(bucket, _website_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
@@ -347,7 +347,7 @@ defmodule ExAws.S3 do
   ###########
 
   @doc "Delete object object in bucket"
-  @spec delete_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+  @spec delete_object(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
   def delete_object(bucket, object, opts \\ []) do
     request(:delete, bucket, object, headers: opts |> Map.new)
   end
@@ -355,10 +355,10 @@ defmodule ExAws.S3 do
   @doc "Delete multiple objects within a bucket"
   @spec delete_multiple_objects(
     bucket  :: binary,
-    objects :: [binary | {binary, binary}, ...]):: ExAws.Request.response_t
+    objects :: [binary | {binary, binary}, ...]):: ExAws.Operation.S3.t
   @spec delete_multiple_objects(
     bucket  :: binary,
-    objects :: [binary | {binary, binary}, ...], opts :: [quiet: true]):: ExAws.Request.response_t
+    objects :: [binary | {binary, binary}, ...], opts :: [quiet: true]):: ExAws.Operation.S3.t
   def delete_multiple_objects(bucket, objects, opts \\ []) do
     objects_xml = Enum.map(objects, fn
       {key, version} -> ["<Object><Key>", key, "</Key><VersionId>", version, "</VersionId></Object>"]
@@ -396,8 +396,8 @@ defmodule ExAws.S3 do
     | head_object_opts
   ]
   @doc "Get an object from a bucket"
-  @spec get_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  @spec get_object(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Request.response_t
+  @spec get_object(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
+  @spec get_object(bucket :: binary, object :: binary, opts :: get_object_opts) :: ExAws.Operation.S3.t
   @response_params [:content_type, :content_language, :expires, :cache_control, :content_disposition, :content_encoding]
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def get_object(bucket, object, opts \\ []) do
@@ -420,14 +420,14 @@ defmodule ExAws.S3 do
   end
 
   @doc "Get an object's access control policy"
-  @spec get_object_acl(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  @spec get_object_acl(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  @spec get_object_acl(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
+  @spec get_object_acl(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Operation.S3.t
   def get_object_acl(bucket, object, opts \\ []) do
     request(:get, bucket, object, resource: "acl", headers: opts |> Map.new)
   end
 
   @doc "Get a torrent for a bucket"
-  @spec get_object_torrent(bucket :: binary, object :: binary) :: ExAws.Request.response_t
+  @spec get_object_torrent(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
   def get_object_torrent(bucket, object) do
     request(:get, bucket, object, resource: "torrent")
   end
@@ -442,8 +442,8 @@ defmodule ExAws.S3 do
   ]
 
   @doc "Determine of an object exists"
-  @spec head_object(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  @spec head_object(bucket :: binary, object :: binary, opts :: head_object_opts) :: ExAws.Request.response_t
+  @spec head_object(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
+  @spec head_object(bucket :: binary, object :: binary, opts :: head_object_opts) :: ExAws.Operation.S3.t
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def head_object(bucket, object, opts \\ []) do
     opts = opts |> Map.new
@@ -468,13 +468,13 @@ defmodule ExAws.S3 do
     bucket         :: binary,
     object         :: binary,
     origin         :: binary,
-    request_method :: atom) :: ExAws.Request.response_t
+    request_method :: atom) :: ExAws.Operation.S3.t
   @spec options_object(
     bucket          :: binary,
     object          :: binary,
     origin          :: binary,
     request_method  :: atom,
-    request_headers :: [binary, ...]) :: ExAws.Request.response_t
+    request_headers :: [binary]) :: ExAws.Operation.S3.t
   def options_object(bucket, object, origin, request_method, request_headers \\ []) do
     headers = [
       {"Origin", origin},
@@ -484,12 +484,16 @@ defmodule ExAws.S3 do
     request(:options, bucket, object, headers: headers)
   end
 
-  @doc "Restore an object to a particular version FIXME"
+  @doc "Restore an object to a particular version"
   @spec post_object_restore(
     bucket         :: binary,
     object         :: binary,
-    version_id     :: binary,
-    number_of_days :: pos_integer) :: ExAws.Request.response_t
+    number_of_days :: pos_integer) :: ExAws.Operation.S3.t
+  @spec post_object_restore(
+    bucket         :: binary,
+    object         :: binary,
+    number_of_days :: pos_integer,
+    opts           :: [version_id: binary]) :: ExAws.Operation.S3.t
   def post_object_restore(bucket, object, number_of_days, opts \\ []) do
     params = case Keyword.fetch(opts, :version_id) do
       {:ok, id} -> %{"versionId" => id}
@@ -519,14 +523,14 @@ defmodule ExAws.S3 do
     | acl_opts
   ]
   @doc "Create an object within a bucket"
-  @spec put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Request.response_t
-  @spec put_object(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Request.response_t
+  @spec put_object(bucket :: binary, object :: binary, body :: binary) :: ExAws.Operation.S3.t
+  @spec put_object(bucket :: binary, object :: binary, body :: binary, opts :: put_object_opts) :: ExAws.Operation.S3.t
   def put_object(bucket, object, body, opts \\ []) do
     request(:put, bucket, object, body: body, headers: put_object_headers(opts))
   end
 
   @doc "Create or update an object's access control FIXME"
-  @spec put_object_acl(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Request.response_t
+  @spec put_object_acl(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Operation.S3.t
   def put_object_acl(bucket, object, acl) do
     headers = acl |> Map.new |> format_acl_headers
     request(:put, bucket, object, headers: headers, resource: "acl")
@@ -559,13 +563,13 @@ defmodule ExAws.S3 do
     dest_bucket :: binary,
     dest_object :: binary,
     src_bucket  :: binary,
-    src_object  :: binary) :: ExAws.Request.response_t
+    src_object  :: binary) :: ExAws.Operation.S3.t
   @spec put_object_copy(
     dest_bucket :: binary,
     dest_object :: binary,
     src_bucket  :: binary,
     src_object  :: binary,
-    opts        :: pub_object_copy_opts) :: ExAws.Request.response_t
+    opts        :: pub_object_copy_opts) :: ExAws.Operation.S3.t
   @amz_headers ~w(
     metadata_directive
     copy_source_if_modified_since
@@ -617,8 +621,8 @@ defmodule ExAws.S3 do
   ]
 
   @doc "Initiate a multipart upload"
-  @spec initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Request.response_t
-  @spec initiate_multipart_upload(bucket :: binary, object :: binary, opts :: initiate_multipart_upload_opts) :: ExAws.Request.response_t
+  @spec initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
+  @spec initiate_multipart_upload(bucket :: binary, object :: binary, opts :: initiate_multipart_upload_opts) :: ExAws.Operation.S3.t
   def initiate_multipart_upload(bucket, object, opts \\ []) do
     request(:post, bucket, object, resource: "uploads", headers: put_object_headers(opts))
     |> Parsers.parse_initiate_multipart_upload
@@ -630,14 +634,14 @@ defmodule ExAws.S3 do
     object      :: binary,
     upload_id   :: binary,
     part_number :: pos_integer,
-    body        :: binary) :: ExAws.Request.response_t
+    body        :: binary) :: ExAws.Operation.S3.t
   @spec upload_part(
     bucket      :: binary,
     object      :: binary,
     upload_id   :: binary,
     part_number :: pos_integer,
     body        :: binary,
-    opts :: [encryption_opts | {:expect, binary}]) :: ExAws.Request.response_t
+    opts :: [encryption_opts | {:expect, binary}]) :: ExAws.Operation.S3.t
   def upload_part(bucket, object, upload_id, part_number, body, _opts \\ []) do
     params = %{"uploadId" => upload_id, "partNumber" => part_number}
     request(:put, bucket, object, params: params, body: body)
@@ -658,13 +662,13 @@ defmodule ExAws.S3 do
     dest_bucket :: binary,
     dest_object :: binary,
     src_bucket  :: binary,
-    src_object  :: binary) :: ExAws.Request.response_t
+    src_object  :: binary) :: ExAws.Operation.S3.t
   @spec upload_part_copy(
     dest_bucket :: binary,
     dest_object :: binary,
     src_bucket  :: binary,
     src_object  :: binary,
-    opts        :: upload_part_copy_opts) :: ExAws.Request.response_t
+    opts        :: upload_part_copy_opts) :: ExAws.Operation.S3.t
   @amz_headers ~w(
     copy_source_if_modified_since
     copy_source_if_unmodified_since
@@ -705,7 +709,7 @@ defmodule ExAws.S3 do
     bucket    :: binary,
     object    :: binary,
     upload_id :: binary,
-    parts     :: [{binary | pos_integer, binary}, ...]) :: ExAws.Request.response_t
+    parts     :: [{binary | pos_integer, binary}, ...]) :: ExAws.Operation.S3.t
   def complete_multipart_upload(bucket, object, upload_id, parts) do
     parts_xml = parts
     |> Enum.map(fn {part_number, etag}->
@@ -723,14 +727,14 @@ defmodule ExAws.S3 do
   end
 
   @doc "Abort a multipart upload"
-  @spec abort_multipart_upload(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
+  @spec abort_multipart_upload(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Operation.S3.t
   def abort_multipart_upload(bucket, object, upload_id) do
     request(:delete, bucket, object, params: %{"uploadId" => upload_id})
   end
 
   @doc "List the parts of a multipart upload"
-  @spec list_parts(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Request.response_t
-  @spec list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: Keyword.t) :: ExAws.Request.response_t
+  @spec list_parts(bucket :: binary, object :: binary, upload_id :: binary) :: ExAws.Operation.S3.t
+  @spec list_parts(bucket :: binary, object :: binary, upload_id :: binary, opts :: Keyword.t) :: ExAws.Operation.S3.t
   def list_parts(bucket, object, upload_id, opts \\ []) do
     params = opts
     |> Map.new
@@ -772,6 +776,7 @@ defmodule ExAws.S3 do
     %ExAws.Operation.S3{
       http_method: http_method,
       bucket: bucket,
+      parser: &(&1),
       path: path,
       body: data[:body] || "",
       headers: data[:headers] || %{},

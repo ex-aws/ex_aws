@@ -36,12 +36,12 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
     |> parse(config)
   end
 
-  def stream(%ExAws.Operation.JSON{stream_builder: nil}, _) do
+  def stream!(%ExAws.Operation.JSON{stream_builder: nil}, _) do
     raise ArgumentError, """
     This operation does not support streaming!
     """
   end
-  def stream(%ExAws.Operation.JSON{stream_builder: stream_builder}, config_overrides) do
+  def stream!(%ExAws.Operation.JSON{stream_builder: stream_builder}, config_overrides) do
     stream_builder.(config_overrides)
   end
 

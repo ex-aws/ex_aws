@@ -5,6 +5,7 @@ defmodule ExAws.Operation.S3 do
 
   defstruct [
     stream_builder: nil,
+    parser: nil,
     bucket: "",
     path: "/",
     http_method: nil,
@@ -14,6 +15,8 @@ defmodule ExAws.Operation.S3 do
     headers: %{},
     service: :s3
   ]
+
+  @type t :: %__MODULE__{}
 end
 
 defimpl ExAws.Operation, for: ExAws.Operation.S3 do
@@ -40,6 +43,11 @@ defimpl ExAws.Operation, for: ExAws.Operation.S3 do
     |> Map.to_list
 
     ExAws.Request.request(http_method, url, body, headers, config, operation.service)
+    |> operation.parser.()
+  end
+
+  def stream!(%{stream_builder: fun}, config) do
+    fun.(config)
   end
 
   def url(%{scheme: scheme, host: host}, bucket, path) do

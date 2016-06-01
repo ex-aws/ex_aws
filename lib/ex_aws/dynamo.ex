@@ -196,21 +196,6 @@ defmodule ExAws.Dynamo do
   when is_atom(primary_key) or is_binary(primary_key) do
     create_table(name, [{primary_key, :hash}], key_definitions, read_capacity, write_capacity)
   end
-
-  @doc """
-  Create table
-
-  key_schema allows specifying hash and / or range keys IE
-  ```
-  [api_key: :hash, something_rangy: :range]
-  ```
-  """
-  @spec create_table(
-    table_name      :: binary,
-    key_schema      :: key_schema,
-    key_definitions :: key_definitions,
-    read_capacity   :: pos_integer,
-    write_capacity  :: pos_integer) :: ExAws.Operation.JSON.t
   def create_table(name, key_schema, key_definitions, read_capacity, write_capacity) when is_list(key_schema) do
     create_table(name, key_schema, key_definitions, read_capacity, write_capacity, [], [])
   end

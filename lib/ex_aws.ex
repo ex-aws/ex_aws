@@ -35,7 +35,7 @@ defmodule ExAws do
   @spec stream!(ExAws.Operation.t) :: Enumerable.t
   @spec stream!(ExAws.Operation.t, Keyword.t) :: Enumerable.t
   def stream!(op, config_overrides \\ []) do
-    ExAws.Operation.stream(op, ExAws.Config.build(op.service, config_overrides))
+    ExAws.Operation.stream!(op, ExAws.Config.build(op.service, config_overrides))
   end
 
   @doc """

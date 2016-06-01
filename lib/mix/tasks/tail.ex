@@ -21,6 +21,11 @@ defmodule Mix.Tasks.Kinesis.Tail do
       $mix kinesis.tail logs --debug --poll 10
   """
 
+  @dialyzer {:no_return,
+           run: 1,
+           get_shards: 1
+          }
+  # @dialyzer {:no_behaviours, post_object_restore: 4}
 
   def run(argv) do
     {:ok, _} = Application.ensure_all_started(:ex_aws)
@@ -43,11 +48,15 @@ defmodule Mix.Tasks.Kinesis.Tail do
     stream_name
     |> get_shards
     |> Enum.map(&Kinesis.get_shard_iterator(stream_name, &1["ShardId"], shard_type, opts))
+    |> Enum.map(&ExAws.request/1)
     |> Enum.map(&get_records(&1, sleep_time))
   end
 
   defp get_shards(name) do
-    case Kinesis.describe_stream(name) do
+    name
+    |> Kinesis.describe_stream
+    |> ExAws.request
+    |> case do
       {:ok, %{"StreamDescription" => %{"Shards" => shards}}} -> shards
       error -> raise inspect(error)
     end
