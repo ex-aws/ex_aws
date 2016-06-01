@@ -1,6 +1,7 @@
 defmodule ExAws.Utils do
-
   @moduledoc false
+
+  def identity(x), do: x
 
   def camelize_keys(opts) do
     camelize_keys(opts, deep: false)

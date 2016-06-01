@@ -104,26 +104,26 @@ defmodule ExAws.Kinesis do
     |> camelize_keys
     |> Map.merge(%{"ShardIterator" => shard_iterator})
 
-    request(:get_records, data)
+    request(:get_records, data, %{parser: &decode_records/1})
   end
 
-  # defp do_get_records({:ok, %{"Records" => records} = results}) do
-  #   {:ok, Map.put(results, "Records", decode_records(records))}
-  # end
-  # defp do_get_records(result), do: result
-  #
-  # defp decode_records(records) do
-  #   records
-  #   |> Enum.reduce([], fn(%{"Data" => data} = record, acc) ->
-  #     case data |> Base.decode64 do
-  #       {:ok, decoded} -> [%{record | "Data" => decoded} | acc]
-  #       :error ->
-  #         Logger.error("Could not decode data from: #{inspect record}")
-  #         acc
-  #     end
-  #   end)
-  #   |> Enum.reverse
-  # end
+  def decode_records({:ok, %{"Records" => records} = results}) do
+    {:ok, Map.put(results, "Records", do_decode_records(records))}
+  end
+  def decode_records(result), do: result
+
+  defp do_decode_records(records) do
+    records
+    |> Enum.reduce([], fn(%{"Data" => data} = record, acc) ->
+      case data |> Base.decode64 do
+        {:ok, decoded} -> [%{record | "Data" => decoded} | acc]
+        :error ->
+          Logger.error("Could not decode data from: #{inspect record}")
+          acc
+      end
+    end)
+    |> Enum.reverse
+  end
 
   @doc "Puts a record on a stream"
   @type put_record_opts :: [

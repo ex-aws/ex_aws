@@ -11,6 +11,7 @@ defmodule ExAws.Operation.JSON do
   defstruct [
     stream_builder: nil,
     http_method: :post,
+    parser: nil,
     path: "/",
     data: %{},
     headers: [],
@@ -20,7 +21,7 @@ defmodule ExAws.Operation.JSON do
   @type t :: %__MODULE__{}
 
   def new(service, opts) do
-    struct(%__MODULE__{service: service}, opts)
+    struct(%__MODULE__{service: service, parser: &(&1)}, opts)
   end
 end
 

@@ -776,7 +776,6 @@ defmodule ExAws.S3 do
     %ExAws.Operation.S3{
       http_method: http_method,
       bucket: bucket,
-      parser: &(&1),
       path: path,
       body: data[:body] || "",
       headers: data[:headers] || %{},
