@@ -28,7 +28,7 @@ defmodule ExAws.Utils do
       |> Map.new
       |> camelize_keys(depth)
     rescue
-      [Protocol.UndefinedError, ArgumentError] -> opts
+      [Protocol.UndefinedError, ArgumentError, FunctionClauseError] -> opts
     end
   end
 
