@@ -57,7 +57,7 @@ defmodule ExAws.S3Test do
   test "#complete_multipart_upload" do
     expected = %Operation.S3{
       body: "<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag>foo</ETag></Part><Part><PartNumber>2</PartNumber><ETag>bar</ETag></Part></CompleteMultipartUpload>",
-      bucket: "bucket", params: %{"uploadId" => "upload-id"}, path: "object", http_method: :post}
+      bucket: "bucket", params: %{"uploadId" => "upload-id"}, path: "object", http_method: :post, parser: &ExAws.S3.Parsers.parse_complete_multipart_upload/1}
     assert expected == S3.complete_multipart_upload("bucket", "object", "upload-id", %{1 => "foo", 2 => "bar"})
   end
 
@@ -66,7 +66,7 @@ defmodule ExAws.S3Test do
       headers: %{"x-amz-copy-source" => "/src-bucket/src-object",
         "x-amz-copy-source-range" => "bytes=1-9",
         "x-amz-copy-source-server-side-encryption-customer-algorithm" => "md5"},
-      path: "dest-object", http_method: :put}
+      path: "dest-object", http_method: :put, parser: &ExAws.S3.Parsers.parse_upload_part_copy/1}
 
     assert expected == S3.upload_part_copy("dest-bucket", "dest-object", "src-bucket", "src-object", source_encryption: [customer_algorithm: "md5"], copy_source_range: 1..9)
   end

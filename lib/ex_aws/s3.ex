@@ -720,7 +720,7 @@ defmodule ExAws.S3 do
     body = ["<CompleteMultipartUpload>", parts_xml, "</CompleteMultipartUpload>"]
     |> IO.iodata_to_binary
 
-    request(:post, bucket, object, [params: %{"uploadId" => upload_id}, body: body], &Parsers.parse_complete_multipart_upload/1)
+    request(:post, bucket, object, [params: %{"uploadId" => upload_id}, body: body], %{parser: &Parsers.parse_complete_multipart_upload/1})
   end
 
   @doc "Abort a multipart upload"
