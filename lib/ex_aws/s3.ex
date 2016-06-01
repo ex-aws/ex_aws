@@ -624,8 +624,7 @@ defmodule ExAws.S3 do
   @spec initiate_multipart_upload(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
   @spec initiate_multipart_upload(bucket :: binary, object :: binary, opts :: initiate_multipart_upload_opts) :: ExAws.Operation.S3.t
   def initiate_multipart_upload(bucket, object, opts \\ []) do
-    request(:post, bucket, object, resource: "uploads", headers: put_object_headers(opts))
-    |> Parsers.parse_initiate_multipart_upload
+    request(:post, bucket, object, [resource: "uploads", headers: put_object_headers(opts)], %{parser: &Parsers.parse_initiate_multipart_upload/1})
   end
 
   @doc "Upload a part for a multipart upload"
@@ -700,8 +699,7 @@ defmodule ExAws.S3 do
     end
     |> Map.put("x-amz-copy-source", "/#{src_bucket}/#{src_object}")
 
-    request(:put, dest_bucket, dest_object, headers: headers)
-    |> Parsers.parse_upload_part_copy
+    request(:put, dest_bucket, dest_object, [headers: headers], %{parser: &Parsers.parse_upload_part_copy/1})
   end
 
   @doc "Complete a multipart upload"
@@ -722,8 +720,7 @@ defmodule ExAws.S3 do
     body = ["<CompleteMultipartUpload>", parts_xml, "</CompleteMultipartUpload>"]
     |> IO.iodata_to_binary
 
-    request(:post, bucket, object, params: %{"uploadId" => upload_id}, body: body)
-    |> Parsers.parse_complete_multipart_upload
+    request(:post, bucket, object, [params: %{"uploadId" => upload_id}, body: body], &Parsers.parse_complete_multipart_upload/1)
   end
 
   @doc "Abort a multipart upload"
@@ -740,8 +737,7 @@ defmodule ExAws.S3 do
     |> Map.new
     |> Map.merge(%{"uploadId" => upload_id})
 
-    request(:get, bucket, object, params: params)
-    |> Parsers.parse_list_parts
+    request(:get, bucket, object, [params: params], %{parser: &Parsers.parse_list_parts/1})
   end
 
   @doc """
