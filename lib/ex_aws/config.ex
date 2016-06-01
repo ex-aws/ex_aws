@@ -2,7 +2,7 @@ defmodule ExAws.Config do
 
   @moduledoc false
 
-  # Generates the configuration for a client.
+  # Generates the configuration for a service.
   # It starts with the defaults for a given environment
   # and then merges in the common config from the ex_aws config root,
   # and then finally any config specified for the particular service

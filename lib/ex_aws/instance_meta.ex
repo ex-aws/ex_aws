@@ -1,18 +1,18 @@
 defmodule ExAws.InstanceMeta do
   @meta_path_root "http://169.254.169.254/latest/meta-data/"
 
-  def request(%{config: config}, path) do
+  def request(config, path) do
     case config.http_client.request(:get, @meta_path_root <> path) do
       {:ok, %{body: body}} -> body
     end
   end
 
-  def role(client) do
-    ExAws.InstanceMeta.request(client, "/iam/security-credentials/")
+  def role(config) do
+    ExAws.InstanceMeta.request(config, "/iam/security-credentials/")
   end
 
-  def security_credentials(%{config: config} = client) do
-    result = ExAws.InstanceMeta.request(client, "/iam/security-credentials/#{role(client)}")
+  def security_credentials(config) do
+    result = ExAws.InstanceMeta.request(config, "/iam/security-credentials/#{role(config)}")
     |> config.json_codec.decode!
 
     %{
