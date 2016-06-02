@@ -243,8 +243,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of your instances.
   """
-  @spec describe_instances() :: ExAws.Request.response_t
-  @spec describe_instances(opts :: describe_instances_opts) :: ExAws.Request.response_t
+  @spec describe_instances() :: ExAws.Operation.RestQuery.t
+  @spec describe_instances(opts :: describe_instances_opts) :: ExAws.Operation.RestQuery.t
   def describe_instances(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -285,8 +285,8 @@ defmodule ExAws.EC2 do
   Describes the status of one or more instances. By default, only running
   instances are described, unless specified otherwise.
   """
-  @spec describe_instance_status() :: ExAws.Request.response_t
-  @spec describe_instance_status(opts :: describe_instance_status_opts) :: ExAws.Request.response_t
+  @spec describe_instance_status() :: ExAws.Operation.RestQuery.t
+  @spec describe_instance_status(opts :: describe_instance_status_opts) :: ExAws.Operation.RestQuery.t
   def describe_instance_status(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -322,8 +322,8 @@ defmodule ExAws.EC2 do
   @doc """
   Launches the speficied number of instance using an AMI.
   """
-  @spec run_instances(image_id :: binary, max :: pos_integer, min :: pos_integer) :: ExAws.Request.response_t
-  @spec run_instances(image_id :: binary, max :: pos_integer, min :: pos_integer, opts :: run_instances_opts) :: ExAws.Request.response_t
+  @spec run_instances(image_id :: binary, max :: pos_integer, min :: pos_integer) :: ExAws.Operation.RestQuery.t
+  @spec run_instances(image_id :: binary, max :: pos_integer, min :: pos_integer, opts :: run_instances_opts) :: ExAws.Operation.RestQuery.t
   def run_instances(image_id, max, min, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -346,8 +346,8 @@ defmodule ExAws.EC2 do
   @doc """
   Starts an Amazon EBS-backed AMI that was previously stopped.
   """
-  @spec start_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  @spec start_instances(instance_ids :: list(binary), opts :: start_instances_opts) :: ExAws.Request.response_t
+  @spec start_instances(instance_ids :: list(binary)) :: ExAws.Operation.RestQuery.t
+  @spec start_instances(instance_ids :: list(binary), opts :: start_instances_opts) :: ExAws.Operation.RestQuery.t
   def start_instances(instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -368,8 +368,8 @@ defmodule ExAws.EC2 do
   @doc """
   Stops an Amazon EBS-backed AMI that was previously started.
   """
-  @spec stop_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  @spec stop_instances(instance_ids :: list(binary), opts :: stop_instances_opts) :: ExAws.Request.response_t
+  @spec stop_instances(instance_ids :: list(binary)) :: ExAws.Operation.RestQuery.t
+  @spec stop_instances(instance_ids :: list(binary), opts :: stop_instances_opts) :: ExAws.Operation.RestQuery.t
   def stop_instances(instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -390,8 +390,8 @@ defmodule ExAws.EC2 do
   Shuts down one or more instances. Terminated instances remain visible after
   termination (for approximately one hour).
   """
-  @spec terminate_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  @spec terminate_instances(instance_ids :: list(binary), opts :: terminate_instances_opts) :: ExAws.Request.response_t
+  @spec terminate_instances(instance_ids :: list(binary)) :: ExAws.Operation.RestQuery.t
+  @spec terminate_instances(instance_ids :: list(binary), opts :: terminate_instances_opts) :: ExAws.Operation.RestQuery.t
   def terminate_instances(instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -412,8 +412,8 @@ defmodule ExAws.EC2 do
   Requests a reboot of one or more instances. This operation is asynchronous; it
   only queues a request to reboot the specified instances.
   """
-  @spec reboot_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  @spec reboot_instances(instance_ids :: list(binary), opts :: reboot_instances_opts) :: ExAws.Request.response_t
+  @spec reboot_instances(instance_ids :: list(binary)) :: ExAws.Operation.RestQuery.t
+  @spec reboot_instances(instance_ids :: list(binary), opts :: reboot_instances_opts) :: ExAws.Operation.RestQuery.t
   def reboot_instances(instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -441,8 +441,8 @@ defmodule ExAws.EC2 do
   Submits feedback about the status of an instance. The instance must be in the
   running state.
   """
-  @spec report_instance_status(instance_ids :: list(binary), status :: binary) :: ExAws.Request.response_t
-  @spec report_instance_status(instance_ids :: list(binary), status :: binary, opts :: report_instance_status_opts) :: ExAws.Request.response_t
+  @spec report_instance_status(instance_ids :: list(binary), status :: binary) :: ExAws.Operation.RestQuery.t
+  @spec report_instance_status(instance_ids :: list(binary), status :: binary, opts :: report_instance_status_opts) :: ExAws.Operation.RestQuery.t
   def report_instance_status(instance_ids, status, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -463,8 +463,8 @@ defmodule ExAws.EC2 do
   @doc """
   Enables monitoring for a running instance.
   """
-  @spec monitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  @spec monitor_instances(instance_ids :: list(binary), opts :: monitor_instances_opts) :: ExAws.Request.response_t
+  @spec monitor_instances(instance_ids :: list(binary)) :: ExAws.Operation.RestQuery.t
+  @spec monitor_instances(instance_ids :: list(binary), opts :: monitor_instances_opts) :: ExAws.Operation.RestQuery.t
   def monitor_instances(instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -484,8 +484,8 @@ defmodule ExAws.EC2 do
   @doc """
   Disables monitoring for a running instance.
   """
-  @spec unmonitor_instances(instance_ids :: list(binary)) :: ExAws.Request.response_t
-  @spec unmonitor_instances(instance_ids :: list(binary), opts :: unmonitor_instances_opts) :: ExAws.Request.response_t
+  @spec unmonitor_instances(instance_ids :: list(binary)) :: ExAws.Operation.RestQuery.t
+  @spec unmonitor_instances(instance_ids :: list(binary), opts :: unmonitor_instances_opts) :: ExAws.Operation.RestQuery.t
   def unmonitor_instances(instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -507,8 +507,8 @@ defmodule ExAws.EC2 do
   Describes the specified attribute of the specified instance. You can specify
   only one attribute at a time.
   """
-  @spec describe_instance_attribute(instance_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  @spec describe_instance_attribute(instance_id :: binary, attribute :: binary, opts :: describe_instance_attribute_opts) :: ExAws.Request.response_t
+  @spec describe_instance_attribute(instance_id :: binary, attribute :: binary) :: ExAws.Operation.RestQuery.t
+  @spec describe_instance_attribute(instance_id :: binary, attribute :: binary, opts :: describe_instance_attribute_opts) :: ExAws.Operation.RestQuery.t
   def describe_instance_attribute(instance_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -541,8 +541,8 @@ defmodule ExAws.EC2 do
   Modifies the specified attribute of the specified instance. You can
   specify only one attribute at a time.
   """
-  @spec modify_instance_attribute(instance_id :: binary) :: ExAws.Request.response_t
-  @spec modify_instance_attribute(instance_id :: binary, opts :: modify_instance_attribute_opts) :: ExAws.Request.response_t
+  @spec modify_instance_attribute(instance_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec modify_instance_attribute(instance_id :: binary, opts :: modify_instance_attribute_opts) :: ExAws.Operation.RestQuery.t
   def modify_instance_attribute(instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -563,8 +563,8 @@ defmodule ExAws.EC2 do
   or ramdisk, the instance must be in a stopped state. To reset the
   SourceDestCheck, the instance can be either running or stopped.
   """
-  @spec reset_instance_attribute(instance_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  @spec reset_instance_attribute(instance_id :: binary, attribute :: binary, opts :: reset_instance_attribute_opts) :: ExAws.Request.response_t
+  @spec reset_instance_attribute(instance_id :: binary, attribute :: binary) :: ExAws.Operation.RestQuery.t
+  @spec reset_instance_attribute(instance_id :: binary, attribute :: binary, opts :: reset_instance_attribute_opts) :: ExAws.Operation.RestQuery.t
   def reset_instance_attribute(instance_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -584,8 +584,8 @@ defmodule ExAws.EC2 do
   @doc """
   Gets the console output for the specified instance.
   """
-  @spec get_console_output(instance_id :: binary) :: ExAws.Request.response_t
-  @spec get_console_output(instance_id :: binary, opts :: get_console_output_opts) :: ExAws.Request.response_t
+  @spec get_console_output(instance_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec get_console_output(instance_id :: binary, opts :: get_console_output_opts) :: ExAws.Operation.RestQuery.t
   def get_console_output(instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -605,8 +605,8 @@ defmodule ExAws.EC2 do
   Retrieves the encrypted administrator password for an instance running
   Windows.
   """
-  @spec get_password_data(instance_id :: binary) :: ExAws.Request.response_t
-  @spec get_password_data(instance_id :: binary, opts :: get_password_data_opts) :: ExAws.Request.response_t
+  @spec get_password_data(instance_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec get_password_data(instance_id :: binary, opts :: get_password_data_opts) :: ExAws.Operation.RestQuery.t
   def get_password_data(instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -640,8 +640,8 @@ defmodule ExAws.EC2 do
   Describes one or more of the Availability Zones that are available to you.
   The results include zones only for the region you're currently using.
   """
-  @spec describe_availability_zones() :: ExAws.Request.response_t
-  @spec describe_availability_zones(opts :: describe_availability_zones_opts) :: ExAws.Request.response_t
+  @spec describe_availability_zones() :: ExAws.Operation.RestQuery.t
+  @spec describe_availability_zones(opts :: describe_availability_zones_opts) :: ExAws.Operation.RestQuery.t
   def describe_availability_zones(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -663,8 +663,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more regions that are currently available to you.
   """
-  @spec describe_regions() :: ExAws.Request.response_t
-  @spec describe_regions(opts :: describe_regions_opts) :: ExAws.Request.response_t
+  @spec describe_regions() :: ExAws.Operation.RestQuery.t
+  @spec describe_regions(opts :: describe_regions_opts) :: ExAws.Operation.RestQuery.t
   def describe_regions(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -690,8 +690,8 @@ defmodule ExAws.EC2 do
   Creates an Amazon EBS-backed AMI from an Amazon EBS-backed instance
   that is either running or stopped.
   """
-  @spec create_image(instance_id :: binary, name :: binary) :: ExAws.Request.response_t
-  @spec create_image(instance_id :: binary, name :: binary, opts :: create_image_opts) :: ExAws.Request.response_t
+  @spec create_image(instance_id :: binary, name :: binary) :: ExAws.Operation.RestQuery.t
+  @spec create_image(instance_id :: binary, name :: binary, opts :: create_image_opts) :: ExAws.Operation.RestQuery.t
   def create_image(instance_id, name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -717,8 +717,8 @@ defmodule ExAws.EC2 do
   region. You specify the destination region by using its endpoint when
   making the request.
   """
-  @spec copy_image(name :: binary, source_image_id :: binary, source_region :: binary) :: ExAws.Request.response_t
-  @spec copy_image(name :: binary, source_image_id :: binary, source_region :: binary, opts :: copy_image_opts) :: ExAws.Request.response_t
+  @spec copy_image(name :: binary, source_image_id :: binary, source_region :: binary) :: ExAws.Operation.RestQuery.t
+  @spec copy_image(name :: binary, source_image_id :: binary, source_region :: binary, opts :: copy_image_opts) :: ExAws.Operation.RestQuery.t
   def copy_image(name, source_image_id, source_region, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -773,8 +773,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of the images (AMIs, AKIs, and ARIs) available to you.
   """
-  @spec describe_images() :: ExAws.Request.response_t
-  @spec describe_images(opts :: describe_images_opts) :: ExAws.Request.response_t
+  @spec describe_images() :: ExAws.Operation.RestQuery.t
+  @spec describe_images(opts :: describe_images_opts) :: ExAws.Operation.RestQuery.t
   def describe_images(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -793,8 +793,8 @@ defmodule ExAws.EC2 do
   Describes the specified attribute of the specified AMI. You can specify
   only one attribute at a time.
   """
-  @spec describe_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  @spec describe_image_attribute(image_id :: binary, attribute :: binary, opts :: describe_image_attribute_opts) :: ExAws.Request.response_t
+  @spec describe_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Operation.RestQuery.t
+  @spec describe_image_attribute(image_id :: binary, attribute :: binary, opts :: describe_image_attribute_opts) :: ExAws.Operation.RestQuery.t
   def describe_image_attribute(image_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -822,8 +822,8 @@ defmodule ExAws.EC2 do
   Modifies the specified attribute of the specified AMI. You can specify only
   one attribute at a time.
   """
-  @spec modify_image_attribute(image_id :: binary) :: ExAws.Request.response_t
-  @spec modify_image_attribute(image_id :: binary, opts :: modify_image_attribute_opts) :: ExAws.Request.response_t
+  @spec modify_image_attribute(image_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec modify_image_attribute(image_id :: binary, opts :: modify_image_attribute_opts) :: ExAws.Operation.RestQuery.t
   def modify_image_attribute(image_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -842,8 +842,8 @@ defmodule ExAws.EC2 do
   @doc """
   Resets an attribute of an AMI to its default value.
   """
-  @spec reset_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  @spec reset_image_attribute(image_id :: binary, attribute :: binary, opts :: reset_image_attribute_opts) :: ExAws.Request.response_t
+  @spec reset_image_attribute(image_id :: binary, attribute :: binary) :: ExAws.Operation.RestQuery.t
+  @spec reset_image_attribute(image_id :: binary, attribute :: binary, opts :: reset_image_attribute_opts) :: ExAws.Operation.RestQuery.t
   def reset_image_attribute(image_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -873,8 +873,8 @@ defmodule ExAws.EC2 do
   Registers an AMI. When you're creating an AMI, this is the final step you
   must complete before you can launch an instance from the AMI.
   """
-  @spec register_image(name :: binary) :: ExAws.Request.response_t
-  @spec register_image(name :: binary, opts :: register_image_opts) :: ExAws.Request.response_t
+  @spec register_image(name :: binary) :: ExAws.Operation.RestQuery.t
+  @spec register_image(name :: binary, opts :: register_image_opts) :: ExAws.Operation.RestQuery.t
   def register_image(name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -894,8 +894,8 @@ defmodule ExAws.EC2 do
   Deregisters the specified AMI. After you deregister an AMI, it can't be used
   to launch new instances.
   """
-  @spec deregister_image(image_id :: binary) :: ExAws.Request.response_t
-  @spec deregister_image(image_id :: binary, opts :: deregister_image_opts) :: ExAws.Request.response_t
+  @spec deregister_image(image_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec deregister_image(image_id :: binary, opts :: deregister_image_opts) :: ExAws.Operation.RestQuery.t
   def deregister_image(image_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -922,8 +922,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of your key pairs.
   """
-  @spec describe_key_pairs() :: ExAws.Request.response_t
-  @spec describe_key_pairs(opts :: describe_key_pairs_opts) :: ExAws.Request.response_t
+  @spec describe_key_pairs() :: ExAws.Operation.RestQuery.t
+  @spec describe_key_pairs(opts :: describe_key_pairs_opts) :: ExAws.Operation.RestQuery.t
   def describe_key_pairs(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -943,8 +943,8 @@ defmodule ExAws.EC2 do
   the public key and displays the private key for you to save to a file.
   The private key is returned as an unencrypted PEM encoded PKCS#8 private key.
   """
-  @spec create_key_pair(key_name :: binary) :: ExAws.Request.response_t
-  @spec create_key_pair(key_name :: binary, opts :: create_key_pair_opts) :: ExAws.Request.response_t
+  @spec create_key_pair(key_name :: binary) :: ExAws.Operation.RestQuery.t
+  @spec create_key_pair(key_name :: binary, opts :: create_key_pair_opts) :: ExAws.Operation.RestQuery.t
   def create_key_pair(key_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -963,8 +963,8 @@ defmodule ExAws.EC2 do
   @doc """
   Deletes the specified key pair, by removing the public key from Amazon EC2.
   """
-  @spec delete_key_pair(key_name :: binary) :: ExAws.Request.response_t
-  @spec delete_key_pair(key_name :: binary, opts :: delete_key_pair_opts) :: ExAws.Request.response_t
+  @spec delete_key_pair(key_name :: binary) :: ExAws.Operation.RestQuery.t
+  @spec delete_key_pair(key_name :: binary, opts :: delete_key_pair_opts) :: ExAws.Operation.RestQuery.t
   def delete_key_pair(key_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -984,8 +984,8 @@ defmodule ExAws.EC2 do
   Imports the public key from an RSA key pair that you created with a
   third-party tool.
   """
-  @spec import_key_pair(key_name :: binary, public_key_material :: binary) :: ExAws.Request.response_t
-  @spec import_key_pair(key_name :: binary, public_key_material :: binary, opts :: import_key_pair_opts) :: ExAws.Request.response_t
+  @spec import_key_pair(key_name :: binary, public_key_material :: binary) :: ExAws.Operation.RestQuery.t
+  @spec import_key_pair(key_name :: binary, public_key_material :: binary, opts :: import_key_pair_opts) :: ExAws.Operation.RestQuery.t
   def import_key_pair(key_name, public_key_material, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1010,8 +1010,8 @@ defmodule ExAws.EC2 do
   Describes the ID format settings for your resources on a per-region basis,
   for example, to view which resource types are enabled for longer IDs.
   """
-  @spec describe_id_format() :: ExAws.Request.response_t
-  @spec describe_id_format(opts :: describe_id_format_opts) :: ExAws.Request.response_t
+  @spec describe_id_format() :: ExAws.Operation.RestQuery.t
+  @spec describe_id_format(opts :: describe_id_format_opts) :: ExAws.Operation.RestQuery.t
   def describe_id_format(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1027,7 +1027,7 @@ defmodule ExAws.EC2 do
   @doc """
   Modifies the ID format for the specified resource on a per-region basis.
   """
-  @spec modify_id_format(resource :: binary, use_long_ids :: boolean) :: ExAws.Request.response_t
+  @spec modify_id_format(resource :: binary, use_long_ids :: boolean) :: ExAws.Operation.RestQuery.t
   def modify_id_format(resource, use_long_ids) do
     query_params = %{
       "Action"     => "ModifyIdFormat",
@@ -1068,8 +1068,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of your security groups.
   """
-  @spec describe_security_groups() :: ExAws.Request.response_t
-  @spec describe_security_groups(opts :: describe_security_groups_opts) :: ExAws.Request.response_t
+  @spec describe_security_groups() :: ExAws.Operation.RestQuery.t
+  @spec describe_security_groups(opts :: describe_security_groups_opts) :: ExAws.Operation.RestQuery.t
   def describe_security_groups(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1088,8 +1088,8 @@ defmodule ExAws.EC2 do
   @doc """
   Creates a security group.
   """
-  @spec create_security_group(group_name :: binary, group_description :: binary) :: ExAws.Request.response_t
-  @spec create_security_group(group_name :: binary, group_description :: binary, opts :: create_security_group_opts) :: ExAws.Request.response_t
+  @spec create_security_group(group_name :: binary, group_description :: binary) :: ExAws.Operation.RestQuery.t
+  @spec create_security_group(group_name :: binary, group_description :: binary, opts :: create_security_group_opts) :: ExAws.Operation.RestQuery.t
   def create_security_group(group_name, group_description, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1118,8 +1118,8 @@ defmodule ExAws.EC2 do
   @doc """
   Adds one or more ingress rules to a security group.
   """
-  @spec authorize_security_group_ingress() :: ExAws.Request.response_t
-  @spec authorize_security_group_ingress(opts :: authorize_security_group_ingress_opts) :: ExAws.Request.response_t
+  @spec authorize_security_group_ingress() :: ExAws.Operation.RestQuery.t
+  @spec authorize_security_group_ingress(opts :: authorize_security_group_ingress_opts) :: ExAws.Operation.RestQuery.t
   def authorize_security_group_ingress(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1145,8 +1145,8 @@ defmodule ExAws.EC2 do
   @doc """
   Adds one or more egress rules to a security group for use with a VPC.
   """
-  @spec authorize_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
-  @spec authorize_security_group_egress(group_id :: binary, opts :: authorize_security_group_egress_opts) :: ExAws.Request.response_t
+  @spec authorize_security_group_egress(group_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec authorize_security_group_egress(group_id :: binary, opts :: authorize_security_group_egress_opts) :: ExAws.Operation.RestQuery.t
   def authorize_security_group_egress(group_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1176,8 +1176,8 @@ defmodule ExAws.EC2 do
   you specify in the revoke request (for example, ports) must match
   the existing rule's values for the rule to be removed.
   """
-  @spec revoke_security_group_ingress() :: ExAws.Request.response_t
-  @spec revoke_security_group_ingress(opts :: revoke_security_group_ingress_opts) :: ExAws.Request.response_t
+  @spec revoke_security_group_ingress() :: ExAws.Operation.RestQuery.t
+  @spec revoke_security_group_ingress(opts :: revoke_security_group_ingress_opts) :: ExAws.Operation.RestQuery.t
   def revoke_security_group_ingress(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1203,8 +1203,8 @@ defmodule ExAws.EC2 do
   @doc """
   Removes one or more egress rules from a security group for EC2-VPC.
   """
-  @spec revoke_security_group_egress(group_id :: binary) :: ExAws.Request.response_t
-  @spec revoke_security_group_egress(group_id :: binary, opts :: revoke_security_group_egress_opts) :: ExAws.Request.response_t
+  @spec revoke_security_group_egress(group_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec revoke_security_group_egress(group_id :: binary, opts :: revoke_security_group_egress_opts) :: ExAws.Operation.RestQuery.t
   def revoke_security_group_egress(group_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1239,8 +1239,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of your VPCs.
   """
-  @spec describe_vpcs() :: ExAws.Request.response_t
-  @spec describe_vpcs(opts :: describe_vpcs_opts) :: ExAws.Request.response_t
+  @spec describe_vpcs() :: ExAws.Operation.RestQuery.t
+  @spec describe_vpcs(opts :: describe_vpcs_opts) :: ExAws.Operation.RestQuery.t
   def describe_vpcs(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1259,8 +1259,8 @@ defmodule ExAws.EC2 do
   @doc """
   Creates a VPC with the specified CIDR block.
   """
-  @spec create_vpc(cidr_block :: binary) :: ExAws.Request.response_t
-  @spec create_vpc(cidr_block :: binary, opts :: create_vpc_opts) :: ExAws.Request.response_t
+  @spec create_vpc(cidr_block :: binary) :: ExAws.Operation.RestQuery.t
+  @spec create_vpc(cidr_block :: binary, opts :: create_vpc_opts) :: ExAws.Operation.RestQuery.t
   def create_vpc(cidr_block, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1279,8 +1279,8 @@ defmodule ExAws.EC2 do
   @doc """
   Deletes the specified VPC.
   """
-  @spec delete_vpc(vpc_id :: binary) :: ExAws.Request.response_t
-  @spec delete_vpc(vpc_id :: binary, opts :: delete_vpc_opts) :: ExAws.Request.response_t
+  @spec delete_vpc(vpc_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec delete_vpc(vpc_id :: binary, opts :: delete_vpc_opts) :: ExAws.Operation.RestQuery.t
   def delete_vpc(vpc_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1299,8 +1299,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes the specified attribute of the specified VPC. You can specify only one attribute at a time.
   """
-  @spec describe_vpc_attribute(vpc_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  @spec describe_vpc_attribute(vpc_id :: binary, attribute :: binary, opts :: describe_vpc_attribute_opts) :: ExAws.Request.response_t
+  @spec describe_vpc_attribute(vpc_id :: binary, attribute :: binary) :: ExAws.Operation.RestQuery.t
+  @spec describe_vpc_attribute(vpc_id :: binary, attribute :: binary, opts :: describe_vpc_attribute_opts) :: ExAws.Operation.RestQuery.t
   def describe_vpc_attribute(vpc_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1321,8 +1321,8 @@ defmodule ExAws.EC2 do
   @doc """
   Modifies the specified attribute of the specified VPC.
   """
-  @spec modify_vpc_attribute(vpc_id :: binary) :: ExAws.Request.response_t
-  @spec modify_vpc_attribute(vpc_id :: binary, opts :: modify_vpc_attribute_opts) :: ExAws.Request.response_t
+  @spec modify_vpc_attribute(vpc_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec modify_vpc_attribute(vpc_id :: binary, opts :: modify_vpc_attribute_opts) :: ExAws.Operation.RestQuery.t
   def modify_vpc_attribute(vpc_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1359,8 +1359,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of your subnets.
   """
-  @spec describe_subnets() :: ExAws.Request.response_t
-  @spec describe_subnets(opts :: describe_subnets_opts) :: ExAws.Request.response_t
+  @spec describe_subnets() :: ExAws.Operation.RestQuery.t
+  @spec describe_subnets(opts :: describe_subnets_opts) :: ExAws.Operation.RestQuery.t
   def describe_subnets(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1379,8 +1379,8 @@ defmodule ExAws.EC2 do
   @doc """
   Creates a subnet in an existing VPC.
   """
-  @spec create_subnet(vpc_id :: binary, cidr_block :: binary) :: ExAws.Request.response_t
-  @spec create_subnet(vpc_id :: binary, cidr_block :: binary, opts :: create_subnet_opts) :: ExAws.Request.response_t
+  @spec create_subnet(vpc_id :: binary, cidr_block :: binary) :: ExAws.Operation.RestQuery.t
+  @spec create_subnet(vpc_id :: binary, cidr_block :: binary, opts :: create_subnet_opts) :: ExAws.Operation.RestQuery.t
   def create_subnet(vpc_id, cidr_block, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1400,8 +1400,8 @@ defmodule ExAws.EC2 do
   @doc """
   Deletes the specified subnet.
   """
-  @spec delete_subnet(subnet_id :: binary) :: ExAws.Request.response_t
-  @spec delete_subnet(subnet_id :: binary, opts :: delete_subnet_opts) :: ExAws.Request.response_t
+  @spec delete_subnet(subnet_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec delete_subnet(subnet_id :: binary, opts :: delete_subnet_opts) :: ExAws.Operation.RestQuery.t
   def delete_subnet(subnet_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1420,8 +1420,8 @@ defmodule ExAws.EC2 do
   @doc """
   Modifies a subnet attribute.
   """
-  @spec modify_subnet_attribute(subnet_id :: binary) :: ExAws.Request.response_t
-  @spec modify_subnet_attribute(subnet_id :: binary, opts :: modify_subnet_attribute_opts) :: ExAws.Request.response_t
+  @spec modify_subnet_attribute(subnet_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec modify_subnet_attribute(subnet_id :: binary, opts :: modify_subnet_attribute_opts) :: ExAws.Operation.RestQuery.t
   def modify_subnet_attribute(subnet_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1472,8 +1472,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of the tags for your EC2 resources.
   """
-  @spec describe_tags() :: ExAws.Request.response_t
-  @spec describe_tags(opts :: describe_tags_opts) :: ExAws.Request.response_t
+  @spec describe_tags() :: ExAws.Operation.RestQuery.t
+  @spec describe_tags(opts :: describe_tags_opts) :: ExAws.Operation.RestQuery.t
   def describe_tags(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1493,8 +1493,8 @@ defmodule ExAws.EC2 do
   resources. Each resource can have a maximum of 10 tags. Each tag consists of
   a key and optional value. Tag keys must be unique per resource.
   """
-  @spec create_tags(resource_ids :: list(binary), tags :: tag) :: ExAws.Request.response_t
-  @spec create_tags(resource_ids :: list(binary), tags :: tag, opts :: create_tags_opts) :: ExAws.Request.response_t
+  @spec create_tags(resource_ids :: list(binary), tags :: [tag]) :: ExAws.Operation.RestQuery.t
+  @spec create_tags(resource_ids :: list(binary), tags :: [tag], opts :: create_tags_opts) :: ExAws.Operation.RestQuery.t
   def create_tags(resource_ids, tags, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1515,8 +1515,8 @@ defmodule ExAws.EC2 do
   @doc """
   Deletes the specified set of tags from the specified set of resources.
   """
-  @spec delete_tags(resource_ids :: list(binary)) :: ExAws.Request.response_t
-  @spec delete_tags(resource_ids :: list(binary), opts :: delete_tags_opts) :: ExAws.Request.response_t
+  @spec delete_tags(resource_ids :: list(binary)) :: ExAws.Operation.RestQuery.t
+  @spec delete_tags(resource_ids :: list(binary), opts :: delete_tags_opts) :: ExAws.Operation.RestQuery.t
   def delete_tags(resource_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1561,8 +1561,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes the specified EBS volumes.
   """
-  @spec describe_volumes() :: ExAws.Request.response_t
-  @spec describe_volumes(opts :: describe_volumes_opts) :: ExAws.Request.response_t
+  @spec describe_volumes() :: ExAws.Operation.RestQuery.t
+  @spec describe_volumes(opts :: describe_volumes_opts) :: ExAws.Operation.RestQuery.t
   def describe_volumes(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1587,8 +1587,8 @@ defmodule ExAws.EC2 do
   Availability Zone. The volume is created in the regional endpoint that you
   send the HTTP request to.
   """
-  @spec create_volume(availability_zone :: binary, size :: available_size_ranges) :: ExAws.Request.response_t
-  @spec create_volume(availability_zone :: binary, size :: available_size_ranges, opts :: create_volume_opts) :: ExAws.Request.response_t
+  @spec create_volume(availability_zone :: binary, size :: available_size_ranges) :: ExAws.Operation.RestQuery.t
+  @spec create_volume(availability_zone :: binary, size :: available_size_ranges, opts :: create_volume_opts) :: ExAws.Operation.RestQuery.t
   def create_volume(availability_zone, size, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1609,8 +1609,8 @@ defmodule ExAws.EC2 do
   Deletes the specified EBS volume. The volume must be in the available state
   (not attached to an instance).
   """
-  @spec delete_volume(volume_id :: binary) :: ExAws.Request.response_t
-  @spec delete_volume(volume_id :: binary, opts :: delete_volume_opts) :: ExAws.Request.response_t
+  @spec delete_volume(volume_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec delete_volume(volume_id :: binary, opts :: delete_volume_opts) :: ExAws.Operation.RestQuery.t
   def delete_volume(volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1630,8 +1630,8 @@ defmodule ExAws.EC2 do
   Attaches an EBS volume to a running or stopped instance and exposes it to
   the instance with the specified device name.
   """
-  @spec attach_volume(instance_id :: binary, volume_id :: binary, device :: binary) :: ExAws.Request.response_t
-  @spec attach_volume(instance_id :: binary, volume_id :: binary, device :: binary, opts :: attach_volume_opts) :: ExAws.Request.response_t
+  @spec attach_volume(instance_id :: binary, volume_id :: binary, device :: binary) :: ExAws.Operation.RestQuery.t
+  @spec attach_volume(instance_id :: binary, volume_id :: binary, device :: binary, opts :: attach_volume_opts) :: ExAws.Operation.RestQuery.t
   def attach_volume(instance_id, volume_id, device, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1655,8 +1655,8 @@ defmodule ExAws.EC2 do
   @doc """
   Detaches an EBS volume from an instance.
   """
-  @spec detach_volume(volume_id :: binary) :: ExAws.Request.response_t
-  @spec detach_volume(volume_id :: binary, opts :: detach_volume_opts) :: ExAws.Request.response_t
+  @spec detach_volume(volume_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec detach_volume(volume_id :: binary, opts :: detach_volume_opts) :: ExAws.Operation.RestQuery.t
   def detach_volume(volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1677,8 +1677,8 @@ defmodule ExAws.EC2 do
   Describes the specified attribute of the specified volume. You can specify
   only one attribute at a time.
   """
-  @spec describe_volume_attribute(volume_id :: binary) :: ExAws.Request.response_t
-  @spec describe_volume_attribute(volume_id :: binary, opts :: describe_volume_attribute_opts) :: ExAws.Request.response_t
+  @spec describe_volume_attribute(volume_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec describe_volume_attribute(volume_id :: binary, opts :: describe_volume_attribute_opts) :: ExAws.Operation.RestQuery.t
   def describe_volume_attribute(volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1698,8 +1698,8 @@ defmodule ExAws.EC2 do
   @doc """
   Modifies a volume attribute.
   """
-  @spec modify_volume_attribute(volume_id :: binary) :: ExAws.Request.response_t
-  @spec modify_volume_attribute(volume_id :: binary, opts :: modify_volume_attribute_opts) :: ExAws.Request.response_t
+  @spec modify_volume_attribute(volume_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec modify_volume_attribute(volume_id :: binary, opts :: modify_volume_attribute_opts) :: ExAws.Operation.RestQuery.t
   def modify_volume_attribute(volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1719,8 +1719,8 @@ defmodule ExAws.EC2 do
   Enables I/O operations for a volume that had I/O operations disabled because
   the data on the volume was potentially inconsistent.
   """
-  @spec enable_volume_io(volume_id :: binary) :: ExAws.Request.response_t
-  @spec enable_volume_io(volume_id :: binary, opts :: enable_volume_io_opts) :: ExAws.Request.response_t
+  @spec enable_volume_io(volume_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec enable_volume_io(volume_id :: binary, opts :: enable_volume_io_opts) :: ExAws.Operation.RestQuery.t
   def enable_volume_io(volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1757,8 +1757,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes the status of the specified volumes.
   """
-  @spec describe_volume_status() :: ExAws.Request.response_t
-  @spec describe_volume_status(opts :: describe_volume_status_opts) :: ExAws.Request.response_t
+  @spec describe_volume_status() :: ExAws.Operation.RestQuery.t
+  @spec describe_volume_status(opts :: describe_volume_status_opts) :: ExAws.Operation.RestQuery.t
   def describe_volume_status(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1796,8 +1796,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of the EBS snapshots available to you.
   """
-  @spec describe_snapshots() :: ExAws.Request.response_t
-  @spec describe_snapshots(opts :: describe_snapshots_opts) :: ExAws.Request.response_t
+  @spec describe_snapshots() :: ExAws.Operation.RestQuery.t
+  @spec describe_snapshots(opts :: describe_snapshots_opts) :: ExAws.Operation.RestQuery.t
   def describe_snapshots(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1818,8 +1818,8 @@ defmodule ExAws.EC2 do
   You can use snapshots for backups, to make copies of EBS volumes, and to
   save data before shutting down an instance.
   """
-  @spec create_snapshot(volume_id :: binary) :: ExAws.Request.response_t
-  @spec create_snapshot(volume_id :: binary, opts :: create_snapshot_opts) :: ExAws.Request.response_t
+  @spec create_snapshot(volume_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec create_snapshot(volume_id :: binary, opts :: create_snapshot_opts) :: ExAws.Operation.RestQuery.t
   def create_snapshot(volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1845,8 +1845,8 @@ defmodule ExAws.EC2 do
   You can copy the snapshot within the same region or from one region to
   another.
   """
-  @spec copy_snapshot(source_snapshot_id :: binary, source_region :: binary) :: ExAws.Request.response_t
-  @spec copy_snapshot(source_snapshot_id :: binary, source_region :: binary, opts :: copy_snapshot_opts) :: ExAws.Request.response_t
+  @spec copy_snapshot(source_snapshot_id :: binary, source_region :: binary) :: ExAws.Operation.RestQuery.t
+  @spec copy_snapshot(source_snapshot_id :: binary, source_region :: binary, opts :: copy_snapshot_opts) :: ExAws.Operation.RestQuery.t
   def copy_snapshot(source_snapshot_id, source_region, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1867,8 +1867,8 @@ defmodule ExAws.EC2 do
   @doc """
   Deletes the specified snapshot.
   """
-  @spec delete_snapshot(snapshot_id :: binary) :: ExAws.Request.response_t
-  @spec delete_snapshot(snapshot_id :: binary, opts :: delete_snapshot_opts) :: ExAws.Request.response_t
+  @spec delete_snapshot(snapshot_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec delete_snapshot(snapshot_id :: binary, opts :: delete_snapshot_opts) :: ExAws.Operation.RestQuery.t
   def delete_snapshot(snapshot_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1888,8 +1888,8 @@ defmodule ExAws.EC2 do
   Describes the specified attribute of the specified snapshot. You can specify
   only one attribute at a time.
   """
-  @spec describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  @spec describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: describe_snapshot_attribute_opts) :: ExAws.Request.response_t
+  @spec describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Operation.RestQuery.t
+  @spec describe_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: describe_snapshot_attribute_opts) :: ExAws.Operation.RestQuery.t
   def describe_snapshot_attribute(snapshot_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1914,8 +1914,8 @@ defmodule ExAws.EC2 do
   @doc """
   Adds or removes permission settings for the specified snapshot.
   """
-  @spec modify_snapshot_attribute(snapshot_id :: binary) :: ExAws.Request.response_t
-  @spec modify_snapshot_attribute(snapshot_id :: binary, opts :: modify_snapshot_attribute_opts) :: ExAws.Request.response_t
+  @spec modify_snapshot_attribute(snapshot_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec modify_snapshot_attribute(snapshot_id :: binary, opts :: modify_snapshot_attribute_opts) :: ExAws.Operation.RestQuery.t
   def modify_snapshot_attribute(snapshot_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1934,8 +1934,8 @@ defmodule ExAws.EC2 do
   @doc """
   Resets permission settings for the specified snapshot.
   """
-  @spec reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Request.response_t
-  @spec reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: reset_snapshot_attribute_opts) :: ExAws.Request.response_t
+  @spec reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary) :: ExAws.Operation.RestQuery.t
+  @spec reset_snapshot_attribute(snapshot_id :: binary, attribute :: binary, opts :: reset_snapshot_attribute_opts) :: ExAws.Operation.RestQuery.t
   def reset_snapshot_attribute(snapshot_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1960,8 +1960,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes attributes of your AWS account.
   """
-  @spec describe_account_attributes() :: ExAws.Request.response_t
-  @spec describe_account_attributes(opts :: describe_account_attributes_opts) :: ExAws.Request.response_t
+  @spec describe_account_attributes() :: ExAws.Operation.RestQuery.t
+  @spec describe_account_attributes(opts :: describe_account_attributes_opts) :: ExAws.Operation.RestQuery.t
   def describe_account_attributes(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1985,8 +1985,8 @@ defmodule ExAws.EC2 do
   During bundling, only the root device volume (C:\) is bundled. Data on other
   instance store volumes is not preserved.
   """
-  @spec bundle_instance(instance_id :: binary, s3_storage) :: ExAws.Request.response_t
-  @spec bundle_instance(instance_id :: binary, s3_storage, opts :: bundle_instance_opts) :: ExAws.Request.response_t
+  @spec bundle_instance(instance_id :: binary, s3_storage) :: ExAws.Operation.RestQuery.t
+  @spec bundle_instance(instance_id :: binary, s3_storage, opts :: bundle_instance_opts) :: ExAws.Operation.RestQuery.t
   def bundle_instance(instance_id, {s3_aws_access_key_id, s3_bucket, s3_prefix, s3_upload_policy, s3_upload_policy_sig}, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -2010,8 +2010,8 @@ defmodule ExAws.EC2 do
   @doc """
   Cancels a bundling operation for an instance store-backed Windows instance.
   """
-  @spec cancel_bundle_task(bundle_id :: binary) :: ExAws.Request.response_t
-  @spec cancel_bundle_task(bundle_id :: binary, opts :: cancel_bundle_task_opts) :: ExAws.Request.response_t
+  @spec cancel_bundle_task(bundle_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec cancel_bundle_task(bundle_id :: binary, opts :: cancel_bundle_task_opts) :: ExAws.Operation.RestQuery.t
   def cancel_bundle_task(bundle_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -2046,8 +2046,8 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of your bundling tasks.
   """
-  @spec describe_bundle_tasks() :: ExAws.Request.response_t
-  @spec describe_bundle_tasks(opts :: describe_bundle_tasks_opts) :: ExAws.Request.response_t
+  @spec describe_bundle_tasks() :: ExAws.Operation.RestQuery.t
+  @spec describe_bundle_tasks(opts :: describe_bundle_tasks_opts) :: ExAws.Operation.RestQuery.t
   def describe_bundle_tasks(opts \\ []) do
     query_params = opts
     |> normalize_opts

@@ -37,7 +37,7 @@ defmodule ExAws.RDS do
   @doc """
   Adds a source identifier to an existing RDS event notification subscription.
   """
-  @spec add_source_id_to_subscription(source_id :: binary, subscription :: binary) :: ExAws.Request.response_t
+  @spec add_source_id_to_subscription(source_id :: binary, subscription :: binary) :: ExAws.Operation.RestQuery.t
   def add_source_id_to_subscription(source_id, subscription) do
     query_params = %{
       "Action"           => "AddSourceIdentifierToSubscription",
@@ -73,7 +73,7 @@ defmodule ExAws.RDS do
   @doc """
   Applies a pending maintenance action to a resource.
   """
-  @spec apply_pending_maintenance(resource_id :: binary, action :: apply_pending_maintenance_actions, opt_in_type :: apply_pending_maintenance_opt_in_types) :: ExAws.Request.response_t
+  @spec apply_pending_maintenance(resource_id :: binary, action :: apply_pending_maintenance_actions, opt_in_type :: apply_pending_maintenance_opt_in_types) :: ExAws.Operation.RestQuery.t
   def apply_pending_maintenance(resource_id, action, opt_in_type) do
     query_params = %{
       "Action" => "ApplyPendingMaintenanceAction",
@@ -95,8 +95,8 @@ defmodule ExAws.RDS do
   @doc """
   Returns information about provisioned RDS instances.
   """
-  @spec describe_db_instances() :: ExAws.Request.response_t
-  @spec describe_db_instances(opts :: describe_db_instances_opts) :: ExAws.Request.response_t
+  @spec describe_db_instances() :: ExAws.Operation.RestQuery.t
+  @spec describe_db_instances(opts :: describe_db_instances_opts) :: ExAws.Operation.RestQuery.t
   def describe_db_instances(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -151,8 +151,8 @@ defmodule ExAws.RDS do
   @doc """
   Creates a new DB instance.
   """
-  @spec create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary) :: ExAws.Request.response_t
-  @spec create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary, opts :: create_db_instance_opts) :: ExAws.Request.response_t
+  @spec create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary) :: ExAws.Operation.RestQuery.t
+  @spec create_db_instance(instance_id :: binary, username :: binary, password :: binary, storage :: integer, class :: binary, engine :: binary, opts :: create_db_instance_opts) :: ExAws.Operation.RestQuery.t
   def create_db_instance(instance_id, username, password, storage, class, engine, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -209,8 +209,8 @@ defmodule ExAws.RDS do
   @doc """
   Modify settings for a DB instance.
   """
-  @spec modify_db_instance(instance_id :: binary) :: ExAws.Request.response_t
-  @spec modify_db_instance(instance_id :: binary, opts :: modify_db_instance_opts) :: ExAws.Request.response_t
+  @spec modify_db_instance(instance_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec modify_db_instance(instance_id :: binary, opts :: modify_db_instance_opts) :: ExAws.Operation.RestQuery.t
   def modify_db_instance(instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -230,8 +230,8 @@ defmodule ExAws.RDS do
   @doc """
   Deletes a DB instance.
   """
-  @spec delete_db_instance(instance_id :: binary) :: ExAws.Request.response_t
-  @spec delete_db_instance(instance_id :: binary, opts :: delete_db_instance_opts) :: ExAws.Request.response_t
+  @spec delete_db_instance(instance_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec delete_db_instance(instance_id :: binary, opts :: delete_db_instance_opts) :: ExAws.Operation.RestQuery.t
   def delete_db_instance(instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -250,8 +250,8 @@ defmodule ExAws.RDS do
   @doc """
   Reboots a DB instance.
   """
-  @spec reboot_db_instance(instance_id :: binary) :: ExAws.Request.response_t
-  @spec reboot_db_instance(instance_id :: binary, opts :: reboot_db_instance_opts) :: ExAws.Request.response_t
+  @spec reboot_db_instance(instance_id :: binary) :: ExAws.Operation.RestQuery.t
+  @spec reboot_db_instance(instance_id :: binary, opts :: reboot_db_instance_opts) :: ExAws.Operation.RestQuery.t
   def reboot_db_instance(instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -279,8 +279,8 @@ defmodule ExAws.RDS do
   Returns events related to DB instances, DB security groups, DB snapshots,
   and DB parameter groups for the past 14 days.
   """
-  @spec describe_events() :: ExAws.Request.response_t
-  @spec describe_events(opts :: describe_db_instances_opts) :: ExAws.Request.response_t
+  @spec describe_events() :: ExAws.Operation.RestQuery.t
+  @spec describe_events(opts :: describe_db_instances_opts) :: ExAws.Operation.RestQuery.t
   def describe_events(opts \\ []) do
     query_params = opts
     |> normalize_opts
