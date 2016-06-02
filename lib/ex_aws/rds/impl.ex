@@ -52,7 +52,6 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:db_instance_identifier, [:filter], :marker, :max_records]
   def describe_db_instances(client, opts \\ []) do 
     query_params = opts
     |> normalize_opts
@@ -64,13 +63,6 @@ defmodule ExAws.RDS.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:auto_minor_version_upgrade, :availability_zone, :backup_retention_period, :character_set_name, :copy_tags_to_snapshot,
-           :db_cluster_identifier, :db_name, :db_parameter_group_name, [:db_security_groups_member], :db_subnet_group_name, :domain, 
-           :domain_iam_role_name, :engine_version, :iops, :kms_key_id, :license_model, :monitoring_interval, 
-           :monitoring_role_arn, :multi_az, :option_group_name, :port, :preferred_backup_window, :preferred_maintenance_window, 
-           :promotion_tier, :publicly_accessible, :storage_encrypted, :storage_type, [:tags_member],
-           :tde_credential_arn, :tde_credential_password, [:vpc_security_groups_ids_member]
-  ]
   def create_db_instance(client, instance_id, username, password, storage, class, engine, opts \\ []) do 
     query_params = opts
     |> normalize_opts
@@ -88,12 +80,6 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:allocated_storage, :allow_major_version_upgrade, :apply_immediately, :auto_minor_version_upgrade, :backup_retention_period, 
-           :ca_certificate_identifier, :copy_tags_to_snapshot, :db_instance_class, :db_parameter_group_name, :db_port_number, 
-           [:sb_security_groups_member], :domain, :domain_iam_role_name, :engine_version, :iops, :master_user_password, :monitoring_interval, :monitoring_role_arn, 
-           :multi_az, :new_db_instance_identifier, :option_group_name, :preferred_backup_window, :preferred_maintenance_window, :promotion_tier, 
-           :publicly_accessible, :storage_type, :tde_credential_arn, :tde_credential_password, [:vpc_security_groups_ids_member]
-  ]
   def modify_db_instance(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -106,7 +92,6 @@ defmodule ExAws.RDS.Impl do
     request(client, :patch, "/", params: query_params)
   end
 
-  @params [:final_snapshot_identifier, :skip_final_snapshot]
   def delete_db_instance(client, instance_id, opts \\ []) do 
     query_params = opts
     |> normalize_opts
@@ -119,7 +104,6 @@ defmodule ExAws.RDS.Impl do
     request(client, :delete, "/", params: query_params)
   end
 
-  @params [:force_failover]
   def reboot_db_instance(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -132,7 +116,6 @@ defmodule ExAws.RDS.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:duration, :end_time, [:event_categories_member], [:filter_member], :marker, :max_records, :source_identifier, :source_type, :start_time] 
   def describe_events(client, opts \\ []) do 
     query_params = opts
     |> normalize_opts
