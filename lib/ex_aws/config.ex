@@ -7,7 +7,10 @@ defmodule ExAws.Config do
   # and then merges in the common config from the ex_aws config root,
   # and then finally any config specified for the particular service
 
-  @common_config [:http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests, :region]
+  @common_config [
+    :http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests,
+    :region, :security_token
+  ]
 
   def build(client, opts \\ []) do
     config = client
@@ -40,7 +43,7 @@ defmodule ExAws.Config do
     new_config = config
     |> Enum.reduce(%{}, fn
       {:host, host}, config ->
-        Map.put(config, :host, host)
+        Map.put(config, :host, retrieve_runtime_value(host, client))
       {k, v}, config ->
         case retrieve_runtime_value(v, client) do
           %{} = result -> Map.merge(config, result)

@@ -3,7 +3,7 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.4.17",
+     version: "0.4.19",
      elixir: "~> 1.0",
      elixirc_paths: elixirc_paths(Mix.env),
      description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS",
@@ -29,11 +29,10 @@ defmodule ExAws.Mixfile do
   defp deps(:test_dev) do
     [
       {:sweet_xml, "~> 0.5", optional: true},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.7", only: :dev},
-      {:httpoison, "~> 0.7", optional: true},
+      {:earmark, "~> 0.2.1", only: :dev},
+      {:ex_doc, "~> 0.11.4", only: :dev},
+      {:httpoison, "~> 0.8", optional: true},
       {:poison, "~> 1.2 or ~> 2.0", optional: true},
-      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", optional: true},
       {:httpotion, "~> 2.0", optional: true},
       {:jsx, "~> 2.5", optional: true}
     ]

@@ -16,12 +16,16 @@ defmodule ExAws.Kinesis.Request do
   end
 
   def parse({:error, result}, _), do: {:error, result}
+  def parse({:ok, %{body: ""}}, _), do: {:ok, %{}}
   def parse({:ok, %{body: body}}, config) do
     {:ok, config[:json_codec].decode!(body)}
   end
 
-  defp url(%{scheme: scheme, host: host}) do
-    [scheme, host, "/"]
+  defp url(%{scheme: scheme, host: host, port: port}) do
+    [scheme, host, port |> port, "/"]
     |> IO.iodata_to_binary
   end
+
+  defp port(80), do: ""
+  defp port(p),  do: ":#{p}"
 end

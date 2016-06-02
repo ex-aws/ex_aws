@@ -234,6 +234,20 @@ defmodule ExAws.S3.Impl do
     request(client, :post, bucket, "/?delete", body: body_binary, headers: %{"content-md5" => content_md5})
   end
 
+  def delete_all_objects(client, bucket, objects, opts \\ []) do
+    do_delete_all(client, bucket, objects, opts, [])
+  end
+
+  defp do_delete_all(_client, _bucket, [], _opts, acc) do
+    {:ok, Enum.reverse(acc)}
+  end
+  defp do_delete_all(client, bucket, objects, opts, acc) do
+    {objects, rest} = Enum.split(objects, 1000)
+    with {:ok, result} <- delete_multiple_objects(client, bucket, objects, opts) do
+      do_delete_all(client, bucket, rest, opts, [result | acc])
+    end
+  end
+
   @response_params [:content_type, :content_language, :expires, :cache_control, :content_disposition, :content_encoding]
   @request_headers [:range, :if_modified_since, :if_unmodified_since, :if_match, :if_none_match]
   def get_object(client, bucket, object, opts \\ []) do
@@ -457,8 +471,7 @@ defmodule ExAws.S3.Impl do
         config = client.config
         url = url_to_sign(bucket, object, config, virtual_host)
         datetime = :calendar.universal_time
-        {:ok, ExAws.Auth.presigned_url(
-            http_method, url, client.service, datetime, client.config, expires_in)}
+        {:ok, ExAws.Auth.presigned_url(http_method, url, client.service, datetime, client.config, expires_in)}
     end
   end
 

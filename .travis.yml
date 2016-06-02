@@ -5,8 +5,6 @@ notifications:
   recipients:
     - ben.wilson@cargosense.com
 otp_release:
-  - 17.1
-  - 17.5
   - 18.0
 before_script:
   - wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz -O /tmp/dynamodb_local_latest.tar.gz
