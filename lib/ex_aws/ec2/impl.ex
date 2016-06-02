@@ -905,7 +905,7 @@ defmodule ExAws.EC2.Impl do
   end 
 
   defp list_builder([h | []], key, count, state) do
-    Map.put_new(state, "#{key}.#{count}", h)
+    Map.put(state, "#{key}.#{count}", h)
   end
 
   defp list_builder([h | t], key, count, state) do
