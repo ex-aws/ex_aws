@@ -912,7 +912,7 @@ defmodule ExAws.EC2.Impl do
     list_builder t, key, count + 1, Map.put_new(state, "#{key}.#{count}", h)
   end
 
-  defp list_builder_key_val([_h = {f, s} | []], key, count, state) do
+  defp list_builder_key_val([{f, s} | []], key, count, state) do
     new_map = Map.new
     |> Map.put_new("#{key}.#{count}.Key", f)
     |> Map.put_new("#{key}.#{count}.Value", s)
