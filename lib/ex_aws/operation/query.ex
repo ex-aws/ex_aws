@@ -1,6 +1,6 @@
 defmodule ExAws.Operation.Query do
   @moduledoc """
-  Datastructure representing an operation on a JSON based AWS service
+  Datastructure representing an operation on a Query based AWS service
 
   These include:
   - SQS
