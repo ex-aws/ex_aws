@@ -38,9 +38,9 @@ if Code.ensure_loaded?(SweetXml) do
     defp list_objects_binaries(result) do
       Enum.into(result, %{}, fn
         {:contents, contents} -> {:contents, Enum.map(contents, &list_objects_binaries/1)}
+        {k, nil} -> {k, nil}
         {:owner, v} -> {:owner, list_objects_binaries(v)}
         {:common_prefixes, prefixes} -> {:common_prefixes, Enum.map(prefixes, &list_objects_binaries/1)}
-        {k, nil} -> {k, nil}
         {k, v} -> {k, IO.chardata_to_string(v)}
       end)
     end

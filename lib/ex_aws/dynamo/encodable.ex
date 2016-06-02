@@ -79,6 +79,7 @@ defimpl ExAws.Dynamo.Encodable, for: Map do
     Enum.reduce(map, %{}, fn
       ({_, nil}, map) -> map
       ({_, []}, map)  -> map
+      ({_, ""}, map)  -> map
 
       ({k, v}, map) when is_binary(k) ->
         Map.put(map, k, ExAws.Dynamo.Encodable.encode(v, []))
