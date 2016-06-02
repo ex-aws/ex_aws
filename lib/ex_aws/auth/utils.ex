@@ -1,4 +1,8 @@
 defmodule ExAws.Auth.Utils do
+  def uri_encode(nil) do
+    "/"
+  end
+
   def uri_encode(url) do
     URI.encode(url, &valid_path_char?/1)
   end
