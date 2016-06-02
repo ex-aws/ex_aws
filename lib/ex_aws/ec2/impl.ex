@@ -11,7 +11,6 @@ defmodule ExAws.EC2.Impl do
   ### Instance Actions ###
   ########################
 
-  @params [:dry_run, [:filter], [:instance], :max_results, :next_token]
   def describe_instances(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -23,7 +22,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, [:filter], [:instance], :include_all_instances, :max_results, :next_token]
   def describe_instance_status(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -35,10 +33,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end  
 
-  @params [:additional_info, [:block_device_mapping], :client_token, :disable_api_termination, :dry_run, :ebs_optimized, 
-           :iam_instance_profile, :instance_initiated_shutdown_behavior, :instance_type, 
-           :kernel_id, :key_name, :monitoring, [:network_interface], :placement, :private_ip_address, :ram_disk_id, 
-           [:security_group_id], [:security_group], :user_data]
   def run_instances(client, image_id, max, min, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -53,7 +47,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:additional_info, :dry_run, [:instance_id]]
   def start_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -66,7 +59,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, :force, [:instance_id]]
   def stop_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -79,7 +71,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:dry_run, [:instance_id]]
   def terminate_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -92,7 +83,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)      
   end
 
-  @params [:dry_run, [:instance_id]]
   def reboot_instances(client, instance_ids, opts \\ []) do 
     query_params = opts
     |> normalize_opts
@@ -105,7 +95,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:description, :dry_run, :end_time, [:instance_id], [:reason_code], :start_time, :status]
   def report_instance_status(client, instance_ids, status, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -119,7 +108,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, [:instance_id]]
   def monitor_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -132,7 +120,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:dry_run, [:instance_id]]
   def unmonitor_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -145,7 +132,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:attribute, :dry_run]
   def describe_instance_attribute(client, instance_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -159,8 +145,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:attribute, [:block_device_mapping], :disable_api_termination, :dry_run, :ebs_optimized, :instance_initiated_shutdown_behavior,
-           [:group_id], :kernel, :ramdisk, :source_dest_check, :sriov_net_support, :user_data, :value]
   def modify_instance_attribute(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -173,7 +157,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def reset_instance_attribute(client, instance_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -187,7 +170,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)    
   end
 
-  @params [:dry_run]
   def get_console_output(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -200,7 +182,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def get_password_data(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -217,7 +198,6 @@ defmodule ExAws.EC2.Impl do
   ### Regions and Availability Zones Actions ###
   ##############################################
 
-  @params [:dry_run, [:filter], [:zone]]
   def describe_availability_zones(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -229,7 +209,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, [:filter], [:region]]
   def describe_regions(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -245,7 +224,6 @@ defmodule ExAws.EC2.Impl do
   ### AMI Actions ###
   ###################
 
-  @params [:description, [:block_device_mapping], :dry_run, :no_reboot]
   def create_image(client, instance_id, name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -259,7 +237,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:client_token, :description, :dry_run, :encrypted, :kms_key_id]
   def copy_image(client, name, source_image_id, source_region, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -274,7 +251,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, [:executable_by], [:filter], [:image_id], [:owner]]
   def describe_images(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -286,7 +262,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def describe_image_attribute(client, image_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -300,8 +275,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)    
   end
 
-  @params [:attribute, :description, :dry_run, :launch_permission, :operation_type, 
-           [:product_code], [:user_group], :value]
   def modify_image_attribute(client, image_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -314,7 +287,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)        
   end
 
-  @params [:dry_run]
   def reset_image_attribute(client, image_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -328,8 +300,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)     
   end
 
-  @params [:architecture, [:block_device_mapping], :description, :dry_run, :image_location, :kernel_id, :ram_disk_id, 
-           :root_device_name, :sriov_net_support, :virtualization_type] 
   def register_image(client, name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -342,7 +312,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)  
   end
 
-  @params [:dry_run]
   def deregister_image(client, image_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -359,7 +328,6 @@ defmodule ExAws.EC2.Impl do
   ### Key Pairs Actions ###
   #########################
 
-  @params [:dry_run, [:filter], [:key_name]]
   def describe_key_pairs(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -371,7 +339,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def create_key_pair(client, key_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -384,7 +351,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def delete_key_pair(client, key_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -397,7 +363,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def import_key_pair(client, key_name, public_key_material, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -415,7 +380,6 @@ defmodule ExAws.EC2.Impl do
   ### Resource ID Actions ###
   ###########################
 
-  @params [:resource]
   def describe_id_format(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -442,7 +406,6 @@ defmodule ExAws.EC2.Impl do
   ### Security Groups Actions ###
   ###############################
 
-  @params [:dry_run, [:filter], [:group_id], [:group_name]]
   def describe_security_groups(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -454,7 +417,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end 
 
-  @params [:dry_run, :vpc_id]
   def create_security_group(client, group_name, group_description, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -468,8 +430,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:cidr_ip, :dry_run, :from_port, :group_id, :group_name, [:ip_permission], :ip_protocol, :source_security_group_name, 
-           :source_security_group_owner_id, :to_port]
   def authorize_security_group_ingress(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -481,8 +441,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end  
 
-  @params [:cidr_ip, :dry_run, :from_port, :group_id, :group_name, [:ip_permission], :ip_protocol, :source_security_group_name, 
-           :source_security_group_owner_id, :to_port]  
   def authorize_security_group_egress(client, group_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -495,8 +453,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:cidr_ip, :dry_run, :from_port, :group_id, :group_name, [:ip_permission], :ip_protocol, :source_security_group_name, 
-           :source_security_group_owner_id, :to_port] 
   def revoke_security_group_ingress(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -508,8 +464,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:cidr_ip, :dry_run, :from_port, :group_name, [:ip_permission], :ip_protocol, :source_security_group_name, 
-           :source_security_group_owner_id, :to_port] 
   def revoke_security_group_egress(client, group_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -526,7 +480,6 @@ defmodule ExAws.EC2.Impl do
   ### VPCs Actions ###
   ####################
 
-  @params [:dry_run, [:filter], [:vpc_id]]
   def describe_vpcs(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -538,7 +491,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, :instance_tenancy]
   def create_vpc(client, cidr_block, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -551,7 +503,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def delete_vpc(client, vpc_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -564,7 +515,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def describe_vpc_attribute(client, vpc_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -578,7 +528,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:enable_dns_hostnames, :enable_dns_support]
   def modify_vpc_attribute(client, vpc_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -595,7 +544,6 @@ defmodule ExAws.EC2.Impl do
   ### Subnets Actions ###
   #######################
 
-  @params [:dry_run, [:filter], [:subnet_id]]
   def describe_subnets(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -607,7 +555,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:availability_zone, :dry_run]
   def create_subnet(client, vpc_id, cidr_block, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -621,7 +568,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def delete_subnet(client, subnet_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -634,7 +580,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:map_public_ip_on_launch]
   def modify_subnet_attribute(client, subnet_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -651,7 +596,6 @@ defmodule ExAws.EC2.Impl do
   ### Tags Actions ###
   ####################
 
-  @params [:dry_run, [:filter], :max_results, :next_token]
   def describe_tags(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -663,7 +607,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def create_tags(client, resource_ids, tags, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -677,7 +620,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, :tags]
   def delete_tags(client, resource_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -694,7 +636,6 @@ defmodule ExAws.EC2.Impl do
   ### Elastic Block Stores Actions ###
   ####################################
 
-  @params [:dry_run, [:filter], :max_results, :next_token, [:volume_id]]
   def describe_volumes(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -706,7 +647,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, :encrypted, :iops, :kms_key_id, :snapshot_id, :volume_type]
   def create_volume(client, availability_zone, size, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -720,7 +660,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def delete_volume(client, volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -733,7 +672,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def attach_volume(client, instance_id, volume_id, device, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -748,7 +686,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, :device, :force, :instance_id]
   def detach_volume(client, volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -761,7 +698,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:attribute, :dry_run]
   def describe_volume_attribute(client, volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -774,7 +710,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:auto_enable_io, :dry_run]
   def modify_volume_attribute(client, volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -787,7 +722,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def enable_volume_io(client, volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -800,7 +734,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run, [:filter], :max_results, :next_token, [:volume_id]]
   def describe_volume_status(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -812,7 +745,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:dry_run, [:filter], :max_results, :next_token, [:owner], [:restorable_by], [:snapshot_id]]
   def describe_snapshots(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -824,7 +756,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:description, :dry_run]
   def create_snapshot(client, volume_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -837,7 +768,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:description, :destination_region, :dry_run, :encrypted, :kms_key_id, :presigned_url]
   def copy_snapshot(client, source_snapshot_id, source_region, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -851,7 +781,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def delete_snapshot(client, snapshot_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -864,7 +793,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def describe_snapshot_attribute(client, snapshot_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -878,7 +806,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  @params [:attribute, :create_volume_permission, :dry_run, [:user_group], :operation_type, [:user_id]]
   def modify_snapshot_attribute(client, snapshot_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -891,7 +818,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def reset_snapshot_attribute(client, snapshot_id, attribute, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -909,7 +835,6 @@ defmodule ExAws.EC2.Impl do
   ### Account Attributes Actions ###
   ##################################
 
-  @params [:dry_run, [:attribute_name]]
   def describe_account_attributes(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -925,7 +850,6 @@ defmodule ExAws.EC2.Impl do
   ### Bundle Tasks Actions ###
   ############################
 
-  @params [:dry_run]
   def bundle_instance(client, instance_id, {s3_aws_access_key_id, s3_bucket, s3_prefix, s3_upload_policy, s3_upload_policy_sig}, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -943,7 +867,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [:dry_run]
   def cancel_bundle_task(client, bundle_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -956,7 +879,6 @@ defmodule ExAws.EC2.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  @params [[:bundle_id], :dry_run, [:filter]]
   def describe_bundle_tasks(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -1005,5 +927,5 @@ defmodule ExAws.EC2.Impl do
 
     list_builder_key_val t, key, count + 1, Map.merge(state, new_map)
   end
-
 end
+
