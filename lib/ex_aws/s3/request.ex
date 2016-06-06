@@ -23,7 +23,7 @@ defmodule ExAws.S3.Request do
   end
 
   def url(%{scheme: scheme, host: host}, bucket, path) do
-    [ scheme, host_and_bucket(host, bucket), ensure_slash(path) ]
+    [ scheme, [host, "/", bucket], ensure_slash(path) ]
     |> IO.iodata_to_binary
   end
 
@@ -34,12 +34,4 @@ defmodule ExAws.S3.Request do
 
   def ensure_slash("/" <> _ = path), do: path
   def ensure_slash(path), do:  "/" <> path
-
-  defp host_and_bucket(host, ""), do: host
-  defp host_and_bucket(host, bucket) do
-    case bucket |> String.contains?(".") do
-      true  -> [host, "/", bucket]
-      false -> [bucket, ".", host]
-    end
-  end
 end
