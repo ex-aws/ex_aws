@@ -6,6 +6,16 @@ defmodule ExAws.SNS.Impl do
   #
   # See ExAws.SNS.Client for usage.
 
+  ## Endpoints
+  ######################
+
+  def create_platform_endpoint(client, platform_application_arn, token) do
+    request(client, :create_platform_endpoint, %{
+      "PlatformApplicationArn" => platform_application_arn,
+      "Token" => token
+    })
+  end
+
   ## Topics
   ######################
 

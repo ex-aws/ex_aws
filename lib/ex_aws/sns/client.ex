@@ -60,6 +60,15 @@ defmodule ExAws.SNS.Client do
   http://docs.aws.amazon.com/sns/latest/APIReference/API_Operations.html
   """
 
+  ## Endpoints
+  ######################
+
+  @type platform_application_arn :: binary
+  @type token :: binary
+
+  @doc "Create platform endpoint"
+  defcallback create_platform_endpoint(platform_application_arn :: platform_application_arn, token :: token) :: ExAws.Request.response_t
+
   ## Topics
   ######################
 
