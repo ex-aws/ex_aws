@@ -1,5 +1,5 @@
 defmodule ExAws.RDS.Impl do
-  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
+  import ExAws.Utils, only: [camelize_keys: 1]
 
   @version "2014-10-31"
 
@@ -23,8 +23,8 @@ defmodule ExAws.RDS.Impl do
 
     tags_map = %{}
 
-    tags_map = 
-    for {{k, v}, n} <- Stream.with_index(tags, 1) do 
+    tags_map =
+    for {{k, v}, n} <- Stream.with_index(tags, 1) do
       tags_map
       |> Map.put("Tags.member.#{Integer.to_string(n)}.Key", k)
       |> Map.put("Tags.member.#{Integer.to_string(n)}.Value", v)
@@ -36,11 +36,11 @@ defmodule ExAws.RDS.Impl do
   end
 
   defp tags_helper([h | []], state), do: Map.merge(state, h)
-  defp tags_helper([h | t], state) do 
+  defp tags_helper([h | t], state) do
     tags_helper t, Map.merge(state, h)
   end
 
-  def apply_pending_maintenance(client, resource_id, action, opt_in_type) do 
+  def apply_pending_maintenance(client, resource_id, action, opt_in_type) do
     query_params = %{
       "Action" => "ApplyPendingMaintenanceAction",
       "ResourceIdentifier" => resource_id,
@@ -52,7 +52,7 @@ defmodule ExAws.RDS.Impl do
     request(client, :post, "/", params: query_params)
   end
 
-  def describe_db_instances(client, opts \\ []) do 
+  def describe_db_instances(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -63,7 +63,7 @@ defmodule ExAws.RDS.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def create_db_instance(client, instance_id, username, password, storage, class, engine, opts \\ []) do 
+  def create_db_instance(client, instance_id, username, password, storage, class, engine, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -92,7 +92,7 @@ defmodule ExAws.RDS.Impl do
     request(client, :patch, "/", params: query_params)
   end
 
-  def delete_db_instance(client, instance_id, opts \\ []) do 
+  def delete_db_instance(client, instance_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -116,7 +116,7 @@ defmodule ExAws.RDS.Impl do
     request(client, :get, "/", params: query_params)
   end
 
-  def describe_events(client, opts \\ []) do 
+  def describe_events(client, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
