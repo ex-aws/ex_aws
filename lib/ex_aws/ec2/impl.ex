@@ -1,8 +1,8 @@
 defmodule ExAws.EC2.Impl do
-  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
-  
+  import ExAws.Utils, only: [camelize_keys: 1]
+
   @moduledoc """
-  
+
   """
 
   @version "2015-10-01"
@@ -31,7 +31,7 @@ defmodule ExAws.EC2.Impl do
       })
 
     request(client, :get, "/", params: query_params)
-  end  
+  end
 
   def run_instances(client, image_id, max, min, opts \\ []) do
     query_params = opts
@@ -68,7 +68,7 @@ defmodule ExAws.EC2.Impl do
       })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
-    request(client, :post, "/", params: query_params)    
+    request(client, :post, "/", params: query_params)
   end
 
   def terminate_instances(client, instance_ids, opts \\ []) do
@@ -80,10 +80,10 @@ defmodule ExAws.EC2.Impl do
       })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
-    request(client, :post, "/", params: query_params)      
+    request(client, :post, "/", params: query_params)
   end
 
-  def reboot_instances(client, instance_ids, opts \\ []) do 
+  def reboot_instances(client, instance_ids, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -117,7 +117,7 @@ defmodule ExAws.EC2.Impl do
       })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
-    request(client, :post, "/", params: query_params)    
+    request(client, :post, "/", params: query_params)
   end
 
   def unmonitor_instances(client, instance_ids, opts \\ []) do
@@ -129,7 +129,7 @@ defmodule ExAws.EC2.Impl do
       })
     |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
-    request(client, :post, "/", params: query_params)    
+    request(client, :post, "/", params: query_params)
   end
 
   def describe_instance_attribute(client, instance_id, attribute, opts \\ []) do
@@ -167,7 +167,7 @@ defmodule ExAws.EC2.Impl do
       "Attribute"  => attribute
       })
 
-    request(client, :post, "/", params: query_params)    
+    request(client, :post, "/", params: query_params)
   end
 
   def get_console_output(client, instance_id, opts \\ []) do
@@ -191,7 +191,7 @@ defmodule ExAws.EC2.Impl do
       "InstanceId" => instance_id
       })
 
-    request(client, :get, "/", params: query_params)    
+    request(client, :get, "/", params: query_params)
   end
 
   ##############################################
@@ -258,7 +258,7 @@ defmodule ExAws.EC2.Impl do
       "Action"  => "DescribeImages",
       "Version" => @version
       })
-    
+
     request(client, :get, "/", params: query_params)
   end
 
@@ -272,7 +272,7 @@ defmodule ExAws.EC2.Impl do
       "Attribute" => attribute
       })
 
-    request(client, :get, "/", params: query_params)    
+    request(client, :get, "/", params: query_params)
   end
 
   def modify_image_attribute(client, image_id, opts \\ []) do
@@ -284,7 +284,7 @@ defmodule ExAws.EC2.Impl do
       "ImageId" => image_id
       })
 
-    request(client, :post, "/", params: query_params)        
+    request(client, :post, "/", params: query_params)
   end
 
   def reset_image_attribute(client, image_id, attribute, opts \\ []) do
@@ -297,7 +297,7 @@ defmodule ExAws.EC2.Impl do
       "Attribute" => attribute
       })
 
-    request(client, :post, "/", params: query_params)     
+    request(client, :post, "/", params: query_params)
   end
 
   def register_image(client, name, opts \\ []) do
@@ -309,7 +309,7 @@ defmodule ExAws.EC2.Impl do
       "Name"    => name
       })
 
-    request(client, :post, "/", params: query_params)  
+    request(client, :post, "/", params: query_params)
   end
 
   def deregister_image(client, image_id, opts \\ []) do
@@ -320,7 +320,7 @@ defmodule ExAws.EC2.Impl do
       "Version" => @version,
       "ImageId" => image_id
       })
-    
+
     request(client, :post, "/", params: query_params)
   end
 
@@ -415,7 +415,7 @@ defmodule ExAws.EC2.Impl do
       })
 
     request(client, :get, "/", params: query_params)
-  end 
+  end
 
   def create_security_group(client, group_name, group_description, opts \\ []) do
     query_params = opts
@@ -434,18 +434,18 @@ defmodule ExAws.EC2.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"  => "AuthorizeSecurityGroupIngress", 
+      "Action"  => "AuthorizeSecurityGroupIngress",
       "Version" => @version
       })
 
     request(client, :post, "/", params: query_params)
-  end  
+  end
 
   def authorize_security_group_egress(client, group_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"  => "AuthorizeSecurityGroupEgress", 
+      "Action"  => "AuthorizeSecurityGroupEgress",
       "Version" => @version,
       "GroupId" => group_id
       })
@@ -457,7 +457,7 @@ defmodule ExAws.EC2.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"  => "RevokeSecurityGroupIngress", 
+      "Action"  => "RevokeSecurityGroupIngress",
       "Version" => @version
       })
 
@@ -468,7 +468,7 @@ defmodule ExAws.EC2.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"  => "RevokeSecurityGroupEgress", 
+      "Action"  => "RevokeSecurityGroupEgress",
       "Version" => @version,
       "GroupId" => group_id
       })
@@ -499,7 +499,7 @@ defmodule ExAws.EC2.Impl do
       "Version"   => @version,
       "CidrBlock" => cidr_block
       })
-    
+
     request(client, :post, "/", params: query_params)
   end
 
@@ -564,7 +564,7 @@ defmodule ExAws.EC2.Impl do
       "VpcId"     => vpc_id,
       "CidrBlock" => cidr_block
       })
-    
+
     request(client, :post, "/", params: query_params)
   end
 
@@ -576,7 +576,7 @@ defmodule ExAws.EC2.Impl do
       "Version"  => @version,
       "SubnetId" => subnet_id
       })
-    
+
     request(client, :post, "/", params: query_params)
   end
 
@@ -628,7 +628,7 @@ defmodule ExAws.EC2.Impl do
       "Version" => @version
       })
     |> Map.merge(list_builder(resource_ids, "ResourceId", 1, %{}))
-    
+
     request(client, :post, "/", params: query_params)
   end
 
@@ -651,12 +651,12 @@ defmodule ExAws.EC2.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"           => "CreateVolume", 
+      "Action"           => "CreateVolume",
       "Version"          => @version,
       "AvailabilityZone" => availability_zone,
       "Size"             => size
       })
-    
+
     request(client, :post, "/", params: query_params)
   end
 
@@ -676,7 +676,7 @@ defmodule ExAws.EC2.Impl do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action"     => "AttachVolume", 
+      "Action"     => "AttachVolume",
       "Version"    => @version,
       "InstanceId" => instance_id,
       "VolumeId"   => volume_id,
@@ -741,7 +741,7 @@ defmodule ExAws.EC2.Impl do
       "Action"  => "DescribeVolumeStatus",
       "Version" => @version
       })
-    
+
     request(client, :get, "/", params: query_params)
   end
 
@@ -799,7 +799,7 @@ defmodule ExAws.EC2.Impl do
     |> Map.merge(%{
       "Action"     => "DescribeSnapshotAttribute",
       "Version"    => @version,
-      "SnapshotId" => snapshot_id, 
+      "SnapshotId" => snapshot_id,
       "Attribute"  => attribute
       })
 
@@ -902,7 +902,7 @@ defmodule ExAws.EC2.Impl do
     opts
     |> Enum.into(%{})
     |> camelize_keys
-  end 
+  end
 
   defp list_builder([h | []], key, count, state) do
     Map.put(state, "#{key}.#{count}", h)
@@ -917,7 +917,7 @@ defmodule ExAws.EC2.Impl do
     |> Map.put_new("#{key}.#{count}.Key", f)
     |> Map.put_new("#{key}.#{count}.Value", s)
 
-    Map.merge(state, new_map)    
+    Map.merge(state, new_map)
   end
 
   defp list_builder_key_val([_h = {f, s} | t], key, count, state) do
