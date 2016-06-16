@@ -84,6 +84,41 @@ defmodule ExAws.S3.Utils do
     {permission, grants}
   end
 
+  def build_notification_config(sections) do
+    properties = Enum.map(sections, &build_notification_config_section/1)
+    ["<NotificationConfiguration>", properties, "</NotificationConfiguration>"]
+    |> IO.iodata_to_binary
+  end
+
+  def build_notification_config_section(config) do
+    types = [
+      topic: "TopicConfiguration",
+      queue: "QueueConfiguration",
+      cloud_function: "CloudFunctionConfiguration"
+    ]
+    arn = [
+      topic: "Topic",
+      queue: "Queue",
+      cloud_function: "CloudFunction"
+    ]
+    ["<#{types[config.type]}>",
+     "<Id>", config.id, "</Id>",
+     build_notification_config_filter(config[:filter]),
+     "<#{arn[config.type]}>", config.arn, "</#{arn[config.type]}>",
+     Enum.map(config.events, &("<Event>#{&1}</Event>")),
+     "</#{types[config.type]}>"]
+  end
+
+  def build_notification_config_filter([]), do: []
+  def build_notification_config_filter(nil), do: []
+  def build_notification_config_filter(rules) do
+    ["<Filter><S3Key>",
+     Enum.map(rules, fn {n, v} ->
+       "<FilterRule><Name>#{n}</Name><Value>#{v}</Value></FilterRule>"
+     end),
+     "</S3Key></Filter>"]
+  end
+
   def build_cors_rule(rule) do
     mapping = [
       allowed_origins: "AllowedOrigin",
