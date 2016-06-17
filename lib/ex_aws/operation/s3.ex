@@ -50,9 +50,23 @@ defmodule ExAws.Operation.S3 do
     end
 
     def url(%{scheme: scheme, host: host}, bucket, path) do
-      [ scheme, host_and_bucket(host, bucket), ExAws.S3.Utils.ensure_slash(path) ]
+      [scheme, do_url(host, bucket, path)]
       |> IO.iodata_to_binary
+      |> IO.inspect
     end
+
+    defp do_url(host, "", path) do
+      [host, "/", no_slash(path)]
+    end
+    defp do_url(host, bucket, path) do
+      [host, "/", bucket, ensure_slash(path)]
+    end
+
+    defp no_slash("/" <> path), do: path
+    defp no_slash(path), do: path
+
+    def ensure_slash("/" <> _ = path), do: path
+    def ensure_slash(path), do:  "/" <> path
 
     def add_query(url, "", ""),          do: url
     def add_query(url, "", query),       do: url <> "?" <> query
