@@ -1,9 +1,10 @@
 defmodule ExAws.S3.Lazy do
   @moduledoc false
   ## Implimentation of the lazy functions surfaced by ExAws.S3.Client
-  def stream_objects!(client, bucket, opts \\ []) do
+  def stream_objects!(bucket, opts, config) do
     request_fun = fn fun_opts ->
-      ExAws.S3.Impl.list_objects!(client, bucket, Keyword.merge(opts, fun_opts))
+      ExAws.S3.list_objects(bucket, Keyword.merge(opts, fun_opts))
+      |> ExAws.request!(config)
       |> Map.get(:body)
     end
 

@@ -1,19 +1,19 @@
-defmodule Test.Dummy.EC2 do
-  use ExAws.EC2.Client
-
-  def config_root, do: Application.get_all_env(:ex_aws)
-
-  def request(_client, http_method, path, data \\ []) do
-    data
-    |> Enum.into(%{})
-    |> Map.put(:path, path)
-    |> Map.put(:http_method, http_method)
-  end
-end
+# defmodule Test.Dummy.EC2 do
+#   use ExAws.EC2.Client
+#
+#   def config_root, do: Application.get_all_env(:ex_aws)
+#
+#   def request(_client, http_method, path, data \\ []) do
+#     data
+#     |> Enum.into(%{})
+#     |> Map.put(:path, path)
+#     |> Map.put(:http_method, http_method)
+#   end
+# end
 
 defmodule ExAws.EC2Test do
   use ExUnit.Case, async: true
-  alias Test.Dummy.EC2
+  alias ExAws.EC2
 
   @version "2015-10-01"
 
@@ -21,9 +21,9 @@ defmodule ExAws.EC2Test do
   ### Instance Tests ###
   ######################
 
-  test "describe_instances no options" do 
-    expected = 
-      %{
+  test "describe_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeInstances",
           "Version" => @version
@@ -35,9 +35,9 @@ defmodule ExAws.EC2Test do
     assert expected == EC2.describe_instances
   end
 
-  test "describe_instances with options" do 
-    expected = 
-      %{
+  test "describe_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeInstances",
           "Version"    => @version,
@@ -49,11 +49,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_instances([next_token: "token", "Instance.1": "instance_1"])
-  end 
+  end
 
-  test "describe_instance_status no options" do 
-    expected = 
-      %{
+  test "describe_instance_status no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeInstanceStatus",
           "Version" => @version
@@ -62,12 +62,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_instance_status    
+    assert expected == EC2.describe_instance_status
   end
 
-  test "describe_instance_status with options" do 
-    expected = 
-      %{
+  test "describe_instance_status with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"              => "DescribeInstanceStatus",
           "Version"             => @version,
@@ -78,12 +78,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_instance_status(include_all_instances: true, max_results: 10)    
-  end  
+    assert expected == EC2.describe_instance_status(include_all_instances: true, max_results: 10)
+  end
 
-  test "run_instances no options" do 
-    expected = 
-      %{
+  test "run_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "RunInstances",
           "Version"  => @version,
@@ -96,11 +96,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.run_instances("image_id", 10, 5)
-  end  
+  end
 
-  test "run_instances with options" do 
-    expected = 
-      %{
+  test "run_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "RunInstances",
           "Version"  => @version,
@@ -116,8 +116,8 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.run_instances(
-      "image_id", 
-      10, 
+      "image_id",
+      10,
       5,
       [
         "BlockDeviceMapping.1": "some bdm",
@@ -127,9 +127,9 @@ defmodule ExAws.EC2Test do
     )
   end
 
-  test "start_instances no options" do 
-    expected = 
-      %{
+  test "start_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "StartInstances",
           "Version"      => @version,
@@ -140,12 +140,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.start_instances(["instance_1", "instance_2"])    
-  end  
+    assert expected == EC2.start_instances(["instance_1", "instance_2"])
+  end
 
-  test "start_instances with options" do 
-    expected = 
-      %{
+  test "start_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"         => "StartInstances",
           "Version"        => @version,
@@ -158,16 +158,16 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == 
+    assert expected ==
       EC2.start_instances(
         ["instance_1", "instance_2"],
         [additional_info: true, dry_run: false]
-      )    
+      )
   end
 
-  test "stop_instances no options" do 
-    expected = 
-      %{
+  test "stop_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "StopInstances",
           "Version"      => @version,
@@ -178,12 +178,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.stop_instances(["instance_1", "instance_2"])    
-  end       
+    assert expected == EC2.stop_instances(["instance_1", "instance_2"])
+  end
 
-  test "stop_instances with options" do 
-    expected = 
-      %{
+  test "stop_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "StopInstances",
           "Version"      => @version,
@@ -196,16 +196,16 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == 
+    assert expected ==
       EC2.stop_instances(
         ["instance_1", "instance_2"],
         [force: true, dry_run: false]
-      )    
-  end  
+      )
+  end
 
-  test "terminate_instances no options" do 
-    expected = 
-      %{
+  test "terminate_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "TerminateInstances",
           "Version"      => @version,
@@ -216,12 +216,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.terminate_instances(["instance_1", "instance_2"])    
-  end  
+    assert expected == EC2.terminate_instances(["instance_1", "instance_2"])
+  end
 
-  test "terminate_instances with options" do 
-    expected = 
-      %{
+  test "terminate_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "TerminateInstances",
           "Version"      => @version,
@@ -233,16 +233,16 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == 
+    assert expected ==
       EC2.terminate_instances(
         ["instance_1", "instance_2"],
         [dry_run: false]
-      )    
+      )
   end
 
-  test "reboot_instances no options" do 
-    expected = 
-      %{
+  test "reboot_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "RebootInstances",
           "Version"      => @version,
@@ -253,12 +253,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.reboot_instances(["instance_1", "instance_2"])    
-  end     
+    assert expected == EC2.reboot_instances(["instance_1", "instance_2"])
+  end
 
-  test "reboot_instances with options" do 
-    expected = 
-      %{
+  test "reboot_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "RebootInstances",
           "Version"      => @version,
@@ -270,16 +270,16 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == 
+    assert expected ==
       EC2.reboot_instances(
         ["instance_1", "instance_2"],
         [dry_run: false]
-      )    
-  end   
+      )
+  end
 
-  test "report_instance_status no options" do 
-    expected = 
-      %{
+  test "report_instance_status no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "ReportInstanceStatus",
           "Version"      => @version,
@@ -291,12 +291,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.report_instance_status(["instance_1", "instance_2"], "status")    
-  end     
+    assert expected == EC2.report_instance_status(["instance_1", "instance_2"], "status")
+  end
 
-  test "report_instance_status with options" do 
-    expected = 
-      %{
+  test "report_instance_status with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "ReportInstanceStatus",
           "Version"      => @version,
@@ -310,17 +310,17 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == 
+    assert expected ==
       EC2.report_instance_status(
-        ["instance_1", "instance_2"], 
+        ["instance_1", "instance_2"],
         "status",
         [description: "description", "ReasonCode.1": "code"]
-      )    
-  end  
+      )
+  end
 
-  test "monitor_instances no options" do 
-    expected = 
-      %{
+  test "monitor_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "MonitorInstances",
           "Version"      => @version,
@@ -331,12 +331,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.monitor_instances(["instance_1", "instance_2"])    
-  end         
+    assert expected == EC2.monitor_instances(["instance_1", "instance_2"])
+  end
 
-  test "monitor_instances with options" do 
-    expected = 
-      %{
+  test "monitor_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "MonitorInstances",
           "Version"      => @version,
@@ -348,12 +348,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.monitor_instances(["instance_1", "instance_2"], [dry_run: true])    
-  end  
+    assert expected == EC2.monitor_instances(["instance_1", "instance_2"], [dry_run: true])
+  end
 
-  test "unmonitor_instances no options" do 
-    expected = 
-      %{
+  test "unmonitor_instances no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "UnmonitorInstances",
           "Version"      => @version,
@@ -364,12 +364,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.unmonitor_instances(["instance_1", "instance_2"])    
-  end         
+    assert expected == EC2.unmonitor_instances(["instance_1", "instance_2"])
+  end
 
-  test "unmonitor_instances with options" do 
-    expected = 
-      %{
+  test "unmonitor_instances with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "UnmonitorInstances",
           "Version"      => @version,
@@ -381,12 +381,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.unmonitor_instances(["instance_1", "instance_2"], [dry_run: true])    
-  end   
+    assert expected == EC2.unmonitor_instances(["instance_1", "instance_2"], [dry_run: true])
+  end
 
-  test "describe_instance_attribute no options" do 
-    expected = 
-      %{
+  test "describe_instance_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeInstanceAttribute",
           "Version"    => @version,
@@ -397,12 +397,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_instance_attribute("instance_1", "attr")    
-  end    
+    assert expected == EC2.describe_instance_attribute("instance_1", "attr")
+  end
 
-  test "describe_instance_attribute with options" do 
-    expected = 
-      %{
+  test "describe_instance_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeInstanceAttribute",
           "Version"    => @version,
@@ -414,12 +414,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_instance_attribute("instance_1", "attr", [dry_run: true])    
-  end    
+    assert expected == EC2.describe_instance_attribute("instance_1", "attr", [dry_run: true])
+  end
 
-  test "modify_instance_attribute no options" do 
-    expected = 
-      %{
+  test "modify_instance_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ModifyInstanceAttribute",
           "Version"    => @version,
@@ -429,12 +429,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.modify_instance_attribute("instance_1")    
-  end    
+    assert expected == EC2.modify_instance_attribute("instance_1")
+  end
 
-  test "modify_instance_attribute with options" do 
-    expected = 
-      %{
+  test "modify_instance_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ModifyInstanceAttribute",
           "Version"    => @version,
@@ -447,16 +447,16 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == 
+    assert expected ==
       EC2.modify_instance_attribute(
         "instance_1",
         [attribute: "attr", value: "value", "GroupId.1": "group"]
-      )    
-  end        
+      )
+  end
 
-  test "reset_instance_attribute no options" do 
-    expected = 
-      %{
+  test "reset_instance_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ResetInstanceAttribute",
           "Version"    => @version,
@@ -467,12 +467,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.reset_instance_attribute("instance_1", "attr")    
-  end     
+    assert expected == EC2.reset_instance_attribute("instance_1", "attr")
+  end
 
-  test "reset_instance_attribute with options" do 
-    expected = 
-      %{
+  test "reset_instance_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ResetInstanceAttribute",
           "Version"    => @version,
@@ -484,12 +484,12 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.reset_instance_attribute("instance_1", "attr", [dry_run: true])    
-  end    
+    assert expected == EC2.reset_instance_attribute("instance_1", "attr", [dry_run: true])
+  end
 
-  test "get_console_output no options" do 
-    expected = 
-      %{
+  test "get_console_output no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "GetConsoleOutput",
           "Version"    => @version,
@@ -499,12 +499,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.get_console_output("instance_1")    
-  end  
+    assert expected == EC2.get_console_output("instance_1")
+  end
 
-  test "get_console_output with options" do 
-    expected = 
-      %{
+  test "get_console_output with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "GetConsoleOutput",
           "Version"    => @version,
@@ -515,12 +515,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.get_console_output("instance_1", [dry_run: true])    
-  end  
+    assert expected == EC2.get_console_output("instance_1", [dry_run: true])
+  end
 
-  test "get_password_data no options" do 
-    expected = 
-      %{
+  test "get_password_data no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "GetPasswordData",
           "Version"    => @version,
@@ -530,12 +530,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.get_password_data("instance_1")    
-  end    
+    assert expected == EC2.get_password_data("instance_1")
+  end
 
-  test "get_password_data with options" do 
-    expected = 
-      %{
+  test "get_password_data with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "GetPasswordData",
           "Version"    => @version,
@@ -546,16 +546,16 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.get_password_data("instance_1", [dry_run: true])    
-  end      
+    assert expected == EC2.get_password_data("instance_1", [dry_run: true])
+  end
 
   ############################################
   ### Regions and Availability Zones Tests ###
   ############################################
 
-  test "describe_availability_zones no options" do 
-    expected = 
-      %{
+  test "describe_availability_zones no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeAvailabilityZones",
           "Version" => @version
@@ -564,12 +564,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_availability_zones    
-  end   
+    assert expected == EC2.describe_availability_zones
+  end
 
-  test "describe_availability_zones with options" do 
-    expected = 
-      %{
+  test "describe_availability_zones with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeAvailabilityZones",
           "Version" => @version,
@@ -580,11 +580,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_availability_zones [dry_run: true]
-  end     
+  end
 
-  test "describe_regions no options" do 
-    expected = 
-      %{
+  test "describe_regions no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeRegions",
           "Version" => @version
@@ -593,12 +593,12 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_regions 
-  end     
+    assert expected == EC2.describe_regions
+  end
 
-  test "describe_regions with options" do 
-    expected = 
-      %{
+  test "describe_regions with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeRegions",
           "Version" => @version,
@@ -609,15 +609,15 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_regions [dry_run: true]
-  end       
+  end
 
   #################
   ### AMI Tests ###
   #################
 
-  test "create_image no options" do 
-    expected = 
-      %{
+  test "create_image no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "CreateImage",
           "Version"    => @version,
@@ -629,11 +629,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.create_image "instance", "name"
-  end      
+  end
 
-  test "create_image with options" do 
-    expected = 
-      %{
+  test "create_image with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"               => "CreateImage",
           "Version"              => @version,
@@ -647,11 +647,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.create_image "instance", "name", [description: "description", "BlockDeviceMapping.1": "bdm"]
-  end        
+  end
 
-  test "copy_image no options" do 
-    expected = 
-      %{
+  test "copy_image no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"        => "CopyImage",
           "Version"       => @version,
@@ -664,11 +664,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.copy_image "name", "source_image_id", "region"
-  end   
+  end
 
-  test "copy_image with options" do 
-    expected = 
-      %{
+  test "copy_image with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"        => "CopyImage",
           "Version"       => @version,
@@ -683,11 +683,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.copy_image "name", "source_image_id", "region", [client_token: "token", encrypted: true]
-  end   
+  end
 
-  test "describe_images no options" do 
-    expected = 
-      %{
+  test "describe_images no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeImages",
           "Version" => @version
@@ -697,11 +697,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_images
-  end   
+  end
 
-  test "describe_images with options" do 
-    expected = 
-      %{
+  test "describe_images with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "DescribeImages",
           "Version"   => @version,
@@ -713,11 +713,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_images([dry_run: true, "ImageId.1": "image_1"])
-  end  
+  end
 
-  test "describe_image_attribute no options" do 
-    expected = 
-      %{
+  test "describe_image_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "DescribeImageAttribute",
           "Version"   => @version,
@@ -729,11 +729,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_image_attribute "image", "attr"
-  end        
+  end
 
-  test "describe_image_attribute with options" do 
-    expected = 
-      %{
+  test "describe_image_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "DescribeImageAttribute",
           "Version"   => @version,
@@ -746,11 +746,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_image_attribute "image", "attr", [dry_run: true]
-  end 
+  end
 
-  test "modify_image_attribute no options" do 
-    expected = 
-      %{
+  test "modify_image_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "ModifyImageAttribute",
           "Version" => @version,
@@ -761,11 +761,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.modify_image_attribute "image"
-  end       
+  end
 
-  test "modify_image_attribute with options" do 
-    expected = 
-      %{
+  test "modify_image_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "ModifyImageAttribute",
           "Version"   => @version,
@@ -778,11 +778,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.modify_image_attribute "image", [attribute: "attr", value: "value"]
-  end    
+  end
 
-  test "reset_image_attribute no options" do 
-    expected = 
-      %{
+  test "reset_image_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "ResetImageAttribute",
           "Version"   => @version,
@@ -794,11 +794,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.reset_image_attribute "image", "attr"
-  end            
+  end
 
-  test "reset_image_attribute with options" do 
-    expected = 
-      %{
+  test "reset_image_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "ResetImageAttribute",
           "Version"   => @version,
@@ -811,11 +811,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.reset_image_attribute "image", "attr", [dry_run: true]
-  end       
+  end
 
-  test "register_image no options" do 
-    expected = 
-      %{
+  test "register_image no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "RegisterImage",
           "Version" => @version,
@@ -826,11 +826,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.register_image "name"
-  end                           
+  end
 
-  test "register_image with options" do 
-    expected = 
-      %{
+  test "register_image with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"          => "RegisterImage",
           "Version"         => @version,
@@ -843,11 +843,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.register_image "name", [sriov_net_support: true, architecture: "archi"]
-  end                             
+  end
 
-  test "deregister_image no options" do 
-    expected = 
-      %{
+  test "deregister_image no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DeregisterImage",
           "Version" => @version,
@@ -858,11 +858,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.deregister_image "image"
-  end     
+  end
 
-  test "deregister_image with options" do 
-    expected = 
-      %{
+  test "deregister_image with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DeregisterImage",
           "Version" => @version,
@@ -880,9 +880,9 @@ defmodule ExAws.EC2Test do
   ### Key Pairs Tests ###
   #######################
 
-  test "describe_key_pairs no options" do 
-    expected = 
-      %{
+  test "describe_key_pairs no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeKeyPairs",
           "Version" => @version
@@ -892,11 +892,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_key_pairs
-  end     
+  end
 
-  test "describe_key_pairs with options" do 
-    expected = 
-      %{
+  test "describe_key_pairs with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "DescribeKeyPairs",
           "Version"   => @version,
@@ -908,11 +908,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.describe_key_pairs [dry_run: true, "KeyName.1": "some_key"]
-  end     
+  end
 
-  test "create_key_pair no options" do 
-    expected = 
-      %{
+  test "create_key_pair no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "CreateKeyPair",
           "Version" => @version,
@@ -923,11 +923,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.create_key_pair("keyname")
-  end       
+  end
 
-  test "create_key_pair with options" do 
-    expected = 
-      %{
+  test "create_key_pair with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "CreateKeyPair",
           "Version" => @version,
@@ -939,11 +939,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.create_key_pair("keyname", [dry_run: true])
-  end         
+  end
 
-  test "delete_key_pair no options" do 
-    expected = 
-      %{
+  test "delete_key_pair no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DeleteKeyPair",
           "Version" => @version,
@@ -954,11 +954,11 @@ defmodule ExAws.EC2Test do
       }
 
     assert expected == EC2.delete_key_pair("keyname")
-  end         
+  end
 
-test "delete_key_pair with options" do 
-    expected = 
-      %{
+test "delete_key_pair with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DeleteKeyPair",
           "Version" => @version,
@@ -970,11 +970,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_key_pair("keyname", [dry_run: true])
-  end           
+  end
 
-  test "import_key_pair no options" do 
-    expected = 
-      %{
+  test "import_key_pair no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"            => "ImportKeyPair",
           "Version"           => @version,
@@ -986,11 +986,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.import_key_pair("keyname", "pkm")
-  end           
+  end
 
-  test "import_key_pair with options" do 
-    expected = 
-      %{
+  test "import_key_pair with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"            => "ImportKeyPair",
           "Version"           => @version,
@@ -1003,15 +1003,15 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.import_key_pair("keyname", "pkm", [dry_run: true])
-  end             
+  end
 
   #########################
   ### Resource ID Tests ###
   #########################
 
-  test "describe_id_format no options" do 
-    expected = 
-      %{
+  test "describe_id_format no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeIdFormat",
           "Version" => @version,
@@ -1021,11 +1021,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_id_format
-  end             
+  end
 
-  test "describe_id_format with options" do 
-    expected = 
-      %{
+  test "describe_id_format with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeIdFormat",
           "Version" => @version,
@@ -1036,11 +1036,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_id_format [resource: "some_resource"]
-  end               
+  end
 
-  test "modify_id_format no options" do 
-    expected = 
-      %{
+  test "modify_id_format no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ModifyIdFormat",
           "Version"    => @version,
@@ -1052,15 +1052,15 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_id_format "resource", true
-  end              
+  end
 
   #############################
   ### Security Groups Tests ###
   #############################
 
-  test "describe_security_groups no options" do 
-    expected = 
-      %{
+  test "describe_security_groups no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeSecurityGroups",
           "Version" => @version
@@ -1070,11 +1070,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_security_groups
-  end                
+  end
 
-  test "describe_security_groups with options" do 
-    expected = 
-      %{
+  test "describe_security_groups with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"      => "DescribeSecurityGroups",
           "Version"     => @version,
@@ -1087,11 +1087,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_security_groups [dry_run: true, "GroupId.1": "group1", "GroupName.1": "name"]
-  end                  
+  end
 
-  test "create_security_group no options" do 
-    expected = 
-      %{
+  test "create_security_group no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"           => "CreateSecurityGroup",
           "Version"          => @version,
@@ -1103,11 +1103,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_security_group "groupname", "desc"
-  end                  
+  end
 
-  test "create_security_group with options" do 
-    expected = 
-      %{
+  test "create_security_group with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"           => "CreateSecurityGroup",
           "Version"          => @version,
@@ -1121,11 +1121,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_security_group "groupname", "desc", [dry_run: true, vpc_id: "vpc_id"]
-  end                    
+  end
 
-  test "authorize_security_group_ingress no options" do 
-    expected = 
-      %{
+  test "authorize_security_group_ingress no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "AuthorizeSecurityGroupIngress",
           "Version" => @version,
@@ -1135,11 +1135,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.authorize_security_group_ingress
-  end                    
+  end
 
-  test "authorize_security_group_ingress with options" do 
-    expected = 
-      %{
+  test "authorize_security_group_ingress with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "AuthorizeSecurityGroupIngress",
           "Version"  => @version,
@@ -1160,11 +1160,11 @@ test "delete_key_pair with options" do
         to_port: 20
       ]
     )
-  end                      
+  end
 
-  test "authorize_security_group_egress no options" do 
-    expected = 
-      %{
+  test "authorize_security_group_egress no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "AuthorizeSecurityGroupEgress",
           "Version" => @version,
@@ -1175,11 +1175,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.authorize_security_group_egress "groupid"
-  end             
+  end
 
-  test "authorize_security_group_egress with options" do 
-    expected = 
-      %{
+  test "authorize_security_group_egress with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "AuthorizeSecurityGroupEgress",
           "Version"  => @version,
@@ -1201,11 +1201,11 @@ test "delete_key_pair with options" do
         to_port: 20
       ]
     )
-  end               
+  end
 
-  test "revoke_security_group_ingress no options" do 
-    expected = 
-      %{
+  test "revoke_security_group_ingress no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "RevokeSecurityGroupIngress",
           "Version" => @version
@@ -1215,18 +1215,18 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.revoke_security_group_ingress
-  end               
+  end
 
-  test "revoke_security_group_ingress with options" do 
-    expected = 
-      %{
+  test "revoke_security_group_ingress with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "RevokeSecurityGroupIngress",
           "Version" => @version,
           "CidrIp"   => "cidr",
           "DryRun"   => true,
           "FromPort" => 10,
-          "ToPort"   => 20          
+          "ToPort"   => 20
         },
         path: "/",
         http_method: :post
@@ -1240,11 +1240,11 @@ test "delete_key_pair with options" do
         to_port: 20
       ]
     )
-  end                 
+  end
 
-  test "revoke_security_group_egress no options" do 
-    expected = 
-      %{
+  test "revoke_security_group_egress no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "RevokeSecurityGroupEgress",
           "Version" => @version,
@@ -1255,11 +1255,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.revoke_security_group_egress "group"
-  end  
+  end
 
-  test "revoke_security_group_egress with options" do 
-    expected = 
-      %{
+  test "revoke_security_group_egress with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "RevokeSecurityGroupEgress",
           "Version"  => @version,
@@ -1267,7 +1267,7 @@ test "delete_key_pair with options" do
           "CidrIp"   => "cidr",
           "DryRun"   => true,
           "FromPort" => 10,
-          "ToPort"   => 20                    
+          "ToPort"   => 20
         },
         path: "/",
         http_method: :post
@@ -1282,15 +1282,15 @@ test "delete_key_pair with options" do
         to_port: 20
       ]
     )
-  end   
+  end
 
   ##################
   ### VPCs Tests ###
   ##################
 
-  test "describe_vpcs no options" do 
-    expected = 
-      %{
+  test "describe_vpcs no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeVpcs",
           "Version" => @version
@@ -1300,11 +1300,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_vpcs
-  end     
+  end
 
-  test "describe_vpcs with options" do 
-    expected = 
-      %{
+  test "describe_vpcs with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeVpcs",
           "Version" => @version,
@@ -1317,11 +1317,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_vpcs [dry_run: true, "VpcId.1": "id1", "VpcId.2": "id2"]
-  end       
+  end
 
-  test "create_vpc no options" do 
-    expected = 
-      %{
+  test "create_vpc no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "CreateVpc",
           "Version"   => @version,
@@ -1332,11 +1332,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_vpc "cidr"
-  end       
+  end
 
-  test "create_vpc wit options" do 
-    expected = 
-      %{
+  test "create_vpc wit options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"          => "CreateVpc",
           "Version"         => @version,
@@ -1349,11 +1349,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_vpc "cidr", [dry_run: true, instance_tenancy: "tenancy"]
-  end     
+  end
 
-  test "delete_vpc no options" do 
-    expected = 
-      %{
+  test "delete_vpc no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DeleteVpc",
           "Version" => @version,
@@ -1364,11 +1364,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_vpc "vpc"
-  end      
+  end
 
-  test "delete_vpc with options" do 
-    expected = 
-      %{
+  test "delete_vpc with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DeleteVpc",
           "Version" => @version,
@@ -1380,11 +1380,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_vpc "vpc", [dry_run: true]
-  end    
+  end
 
-  test "describe_vpc_attribute no options" do 
-    expected = 
-      %{
+  test "describe_vpc_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "DescribeVpcAttribute",
           "Version"   => @version,
@@ -1396,11 +1396,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_vpc_attribute "vpc", "attr"
-  end         
+  end
 
-  test "describe_vpc_attribute with options" do 
-    expected = 
-      %{
+  test "describe_vpc_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "DescribeVpcAttribute",
           "Version"   => @version,
@@ -1413,11 +1413,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_vpc_attribute "vpc", "attr", [dry_run: true]
-  end         
+  end
 
-  test "modify_vpc_attribute no options" do 
-    expected = 
-      %{
+  test "modify_vpc_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "ModifyVpcAttribute",
           "Version" => @version,
@@ -1428,11 +1428,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_vpc_attribute "vpc"
-  end       
+  end
 
-  test "modify_vpc_attribute with options" do 
-    expected = 
-      %{
+  test "modify_vpc_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"             => "ModifyVpcAttribute",
           "Version"            => @version,
@@ -1444,15 +1444,15 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_vpc_attribute "vpc", [enable_dns_hostnames: true]
-  end    
+  end
 
   #####################
   ### Subnets Tests ###
   #####################
 
-  test "describe_subnets no options" do 
-    expected = 
-      %{
+  test "describe_subnets no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeSubnets",
           "Version" => @version
@@ -1462,11 +1462,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_subnets
-  end    
+  end
 
-  test "describe_subnets with options" do 
-    expected = 
-      %{
+  test "describe_subnets with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeSubnets",
           "Version"    => @version,
@@ -1478,11 +1478,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_subnets [dry_run: true, "SubnetId.1": "subnet"]
-  end     
+  end
 
-  test "create_subnet no options" do 
-    expected = 
-      %{
+  test "create_subnet no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "CreateSubnet",
           "Version"   => @version,
@@ -1494,11 +1494,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_subnet "vpc", "cidr"
-  end    
+  end
 
-  test "create_subnet with options" do 
-    expected = 
-      %{
+  test "create_subnet with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "CreateSubnet",
           "Version"   => @version,
@@ -1511,11 +1511,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_subnet "vpc", "cidr", [dry_run: true]
-  end      
+  end
 
-  test "delete_subnet no options" do 
-    expected = 
-      %{
+  test "delete_subnet no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DeleteSubnet",
           "Version"  => @version,
@@ -1526,11 +1526,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_subnet "subnet"
-  end    
+  end
 
-  test "delete_subnet with options" do 
-    expected = 
-      %{
+  test "delete_subnet with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DeleteSubnet",
           "Version"  => @version,
@@ -1542,11 +1542,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_subnet "subnet", [dry_run: true]
-  end      
+  end
 
-  test "modify_subnet_attribute no options" do 
-    expected = 
-      %{
+  test "modify_subnet_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "ModifySubnetAttribute",
           "Version"  => @version,
@@ -1557,11 +1557,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_subnet_attribute "subnet"
-  end      
+  end
 
-  test "modify_subnet_attribute with options" do 
-    expected = 
-      %{
+  test "modify_subnet_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"              => "ModifySubnetAttribute",
           "Version"             => @version,
@@ -1573,15 +1573,15 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_subnet_attribute "subnet", [map_public_ip_on_launch: true]
-  end    
+  end
 
   ##################
   ### Tags Tests ###
   ##################
 
-  test "describe_tags no options" do 
-    expected = 
-      %{
+  test "describe_tags no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DescribeTags",
           "Version"  => @version
@@ -1591,11 +1591,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_tags
-  end       
+  end
 
-  test "describe_tags with options" do 
-    expected = 
-      %{
+  test "describe_tags with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeTags",
           "Version"    => @version,
@@ -1607,11 +1607,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_tags [max_results: 10, next_token: "abc"]
-  end     
+  end
 
-  test "create_tags no options" do 
-    expected = 
-      %{
+  test "create_tags no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "CreateTags",
           "Version"      => @version,
@@ -1626,11 +1626,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_tags ["abc"], [{"key1", "value1"}, {"key2", "value2"}]
-  end       
+  end
 
-  test "create_tags with options" do 
-    expected = 
-      %{
+  test "create_tags with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "CreateTags",
           "Version"      => @version,
@@ -1646,11 +1646,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_tags ["abc"], [{"key1", "value1"}, {"key2", "value2"}], [dry_run: true]
-  end  
+  end
 
-  test "delete_tags no options" do 
-    expected = 
-      %{
+  test "delete_tags no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "DeleteTags",
           "Version"      => @version,
@@ -1662,11 +1662,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_tags ["abc", "def"]
-  end      
+  end
 
-  test "delete_tags with options" do 
-    expected = 
-      %{
+  test "delete_tags with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "DeleteTags",
           "Version"      => @version,
@@ -1679,15 +1679,15 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_tags ["abc", "def"], [dry_run: true]
-  end     
+  end
 
   ##################################
   ### Elastic Block Stores Tests ###
   ##################################
 
-  test "describe_volumes no options" do 
-    expected = 
-      %{
+  test "describe_volumes no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeVolumes",
           "Version" => @version
@@ -1697,11 +1697,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_volumes
-  end     
+  end
 
-  test "describe_volumes with options" do 
-    expected = 
-      %{
+  test "describe_volumes with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeVolumes",
           "Version"    => @version,
@@ -1714,11 +1714,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_volumes [dry_run: true, max_results: 10, "VolumeId.1": "volume"]
-  end       
+  end
 
-  test "create_volume no options" do 
-    expected = 
-      %{
+  test "create_volume no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"           => "CreateVolume",
           "Version"          => @version,
@@ -1730,11 +1730,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_volume "az", 400
-  end    
+  end
 
-  test "create_volume with options" do 
-    expected = 
-      %{
+  test "create_volume with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"           => "CreateVolume",
           "Version"          => @version,
@@ -1749,7 +1749,7 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_volume(
-      "az", 
+      "az",
       400,
       [
         dry_run:     true,
@@ -1757,11 +1757,11 @@ test "delete_key_pair with options" do
         snapshot_id: "snap"
       ]
     )
-  end     
+  end
 
-  test "delete_volume no options" do 
-    expected = 
-      %{
+  test "delete_volume no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DeleteVolume",
           "Version"  => @version,
@@ -1772,11 +1772,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_volume "volume"
-  end    
+  end
 
-  test "delete_volume with options" do 
-    expected = 
-      %{
+  test "delete_volume with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DeleteVolume",
           "Version"  => @version,
@@ -1788,11 +1788,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_volume "volume", [dry_run: true]
-  end    
+  end
 
-  test "attach_volume no options" do 
-    expected = 
-      %{
+  test "attach_volume no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "AttachVolume",
           "Version"    => @version,
@@ -1805,11 +1805,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.attach_volume "instance", "volume", "device"
-  end    
+  end
 
-  test "attach_volume with options" do 
-    expected = 
-      %{
+  test "attach_volume with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "AttachVolume",
           "Version"    => @version,
@@ -1823,11 +1823,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.attach_volume "instance", "volume", "device", [dry_run: true]
-  end      
+  end
 
-  test "detach_volume no options" do 
-    expected = 
-      %{
+  test "detach_volume no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DetachVolume",
           "Version"  => @version,
@@ -1838,11 +1838,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.detach_volume "volume"
-  end      
+  end
 
-  test "detach_volume with options" do 
-    expected = 
-      %{
+  test "detach_volume with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DetachVolume",
           "Version"  => @version,
@@ -1856,11 +1856,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.detach_volume "volume", [dry_run: true, device: "device", "force": true]
-  end      
+  end
 
-  test "describe_volume_attribute no options" do 
-    expected = 
-      %{
+  test "describe_volume_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DescribeVolumeAttribute",
           "Version"  => @version,
@@ -1871,11 +1871,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_volume_attribute "volume"
-  end        
+  end
 
-  test "describe_volume_attribute with options" do 
-    expected = 
-      %{
+  test "describe_volume_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"    => "DescribeVolumeAttribute",
           "Version"   => @version,
@@ -1888,11 +1888,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_volume_attribute "volume", [dry_run: true, attribute: "attr"]
-  end    
+  end
 
-  test "modify_volume_attribute no options" do 
-    expected = 
-      %{
+  test "modify_volume_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "ModifyVolumeAttribute",
           "Version"  => @version,
@@ -1903,11 +1903,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_volume_attribute "volume"
-  end         
+  end
 
-  test "modify_volume_attribute with options" do 
-    expected = 
-      %{
+  test "modify_volume_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"       => "ModifyVolumeAttribute",
           "Version"      => @version,
@@ -1919,11 +1919,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_volume_attribute "volume", [auto_enable_io: true]
-  end     
+  end
 
-  test "enable_volume_io no options" do 
-    expected = 
-      %{
+  test "enable_volume_io no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "EnableVolumeIO",
           "Version"  => @version,
@@ -1934,11 +1934,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.enable_volume_io "volume"
-  end          
+  end
 
-  test "enable_volume_io with options" do 
-    expected = 
-      %{
+  test "enable_volume_io with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "EnableVolumeIO",
           "Version"  => @version,
@@ -1950,11 +1950,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.enable_volume_io "volume", [dry_run: true]
-  end    
+  end
 
-  test "describe_volume_status no options" do 
-    expected = 
-      %{
+  test "describe_volume_status no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeVolumeStatus",
           "Version" => @version
@@ -1964,11 +1964,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_volume_status
-  end            
+  end
 
-  test "describe_volume_status with options" do 
-    expected = 
-      %{
+  test "describe_volume_status with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeVolumeStatus",
           "Version"    => @version,
@@ -1980,11 +1980,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_volume_status ["VolumeId.1": "abc", "VolumeId.2": "def"]
-  end      
+  end
 
-  test "describe_snapshots no options" do 
-    expected = 
-      %{
+  test "describe_snapshots no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeSnapshots",
           "Version" => @version
@@ -1994,11 +1994,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_snapshots
-  end           
+  end
 
-  test "describe_snapshots with options" do 
-    expected = 
-      %{
+  test "describe_snapshots with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeSnapshots",
           "Version"    => @version,
@@ -2011,11 +2011,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_snapshots [dry_run: true, max_results: 10, "Owner.1": "owner"]
-  end    
+  end
 
-  test "create_snapshot no options" do 
-    expected = 
-      %{
+  test "create_snapshot no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "CreateSnapshot",
           "Version"  => @version,
@@ -2026,11 +2026,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_snapshot "volume"
-  end            
+  end
 
-  test "create_snapshot with options" do 
-    expected = 
-      %{
+  test "create_snapshot with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"      => "CreateSnapshot",
           "Version"     => @version,
@@ -2043,11 +2043,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.create_snapshot "volume", [dry_run: true, description: "desc"]
-  end    
+  end
 
-  test "copy_snapshot no options" do 
-    expected = 
-      %{
+  test "copy_snapshot no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"           => "CopySnapshot",
           "Version"          => @version,
@@ -2059,11 +2059,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.copy_snapshot "ssid", "region"
-  end               
+  end
 
-  test "copy_snapshot with options" do 
-    expected = 
-      %{
+  test "copy_snapshot with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"            => "CopySnapshot",
           "Version"           => @version,
@@ -2077,11 +2077,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.copy_snapshot "ssid", "region", [destination_region: "dest", encrypted: true]
-  end    
+  end
 
-  test "delete_snapshot no options" do 
-    expected = 
-      %{
+  test "delete_snapshot no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DeleteSnapshot",
           "Version"    => @version,
@@ -2092,11 +2092,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_snapshot "snap"
-  end                  
+  end
 
-  test "delete_snapshot with options" do 
-    expected = 
-      %{
+  test "delete_snapshot with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DeleteSnapshot",
           "Version"    => @version,
@@ -2108,11 +2108,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.delete_snapshot "snap", [dry_run: true]
-  end     
+  end
 
-  test "describe_snapshot_attribute no options" do 
-    expected = 
-      %{
+  test "describe_snapshot_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeSnapshotAttribute",
           "Version"    => @version,
@@ -2124,11 +2124,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_snapshot_attribute "snap", "attr"
-  end                      
+  end
 
-  test "describe_snapshot_attribute with options" do 
-    expected = 
-      %{
+  test "describe_snapshot_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeSnapshotAttribute",
           "Version"    => @version,
@@ -2141,11 +2141,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_snapshot_attribute "snap", "attr", [dry_run: true]
-  end          
+  end
 
-  test "modify_snapshot_attribute no options" do 
-    expected = 
-      %{
+  test "modify_snapshot_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ModifySnapshotAttribute",
           "Version"    => @version,
@@ -2156,11 +2156,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_snapshot_attribute "snap"
-  end                  
+  end
 
-  test "modify_snapshot_attribute with options" do 
-    expected = 
-      %{
+  test "modify_snapshot_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ModifySnapshotAttribute",
           "Version"    => @version,
@@ -2173,11 +2173,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.modify_snapshot_attribute "snap", [attribute: "attr", value: "value"]
-  end           
+  end
 
-  test "reset_snapshot_attribute no options" do 
-    expected = 
-      %{
+  test "reset_snapshot_attribute no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ResetSnapshotAttribute",
           "Version"    => @version,
@@ -2189,11 +2189,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.reset_snapshot_attribute "snap", "attr"
-  end              
+  end
 
-  test "reset_snapshot_attribute with options" do 
-    expected = 
-      %{
+  test "reset_snapshot_attribute with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "ResetSnapshotAttribute",
           "Version"    => @version,
@@ -2206,15 +2206,15 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.reset_snapshot_attribute "snap", "attr", [dry_run: true]
-  end   
+  end
 
   ################################
   ### Account Attributes Tests ###
   ################################
 
-  test "describe_account_attributes no options" do 
-    expected = 
-      %{
+  test "describe_account_attributes no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"  => "DescribeAccountAttributes",
           "Version" => @version
@@ -2224,11 +2224,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_account_attributes
-  end    
+  end
 
-  test "describe_account_attributes with options" do 
-    expected = 
-      %{
+  test "describe_account_attributes with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"          => "DescribeAccountAttributes",
           "Version"         => @version,
@@ -2240,15 +2240,15 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_account_attributes [dry_run: true, "AttributeName.1": "name"]
-  end      
+  end
 
   ##########################
   ### Bundle Tasks Tests ###
   ##########################
 
-  test "bundle_instance no options" do 
-    expected = 
-      %{
+  test "bundle_instance no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"                           => "BundleInstance",
           "Version"                          => @version,
@@ -2264,11 +2264,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.bundle_instance "instance", {"key_id", "bucket", "prefix", "policy", "signature"}
-  end  
+  end
 
-  test "bundle_instance with options" do 
-    expected = 
-      %{
+  test "bundle_instance with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"                           => "BundleInstance",
           "Version"                          => @version,
@@ -2285,11 +2285,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.bundle_instance "instance", {"key_id", "bucket", "prefix", "policy", "signature"}, [dry_run: true]
-  end    
+  end
 
-  test "cancel_bundle_task no options" do 
-    expected = 
-      %{
+  test "cancel_bundle_task no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "CancelBundleTask",
           "Version"  => @version,
@@ -2300,11 +2300,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.cancel_bundle_task "bundle"
-  end  
+  end
 
-  test "cancel_bundle_task with options" do 
-    expected = 
-      %{
+  test "cancel_bundle_task with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "CancelBundleTask",
           "Version"  => @version,
@@ -2316,11 +2316,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.cancel_bundle_task "bundle", [dry_run: true]
-  end    
+  end
 
-  test "describe_bundle_tasks no options" do 
-    expected = 
-      %{
+  test "describe_bundle_tasks no options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"   => "DescribeBundleTasks",
           "Version"  => @version
@@ -2330,11 +2330,11 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_bundle_tasks
-  end   
+  end
 
-  test "describe_bundle_tasks with options" do 
-    expected = 
-      %{
+  test "describe_bundle_tasks with options" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
         params: %{
           "Action"     => "DescribeBundleTasks",
           "Version"    => @version,
@@ -2347,5 +2347,5 @@ test "delete_key_pair with options" do
       }
 
     assert expected == EC2.describe_bundle_tasks [dry_run: true, "BundleId.1": "id1", "BundleId.2": "id2"]
-  end     
+  end
 end

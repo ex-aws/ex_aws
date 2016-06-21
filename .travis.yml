@@ -1,6 +1,6 @@
 language: elixir
 sudo: false
-elixir: 1.2.0
+elixir: 1.2.5
 notifications:
   recipients:
     - ben.wilson@cargosense.com
