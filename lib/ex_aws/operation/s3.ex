@@ -52,7 +52,6 @@ defmodule ExAws.Operation.S3 do
     def url(%{scheme: scheme, host: host}, bucket, path) do
       [scheme, do_url(host, bucket, path)]
       |> IO.iodata_to_binary
-      |> IO.inspect
     end
 
     defp do_url(host, "", path) do
@@ -72,14 +71,6 @@ defmodule ExAws.Operation.S3 do
     def add_query(url, "", query),       do: url <> "?" <> query
     def add_query(url, resource, ""),    do: url <> "?" <> resource
     def add_query(url, resource, query), do: url <> "?" <> resource <> "&" <> query
-
-    defp host_and_bucket(host, ""), do: host
-    defp host_and_bucket(host, bucket) do
-      case bucket |> String.contains?(".") do
-        true  -> [host, "/", bucket]
-        false -> [bucket, ".", host]
-      end
-    end
   end
 end
 
@@ -104,13 +95,13 @@ defmodule ExAws.Operation.S3DeleteAllObjects do
       delete_all_objects(request_fun, files, opts, [])
     end
 
-    def delete_all_objects(_request_fun, [], _opts, acc) do
+    defp delete_all_objects(_request_fun, [], _opts, acc) do
       {:ok, Enum.reverse(acc)}
     end
-    defp do_delete_all(request_fun, objects, opts, acc) do
+    defp delete_all_objects(request_fun, objects, opts, acc) do
       {objects, rest} = Enum.split(objects, 1000)
       with {:ok, result} <- request_fun.(objects) do
-        do_delete_all(request_fun, rest, opts, [result | acc])
+        delete_all_objects(request_fun, rest, opts, [result | acc])
       end
     end
 

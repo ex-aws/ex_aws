@@ -160,6 +160,7 @@ defmodule ExAws.Lambda do
   ]
   @spec invoke(function_name :: binary, payload :: %{}, client_context :: %{}) :: ExAws.Operation.JSON.t
   @spec invoke(function_name :: binary, payload :: %{}, client_context :: %{}, opts :: invoke_opts) :: ExAws.Operation.JSON.t
+  @context_header "X-Amz-Client-Context"
   def invoke(function_name, payload, client_context, opts \\ []) do
     {qualifier, opts} = Map.pop(Enum.into(opts, %{}), :qualifier)
 
@@ -168,20 +169,34 @@ defmodule ExAws.Lambda do
       case Map.fetch(opts, opt) do
         :error       -> headers
         {:ok, nil}   -> headers
-        {:ok, value} -> [{header, value} |headers]
+        {:ok, value} -> [{header, value} | headers]
       end
     end)
 
     headers = case client_context do
-      %{} -> headers
+      %{} ->
+        headers
       context ->
-        # header = {"X-Amz-Client-Context", context |> client.config[:json_codec].encode! |> Base.encode64}
-        header = [] #FIX WITH REAL
-        [header | headers]
+        [{@context_header, context} | headers]
     end
+
     url = "/2015-03-31/functions/#{function_name}/invocations"
     url = if qualifier, do: url <> "?Qualifier=#{qualifier}", else: url
-    request(:invoke, payload, url, [], headers)
+
+    request(:invoke, payload, url, [], headers, fn operation, config ->
+      headers =
+        operation.headers
+        |> List.keyfind(@context_header, 0, nil)
+        |> case do
+          nil ->
+            operation.headers
+          {_, val} ->
+            new_val = val |> config.json_codec.encode! |> Base.encode64
+            List.keyreplace(operation.headers, @context_header, 0, {@context_header, new_val})
+        end
+
+      %{operation | headers: headers}
+    end)
   end
 
   @doc "Invoke a lambda function asynchronously"
@@ -250,14 +265,15 @@ defmodule ExAws.Lambda do
     |> camelize_keys
   end
 
-  defp request(action, data, path, params \\ [], headers \\ []) do
+  defp request(action, data, path, params \\ [], headers \\ [], before_request \\ nil) do
     path = [path, "?", params |> URI.encode_query] |> IO.iodata_to_binary
     http_method = @actions |> Map.fetch!(action)
     ExAws.Operation.JSON.new(:lambda, %{
       http_method: http_method,
       path: path,
       data: data,
-      headers: [{"content-type", "application/json"} | headers]
+      headers: [{"content-type", "application/json"} | headers],
+      before_request: before_request,
     })
   end
 end

@@ -16,6 +16,7 @@ defmodule ExAws.Operation.JSON do
     data: %{},
     headers: [],
     service: nil,
+    before_request: nil
   ]
 
   @type t :: %__MODULE__{}
@@ -29,6 +30,7 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
   @type response_t :: %{} | ExAws.Request.error_t
 
   def perform(operation, config) do
+    operation = handle_callbacks(operation, config)
     headers = [
       {"x-amz-content-sha256", ""} | operation.headers
     ]
@@ -44,6 +46,11 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
   end
   def stream!(%ExAws.Operation.JSON{stream_builder: stream_builder}, config_overrides) do
     stream_builder.(config_overrides)
+  end
+
+  defp handle_callbacks(%{before_request: nil} = op, _), do: op
+  defp handle_callbacks(%{before_request: callback} = op, config) do
+    callback.(op, config)
   end
 
   defp parse({:error, result}, _), do: {:error, result}
