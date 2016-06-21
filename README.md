@@ -6,6 +6,8 @@ A flexible easy to use set of AWS APIs.
 
 ## 1.0.0-beta0 Changes
 
+The `v0.5` branch holds the legacy approach.
+
 ExAws 1.0.0 takes a more data driven approach to querying APIs. The various functions
 that exist inside a service like `S3.list_objects` or `Dynamo.create_table` all
 return a struct which holds the information necessary to make that particular operation.
