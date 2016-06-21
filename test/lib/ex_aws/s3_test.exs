@@ -144,5 +144,5 @@ defmodule ExAws.S3Test do
       List.keyfind(headers, "X-Amz-Expires", 0)
   end
 
-  defp config(), do: ExAws.Config.build(:s3, [])
+  defp config(), do: ExAws.Config.new(:s3, [])
 end
