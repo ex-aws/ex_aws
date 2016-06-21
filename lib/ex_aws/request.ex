@@ -48,7 +48,7 @@ defmodule ExAws.Request do
         reason = {:http_error, status, body}
         request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
       {:error, %{reason: reason}} ->
-        Logger.error("ExAws: HTTP ERROR: #{inspect reason}")
+        Logger.warn("ExAws: HTTP ERROR: #{inspect reason}")
         request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
     end
   end
