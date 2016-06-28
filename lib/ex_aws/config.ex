@@ -41,7 +41,7 @@ defmodule ExAws.Config do
   end
 
   def retrieve_runtime_config(config) do
-    Enum.reduce(config, %{}, fn
+    Enum.reduce(config, config, fn
       {:host, host}, config ->
         Map.put(config, :host, retrieve_runtime_value(host, config))
       {k, v}, config ->
