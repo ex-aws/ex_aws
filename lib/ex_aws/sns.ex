@@ -78,19 +78,19 @@ defmodule ExAws.SNS do
     |> Map.new
     |> camelize_keys
 
-    request(:list_topics, opts)
+    request("ListTopics", opts)
   end
 
   @doc "Create topic"
   @spec create_topic(topic_name :: topic_name) :: ExAws.Operation.Query.t
   def create_topic(topic_name) do
-    request(:create_topic, %{"Name" => topic_name})
+    request("CreateTopic", %{"Name" => topic_name})
   end
 
   @doc "Get topic attributes"
   @spec get_topic_attributes(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
   def get_topic_attributes(topic_arn) do
-    request(:get_topic_attributes, %{"TopicArn" => topic_arn})
+    request("GetTopicAttributes", %{"TopicArn" => topic_arn})
   end
 
   @doc "Set topic attributes"
@@ -98,7 +98,7 @@ defmodule ExAws.SNS do
                                    attribute_value :: binary,
                                    topic_arn :: topic_arn) :: ExAws.Operation.Query.t
   def set_topic_attributes(attribute_name, attribute_value, topic_arn) do
-    request(:set_topic_attributes, %{
+    request("SetTopicAttributes", %{
       "AttributeName" => attribute_name |> camelize_key,
       "AttributeValue" => attribute_value,
       "TopicArn" => topic_arn
@@ -108,7 +108,7 @@ defmodule ExAws.SNS do
   @doc "Delete topic"
   @spec delete_topic(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
   def delete_topic(topic_arn) do
-    request(:delete_topic, %{"TopicArn" => topic_arn})
+    request("DeleteTopic", %{"TopicArn" => topic_arn})
   end
 
   @type message_attribute :: %{
@@ -146,7 +146,7 @@ defmodule ExAws.SNS do
     |> Map.put("Message", message)
     |> Map.merge(message_attrs)
 
-    request(:publish, params)
+    request("Publish", params)
   end
 
   defp build_message_attributes(attrs) do
