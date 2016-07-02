@@ -16,13 +16,13 @@ You then have 4 ways you can choose to execute that operation:
 
 ```elixir
 # Normal
-S3.list_buckets |> ExAw.request #=> {:ok, response}
+S3.list_buckets |> ExAws.request #=> {:ok, response}
 # With per request configuration overrides
-S3.list_buckets |> ExAw.request(config) #=> {:ok, response}
+S3.list_buckets |> ExAws.request(config) #=> {:ok, response}
 
 # Raise on error, return successful responses directly
-S3.list_buckets |> ExAw.request! #=> response
-S3.list_buckets |> ExAw.request!(config) #=> response
+S3.list_buckets |> ExAws.request! #=> response
+S3.list_buckets |> ExAws.request!(config) #=> response
 ```
 
 Certain operations also support Elixir streams:
