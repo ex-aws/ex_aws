@@ -55,7 +55,7 @@ defmodule ExAws.KinesisFirehose.Impl do
     data = opts
     |> camelize_keys
     |> Map.merge(%{
-      "Data" => data |> Base.encode64,
+      "Record" => format_record(data),
       "DeliveryStreamName" => stream_name})
 
     request(client, :put_record, data)
