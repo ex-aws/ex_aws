@@ -1,6 +1,8 @@
 defmodule ExAws.Request do
   require Logger
   @max_attempts 10
+  @base_backoff_in_ms 10
+  @max_backoff_in_ms 10_000
 
   @moduledoc """
   Makes requests to AWS.
@@ -84,9 +86,11 @@ defmodule ExAws.Request do
     {:attempt, attempt + 1}
   end
 
-  # TODO: make exponential
-  # TODO: add jitter
   def backoff(attempt) do
-    :timer.sleep(attempt * 1000)
+    (@base_backoff_in_ms * :math.pow(2, attempt))
+    |> min(@max_backoff_in_ms)
+    |> trunc
+    |> :rand.uniform
+    |> :timer.sleep
   end
 end
