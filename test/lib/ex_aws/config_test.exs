@@ -5,7 +5,7 @@ defmodule ExAws.ConfigTest do
     value = "foo"
     System.put_env("ExAwsConfigTest", value)
     assert :s3
-    |> ExAws.Config.build([access_key_id: {:system, "ExAwsConfigTest"}])
+    |> ExAws.Config.new([access_key_id: {:system, "ExAwsConfigTest"}])
     |> Map.get(:access_key_id) == value
   end
 
@@ -13,7 +13,7 @@ defmodule ExAws.ConfigTest do
     value = "security_token"
     System.put_env("AWS_SECURITY_TOKEN", value)
     assert :s3
-    |> ExAws.Config.build([access_key_id: {:system, "AWS_SECURITY_TOKEN"}, security_token: {:system, "AWS_SECURITY_TOKEN"}])
+    |> ExAws.Config.new([access_key_id: {:system, "AWS_SECURITY_TOKEN"}, security_token: {:system, "AWS_SECURITY_TOKEN"}])
     |> Map.get(:security_token) == value
   end
 end
