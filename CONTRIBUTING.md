@@ -1,6 +1,10 @@
 Contributing
 ============
 
+## Updates for 1.0
+
+The organizational structure of ExAws has been greatly simplified as we move into 1.0. Please read this document carefully as it has changed.
+
 Contributions to ExAws are absolutely appreciated. For general bug fixes or other tweaks to existing code, a regular pull request is fine. For those who wish to add to the set of APIs supported by ExAws, please consult the rest of this document, as any PRs adding a service are expected to follow the structure defined herein.
 
 ## Running Tests
@@ -34,106 +38,18 @@ The test suite can be run with `AWS_ACCESS_KEY_ID=your-aws-access-key AWS_SECRET
 
 ## Organization
 
-If you're the kind of person who learns best by example, it may help to read the Example section below first.
+ExAws 1.0.0 takes a more data driven approach to querying APIs. The various functions that exist inside a service like `S3.list_objects` or `Dynamo.create_table` all return a struct which holds the information necessary to make that particular operation. Creating a service module then is very easy, as you just need to create functions which return an operations struct, and you're done. If there is not yet an operations struct applicable to the desired service, creating one of those isn't too bad either. See the relevant sections below.
 
-For a given service, the following basic files and modules exist:
-```
-lib/ex_aws/service_name.ex         #=> ExAws.ServiceName
-lib/ex_aws/service_name/client.ex  #=> ExAws.ServiceName.Client
-lib/ex_aws/service_name/impl.ex    #=> ExAws.ServiceName.Impl
-lib/ex_aws/service_name/request.ex #=> ExAws.ServiceName.Request
-```
+Often the same struct is used across several services if those services have the same underlying request characteristics. For example Dynamo, Kinesis, and Lambda all use the JSON operation.
 
-### ExAws.ServiceName.Request
+The `ExAws.Operation` protocol is implemented for each operation struct, giving us `perform` and `stream` functions. The `perform/2` function operations basically like the service specific `request` functions that existed pre 1.0. They take the operation struct and any configuration overrides, do any service specific steps that require configuration, and then call the `ExAws.request` module.
 
-Consists of a `request` function and any custom request logic required for a given API. This may include particular headers that service expects, url formatting, etc. It should not include the authorization header signing process, as this is handled by the ExAws.Request module. The request function ought to call `ExAws.Request.request/5`.
+The `stream` function generally calls a function contained in the operation struct with the operation and config, returning a stream that can be later consumed.
 
-### ExAws.ServiceName.Impl
+## Creating a New Service
 
-houses the functions that correspond to a particular action in the AWS service. Function names should correspond as closely as is reasonable to the AWS action they implement. All functions in this module (excluding any private helpers) MUST accept a client as the first argument, and call the client.request function with whatever relevant data exists for that action.
+In progress. Please see any of the existing services by way of example.
 
-### ExAws.ServiceName.Client
+## Creating a New Operation
 
-This module serves several  rolls. The first is to hold all of the callbacks that must be implemented by a given client. The second is to define a __using__ macro that implements all of the aforementioned callbacks. Most of this is done automatically via macros in the ExAws.Client module. However, the client author is responsible for a request function that simply passes the arguments to the function in the Request module. This indirection exists so that users with custom clients can specify custom behaviour around a request by overriding this function in their client module.
-
-Typespec for the callbacks ought to be fairly complete. See existing Clients for examples.
-
-### ExAws.ServiceName
-Finally, the bare ExAws.ServiceName ought to simply consist of the following.
-```elixir
-defmodule ExAws.ServiceName do
-  use ExAws.ServiceName.Client
-
-  def config_root, do: Application.get_all_env(:ex_aws)
-end
-```
-This produces a reified client for the service in question.
-
-## Example
-To make all of this concrete, let's take a look at the `Dynamo.describe_table` function.
-
-ExAws.Dynamo.Client specifies the callback
-
-```elixir
-defcallback describe_table(name :: binary) :: ExAws.Request.response_t
-```
-
-The `ExAws.Client` boilerplate generation functions generate functions like within the `__using__/1` macro
-```elixir
-def describe_table(name) do
-  ExAws.Dynamo.Impl.describe_table(__MODULE__, name)
-end
-```
-
-Now we hop over to the `ExAws.Dynamo.Impl` module where we actually format the request:
-```elixir
-def describe_table(client, name) do
-  %{"TableName" => name}
-  |> client.request(:describe_table)
-end
-```
-
-The client author is responsible for the following.
-```elixir
-defmacro __using__(opts) do
-  boilerplate = __MODULE__
-  |> ExAws.Client.generate_boilerplate(opts)
-
-  quote do
-    unquote(boilerplate)
-
-    @doc false
-    def request(data, action) do
-      ExAws.Dynamo.Request.request(__MODULE__, action, data)
-    end
-
-    @doc false
-    def service, do: :dynamodb
-
-    defoverridable config_root: 0, request: 2
-  end
-end
-```
-
-You're probably wondering, why are we going to the effort of calling client.request when all it does is just pass things along to ExAws.Dynamo.Request? Good question! This pattern bestows some very useful abilities upon custom clients. For example gives us the ability to create dummy clients that merely return the structured request instead of actually sending a request, a very useful ability for testing.
-
-More importantly however, suppose had staging and production Dynamo tables such that you had a Users-staging and Users-production, and some STAGE environment variable to tell the app what stage it's in. Instead of the tedious and bug prone route of putting `"Users-#{System.get_env("STAGE")}" |> Dynamo.#desired_function` everywhere, you can just override the request function in a custom client. For example:
-
-```elixir
-defmodule My.Dynamo do
-  def request(client, action, %{"TableName" => table_name} = data) do
-    data = %{data | "TableName" => "#{table_name}-#{System.get_env("STAGE")}"}
-
-    ExAws.Dynamo.Request.request(client, action, data)
-  end
-  def request(client, action, data), do: super(client, action, data)
-end
-```
-
-And there we go. Now we can simply do `My.Dynamo.describe_table("Users")` and it will automatically handle the stage question for us\*\*
-
-In any case, `ExAws.Dynamo.Request.request/3` is called by our client and handles dynamo specific headers, and to use the configuration associated with our client to build the URL to hit. We finally end up in `ExAws.Request.request/5` where the configuration for our client is used to retrieve AWS keys and so forth.
-
-Lastly we have our `ExAws.Dynamo` module which uses the `ExAws.Dynamo.Client` to become a reified client.
-
-\*\**DISCLAIMER* This is NOT a replacement for or even in the same category as proper AWS security practices. The keys used by your staging and production instances ought to be different, with sufficiently restrictive security policies such that the staging keys can only touch *-staging tables and so on. This functionality exists to minimize bugs and boilerplate, not replace actual security practices.
+In progress. Please see any of the existing operations by way of example.

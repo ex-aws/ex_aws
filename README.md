@@ -4,6 +4,15 @@ ExAws
 
 A flexible easy to use set of AWS APIs.
 
+- `ExAws.Dynamo`
+- `ExAws.EC2`
+- `ExAws.Kinesis`
+- `ExAws.Lambda`
+- `ExAws.RDS`
+- `ExAws.S3`
+- `ExAws.SNS`
+- `ExAws.SQS`
+
 ## 1.0.0-beta0 Changes
 
 The `v0.5` branch holds the legacy approach.
@@ -57,7 +66,6 @@ a breaking change for anyone who had a client with custom logic.
 - Elixir protocols allow easy customization of Dynamo encoding / decoding.
 - `mix kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
 - Simple. ExAws aims to provide a clear and consistent elixir wrapping around AWS APIs, not abstract them away entirely. For every action in a given AWS API there is a corresponding function within the appropriate module. Higher level abstractions like the aforementioned streams are in addition to and not instead of basic API calls.
-- Erlang user? Easily configure erlang friendly module names like `ex_aws_s3` instead of `'Elixir.ExAws.S3'`
 
 ## Getting started
 
