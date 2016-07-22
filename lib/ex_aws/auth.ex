@@ -83,10 +83,6 @@ defmodule ExAws.Auth do
       signed_headers_list, "\n",
       payload
     ] |> IO.iodata_to_binary
-    |> fn x ->
-      IO.puts(x)
-      x
-    end.()
   end
 
   defp signing_key(service, datetime, config) do
