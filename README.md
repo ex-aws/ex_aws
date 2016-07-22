@@ -2,7 +2,45 @@ ExAws
 =====
 [![Build Status](https://travis-ci.org/CargoSense/ex_aws.svg?branch=master)](https://travis-ci.org/CargoSense/ex_aws)
 
-A flexible easy to use set of clients AWS APIs.
+A flexible easy to use set of AWS APIs.
+
+## 1.0.0-beta0 Changes
+
+The `v0.5` branch holds the legacy approach.
+
+ExAws 1.0.0 takes a more data driven approach to querying APIs. The various functions
+that exist inside a service like `S3.list_objects` or `Dynamo.create_table` all
+return a struct which holds the information necessary to make that particular operation.
+
+You then have 4 ways you can choose to execute that operation:
+
+```elixir
+# Normal
+S3.list_buckets |> ExAws.request #=> {:ok, response}
+# With per request configuration overrides
+S3.list_buckets |> ExAws.request(config) #=> {:ok, response}
+
+# Raise on error, return successful responses directly
+S3.list_buckets |> ExAws.request! #=> response
+S3.list_buckets |> ExAws.request!(config) #=> response
+```
+
+Certain operations also support Elixir streams:
+
+```elixir
+S3.list_objects("my-bucket") |> ExAws.stream! #=> #Function<13.52451638/2 in Stream.resource/3>
+S3.list_objects("my-bucket") |> ExAws.stream!(config) #=> #Function<13.52451638/2 in Stream.resource/3>
+```
+
+The ability to return a stream is noticed in the function's documentation.
+
+### Migration
+
+This change greatly simplifies the ExAws code paths, and removes entirely the complex
+meta-programming pervasive to the original approach. However, it does constitute
+a breaking change for anyone who had a client with custom logic.
+
+
 
 ## Highlighted Features
 - Easy configuration.
@@ -28,9 +66,9 @@ If you wish to use instance roles to obtain AWS access keys you will need to add
 ```elixir
 def deps do
   [
-    ex_aws:    "~> 0.4.10",
-    poison:    "~> 1.2",
-    httpoison: "~> 0.7"
+    {:ex_aws, "~> 1.0.0-beta0"},
+    {:poison, "~> 2.0"},
+    {:httpoison, "~> 0.8"}
   ]
 end
 ```
@@ -38,7 +76,7 @@ Don't forget to add :httpoison to your applications list if that's in fact the h
 
 ```elixir
 def application do
-  [applications: [:ex_aws, :httpoison]]
+  [applications: [:ex_aws, :httpoison, :poison]]
 end
 ```
 

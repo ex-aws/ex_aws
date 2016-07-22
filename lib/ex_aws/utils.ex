@@ -1,6 +1,7 @@
 defmodule ExAws.Utils do
-
   @moduledoc false
+
+  def identity(x), do: x
 
   def camelize_keys(opts) do
     camelize_keys(opts, deep: false)
@@ -25,20 +26,20 @@ defmodule ExAws.Utils do
   def camelize_keys(opts, depth) do
     try do
       opts
-      |> Enum.into(%{})
+      |> Map.new
       |> camelize_keys(depth)
     rescue
-      [Protocol.UndefinedError, ArgumentError] -> opts
+      [Protocol.UndefinedError, ArgumentError, FunctionClauseError] -> opts
     end
   end
 
-  defp camelize_key(key) when is_atom(key) do
+  def camelize_key(key) when is_atom(key) do
     key
     |> Atom.to_string
     |> camelize
   end
 
-  defp camelize_key(key) when is_binary(key) do
+  def camelize_key(key) when is_binary(key) do
     key |> camelize
   end
 

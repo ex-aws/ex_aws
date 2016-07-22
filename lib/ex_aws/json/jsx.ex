@@ -19,7 +19,7 @@ defmodule ExAws.JSON.JSX do
 
   def decode!(string) do
     :jsx.decode(string)
-    |> Enum.into(%{})
+    |> Map.new
   end
 
   def decode(string) do

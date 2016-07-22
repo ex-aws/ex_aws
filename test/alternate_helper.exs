@@ -1,5 +1,4 @@
 defmodule Test.KinesisAlt do
-  use ExAws.Kinesis.Client
 
   def config_root do
     Application.get_all_env(:ex_aws)
@@ -32,7 +31,7 @@ defmodule Test.JSXCodec do
 
   def decode!(string) do
     :jsx.decode(string)
-    |> Enum.into(%{})
+    |> Map.new
   end
 
   def decode(string) do
