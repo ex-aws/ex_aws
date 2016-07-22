@@ -1,14 +1,6 @@
-defmodule Test.Dummy.Dynamo do
-  use ExAws.Dynamo.Client
-
-  def config_root, do: Application.get_all_env(:ex_aws)
-
-  def request(_client_data, _action, data), do: data
-end
-
 defmodule ExAws.DynamoTest do
   use ExUnit.Case, async: true
-  alias Test.Dummy.Dynamo
+  alias ExAws.Dynamo
 
   ## NOTE:
   # These tests are not intended to be operational examples, but intead mere
@@ -20,7 +12,7 @@ defmodule ExAws.DynamoTest do
              "KeySchema" => [%{"AttributeName" => :email, "KeyType" => "HASH"}, %{"AttributeName" => :age, "KeyType" => "RANGE"}],
              "ProvisionedThroughput" => %{"ReadCapacityUnits" => 1, "WriteCapacityUnits" => 1}, "TableName" => "Users"}
 
-    assert Dynamo.create_table("Users", [email: :hash, age: :range], [email: :string, age: :number], 1, 1) == expected
+    assert Dynamo.create_table("Users", [email: :hash, age: :range], [email: :string, age: :number], 1, 1).data == expected
   end
 
   test "create_table with secondary indexes" do
@@ -39,7 +31,7 @@ defmodule ExAws.DynamoTest do
         attribute_type: "string",
       }]
     }]
-    assert Dynamo.create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, secondary_index) == expected
+    assert Dynamo.create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, secondary_index).data == expected
   end
 
   test "#scan" do
@@ -52,7 +44,7 @@ defmodule ExAws.DynamoTest do
       exclusive_start_key: [api_key: "api_key"],
       expression_attribute_names: [api_key: "#api_key"],
       expression_attribute_values: [api_key: "asdfasdfasdf", name: "bubba"],
-      filter_expression: "ApiKey = #api_key and Name = :name") == expected
+      filter_expression: "ApiKey = #api_key and Name = :name").data == expected
   end
 
   test "#query" do
@@ -65,7 +57,7 @@ defmodule ExAws.DynamoTest do
       exclusive_start_key: [api_key: "api_key"],
       expression_attribute_names: [api_key: "#api_key"],
       expression_attribute_values: [api_key: "asdfasdfasdf", name: "bubba"],
-      filter_expression: "ApiKey = #api_key and Name = :name") == expected
+      filter_expression: "ApiKey = #api_key and Name = :name").data == expected
   end
 
   test "#batch_get_item" do
@@ -81,7 +73,7 @@ defmodule ExAws.DynamoTest do
         ]
       ],
       "Subscriptions" => %{keys: [%{id: "id1"}]}
-    })
+    }).data
     assert request == expected
   end
 
@@ -97,7 +89,7 @@ defmodule ExAws.DynamoTest do
         [delete_request: [key: "api_key1"]],
         [put_request: [item: user]]
       ]
-    }) == expected
+    }).data == expected
   end
 
   test "put item" do
@@ -106,6 +98,6 @@ defmodule ExAws.DynamoTest do
       "name" => %{"M" => %{"first" => %{"S" => "bob"},
         "last" => %{"S" => "bubba"}}}}, "TableName" => "Users"}
     user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
-    assert Dynamo.put_item("Users", user) == expected
+    assert Dynamo.put_item("Users", user).data == expected
   end
 end

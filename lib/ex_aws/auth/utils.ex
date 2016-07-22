@@ -1,11 +1,13 @@
 defmodule ExAws.Auth.Utils do
   def uri_encode(url) do
-    URI.encode(url, &valid_path_char?/1)
+    url
+    |> String.replace("+", " ")
+    |> URI.encode(&valid_path_char?/1)
   end
 
-  def valid_path_char?(?/), do: true
   # Space character
   def valid_path_char?(?\ ), do: false
+  def valid_path_char?(?/), do: true
   def valid_path_char?(c) do
     URI.char_unescaped?(c) && !URI.char_reserved?(c)
   end

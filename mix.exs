@@ -3,10 +3,10 @@ defmodule ExAws.Mixfile do
 
   def project do
     [app: :ex_aws,
-     version: "0.4.18",
+     version: "1.0.0-beta1",
      elixir: "~> 1.0",
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS",
+     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS, RDS, EC2",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
      package: package,
@@ -35,7 +35,8 @@ defmodule ExAws.Mixfile do
       {:poison, "~> 1.2 or ~> 2.0", optional: true},
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2", optional: true},
       {:httpotion, "~> 2.0", optional: true},
-      {:jsx, "~> 2.5", optional: true}
+      {:jsx, "~> 2.5", optional: true},
+      {:dialyze, "~> 0.2.0", only: :dev},
     ]
   end
 

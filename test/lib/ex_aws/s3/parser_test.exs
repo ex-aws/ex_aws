@@ -34,6 +34,32 @@ defmodule ExAws.S3.ParserTest do
     assert ["photos/"] == prefix_list
   end
 
+  test "#parse_list_objects allows unowned objects" do
+    list_objects_response = """
+    <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+      <Name>example-bucket</Name>
+      <Prefix></Prefix>
+      <Marker></Marker>
+      <MaxKeys>1000</MaxKeys>
+      <Delimiter>/</Delimiter>
+      <IsTruncated>false</IsTruncated>
+      <Contents>
+        <Key>sample.jpg</Key>
+        <LastModified>2011-02-26T01:56:20.000Z</LastModified>
+        <ETag>&quot;bf1d737a4d46a19f3bced6905cc8b902&quot;</ETag>
+        <Size>142863</Size>
+        <StorageClass>STANDARD</StorageClass>
+      </Contents>
+      <CommonPrefixes>
+        <Prefix>photos/</Prefix>
+      </CommonPrefixes>
+    </ListBucketResult>
+    """
+
+    result = ExAws.S3.Parsers.parse_list_objects({:ok, %{body: list_objects_response}})
+    {:ok, _} = result
+  end
+
 
   test "#initiate_multipart_upload parses response" do
     initiate_multipart_upload_response = """

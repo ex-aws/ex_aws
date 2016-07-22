@@ -62,7 +62,7 @@ defmodule ExAws.Auth do
 
     headers = headers |> canonical_headers
     header_string = headers
-    |> Enum.map(fn {k, v} -> "#{k}:#{v}" end)
+    |> Enum.map(fn {k, v} -> "#{k}:#{remove_dup_spaces(to_string(v))}" end)
     |> Enum.join("\n")
 
     signed_headers_list = headers
@@ -83,6 +83,12 @@ defmodule ExAws.Auth do
       signed_headers_list, "\n",
       payload
     ] |> IO.iodata_to_binary
+  end
+
+  defp remove_dup_spaces(""), do: ""
+  defp remove_dup_spaces("  " <> rest), do: remove_dup_spaces(" " <> rest)
+  defp remove_dup_spaces(<< char :: binary-1, rest :: binary>>) do
+    char <> remove_dup_spaces(rest)
   end
 
   defp signing_key(service, datetime, config) do
