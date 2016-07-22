@@ -1,48 +1,6 @@
 defmodule ExAws.S3 do
-
   @moduledoc """
-  The purpose of this module is to surface the ExAws.S3 API tied to a single
-  configuration chosen, such that it does not need passed in with every request.
-
-  Usage:
-  ```
-  defmodule MyApp.S3 do
-    use ExAws.S3.Client, otp_app: :my_otp_app
-  end
-  ```
-
-  In your config
-  ```
-  config :my_otp_app, :ex_aws,
-    s3: [], # S3 config goes here
-  ```
-
-  You can now use MyApp.S3 as the root module for the S3 api without needing
-  to pass in a particular configuration.
-  This enables different otp apps to configure their AWS configuration separately.
-
-  The alignment with a particular OTP app while convenient is however entirely optional.
-  The following also works:
-
-  ```
-  defmodule MyApp.S3 do
-    use ExAws.S3.Client
-
-    def config_root do
-      Application.get_all_env(:my_aws_config_root)
-    end
-  end
-  ```
-  ExAws now expects the config for that S3 client to live under
-
-  ```elixir
-  config :my_aws_config_root
-    s3: [] # S3 config goes here
-  ```
-
-  This is in fact how the functions in ExAws.S3 that do not require a config work.
-  Default config values can be found in ExAws.Config. The default configuration is always used,
-  and then the configuration of a particular client is merged in and overrides the defaults.
+  Operations on AWS S3
   """
 
   import ExAws.S3.Utils

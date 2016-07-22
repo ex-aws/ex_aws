@@ -1,45 +1,6 @@
 defmodule ExAws.Kinesis do
   @moduledoc """
-    Defines a Kinesis client.
-
-  Usage:
-  ```
-  defmodule MyApp.Kinesis do
-    use ExAws.Kinesis.Client, otp_app: :my_otp_app
-  end
-  ```
-
-  In your config
-  ```
-  config :my_otp_app, :ex_aws,
-    kinesis:  [], # kinesis config goes here
-    dynamodb: [], # you get the idea
-  ```
-
-  You can now use MyApp.Kinesis as the root module for the Kinesis api without needing
-  to pass in a particular configuration.
-  This enables different otp apps to configure their AWS configuration separately.
-
-  The alignment with a particular OTP app however is entirely optional.
-  The following also works:
-
-  ```
-  defmodule MyApp.Kinesis do
-    use ExAws.Kinesis.Client
-
-    def config_root do
-      Application.get_all_env(:my_aws_config_root)
-    end
-  end
-  ```
-  ExAws now expects the config for that kinesis client to live under
-
-  ```elixir
-  config :my_aws_config_root
-    kinesis: [] # Kinesis config goes here
-  ```
-
-  Default config values can be found in ExAws.Config
+  Operations on AWS Kinesis
 
   http://docs.aws.amazon.com/kinesis/latest/APIReference/API_Operations.html
   """

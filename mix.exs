@@ -1,9 +1,11 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
+  @version "1.0.0-beta1"
+
   def project do
     [app: :ex_aws,
-     version: "1.0.0-beta1",
+     version: @version,
      elixir: "~> 1.0",
      elixirc_paths: elixirc_paths(Mix.env),
      description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
@@ -11,7 +13,10 @@ defmodule ExAws.Mixfile do
      source_url: "https://github.com/cargosense/ex_aws",
      package: package,
      dialyzer: [flags: "--fullpath"],
-     deps: deps]
+     deps: deps,
+     docs: [main: "ExAws", source_ref: "v#{@version}",
+       source_url: "https://github.com/cargosense/ex_aws"]
+     ]
   end
 
   def application do

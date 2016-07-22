@@ -1,20 +1,6 @@
 defmodule ExAws.SQS do
   @moduledoc """
-  The purpose of this module is to surface the ExAws.SQS API tied to a single
-  configuration chose, such that it does not need passed in with every request
-
-  Usage:
-  ```elixir
-  defmodule MyApp.SQS do
-    use ExAws.SQS.Client, otp_app: :my_otp_app
-  end
-  ```
-
-  In your config
-  ```elixir
-  config :my_otp_app, ExAws,
-    sqs: [], #SQS config goes here
-  ```
+  Operations on AWS SQS
   """
 
   @type sqs_permission ::
