@@ -36,11 +36,19 @@ The ability to return a stream is noticed in the function's documentation.
 
 ### Migration
 
+TL;DR:
+Do this now:
+```
+ExAws.S3.get_object("my-bucket", "path/to/object") |> ExAws.request
+```
+not
+```
+ExAws.S3.get_object("my-bucket", "path/to/object")
+```
+
 This change greatly simplifies the ExAws code paths, and removes entirely the complex
 meta-programming pervasive to the original approach. However, it does constitute
 a breaking change for anyone who had a client with custom logic.
-
-
 
 ## Highlighted Features
 - Easy configuration.
