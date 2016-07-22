@@ -17,12 +17,12 @@ defmodule ExAws.Config.Defaults do
       region: "us-east-1",
       port: 80
     },
-    firehose: [
+    kinesis_firehose: %{
       scheme: "https://",
       host: {"$region", "firehose.$region.amazonaws.com"},
       region: "us-east-1",
       port: 80
-    ],
+    },
     dynamodb: %{
       scheme: "https://",
       host: {"$region", "dynamodb.$region.amazonaws.com"},
