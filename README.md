@@ -69,7 +69,7 @@ a breaking change for anyone who had a client with custom logic.
 
 ## Getting started
 
-Add ex_aws to your mix.exs, along with your json parser and http client of choice. ExAws works out of the box with Poison and HTTPoison and sweet_xml. All APIs require an http client, but only some require a json or xml codec. You only need the codec for the API you intend to use. At this time only SweetXml is supported for xml parsing.
+Add ex_aws to your mix.exs, along with your json parser and http client of choice. ExAws works out of the box with Poison and :hackney and sweet_xml. All APIs require an http client, but only some require a json or xml codec. You only need the codec for the API you intend to use. At this time only SweetXml is supported for xml parsing.
 
 - Dynamo: json
 - Kinesis: json
@@ -84,15 +84,15 @@ def deps do
   [
     {:ex_aws, "~> 1.0.0-beta0"},
     {:poison, "~> 2.0"},
-    {:httpoison, "~> 0.8"}
+    {:hackney, "~> 1.6"}
   ]
 end
 ```
-Don't forget to add :httpoison to your applications list if that's in fact the http client you choose. `:ex_aws` must always be added to your applications list.
+Don't forget to add :hackney to your applications list if that's in fact the http client you choose. `:ex_aws` must always be added to your applications list.
 
 ```elixir
 def application do
-  [applications: [:ex_aws, :httpoison, :poison]]
+  [applications: [:ex_aws, :hackney, :poison]]
 end
 ```
 

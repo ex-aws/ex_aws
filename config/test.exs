@@ -1,6 +1,6 @@
 use Mix.Config
 config :ex_aws,
-  http_client: ExAws.Request.HTTPoison,
+  http_client: ExAws.Request.Hackney,
   json_codec: Test.JSONCodec
 
 config :ex_aws, :kinesis,

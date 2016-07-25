@@ -7,7 +7,7 @@ defmodule ExAws.Request.HttpClient do
   ExAws allows you to use your http client of choice, provided that
   it can be coerced into complying with this module's specification.
 
-  HTTPoison fits this spec without modification, and is also the default.
+  The default is :hackney.
 
   ## Example
   Here for example is the code required to make HTTPotion comply with this spec.
