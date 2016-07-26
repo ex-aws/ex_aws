@@ -183,7 +183,7 @@ defmodule ExAws.SQS do
     {:max_number_of_messages, 1..10} |
     {:visibility_timeout, 0..43200} |
     {:wait_time_seconds, 0..20} |
-    {:meessage_attribute_names, []}
+    {:message_attribute_names, []}
   ]
 
   @doc "Read messages from a SQS Queue"
@@ -199,7 +199,7 @@ defmodule ExAws.SQS do
     params =
       attrs
       |> format_queue_attributes
-      |> Map.put("MessageAttributeNames", format_message_attributes(message_attr))
+      |> Map.merge(format_message_attributes(message_attr))
       |> Map.merge(format_regular_opts(opts))
 
     request(queue, "ReceiveMessage", params)
@@ -314,7 +314,9 @@ defmodule ExAws.SQS do
 
   defp format_message_attributes(attributes) do
     attributes
-    |> Enum.map(fn(attr) -> Atom.to_string(attr) end)
+    |> Enum.with_index
+    |> Enum.map(&format_message_attribute/1)
+    |> Enum.reduce(%{}, &Map.merge(&1, &2))
   end
 
   defp format_queue_attributes(:all), do: format_queue_attributes([:all])
@@ -329,6 +331,12 @@ defmodule ExAws.SQS do
     key = "AttributeName.#{index + 1}"
 
     Map.put(%{}, key, format_param_key(attribute))
+  end
+
+  defp format_message_attribute({attribute, index}) do
+    key = "MessageAttributeNames.#{index + 1}"
+
+    Map.put(%{}, key, Atom.to_string(attribute))
   end
 
   defp format_batch_message(message, index) do
