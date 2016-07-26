@@ -182,7 +182,8 @@ defmodule ExAws.SQS do
     {:attribute_names, :all | [sqs_message_attribute_name, ...]} |
     {:max_number_of_messages, 1..10} |
     {:visibility_timeout, 0..43200} |
-    {:wait_time_seconds, 0..20}
+    {:wait_time_seconds, 0..20} |
+    {:meessage_attribute_names, []}
   ]
 
   @doc "Read messages from a SQS Queue"
@@ -192,9 +193,18 @@ defmodule ExAws.SQS do
     {attrs, opts} = opts
     |> Keyword.pop(:attribute_names, [])
 
+    IO.inspect attrs
+
+    {message_attr, opts} = opts
+    |> Keyword.pop(:message_attribute_names, [])
+
+    IO.puts "MENSAJES::::::"
+    IO.inspect message_attr
+
     params =
       attrs
       |> format_queue_attributes
+      |> Map.put("MessageAttributeNames", format_message_attributes(message_attr))
       |> Map.merge(format_regular_opts(opts))
 
     request(queue, "ReceiveMessage", params)
@@ -305,6 +315,11 @@ defmodule ExAws.SQS do
     key
     |> Atom.to_string
     |> ExAws.Utils.camelize
+  end
+
+  defp format_message_attributes(attributes) do
+    attributes
+    |>Enum.map(fn(attr) -> Atom.to_string(attr) end)
   end
 
   defp format_queue_attributes(:all), do: format_queue_attributes([:all])
