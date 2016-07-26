@@ -188,7 +188,7 @@ defmodule ExAws.SQSTest do
                                                                       max_number_of_messages: 5).params
 
     expected = %{"Action" => "ReceiveMessage", "MessageAttributeNames" => ["attr1", "attr2"], "MaxNumberOfMessages" => 5}
-    assert expected == SQS.receive_message("982071696186/test_queue", message_attribute_names: ["attr1", "attr2"],
+    assert expected == SQS.receive_message("982071696186/test_queue", message_attribute_names: [:attr1, :attr2],
                                                                       max_number_of_messages: 5).params
 
     expected = %{"Action" => "ReceiveMessage", "AttributeName.1" => "SenderId", "AttributeName.2" => "ApproximateReceiveCount", "VisibilityTimeout" => 1000, "WaitTimeout" => 20}
