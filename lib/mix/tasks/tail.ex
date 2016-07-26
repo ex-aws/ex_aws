@@ -29,7 +29,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
 
   def run(argv) do
     {:ok, _} = Application.ensure_all_started(:ex_aws)
-    {:ok, _} = Application.ensure_all_started(:httpoison)
+    {:ok, _} = Application.ensure_all_started(:hackney)
 
     {opts, [stream_name|_], _} = OptionParser.parse(argv)
 
