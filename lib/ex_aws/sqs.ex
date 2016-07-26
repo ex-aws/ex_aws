@@ -193,13 +193,8 @@ defmodule ExAws.SQS do
     {attrs, opts} = opts
     |> Keyword.pop(:attribute_names, [])
 
-    IO.inspect attrs
-
     {message_attr, opts} = opts
     |> Keyword.pop(:message_attribute_names, [])
-
-    IO.puts "MENSAJES::::::"
-    IO.inspect message_attr
 
     params =
       attrs
@@ -319,7 +314,7 @@ defmodule ExAws.SQS do
 
   defp format_message_attributes(attributes) do
     attributes
-    |>Enum.map(fn(attr) -> Atom.to_string(attr) end)
+    |> Enum.map(fn(attr) -> Atom.to_string(attr) end)
   end
 
   defp format_queue_attributes(:all), do: format_queue_attributes([:all])
