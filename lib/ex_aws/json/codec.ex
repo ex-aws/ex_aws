@@ -1,6 +1,4 @@
 defmodule ExAws.JSON.Codec do
-  use Behaviour
-
   @moduledoc """
   Defines the specification for a JSON codec.
 
@@ -50,9 +48,9 @@ defmodule ExAws.JSON.Codec do
   ```
   """
 
-  defcallback encode!(%{}) :: String.t
-  defcallback encode(%{}) :: {:ok, String.t} | {:error, String.t}
+  @callback encode!(%{}) :: String.t
+  @callback encode(%{}) :: {:ok, String.t} | {:error, String.t}
 
-  defcallback decode!(String.t) :: %{}
-  defcallback decode(String.t) :: {:ok, %{}} | {:error, %{}}
+  @callback decode!(String.t) :: %{}
+  @callback decode(String.t) :: {:ok, %{}} | {:error, %{}}
 end

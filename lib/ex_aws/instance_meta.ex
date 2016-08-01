@@ -1,4 +1,11 @@
 defmodule ExAws.InstanceMeta do
+
+  @moduledoc false
+
+  # Provides access to the AWS Instance MetaData
+  # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
+
+  # AWS InstanceMetaData URL
   @meta_path_root "http://169.254.169.254/latest/meta-data/"
 
   def request(config, path) do
