@@ -1,6 +1,4 @@
 defmodule Mix.Tasks.Kinesis.Tail do
-  alias ExAws.Kinesis
-  require Logger
   use Mix.Task
 
   @shortdoc "tails a stream"
@@ -27,63 +25,8 @@ defmodule Mix.Tasks.Kinesis.Tail do
           }
   # @dialyzer {:no_behaviours, post_object_restore: 4}
 
-  def run(argv) do
-    {:ok, _} = Application.ensure_all_started(:ex_aws)
-    {:ok, _} = Application.ensure_all_started(:hackney)
-
-    {opts, [stream_name|_], _} = OptionParser.parse(argv)
-
-    sleep_time = Keyword.get(opts, :poll, "5") |> String.to_integer
-    debug      = Keyword.get(opts, :debug, false)
-    seq        = Keyword.get(opts, :from)
-    {shard_type, opts} = case seq do
-      nil -> {"TRIM_HORIZON", %{}}
-      val -> {"AT_SEQUENCE_NUMBER", %{StartingSequenceNumber: val}}
-    end
-
-    Application.put_env(:ex_aws, :debug_requests, debug)
-
-    Logger.info "Streaming from #{stream_name}"
-
-    stream_name
-    |> get_shards
-    |> Enum.map(&Kinesis.get_shard_iterator(stream_name, &1["ShardId"], shard_type, opts))
-    |> Enum.map(&ExAws.request/1)
-    |> Enum.map(&get_records(&1, sleep_time))
-  end
-
-  defp get_shards(name) do
-    name
-    |> Kinesis.describe_stream
-    |> ExAws.request
-    |> case do
-      {:ok, %{"StreamDescription" => %{"Shards" => shards}}} -> shards
-      error -> raise inspect(error)
-    end
-  end
-
-  def get_records({:ok, %{"ShardIterator" => iterator}}, wait_time) do
-    iterator
-    |> Kinesis.stream_records([], fn
-      []  -> :timer.sleep(wait_time * 1000); []
-      val -> val
-    end)
-    |> Stream.map(&format_msg/1)
-    |> Stream.run
-  end
-
-  defp format_msg(msg) do
-    IO.ANSI.format_fragment([:blue,  msg["PartitionKey"], :bright, " | ",
-                             :reset, msg["Data"] |> ensure_new_line ])
-    |> IO.chardata_to_string
-    |> IO.write
-  end
-
-  defp ensure_new_line(data) do
-    case String.last(data) do
-      "\n" -> data
-      _    -> [data, "\n"]
-    end
+  def run(_) do
+    raise "Not yet implemented in 1.0.0-beta1"
   end
 
 end
