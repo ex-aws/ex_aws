@@ -204,7 +204,7 @@ defmodule ExAws.S3 do
   @params [:delimiter, :encoding_type, :max_uploads, :key_marker, :prefix, :upload_id_marker]
   def list_multipart_uploads(bucket, opts \\ []) do
     params = opts |> format_and_take(@params)
-    request(:get, bucket, "/", resource: "uploads", params: params)
+    request(:get, bucket, "/", [resource: "uploads", params: params], %{parser: &Parsers.parse_list_multipart_uploads/1})
   end
 
   @doc "Creates a bucket. Same as create_bucket/2"
