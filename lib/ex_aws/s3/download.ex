@@ -32,6 +32,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
 
     receive do
       {:DOWN, ^ref, :process, ^sink, :normal} ->
+        :ok = GenStage.stop(source)
         {:ok, :done}
     end
   end
