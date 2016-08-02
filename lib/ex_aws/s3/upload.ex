@@ -25,7 +25,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
     upload_id = start_upload(op, config)
     stream = build_stream(op)
 
-    Flow.new(stages: op.opts[:max_concurrency] || 8, max_demand: 1)
+    Flow.new(stages: op.opts[:max_concurrency] || 4, max_demand: 1)
     |> Flow.from_enumerable(stream)
     |> Flow.map(&upload_chunk(&1, upload_id, op, config))
     |> Enum.to_list
@@ -59,6 +59,6 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
     |> ExAws.request!
 
     {_, etag} = List.keyfind(headers, "ETag", 0)
-    {i, Macro.unescape_string(etag)} |> IO.inspect
+    {i, etag} |> IO.inspect
   end
 end
