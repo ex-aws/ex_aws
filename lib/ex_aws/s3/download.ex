@@ -30,12 +30,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
       GenStage.sync_subscribe(worker, to: source, min_demand: 0, max_demand: 1)
     end
 
-    ref = Process.monitor(sink)
-
-    receive do
-      {:DOWN, ^ref, :process, ^sink, _} ->
-        :ok
-    end
+    # how do I block till this is done?
   end
 
   def stream!(_op, _config) do
