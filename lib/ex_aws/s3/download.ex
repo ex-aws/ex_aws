@@ -1,8 +1,11 @@
 alias Experimental.GenStage
 
 defmodule ExAws.S3.Download do
-  @moduledoc false
+  @moduledoc """
+  Represents an AWS S3 file download operation
+  """
 
+  @enforce_keys ~w(bucket path dest)a
   defstruct [
     :bucket,
     :path,
@@ -10,6 +13,8 @@ defmodule ExAws.S3.Download do
     opts: [],
     service: :s3,
   ]
+
+  @type t :: %__MODULE__{}
 end
 
 defimpl ExAws.Operation, for: ExAws.S3.Download do

@@ -403,6 +403,24 @@ defmodule ExAws.S3 do
     request(:get, bucket, object, headers: headers, params: response_opts)
   end
 
+  @type download_file_opts :: [
+    max_concurrency: pos_integer,
+  ]
+
+  @doc """
+  Download an S3 Object to a file.
+  """
+  @spec download_file(bucket :: binary, path :: binary, dest :: binary) :: __MODULE__.Download.t
+  @spec download_file(bucket :: binary, path :: binary, dest :: binary, opts :: download_file_opts) :: __MODULE__.Download.t
+  def download_file(bucket, path, dest, opts \\ []) do
+    %__MODULE__.Download{
+      bucket: bucket,
+      path: path,
+      dest: dest,
+      opts: opts
+    }
+  end
+
   @doc "Get an object's access control policy"
   @spec get_object_acl(bucket :: binary, object :: binary) :: ExAws.Operation.S3.t
   @spec get_object_acl(bucket :: binary, object :: binary, opts :: Keyword.t) :: ExAws.Operation.S3.t
