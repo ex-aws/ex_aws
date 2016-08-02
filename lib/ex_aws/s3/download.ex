@@ -24,7 +24,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
   def perform(op, config) do
     file_size = op.bucket |> get_file_size(op.path, config)
 
-    {:ok, source} = Download.Source.start_link(file_size)
+    {:ok, source} = Download.Source.start_link(file_size, op.opts)
     {:ok, sink} = Download.Sink.start_link(op.dest, file_size)
     ref = Process.monitor(sink)
 
@@ -35,10 +35,16 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
       GenStage.sync_subscribe(worker, to: source, min_demand: 0, max_demand: 1)
     end
 
+    timeout = op.opts[:timeout] || 60_000
+
     receive do
       {:DOWN, ^ref, :process, ^sink, :normal} ->
         :ok = GenStage.stop(source)
         {:ok, :done}
+    after
+      timeout ->
+        GenStage.stop(source)
+        {:error, :timeout}
     end
   end
 

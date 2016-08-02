@@ -7,17 +7,17 @@ defmodule ExAws.S3.Download.Source do
     :file_size,
     done: false,
     counter: 0,
-    chunk_size: 10,
+    chunk_size: 1024 * 1024, # 1MB
   ]
 
-  def start_link(file_size) do
-    GenStage.start_link(__MODULE__, file_size, [])
+  def start_link(file_size, opts \\ []) do
+    GenStage.start_link(__MODULE__, {file_size, opts}, [])
   end
 
-  def init(file_size) do
+  def init({file_size, opts}) do
     state = %__MODULE__{
       file_size: file_size,
-    }
+    } |> struct(opts)
 
     {:producer, state}
   end

@@ -405,10 +405,17 @@ defmodule ExAws.S3 do
 
   @type download_file_opts :: [
     max_concurrency: pos_integer,
+    chunk_size: pos_integer,
+    timeout: 60_000,
   ]
 
   @doc """
   Download an S3 Object to a file.
+
+  This operation download multiple parts of an S3 object concurrently, allowing
+  you to maximize throughput.
+
+  Defaults to a concurrency of 8, chunk size of 1MB, and a timeout of 1 minute.
   """
   @spec download_file(bucket :: binary, path :: binary, dest :: binary) :: __MODULE__.Download.t
   @spec download_file(bucket :: binary, path :: binary, dest :: binary, opts :: download_file_opts) :: __MODULE__.Download.t
