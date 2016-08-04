@@ -1,5 +1,3 @@
-alias Experimental.GenStage
-
 defmodule ExAws.S3.Download do
   @moduledoc """
   Represents an AWS S3 file download operation
