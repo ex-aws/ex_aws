@@ -10,46 +10,44 @@ defmodule ExAws.S3.Download do
     :bucket,
     :path,
     :dest,
+    chunk_size: 1024 * 1024,
     opts: [],
     service: :s3,
   ]
 
   @type t :: %__MODULE__{}
-end
 
-defimpl ExAws.Operation, for: ExAws.S3.Download do
+  def get_chunk(op, %{start_byte: start_byte, end_byte: end_byte}, config) do
+    %{body: body} =
+      op.bucket
+      |> ExAws.S3.get_object(op.path, [range: "bytes=#{start_byte}-#{end_byte}"])
+      |> ExAws.request!(config)
 
-  alias ExAws.S3.Download
-
-  def perform(op, config) do
-    file_size = op.bucket |> get_file_size(op.path, config)
-
-    {:ok, source} = Download.Source.start_link(file_size, op.opts)
-    {:ok, sink} = Download.Sink.start_link(op.dest, file_size)
-    ref = Process.monitor(sink)
-
-    for _ <- 1..Keyword.get(op.opts, :max_concurrency, 8) do
-      {:ok, worker} = Download.Worker.start_link(%{bucket: op.bucket, path: op.path, config: config})
-
-      GenStage.sync_subscribe(sink, to: worker, min_demand: 0, max_demand: 1)
-      GenStage.sync_subscribe(worker, to: source, min_demand: 0, max_demand: 1)
-    end
-
-    timeout = op.opts[:timeout] || 60_000
-
-    receive do
-      {:DOWN, ^ref, :process, ^sink, :normal} ->
-        :ok = GenStage.stop(source)
-        {:ok, :done}
-    after
-      timeout ->
-        GenStage.stop(source)
-        {:error, :timeout}
-    end
+    {start_byte, body}
   end
 
-  def stream!(_op, _config) do
-    raise "not supported yet"
+  def build_chunk_stream(op, config) do
+    op.bucket
+    |> get_file_size(op.path, config)
+    |> chunk_stream(op.chunk_size)
+  end
+
+  def chunk_stream(file_size, chunk_size) do
+    Stream.unfold(0, fn counter ->
+      start_byte = counter * chunk_size
+
+      if start_byte >= file_size do
+        nil
+      else
+        end_byte = (counter + 1) * chunk_size
+
+        # byte ranges are inclusive, so we want to remove one. IE, first 500 bytes
+        # is range 0-499. Also, we need it bounded by the max size of the file
+        end_byte = min(end_byte, file_size) - 1
+
+        {%{start_byte: start_byte, end_byte: end_byte}, counter + 1}
+      end
+    end)
   end
 
   defp get_file_size(bucket, path, config) do
@@ -59,5 +57,35 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
     |> List.keyfind("Content-Length", 0, nil)
     |> elem(1)
     |> String.to_integer
+  end
+end
+
+defimpl ExAws.Operation, for: ExAws.S3.Download do
+
+  alias ExAws.S3.Download
+
+  alias Experimental.GenStage.Flow
+
+  def perform(op, config) do
+    init_file = fn -> File.open!(op.dest, [:write, :raw, :delayed_write, :binary]) end
+
+    write_chunk = fn chunks, file ->
+      :ok = :file.pwrite(file, [chunks])
+      file
+    end
+
+    chunk_stream = Download.build_chunk_stream(op, config)
+
+    Flow.new(stages: op.opts[:max_concurrency] || 8, max_demand: 1)
+    |> Flow.from_enumerable(chunk_stream)
+    |> Flow.map(&Download.get_chunk(op, &1, config))
+    |> Flow.reduce(init_file, write_chunk)
+    |> Flow.run
+
+    {:ok, :done}
+  end
+
+  def stream!(_op, _config) do
+    raise "not supported yet"
   end
 end
