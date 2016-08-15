@@ -1,6 +1,57 @@
 defmodule ExAws.S3 do
   @moduledoc """
   Operations on AWS S3
+
+  ## Basic Operations
+
+  The vast majority of operations here represent a single operation on S3.
+
+  ### Examples
+  ```
+  S3.list_objects |> ExAws.request! #=> {:ok, %{body: [list, of, objects]}}
+  S3.list_objects |> ExAws.stream! |> Enum.to_list #=> [list, of, objects]
+
+  S3.put_object("my-bucket", "path/to/bucket", contents) |> ExAws.request!
+  ```
+
+  ## Higher Level Operations
+
+  There are also some operations which operate at a higher level to make it easier
+  to download and upload very large files.
+
+  Multipart uploads
+  ```
+  "path/to/big/file"
+  |> S3.Upload.stream_file!
+  |> S3.upload("my-bucket", "path/on/s3")
+  |> ExAws.request! #=> {:ok, :done}
+  ```
+
+  Download large file to disk
+  ```
+  S3.download_file("my-bucket", "path/on/s3", "path/to/dest/file")
+  |> ExAws.request! #=> {:on, :done}
+  ```
+
+  ## More high level functionality
+
+  Flow makes some high level flows so easy you don't need explicit ExAws support.
+
+  For example, here is how to concurrently upload many files.
+
+  ```
+  upload_file = fn {src_path, dest_path} ->
+    S3.put_object("my_bucket", dest_path, File.read!(src_path))
+    |> ExAws.request!
+  end
+
+  paths = %{"path/to/src0" => "path/to/dest0", "path/to/src1" => "path/to/dest1"}
+
+  Flow.new(stages: 10, max_demand: 1)
+  |> Flow.from_enumerable(paths)
+  |> Flow.each(upload_file)
+  |> Flow.run
+  ```
   """
 
   import ExAws.S3.Utils
@@ -425,6 +476,33 @@ defmodule ExAws.S3 do
       path: path,
       dest: dest,
       opts: opts
+    }
+  end
+
+  @doc """
+  Multipart upload to S3.
+
+  Handles initialization, uploading parts concurrently, and multipart upload completion.
+
+  ## Examples
+  ```
+  "path/to/big/file"
+  |> S3.Upload.stream_file!
+  |> S3.upload("my-bucket", "path/on/s3")
+  |> ExAws.request! #=> {:ok, :done}
+  ```
+
+  ## Notes
+
+  Source is expected to be an enumerable that emits binaries. Each binary will be
+  uploaded as a chunk, so it must be at least 5 megabytes in size.
+  """
+  def upload(source, bucket, path, opts) do
+    %__MODULE__.Upload{
+      src: source |> Stream.with_index(1),
+      bucket: bucket,
+      path: path,
+      opts: opts,
     }
   end
 

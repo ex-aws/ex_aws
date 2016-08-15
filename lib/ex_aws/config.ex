@@ -12,6 +12,8 @@ defmodule ExAws.Config do
     :region, :security_token
   ]
 
+  @type t :: %{} | Keyword.t
+
   @doc """
   Builds a complete set of config for an operation.
 

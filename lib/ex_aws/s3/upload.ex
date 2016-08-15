@@ -2,7 +2,15 @@ alias Experimental.GenStage
 
 defmodule ExAws.S3.Upload do
   @moduledoc """
-  Represents an AWS S3 file download operation
+  Represents an AWS S3 Multipart Upload operation
+
+  ## Examples
+  ```
+  "path/to/big/file"
+  |> S3.Upload.stream_file!
+  |> S3.upload("my-bucket", "path/on/s3")
+  |> ExAws.request! #=> {:ok, :done}
+  ```
   """
 
   @enforce_keys ~w(bucket path src)a
@@ -15,8 +23,14 @@ defmodule ExAws.S3.Upload do
     service: :s3,
   ]
 
-  @type t :: %__MODULE__{}
-
+  @type t :: %__MODULE__{
+    src: Enumerable.t,
+    bucket: binary,
+    path: binary,
+    upload_id: binary,
+    opts: Keyword.t,
+    service: :s3
+  }
 
   def complete!(parts, op, config) do
     ExAws.S3.complete_multipart_upload(op.bucket, op.path, op.upload_id, Enum.sort_by(parts, &elem(&1, 0)))
@@ -30,18 +44,32 @@ defmodule ExAws.S3.Upload do
     %{op | upload_id: upload_id}
   end
 
-  def stream_file!(op) do
-    op.src
-    |> File.stream!([:raw, :read_ahead, :binary], op.opts[:chunk_size] || 5 * 1024 * 1024)
-    |> Stream.with_index(1)
+  @doc """
+  Open a file stream for use in an upload.
+
+  Chunk size must be at least 5 MiB. Defaults to 5 MiB
+  """
+  @spec stream_file(path :: binary) :: File.Stream.t
+  @spec stream_file(path :: binary, opts :: [chunk_size: pos_integer]) :: File.Stream.t
+  def stream_file(path, opts \\ []) do
+    path
+    |> File.stream!([:raw, :read_ahead, :binary], opts[:chunk_size] || 5 * 1024 * 1024)
   end
 
+  @doc """
+  Upload a chunk for an operation.
+
+  The first argument is a tuple with the binary contents of the chunk, and a
+  positive integer index indicating which chunk it is. It will return this index
+  along with the `etag` response from AWS necessary to complete the multipart upload.
+  """
+  @spec upload_chunk!({binary, pos_integer}, t, ExAws.Config.t) :: {pos_integer, binary}
   def upload_chunk!({chunk, i}, op, config) do
     %{headers: headers} = ExAws.S3.upload_part(op.bucket, op.path, op.upload_id, i, chunk, op.opts)
     |> ExAws.request!(config)
 
     {_, etag} = List.keyfind(headers, "ETag", 0)
-    {i, etag} |> IO.inspect
+    {i, etag}
   end
 end
 
@@ -52,10 +80,9 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
 
   def perform(op, config) do
     op = Upload.initialize!(op, config)
-    stream = Upload.stream_file!(op)
 
     Flow.new(stages: op.opts[:max_concurrency] || 4, max_demand: 1)
-    |> Flow.from_enumerable(stream)
+    |> Flow.from_enumerable(op.src)
     |> Flow.map(&Upload.upload_chunk!(&1, op, config))
     |> Enum.to_list
     |> Upload.complete!(op, config)
