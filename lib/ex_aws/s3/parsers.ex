@@ -5,45 +5,34 @@ if Code.ensure_loaded?(SweetXml) do
     def parse_list_objects({:ok, resp = %{body: xml}}) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListBucketResult",
-        name: ~x"./Name/text()",
-        is_truncated: ~x"./IsTruncated/text()",
-        prefix: ~x"./Prefix/text()",
-        marker: ~x"./Marker/text()",
-        max_keys: ~x"./MaxKeys/text()",
-        next_marker: ~x"./NextMarker/text()",
+        name: ~x"./Name/text()"s,
+        is_truncated: ~x"./IsTruncated/text()"s,
+        prefix: ~x"./Prefix/text()"s,
+        marker: ~x"./Marker/text()"s,
+        max_keys: ~x"./MaxKeys/text()"s,
+        next_marker: ~x"./NextMarker/text()"s,
         contents: [
           ~x"./Contents"l,
-          key: ~x"./Key/text()",
-          last_modified: ~x"./LastModified/text()",
-          e_tag: ~x"./ETag/text()",
-          size: ~x"./Size/text()",
-          storage_class: ~x"./StorageClass/text()",
+          key: ~x"./Key/text()"s,
+          last_modified: ~x"./LastModified/text()"s,
+          e_tag: ~x"./ETag/text()"s,
+          size: ~x"./Size/text()"s,
+          storage_class: ~x"./StorageClass/text()"s,
           owner: [
             ~x"./Owner"o,
-            id: ~x"./ID/text()",
-            display_name: ~x"./DisplayName/text()"
+            id: ~x"./ID/text()"s,
+            display_name: ~x"./DisplayName/text()"s
           ]
         ],
         common_prefixes: [
           ~x"./CommonPrefixes"l,
-          prefix: ~x"./Prefix/text()"
+          prefix: ~x"./Prefix/text()"s
         ]
       )
-      |> list_objects_binaries
 
       {:ok, %{resp | body: parsed_body}}
     end
     def parse_list_objects(val), do: val
-
-    defp list_objects_binaries(result) do
-      Enum.into(result, %{}, fn
-        {:contents, contents} -> {:contents, Enum.map(contents, &list_objects_binaries/1)}
-        {k, nil} -> {k, nil}
-        {:owner, v} -> {:owner, list_objects_binaries(v)}
-        {:common_prefixes, prefixes} -> {:common_prefixes, Enum.map(prefixes, &list_objects_binaries/1)}
-        {k, v} -> {k, IO.chardata_to_string(v)}
-      end)
-    end
 
     def parse_initiate_multipart_upload({:ok, resp = %{body: xml}}) do
       parsed_body = xml
@@ -56,8 +45,24 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, %{resp | body: parsed_body}}
     end
     def parse_initiate_multipart_upload(val), do: val
+
     def parse_upload_part_copy(val), do: val
     def parse_complete_multipart_upload(val), do: val
+
+    def parse_list_multipart_uploads({:ok, %{body: xml} = resp}) do
+      parsed_body = SweetXml.xpath(xml, ~x"//ListMultipartUploadsResult",
+        bucket: ~x"./Bucket/text()"s,
+        key_marker: ~x"./KeyMarker/text()"s,
+        upload_id_marker: ~x"./UploadIdMarker/text()"s,
+        uploads: [~x"./Upload"l,
+          key: ~x"./Key/text()"s,
+          upload_id: ~x"./UploadId/text()"s,
+        ]
+      )
+      {:ok, %{resp | body: parsed_body}}
+    end
+    def parse_list_multipart_uploads(val), do: val
+
     def parse_list_parts(val), do: val
 
   end
