@@ -32,6 +32,25 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.delete_topic("arn:aws:sns:us-east-1:982071696186:test-topic").params
   end
 
+  test "#create_platform_application" do
+    expected = %{
+      "Action" => "CreatePlatformApplication",
+      "Name" => "ApplicationName",
+      "Platform" => "APNS"
+    }
+    assert expected == SNS.create_platform_application("ApplicationName", "APNS").params
+  end
+
+  test "#create_platform_endpoint" do
+    expected = %{
+      "Action" => "CreatePlatformEndpoint",
+      "CustomUserData" => "user data",
+      "PlatformApplicationArn" => "arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn",
+      "Token" => "123abc456def"
+    }
+    assert expected == SNS.create_platform_endpoint("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn", "123abc456def", "user data").params
+  end
+
   test "#publish" do
     expected = %{
       "Action" => "Publish",

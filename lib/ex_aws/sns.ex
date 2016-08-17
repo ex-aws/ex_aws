@@ -116,14 +116,8 @@ defmodule ExAws.SNS do
   ######################
 
   @doc "Create plaform application"
-  def create_platform_application(name, :adm),
-    do: request("CreatePlatformApplication", %{"Name" => name, "Platform" => "ADM"})
-  def create_platform_application(name, :adns),
-    do: request("CreatePlatformApplication", %{"Name" => name, "Platform" => "ADNS"})
-  def create_platform_application(name, :adns_sandbox),
-    do: request("CreatePlatformApplication", %{"Name" => name, "Platform" => "ADNS_SANDBOX"})
-  def create_platform_application(name, :gcm),
-    do: request("CreatePlatformApplication", %{"Name" => name, "Platform" => "GCM"})
+  def create_platform_application(name, platform),
+    do: request("CreatePlatformApplication", %{"Name" => name, "Platform" => platform})
 
   @doc "Create platform endpoint"
   def create_platform_endpoint(platform_application_arn, token, custom_user_data \\ nil) do
