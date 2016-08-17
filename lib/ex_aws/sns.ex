@@ -115,11 +115,19 @@ defmodule ExAws.SNS do
   ## Platform
   ######################
 
+  @type platform_application_arn:: binary
+
   @doc "Create plaform application"
+  @spec create_platform_application(name :: binary, platform :: binary) :: ExAws.Operation.Query.t
   def create_platform_application(name, platform),
     do: request("CreatePlatformApplication", %{"Name" => name, "Platform" => platform})
 
   @doc "Create platform endpoint"
+  @spec create_platform_endpoint(platform_application_arn :: platform_application_arn,
+                                   token :: binary) :: ExAws.Operation.Query.t
+  @spec create_platform_endpoint(platform_application_arn :: platform_application_arn,
+                                   token :: binary,
+                                   custom_user_data :: binary) :: ExAws.Operation.Query.t
   def create_platform_endpoint(platform_application_arn, token, custom_user_data \\ nil) do
     request("CreatePlatformEndpoint", %{
       "PlatformApplicationArn" => platform_application_arn,
