@@ -24,10 +24,10 @@ defmodule ExAws.Auth do
     [{"Authorization", auth_header} | headers ]
   end
 
-  def presigned_url(http_method, url, service, datetime, config, expires) do
+  def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ []) do
     service = service_name(service)
     headers = presigned_url_headers(url)
-    query = presigned_url_query(service, datetime, config, expires)
+    query = presigned_url_query(service, datetime, config, expires, query_params)
     url = "#{url}?#{query}"
     signature = signature(http_method, url, headers, nil, service, datetime, config)
     "#{url}&X-Amz-Signature=#{signature}"
@@ -168,8 +168,11 @@ defmodule ExAws.Auth do
     [{"host", uri.host}]
   end
 
-  defp presigned_url_query(service, datetime, config, expires) do
-    "X-Amz-Algorithm=AWS4-HMAC-SHA256&"
+  defp presigned_url_query(service, datetime, config, expires, query_params) do
+    Enum.reduce(query_params, "", fn({key,value}, acc) ->
+      acc <> "#{to_string(key)}=#{to_string(value)}&"
+    end)
+    <> "X-Amz-Algorithm=AWS4-HMAC-SHA256&"
     <> "X-Amz-Credential=#{uri_encode(credentials(service, datetime, config))}&"
     <> "X-Amz-Date=#{amz_date(datetime)}&"
     <> "X-Amz-Expires=#{expires}&"

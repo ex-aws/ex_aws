@@ -119,6 +119,24 @@ defmodule ExAws.S3Test do
     assert_pre_signed_url(url, "https://bucket.s3.amazonaws.com/foo.txt", "100")
   end
 
+  test "#presigned_url passing query_params option" do
+    query_params = [
+      key_one: "value_one",
+      key_two: "value_two"
+    ]
+    {:ok, url} = S3.presigned_url(config(), :get, "bucket", "foo.txt", [query_params: query_params])
+    uri = URI.parse(url)
+    actual_query = URI.query_decoder(uri.query) |> Enum.map(&(&1))
+    assert [{"key_one", "value_one"},
+            {"key_two", "value_two"},
+            {"X-Amz-Algorithm", "AWS4-HMAC-SHA256"},
+            {"X-Amz-Credential", _},
+            {"X-Amz-Date", _},
+            {"X-Amz-Expires", _},
+            {"X-Amz-SignedHeaders", "host"},
+            {"X-Amz-Signature", _}] = actual_query
+  end
+
   test "#presigned_url file is path with slash" do
     {:ok, url} = S3.presigned_url(config(), :get, "bucket", "/foo/bar.txt")
     assert_pre_signed_url(url, "https://s3.amazonaws.com/bucket/foo/bar.txt", "3600")
