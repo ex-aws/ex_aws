@@ -835,7 +835,8 @@ defmodule ExAws.S3 do
   the hostname. This will cause the returned URL to be 'http' and not 'https'.
 
   Additional (signed) query parameters can be added to the url by setting option param
-  `:query_params` to a list of `{"key", "value"}` pairs.
+  `:query_params` to a list of `{"key", "value"}` pairs. Useful if you uploading parts of
+  a multipart upload directly from the browser.
   """
   @spec presigned_url(config :: %{}, http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: {:ok, binary} | {:error, binary}
   @one_week 60 * 60 * 24 * 7
