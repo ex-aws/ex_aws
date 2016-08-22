@@ -83,7 +83,8 @@ defmodule ExAws.S3 do
 
   @type presigned_url_opts :: [
     expires_in: integer,
-    virtual_host: boolean
+    virtual_host: boolean,
+    query_params: [{:key, binary}]
   ]
 
   @type amz_meta_opts :: [{atom, binary} | {binary, binary}, ...]
@@ -832,18 +833,23 @@ defmodule ExAws.S3 do
 
   When option param :virtual_host is `true`, the {#bucket} name will be used as
   the hostname. This will cause the returned URL to be 'http' and not 'https'.
+
+  Additional (signed) query parameters can be added to the url by setting option param
+  `:query_params` to a list of `{"key", "value"}` pairs. Useful if you are uploading parts of
+  a multipart upload directly from the browser.
   """
   @spec presigned_url(config :: %{}, http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: {:ok, binary} | {:error, binary}
   @one_week 60 * 60 * 24 * 7
   def presigned_url(config, http_method, bucket, object, opts \\ []) do
     expires_in = Keyword.get(opts, :expires_in, 3600)
     virtual_host = Keyword.get(opts, :virtual_host, false)
+    query_params = Keyword.get(opts, :query_params, [])
     case expires_in > @one_week do
       true -> {:error, "expires_in_exceeds_one_week"}
       false ->
         url = url_to_sign(bucket, object, config, virtual_host)
         datetime = :calendar.universal_time
-        {:ok, ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in)}
+        {:ok, ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in, query_params)}
     end
   end
 
