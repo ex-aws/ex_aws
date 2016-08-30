@@ -1,4 +1,7 @@
 defmodule ExAws.Auth.Utils do
+
+  @moduledoc false
+
   def uri_encode(url) do
     url
     |> String.replace("+", " ")

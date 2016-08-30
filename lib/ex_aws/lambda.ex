@@ -1,11 +1,10 @@
 defmodule ExAws.Lambda do
+  @moduledoc """
+  Operations on ExAws Lambda
+  """
+
   import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
   require Logger
-
-  @moduledoc false
-  # Implimentation of the AWS Kinesis API.
-  #
-  # See ExAws.Kinesis.Client for usage.
 
   @namespace "Lambda"
   @actions %{

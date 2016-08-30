@@ -1,26 +1,11 @@
 defmodule ExAws.RDS do
+  @moduledoc """
+  Operations on AWS RDS
+  """
+
   import ExAws.Utils, only: [camelize_keys: 1]
 
   @version "2014-10-31"
-
-
-  @moduledoc """
-  The purpose of this module is to surface the ExAws.RDS API tied to a single
-  configuration chosen, sich that it does not need passed in with every request.
-
-  Usage:
-  ```
-  defmodule MyApp.RDS do
-    use ExAws.RDS.Client, otp_app: :my_otp_app
-  end
-  ```
-
-  In your config
-  ```
-  config :my_otp_app, :ex_aws,
-    rds: [], # RDS config goes here
-  ```
-  """
 
   @type db_instance_classes :: [
     :db_t1_micro   | :db_m1_small    | :db_m1_medium  | :db_m1_large  | :db_m1_xlarge  |

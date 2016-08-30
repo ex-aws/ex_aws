@@ -2,60 +2,7 @@ defmodule ExAws.SNS do
   import ExAws.Utils, only: [camelize_key: 1, camelize_keys: 1]
 
   @moduledoc """
-  Defines an SNS Client
-
-  By default you can use ExAws.SNS
-
-  ## Usage
-
-  ```
-  defmodule MyApp.SNS do
-    use ExAws.SNS.Client, otp_app: :my_otp_app
-  end
-  ```
-
-  In your config:
-
-  ```
-  config :my_otp_app, :ex_aws,
-    sns: [], # SNS config goes here
-  ```
-
-  You can now use MyApp.SNS as the root module for the SNS API without
-  needing to pass in a particular configuration. This enables different OTP
-  apps to configure their AWS configurations separately.
-
-  The alignment with a particular OTP app while convenient is however entirely
-  optional.
-
-  The following also works:
-
-  ```
-  defmodule MyApp.SNS do
-    use ExAws.SNS.Client
-
-    def config_root do
-      Application.get_all_env(:my_aws_config_root)
-    end
-  end
-  ```
-
-  ExAws now expects the config for that client to live under `:my_aws_config_root`:
-
-  ```elixir
-  config :my_aws_config_root
-    sns: [] # SNS config goes here
-  ```
-
-  Default config values can be found in ExAws.Config.
-
-  ## General notes
-
-  TODO
-
-  ## Examples
-
-  TODO
+  Operations on AWS SNS
 
   http://docs.aws.amazon.com/sns/latest/APIReference/API_Operations.html
   """

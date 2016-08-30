@@ -30,15 +30,6 @@ defmodule ExAws do
   end
 
   @doc """
-  Build a stream
-  """
-  @spec stream!(ExAws.Operation.t) :: Enumerable.t
-  @spec stream!(ExAws.Operation.t, Keyword.t) :: Enumerable.t
-  def stream!(op, config_overrides \\ []) do
-    ExAws.Operation.stream!(op, ExAws.Config.new(op.service, config_overrides))
-  end
-
-  @doc """
   Perform an AWS request, raise if it fails.
 
   Same as `request/1,2` except it will either return the successful response from
@@ -58,6 +49,20 @@ defmodule ExAws do
           #{inspect error}
           """
     end
+  end
+
+  @doc """
+  Return a stream for the AWS resource.
+
+  ## Examples
+  ```
+  ExAws.S3.list_objects("my-bucket") |> ExAws.stream!
+  ```
+  """
+  @spec stream!(ExAws.Operation.t) :: Enumerable.t
+  @spec stream!(ExAws.Operation.t, Keyword.t) :: Enumerable.t
+  def stream!(op, config_overrides \\ []) do
+    ExAws.Operation.stream!(op, ExAws.Config.new(op.service, config_overrides))
   end
 
   @doc false

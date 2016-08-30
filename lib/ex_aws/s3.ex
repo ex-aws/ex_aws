@@ -1,48 +1,57 @@
 defmodule ExAws.S3 do
-
   @moduledoc """
-  The purpose of this module is to surface the ExAws.S3 API tied to a single
-  configuration chosen, such that it does not need passed in with every request.
+  Operations on AWS S3
 
-  Usage:
+  ## Basic Operations
+
+  The vast majority of operations here represent a single operation on S3.
+
+  ### Examples
   ```
-  defmodule MyApp.S3 do
-    use ExAws.S3.Client, otp_app: :my_otp_app
+  S3.list_objects |> ExAws.request! #=> {:ok, %{body: [list, of, objects]}}
+  S3.list_objects |> ExAws.stream! |> Enum.to_list #=> [list, of, objects]
+
+  S3.put_object("my-bucket", "path/to/bucket", contents) |> ExAws.request!
+  ```
+
+  ## Higher Level Operations
+
+  There are also some operations which operate at a higher level to make it easier
+  to download and upload very large files.
+
+  Multipart uploads
+  ```
+  "path/to/big/file"
+  |> S3.Upload.stream_file!
+  |> S3.upload("my-bucket", "path/on/s3")
+  |> ExAws.request! #=> {:ok, :done}
+  ```
+
+  Download large file to disk
+  ```
+  S3.download_file("my-bucket", "path/on/s3", "path/to/dest/file")
+  |> ExAws.request! #=> {:on, :done}
+  ```
+
+  ## More high level functionality
+
+  Flow makes some high level flows so easy you don't need explicit ExAws support.
+
+  For example, here is how to concurrently upload many files.
+
+  ```
+  upload_file = fn {src_path, dest_path} ->
+    S3.put_object("my_bucket", dest_path, File.read!(src_path))
+    |> ExAws.request!
   end
+
+  paths = %{"path/to/src0" => "path/to/dest0", "path/to/src1" => "path/to/dest1"}
+
+  Flow.new(stages: 10, max_demand: 1)
+  |> Flow.from_enumerable(paths)
+  |> Flow.each(upload_file)
+  |> Flow.run
   ```
-
-  In your config
-  ```
-  config :my_otp_app, :ex_aws,
-    s3: [], # S3 config goes here
-  ```
-
-  You can now use MyApp.S3 as the root module for the S3 api without needing
-  to pass in a particular configuration.
-  This enables different otp apps to configure their AWS configuration separately.
-
-  The alignment with a particular OTP app while convenient is however entirely optional.
-  The following also works:
-
-  ```
-  defmodule MyApp.S3 do
-    use ExAws.S3.Client
-
-    def config_root do
-      Application.get_all_env(:my_aws_config_root)
-    end
-  end
-  ```
-  ExAws now expects the config for that S3 client to live under
-
-  ```elixir
-  config :my_aws_config_root
-    s3: [] # S3 config goes here
-  ```
-
-  This is in fact how the functions in ExAws.S3 that do not require a config work.
-  Default config values can be found in ExAws.Config. The default configuration is always used,
-  and then the configuration of a particular client is merged in and overrides the defaults.
   """
 
   import ExAws.S3.Utils
@@ -246,7 +255,7 @@ defmodule ExAws.S3 do
   @params [:delimiter, :encoding_type, :max_uploads, :key_marker, :prefix, :upload_id_marker]
   def list_multipart_uploads(bucket, opts \\ []) do
     params = opts |> format_and_take(@params)
-    request(:get, bucket, "/", resource: "uploads", params: params)
+    request(:get, bucket, "/", [resource: "uploads", params: params], %{parser: &Parsers.parse_list_multipart_uploads/1})
   end
 
   @doc "Creates a bucket. Same as create_bucket/2"
@@ -443,6 +452,58 @@ defmodule ExAws.S3 do
     |> Map.merge(headers)
 
     request(:get, bucket, object, headers: headers, params: response_opts)
+  end
+
+  @type download_file_opts :: [
+    max_concurrency: pos_integer,
+    chunk_size: pos_integer,
+    timeout: 60_000,
+  ]
+
+  @doc """
+  Download an S3 Object to a file.
+
+  This operation download multiple parts of an S3 object concurrently, allowing
+  you to maximize throughput.
+
+  Defaults to a concurrency of 8, chunk size of 1MB, and a timeout of 1 minute.
+  """
+  @spec download_file(bucket :: binary, path :: binary, dest :: binary) :: __MODULE__.Download.t
+  @spec download_file(bucket :: binary, path :: binary, dest :: binary, opts :: download_file_opts) :: __MODULE__.Download.t
+  def download_file(bucket, path, dest, opts \\ []) do
+    %__MODULE__.Download{
+      bucket: bucket,
+      path: path,
+      dest: dest,
+      opts: opts
+    }
+  end
+
+  @doc """
+  Multipart upload to S3.
+
+  Handles initialization, uploading parts concurrently, and multipart upload completion.
+
+  ## Examples
+  ```
+  "path/to/big/file"
+  |> S3.Upload.stream_file!
+  |> S3.upload("my-bucket", "path/on/s3")
+  |> ExAws.request! #=> {:ok, :done}
+  ```
+
+  ## Notes
+
+  Source is expected to be an enumerable that emits binaries. Each binary will be
+  uploaded as a chunk, so it must be at least 5 megabytes in size.
+  """
+  def upload(source, bucket, path, opts) do
+    %__MODULE__.Upload{
+      src: source |> Stream.with_index(1),
+      bucket: bucket,
+      path: path,
+      opts: opts,
+    }
   end
 
   @doc "Get an object's access control policy"

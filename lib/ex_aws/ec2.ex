@@ -1,4 +1,8 @@
 defmodule ExAws.EC2 do
+  @moduledoc """
+  Operations on AWS EC2
+  """
+
   import ExAws.Utils
 
   @version "2015-10-01"

@@ -1,17 +1,22 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
+  @version "1.0.0-beta1"
+
   def project do
     [app: :ex_aws,
-     version: "1.0.0-beta1",
+     version: @version,
      elixir: "~> 1.0",
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3, SQS, RDS, EC2",
+     description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
      package: package,
      dialyzer: [flags: "--fullpath"],
-     deps: deps]
+     deps: deps,
+     docs: [main: "ExAws", source_ref: "v#{@version}",
+       source_url: "https://github.com/cargosense/ex_aws"]
+     ]
   end
 
   def application do
@@ -31,15 +36,16 @@ defmodule ExAws.Mixfile do
       {:sweet_xml, "~> 0.5", optional: true},
       {:earmark, "~> 0.2.1", only: :dev},
       {:ex_doc, "~> 0.11.4", only: :dev},
-      {:httpoison, "~> 0.8", optional: true},
+      {:hackney, "~> 1.5", optional: true},
       {:poison, "~> 1.2 or ~> 2.0", optional: true},
       {:jsx, "~> 2.5", optional: true},
+      {:gen_stage, ">= 0.0.0"},
       {:dialyze, "~> 0.2.0", only: :dev},
     ]
   end
 
   defp package do
-    [description: "AWS client. Currently supports Dynamo, Kinesis, Lambda, S3",
+    [description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
      files: ["lib", "config", "mix.exs", "README*"],
      maintainers: ["Ben Wilson"],
      licenses: ["MIT"],
