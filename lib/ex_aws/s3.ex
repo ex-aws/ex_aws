@@ -47,7 +47,7 @@ defmodule ExAws.S3 do
 
   paths = %{"path/to/src0" => "path/to/dest0", "path/to/src1" => "path/to/dest1"}
 
-  Flow.new(stages: 10, max_demand: 1)
+  Flow.new(stages: 10, max_demand: 2)
   |> Flow.from_enumerable(paths)
   |> Flow.each(upload_file)
   |> Flow.run

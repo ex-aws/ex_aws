@@ -74,7 +74,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
 
     chunk_stream = Download.build_chunk_stream(op, config)
 
-    Flow.new(stages: op.opts[:max_concurrency] || 8, max_demand: 1)
+    Flow.new(stages: op.opts[:max_concurrency] || 8, max_demand: 2)
     |> Flow.from_enumerable(chunk_stream)
     |> Flow.map(&Download.get_chunk(op, &1, config))
     |> Flow.reduce(init_file, write_chunk)

@@ -81,7 +81,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
   def perform(op, config) do
     op = Upload.initialize!(op, config)
 
-    Flow.new(stages: op.opts[:max_concurrency] || 4, max_demand: 1)
+    Flow.new(stages: op.opts[:max_concurrency] || 4, max_demand: 2)
     |> Flow.from_enumerable(op.src)
     |> Flow.map(&Upload.upload_chunk!(&1, op, config))
     |> Enum.to_list
