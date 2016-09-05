@@ -7,7 +7,7 @@ defmodule ExAws.JSON.Codec do
 
   See the contents of `ExAws.JSON.JSX` for an example of an alternative implementation.
   ## Example
-  Here for example is the code required to make HTTPotion comply with this spec.
+  Here for example is the code required to make jsx comply with this spec.
 
   In your config you would do:
 
@@ -23,26 +23,27 @@ defmodule ExAws.JSON.Codec do
     @moduledoc false
 
     def encode!(%{} = map) do
-      map
-      |> Map.to_list
-      |> :jsx.encode
-      |> case do
-        "[]" -> "{}"
-        val -> val
-      end
+      map |> :jsx.encode
     end
 
     def encode(map) do
-      {:ok, encode!(map)}
+      try do
+        {:ok, encode!(map)}
+      rescue
+        ArgumentError -> {:error, :badarg}
+      end
     end
 
     def decode!(string) do
-      :jsx.decode(string)
-      |> Map.new
+      :jsx.decode(string, [:return_maps])
     end
 
     def decode(string) do
-      {:ok, decode!(string)}
+      try do
+        {:ok, decode!(string)}
+      rescue
+        ArgumentError -> {:error, :badarg}
+      end
     end
   end
   ```
