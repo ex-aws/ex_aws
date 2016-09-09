@@ -1,6 +1,8 @@
 defmodule ExAws.Auth do
   import ExAws.Auth.Utils
 
+  alias ExAws.Auth.Signatures
+
   @moduledoc false
 
   def headers(http_method, url, service, config, headers, body) do
@@ -50,8 +52,8 @@ defmodule ExAws.Auth do
   defp signature(http_method, url, headers, body, service, datetime, config) do
     request = build_canonical_request(http_method, url, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
-    signing_key = signing_key(service, datetime, config)
-    hmac_sha256(signing_key, string_to_sign) |> bytes_to_hex
+
+    Signatures.generate_signature_v4(service, config, datetime, string_to_sign)
   end
 
   def build_canonical_request(http_method, url, headers, body) do
@@ -89,14 +91,6 @@ defmodule ExAws.Auth do
   defp remove_dup_spaces("  " <> rest), do: remove_dup_spaces(" " <> rest)
   defp remove_dup_spaces(<< char :: binary-1, rest :: binary>>) do
     char <> remove_dup_spaces(rest)
-  end
-
-  defp signing_key(service, datetime, config) do
-    ["AWS4", config[:secret_access_key]]
-    |> hmac_sha256(date(datetime))
-    |> hmac_sha256(config[:region])
-    |> hmac_sha256(service)
-    |> hmac_sha256("aws4_request")
   end
 
   defp string_to_sign(request, service, datetime, config) do
