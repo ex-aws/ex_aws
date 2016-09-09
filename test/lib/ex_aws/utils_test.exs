@@ -28,4 +28,8 @@ defmodule ExAws.UtilsTest do
   test "iso_z_to_secs/1" do
     assert iso_z_to_secs("2015-07-05T22:16:18Z") == 1436134578
   end
+
+  test "add_seconds/2" do
+    assert add_seconds({{2016, 8, 29}, {22, 31, 19}}, 10) == {{2016, 8, 29}, {22, 31, 29}}
+  end
 end

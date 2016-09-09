@@ -57,6 +57,13 @@ defmodule ExAws.Auth.Utils do
     |> Enum.map(&zero_pad/1)
   end
 
+  def iso_8601_format({{year, month, date}, {hour, min, sec}}) do
+    "~.4.0w-~.2.0w-~.2.0wT~.2.0w:~.2.0w:~.2.0wZ"
+    |> :io_lib.format([year, month, date, hour, min, sec])
+    |> IO.iodata_to_binary
+  end
+  def iso_8601_format(nil), do: nil
+
   defp zero_pad(<<_>> = val), do: "0" <> val
   defp zero_pad(val), do: val
 end

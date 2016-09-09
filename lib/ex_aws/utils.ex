@@ -100,4 +100,11 @@ defmodule ExAws.Utils do
 
     greg_secs - @seconds_0_to_1970
   end
+
+  def add_seconds(datetime, seconds_to_add) do
+    datetime
+    |> :calendar.datetime_to_gregorian_seconds()
+    |> Kernel.+(seconds_to_add)
+    |> :calendar.gregorian_seconds_to_datetime()
+  end
 end

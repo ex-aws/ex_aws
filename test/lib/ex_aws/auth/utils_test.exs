@@ -12,4 +12,8 @@ defmodule ExAws.Auth.UtilsTest do
     assert amz_date({{2015, 11, 22}, {11, 31, 51}}) == "20151122T113151Z"
   end
 
+  test "iso_8601_format/1" do
+    assert iso_8601_format({{2015, 1, 2}, {1, 3, 5}}) == "2015-01-02T01:03:05Z"
+    assert iso_8601_format(nil) == nil
+  end
 end
