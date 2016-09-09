@@ -6,7 +6,7 @@ defmodule ExAws.Auth do
   def headers(http_method, url, service, config, headers, body) do
     datetime = :calendar.universal_time
     headers = [
-      {"host", URI.parse(url).host},
+      {"host", URI.parse(url).authority},
       {"x-amz-date", amz_date(datetime)} |
       headers
     ]
