@@ -416,7 +416,7 @@ defmodule ExAws.Dynamo do
       queries = table_queries
       |> Enum.map(fn
         [delete_request: [key: primary_key]] ->
-          %{"DeleteRequest" => %{"Key" => primary_key |> Dynamo.Encoder.encode}}
+          %{"DeleteRequest" => %{"Key" => primary_key |> Dynamo.Encoder.encode_root}}
         [put_request: [item: item]] ->
           %{"PutRequest" => %{"Item" => Dynamo.Encoder.encode_root(item)}}
       end)

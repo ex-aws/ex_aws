@@ -14,6 +14,7 @@ defmodule ExAws.DynamoIntegrationTest do
     Dynamo.delete_table("Users") |> ExAws.request
     Dynamo.delete_table(Test.User) |> ExAws.request
     Dynamo.delete_table(Foo) |> ExAws.request
+    Dynamo.delete_table("books") |> ExAws.request
     :ok
   end
 
@@ -52,6 +53,23 @@ defmodule ExAws.DynamoIntegrationTest do
     assert Dynamo.scan("Users", limit: 1)
     |> ExAws.stream!
     |> Enum.count == 3
+  end
+  
+  test "batch_write_item works" do
+    {:ok, _} = Dynamo.create_table("books", [title: "hash", format: "range"], [title: :string, format: :string], 1, 1) |> ExAws.request
+    
+    requests = [
+      [put_request: [item: %{title: "Tale of Two Cities", format: "hardcover", price: 20.00}]],
+      [put_request: [item: %{title: "Tale of Two Cities", format: "softcover", price: 10.00}]]
+    ]
+    assert {:ok, _} = Dynamo.batch_write_item(%{"books" => requests}) |> ExAws.request
+    
+    delete_requests = [
+      [delete_request: [key: %{title: "Tale of Two Cities", format: "hardcover"}]],
+      [delete_request: [key: %{title: "Tale of Two Cities", format: "softcover"}]]
+    ]
+    assert {:ok, _} = Dynamo.batch_write_item(%{"books" => delete_requests}) |> ExAws.request
+    
   end
 
 end
