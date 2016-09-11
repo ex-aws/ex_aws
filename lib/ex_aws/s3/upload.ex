@@ -1,5 +1,3 @@
-alias Experimental.GenStage
-
 defmodule ExAws.S3.Upload do
   @moduledoc """
   Represents an AWS S3 Multipart Upload operation
@@ -75,7 +73,7 @@ end
 
 defimpl ExAws.Operation, for: ExAws.S3.Upload do
 
-  alias GenStage.Flow
+  alias Experimental.Flow
   alias ExAws.S3.Upload
 
   def perform(op, config) do

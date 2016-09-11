@@ -62,7 +62,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
 
   alias ExAws.S3.Download
 
-  alias Experimental.GenStage.Flow
+  alias Experimental.Flow
 
   def perform(op, config) do
     init_file = fn -> File.open!(op.dest, [:write, :raw, :delayed_write, :binary]) end
