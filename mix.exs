@@ -1,7 +1,7 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
-  @version "1.0.0-beta1"
+  @version "1.0.0-beta2"
 
   def project do
     [app: :ex_aws,
