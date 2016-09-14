@@ -44,7 +44,7 @@ defmodule ExAws.Auth do
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
     signature = signature(http_method, url, headers, body, service, datetime, config)
     [
-      "AWS4-HMAC-SHA256 Credential=", Credentials.generate_credential_v4(service, datetime, config), ",",
+      "AWS4-HMAC-SHA256 Credential=", Credentials.generate_credential_v4(service, config, datetime), ",",
       "SignedHeaders=", signed_headers(headers), ",",
       "Signature=", signature
     ] |> IO.iodata_to_binary
@@ -100,7 +100,7 @@ defmodule ExAws.Auth do
     """
     AWS4-HMAC-SHA256
     #{amz_date(datetime)}
-    #{Credentials.generate_credential_scope_v4(service, datetime, config)}
+    #{Credentials.generate_credential_scope_v4(service, config, datetime)}
     #{request}
     """
     |> String.rstrip
@@ -168,7 +168,7 @@ defmodule ExAws.Auth do
       acc <> "#{to_string(key)}=#{to_string(value)}&"
     end)
     <> "X-Amz-Algorithm=AWS4-HMAC-SHA256&"
-    <> "X-Amz-Credential=#{uri_encode(Credentials.generate_credential_v4(service, datetime, config))}&"
+    <> "X-Amz-Credential=#{uri_encode(Credentials.generate_credential_v4(service, config, datetime))}&"
     <> "X-Amz-Date=#{amz_date(datetime)}&"
     <> "X-Amz-Expires=#{expires}&"
     <> "X-Amz-SignedHeaders=host"
