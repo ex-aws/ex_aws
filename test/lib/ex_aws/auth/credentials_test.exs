@@ -10,7 +10,7 @@ defmodule ExAws.Auth.CredentialsTest do
       region: "us-east-1"
     ]
 
-    scope = Credentials.generate_credential_v4("s3", datetime, config)
+    scope = Credentials.generate_credential_v4("s3", config, datetime)
 
     assert scope == "AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request"
   end
@@ -19,7 +19,7 @@ defmodule ExAws.Auth.CredentialsTest do
     datetime = {{2013, 5, 24}, {0, 0, 0}}
     config = [region: "us-east-1"]
 
-    scope = Credentials.generate_credential_scope_v4("s3", datetime, config)
+    scope = Credentials.generate_credential_scope_v4("s3", config, datetime)
 
     assert scope == "20130524/us-east-1/s3/aws4_request"
   end
