@@ -41,6 +41,7 @@ defmodule ExAws.Mixfile do
       {:jsx, "~> 2.8", optional: true},
       {:gen_stage, "~> 0.5.0"},
       {:dialyze, "~> 0.2.0", only: :dev},
+      {:bypass, "~> 0.1", only: :test},
     ]
   end
 

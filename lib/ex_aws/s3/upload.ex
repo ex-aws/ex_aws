@@ -5,9 +5,9 @@ defmodule ExAws.S3.Upload do
   ## Examples
   ```
   "path/to/big/file"
-  |> S3.Upload.stream_file!
+  |> S3.Upload.stream_file
   |> S3.upload("my-bucket", "path/on/s3")
-  |> ExAws.request! #=> {:ok, :done}
+  |> ExAws.request! #=> :done
   ```
   """
 
