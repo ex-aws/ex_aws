@@ -56,6 +56,7 @@ defmodule ExAws.S3 do
 
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
+  alias Experimental.Flow
 
   @type acl_opts :: [{:acl, canned_acl} | grant]
   @type grant :: {:grant_read, grantee}
@@ -488,22 +489,54 @@ defmodule ExAws.S3 do
 
   Handles initialization, uploading parts concurrently, and multipart upload completion.
 
-  ## Examples
+  ## Uploading a stream
+
+  Streams that emit binaries may be uploaded directly to S3. Each binary will be uploaded
+  as a chunk, so it must be at least 5 megabytes in size. The `S3.Upload.stream_file`
+  helper takes care of reading the file in 5 megabyte chunks.
   ```
   "path/to/big/file"
-  |> S3.Upload.stream_file!
+  |> S3.Upload.stream_file
   |> S3.upload("my-bucket", "path/on/s3")
-  |> ExAws.request! #=> {:ok, :done}
+  |> ExAws.request! #=> :done
   ```
 
-  ## Notes
+  ## Uploading a flow
 
-  Source is expected to be an enumerable that emits binaries. Each binary will be
-  uploaded as a chunk, so it must be at least 5 megabytes in size.
+  GenStage Flows can also be uploaded directly to S3. However, due to the concurrent
+  nature of flows, the producer must emit events in the following format
+  `{binary, index}` to ensure they are uploaded in the correct order. Binaries
+  will be uploaded as a chunk and must be at least 5 megabytes in size.
+  ```
+  enumerable = ["hello world"] |> Enum.with_index(1)
+
+  Flow.new(stages: 4, max_demand: 2)
+  |> Flow.from_enumerable(enumerable)
+  |> S3.upload("my-bucket", "test.txt")
+  |> ExAws.request! #=> :done
+  ```
   """
   def upload(source, bucket, path, opts \\ []) do
+    do_upload(source, bucket, path, opts)
+  end
+
+  defp do_upload(%Flow{} = flow, bucket, path, opts) do
     %__MODULE__.Upload{
-      src: source |> Stream.with_index(1),
+      src: flow,
+      bucket: bucket,
+      path: path,
+      opts: opts,
+    }
+  end
+  defp do_upload(source, bucket, path, opts) do
+    source_stream = Stream.with_index(source, 1)
+
+    flow =
+      Flow.new(stages: opts[:max_concurrency] || 4, max_demand: 2)
+      |> Flow.from_enumerable(source_stream)
+
+    %__MODULE__.Upload{
+      src: flow,
       bucket: bucket,
       path: path,
       opts: opts,
