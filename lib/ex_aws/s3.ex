@@ -501,7 +501,7 @@ defmodule ExAws.S3 do
   Source is expected to be an enumerable that emits binaries. Each binary will be
   uploaded as a chunk, so it must be at least 5 megabytes in size.
   """
-  def upload(source, bucket, path, opts) do
+  def upload(source, bucket, path, opts \\ []) do
     %__MODULE__.Upload{
       src: source |> Stream.with_index(1),
       bucket: bucket,
