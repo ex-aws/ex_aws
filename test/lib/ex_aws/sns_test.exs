@@ -59,4 +59,23 @@ defmodule ExAws.SNSTest do
     }
     assert expected == SNS.publish("{\"message\": \"MyMessage\"}", [topic_arn: "arn:aws:sns:us-east-1:982071696186:test-topic"]).params
   end
+
+  test "#subscribe" do
+    expected = %{
+      "Action"   => "Subscribe",
+      "TopicArn" => "arn:aws:sns:us-east-1:982071696186:test-topic",
+      "Protocol" => "https",
+      "Endpoint" => "https://example.com"
+    }
+    assert expected == SNS.subscribe("arn:aws:sns:us-east-1:982071696186:test-topic", "https", "https://example.com").params
+  end
+
+  test "#list_subscriptions" do
+    expected = %{"Action" => "ListSubscriptions"}
+    assert expected == SNS.list_subscriptions().params
+
+    expected = %{"Action" => "ListSubscriptions", "NextToken" => "123456789" }
+    assert expected == SNS.list_subscriptions("123456789").params
+  end
+
 end
