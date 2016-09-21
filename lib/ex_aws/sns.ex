@@ -112,6 +112,23 @@ defmodule ExAws.SNS do
     |> Map.put(param_root <> ".Value.DataType", data_type)
   end
 
+  ## Subscriptions
+  ######################
+
+  @doc "Create Subscription"
+  def create_subscription(topic_arn, protocol, endpoint) do
+    request("Subscribe", %{
+      "TopicArn" => topic_arn,
+      "Protocol" => protocol,
+      "Endpoint" => endpoint,
+    })
+  end
+
+  @doc "List Subscriptions"
+  def list_subscriptions() do
+    request("ListSubscriptions", %{})
+  end
+
   ## Request
   ######################
 
