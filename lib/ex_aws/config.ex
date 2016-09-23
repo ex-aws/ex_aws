@@ -46,6 +46,8 @@ defmodule ExAws.Config do
     Enum.reduce(config, config, fn
       {:host, host}, config ->
         Map.put(config, :host, retrieve_runtime_value(host, config))
+      {:retries, retries}, config ->
+        Map.put(config, :retries, retries)
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
           %{} = result -> Map.merge(config, result)

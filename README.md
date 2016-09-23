@@ -114,14 +114,13 @@ ExAws will retry failed AWS API requests using exponential backoff per the "Full
 
 The algorithm uses three values, which are configurable:
 
-```
+```elixir
 # default values shown below
 
-config :ex_aws, retries: %{
+config :ex_aws, :retries,
   max_attempts: 10,
   base_backoff_in_ms: 10,
-  max_backoff_in_ms: 10_000,
-}
+  max_backoff_in_ms: 10_000
 ```
 
 * `max_attempts` is the maximum number of possible attempts with backoffs in between each one
