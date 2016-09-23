@@ -9,7 +9,7 @@ defmodule ExAws.Config do
 
   @common_config [
     :http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests,
-    :region, :security_token
+    :region, :security_token, :retries
   ]
 
   @type t :: %{} | Keyword.t
@@ -46,6 +46,8 @@ defmodule ExAws.Config do
     Enum.reduce(config, config, fn
       {:host, host}, config ->
         Map.put(config, :host, retrieve_runtime_value(host, config))
+      {:retries, retries}, config ->
+        Map.put(config, :retries, retries)
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
           %{} = result -> Map.merge(config, result)

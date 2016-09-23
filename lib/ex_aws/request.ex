@@ -1,8 +1,5 @@
 defmodule ExAws.Request do
   require Logger
-  @max_attempts 10
-  @base_backoff_in_ms 10
-  @max_backoff_in_ms 10_000
 
   @moduledoc """
   Makes requests to AWS.
@@ -40,15 +37,15 @@ defmodule ExAws.Request do
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
         case client_error(resp, config[:json_codec]) do
           {:retry, reason} ->
-            request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
+            request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
           {:error, reason} -> {:error, reason}
         end
       {:ok, %{status_code: status, body: body}} when status >= 500 ->
         reason = {:http_error, status, body}
-        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
       {:error, %{reason: reason}} ->
         Logger.warn("ExAws: HTTP ERROR: #{inspect reason}")
-        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason))
+        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
     end
   end
 
@@ -77,18 +74,18 @@ defmodule ExAws.Request do
     {:error, {type, message}}
   end
 
-  def attempt_again?(attempt, reason) when attempt >= @max_attempts do
-    {:error, reason}
+  def attempt_again?(attempt, reason, config) do
+    if attempt >= config[:retries][:max_attempts] do
+      {:error, reason}
+    else
+      attempt |> backoff(config)
+      {:attempt, attempt + 1}
+    end
   end
 
-  def attempt_again?(attempt, _) do
-    attempt |> backoff
-    {:attempt, attempt + 1}
-  end
-
-  def backoff(attempt) do
-    (@base_backoff_in_ms * :math.pow(2, attempt))
-    |> min(@max_backoff_in_ms)
+  def backoff(attempt, config) do
+    (config[:retries][:base_backoff_in_ms] * :math.pow(2, attempt))
+    |> min(config[:retries][:max_backoff_in_ms])
     |> trunc
     |> :rand.uniform
     |> :timer.sleep
