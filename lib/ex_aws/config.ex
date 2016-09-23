@@ -9,7 +9,7 @@ defmodule ExAws.Config do
 
   @common_config [
     :http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests,
-    :region, :security_token
+    :region, :security_token, :retries
   ]
 
   @type t :: %{} | Keyword.t

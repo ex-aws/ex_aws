@@ -108,6 +108,26 @@ config :ex_aws,
 
 This means it will first look for the AWS standard `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, and fall back using instance meta-data if those don't exist. You should set those environment variables to your credentials, or configure an instance that this library runs on to have an iam role.
 
+## Retries
+
+ExAws will retry failed AWS API requests using exponential backoff per the "Full Jitter" formula described in https://www.awsarchitectureblog.com/2015/03/backoff.html
+
+The algorithm uses three values, which are configurable:
+
+```
+# default values shown below
+
+config :ex_aws, retries: %{
+  max_attempts: 10,
+  base_backoff_in_ms: 10,
+  max_backoff_in_ms: 10_000,
+}
+```
+
+* `max_attempts` is the maximum number of possible attempts with backoffs in between each one
+* `base_backoff_in_ms` corresponds to the `base` value described in the blog post
+* `max_backoff_in_ms` corresponds to the `cap` value described in the blog post
+
 
 ## License
 
