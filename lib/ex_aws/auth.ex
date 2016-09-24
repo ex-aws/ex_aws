@@ -116,7 +116,7 @@ defmodule ExAws.Auth do
   defp canonical_query_params(nil), do: ""
   defp canonical_query_params(params) do
     params
-    |> URI.query_decoder
+    |> String.split("&") |> Enum.map(&List.to_tuple(String.split(&1, "=")))
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
     |> Enum.map_join("&", &pair/1)
   end
