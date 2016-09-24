@@ -168,13 +168,13 @@ defmodule ExAws.Auth do
       acc <> "#{to_string(key)}=#{to_string(value)}&"
     end)
     <> "X-Amz-Algorithm=AWS4-HMAC-SHA256&"
-    <> "X-Amz-Credential=#{uri_encode(Credentials.generate_credential_v4(service, config, datetime))}&"
+    <> "X-Amz-Credential=#{Credentials.generate_credential_v4(service, config, datetime)}&"
     <> "X-Amz-Date=#{amz_date(datetime)}&"
     <> "X-Amz-Expires=#{expires}&"
     <> "X-Amz-SignedHeaders=host"
     <> case config[:security_token] do
          nil -> ""
-         token -> "&X-Amz-Security-Token=#{uri_encode(token)}"
+         token -> "&X-Amz-Security-Token=#{token}"
        end
   end
 end
