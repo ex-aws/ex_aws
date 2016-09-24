@@ -30,7 +30,8 @@ defmodule ExAws.Auth do
   def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ []) do
     service = service_name(service)
     headers = presigned_url_headers(url)
-    query = presigned_url_query(service, datetime, config, expires, query_params)
+    query = presigned_url_query(service, datetime, config, expires, query_params) |> canonical_query_params
+
     url = "#{url}?#{query}"
     signature = signature(http_method, url, headers, nil, service, datetime, config)
     "#{url}&X-Amz-Signature=#{signature}"
@@ -61,8 +62,6 @@ defmodule ExAws.Auth do
     uri = URI.parse(url)
     http_method = http_method |> method_string |> String.upcase
 
-    query_params = uri.query |> canonical_query_params
-
     headers = headers |> canonical_headers
     header_string = headers
     |> Enum.map(fn {k, v} -> "#{k}:#{remove_dup_spaces(to_string(v))}" end)
@@ -80,7 +79,7 @@ defmodule ExAws.Auth do
     [
       http_method, "\n",
       uri_encode(uri.path), "\n",
-      query_params, "\n",
+      uri.query || "", "\n",
       header_string, "\n",
       "\n",
       signed_headers_list, "\n",
