@@ -35,7 +35,7 @@ defmodule ExAws.Auth do
     uri = URI.parse(url)
     path = uri_encode(uri.path)
     signature = signature(http_method, path, query, headers, nil, service, datetime, config)
-    "#{uri.scheme}://#{uri.host}#{path}?#{query}&X-Amz-Signature=#{signature}"
+    "#{uri.scheme}://#{uri.authority}#{path}?#{query}&X-Amz-Signature=#{signature}"
   end
 
   defp handle_temp_credentials(headers, %{security_token: token}) do
