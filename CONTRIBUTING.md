@@ -26,7 +26,8 @@ Running the test suite for ex_aws requires a few things:
               "lambda:ListFunctions",
               "s3:ListAllMyBuckets",
               "sns:ListTopics",
-              "sqs:ListQueues"
+              "sqs:ListQueues",
+              "ec2:DescribeInstances"
           ],
           "Resource": "*"
       }
