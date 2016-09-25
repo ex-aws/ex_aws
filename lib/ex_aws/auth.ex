@@ -32,9 +32,10 @@ defmodule ExAws.Auth do
     headers = presigned_url_headers(url)
     query = presigned_url_query(service, datetime, config, expires, query_params) |> canonical_query_params
 
-    url = "#{url}?#{query}"
-    signature = signature(http_method, url, headers, nil, service, datetime, config)
-    "#{url}&X-Amz-Signature=#{signature}"
+    uri = URI.parse(url)
+    path = uri_encode(uri.path)
+    signature = signature(http_method, path, query, headers, nil, service, datetime, config)
+    "#{uri.scheme}://#{uri.host}#{path}?#{query}&X-Amz-Signature=#{signature}"
   end
 
   defp handle_temp_credentials(headers, %{security_token: token}) do
@@ -43,7 +44,10 @@ defmodule ExAws.Auth do
   defp handle_temp_credentials(headers, _), do: headers
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
-    signature = signature(http_method, url, headers, body, service, datetime, config)
+    uri = URI.parse(url)
+    path = uri_encode(uri.path)
+    query = uri.query |> canonical_query_params
+    signature = signature(http_method, path, query, headers, body, service, datetime, config)
     [
       "AWS4-HMAC-SHA256 Credential=", Credentials.generate_credential_v4(service, config, datetime), ",",
       "SignedHeaders=", signed_headers(headers), ",",
@@ -51,15 +55,14 @@ defmodule ExAws.Auth do
     ] |> IO.iodata_to_binary
   end
 
-  defp signature(http_method, url, headers, body, service, datetime, config) do
-    request = build_canonical_request(http_method, url, headers, body)
+  defp signature(http_method, path, query, headers, body, service, datetime, config) do
+    request = build_canonical_request(http_method, path, query, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
 
     Signatures.generate_signature_v4(service, config, datetime, string_to_sign)
   end
 
-  def build_canonical_request(http_method, url, headers, body) do
-    uri = URI.parse(url)
+  def build_canonical_request(http_method, path, query, headers, body) do
     http_method = http_method |> method_string |> String.upcase
 
     headers = headers |> canonical_headers
@@ -78,8 +81,8 @@ defmodule ExAws.Auth do
 
     [
       http_method, "\n",
-      uri_encode(uri.path), "\n",
-      uri.query || "", "\n",
+      path, "\n",
+      query, "\n",
       header_string, "\n",
       "\n",
       signed_headers_list, "\n",
