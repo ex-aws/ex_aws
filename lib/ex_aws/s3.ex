@@ -266,6 +266,9 @@ defmodule ExAws.S3 do
     |> Map.new
     |> format_acl_headers
 
+    # us-east-1 region needs to be an empty string, cause AWS S3 API sucks.
+    region = if region == "us-east-1", do: "", else: region
+
     body = """
     <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
       <LocationConstraint>#{region}</LocationConstraint>
