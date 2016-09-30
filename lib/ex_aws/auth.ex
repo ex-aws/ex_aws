@@ -33,9 +33,7 @@ defmodule ExAws.Auth do
 
     org_query_params = query_params |> Enum.map(fn({k, v}) -> {to_string(k), v} end)
     amz_query_params = build_amz_query_params(service, datetime, config, expires)
-    {org_query, amz_query} = [org_query_params, amz_query_params]
-    |> Enum.map(&(canonical_query_params(&1)))
-    |> List.to_tuple
+    [org_query, amz_query] = [org_query_params, amz_query_params] |> Enum.map(&canonical_query_params/1)
     query_to_sign = org_query_params ++ amz_query_params |> canonical_query_params
     query_for_url = if Enum.count(org_query_params) == 0 do amz_query else org_query <> "&" <> amz_query end
 
