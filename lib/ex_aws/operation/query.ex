@@ -10,7 +10,9 @@ defmodule ExAws.Operation.Query do
   defstruct [
     path: "/",
     params: %{},
-    service: nil
+    service: nil,
+    action: nil,
+    parser: &ExAws.Utils.identity/2
   ]
 
   @type t :: %__MODULE__{}
@@ -27,6 +29,7 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
     ]
 
     ExAws.Request.request(:post, url(config, operation.path), query, headers, config, operation.service)
+    |> operation.parser.(operation.action)
   end
 
   def stream!(_, _), do: nil
