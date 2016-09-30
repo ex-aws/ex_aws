@@ -3,6 +3,8 @@ defmodule ExAws.Utils do
 
   def identity(x), do: x
 
+  def identity(x, _), do: x
+
   def camelize_keys(opts) do
     camelize_keys(opts, deep: false)
   end

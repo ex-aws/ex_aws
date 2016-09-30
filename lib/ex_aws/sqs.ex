@@ -262,10 +262,16 @@ defmodule ExAws.SQS do
   end
 
   defp request(queue, action, params) do
+    action_atom = action
+    |> Macro.underscore
+    |> String.to_atom
+
     %ExAws.Operation.Query{
       path: "/" <> queue,
       params: params |> Map.put("Action", action),
-      service: :sqs
+      service: :sqs,
+      action: action_atom,
+      parser: &ExAws.SQS.Parsers.parse/2
     }
   end
 
