@@ -293,10 +293,10 @@ defmodule ExAws.SQS.ParserTest do
 
     attributes = message[:attributes]
 
-    assert 195004372649 == attributes[:sender_id]
-    assert 1238099229000 == attributes[:sent_timestamp]
-    assert 5 == attributes[:approximate_receive_count]
-    assert 1250700979248 == attributes[:approximate_first_receive_timestamp]
+    assert 195004372649 == attributes["sender_id"]
+    assert 1238099229000 == attributes["sent_timestamp"]
+    assert 5 == attributes["approximate_receive_count"]
+    assert 1250700979248 == attributes["approximate_first_receive_timestamp"]
   end
 
   test "parsing an empty receive message response" do

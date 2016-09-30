@@ -2,7 +2,7 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.SQS.Parsers do
     import SweetXml, only: [sigil_x: 2]
 
-    def parse({:ok, resp=%{body: xml}}, :list_queues) do
+    def parse({:ok, %{body: xml}=resp}, :list_queues) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListQueuesResponse",
                         queues: ~x"./ListQueuesResult/QueueUrl/text()"sl,
@@ -11,7 +11,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, resp=%{body: xml}}, :create_queue) do
+    def parse({:ok, %{body: xml}=resp}, :create_queue) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//CreateQueueResponse",
                         queue_url: ~x"./CreateQueueResult/QueueUrl/text()"s,
@@ -24,7 +24,7 @@ if Code.ensure_loaded?(SweetXml) do
       parse_request_id(rsp, ~x"//ChangeMessageVisibilityResponse")
     end
 
-    def parse({:ok, resp=%{body: xml}}, :change_message_visibility_batch) do
+    def parse({:ok, %{body: xml}=resp}, :change_message_visibility_batch) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ChangeMessageVisibilityBatchResponse",
                         successes: ~x"./ChangeMessageVisibilityBatchResult/ChangeMessageVisibilityBatchResultEntry/Id/text()"sl,
@@ -41,7 +41,7 @@ if Code.ensure_loaded?(SweetXml) do
       parse_request_id(rsp, ~x"//DeleteQueueResponse")
     end
 
-    def parse({:ok, resp=%{body: xml}}, :delete_message_batch) do
+    def parse({:ok, %{body: xml}=resp}, :delete_message_batch) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//DeleteMessageBatchResponse",
                         successes: ~x"./DeleteMessageBatchResult/DeleteMessageBatchResultEntry/Id/text()"sl,
@@ -50,7 +50,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, resp=%{body: xml}}, :get_queue_attributes) do
+    def parse({:ok, %{body: xml}=resp}, :get_queue_attributes) do
       parsed_body =  xml
       |> SweetXml.xpath(~x"//GetQueueAttributesResponse",
                         attributes: [
@@ -59,12 +59,12 @@ if Code.ensure_loaded?(SweetXml) do
                           value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast_to_number/1)
                         ],
                         request_id: request_id_xpath())
-      |> update_in([:attributes], &attribute_list_to_map/1)
+      |> update_in([:attributes], &attribute_list_to_map(&1, true))
 
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, resp=%{body: xml}}, :get_queue_url) do
+    def parse({:ok, %{body: xml}=resp}, :get_queue_url) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//GetQueueUrlResponse",
                         queue_url: ~x"./GetQueueUrlResult/QueueUrl/text()"s,
@@ -73,7 +73,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, resp=%{body: xml}}, :list_dead_letter_source_queues) do
+    def parse({:ok, %{body: xml}=resp}, :list_dead_letter_source_queues) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListDeadLetterSourceQueuesResponse",
                         queue_urls: ~x"./ListDeadLetterSourceQueuesResult/QueueUrl/text()"sl,
@@ -86,7 +86,7 @@ if Code.ensure_loaded?(SweetXml) do
       parse_request_id(msg, ~x"//PurgeQueueResponse")
     end
 
-    def parse({:ok, resp=%{body: xml}}, :remove_permission) do
+    def parse({:ok, %{body: xml}=resp}, :remove_permission) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//RemovePermissionResponse",
                         request_id: request_id_xpath())
@@ -94,7 +94,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, resp=%{body: xml}}, :receive_message) do
+    def parse({:ok, %{body: xml}=resp}, :receive_message) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ReceiveMessageResponse",
                         request_id: request_id_xpath(),
@@ -122,7 +122,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, fixed_attributes)}
     end
 
-    def parse({:ok, resp=%{body: xml}}, :send_message) do
+    def parse({:ok, %{body: xml}=resp}, :send_message) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//SendMessageResponse",
                         request_id: request_id_xpath(),
@@ -134,7 +134,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, resp=%{body: xml}}, :send_message_batch) do
+    def parse({:ok, %{body: xml}=resp}, :send_message_batch) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//SendMessageBatchResponse",
                         request_id: request_id_xpath(),
@@ -149,7 +149,7 @@ if Code.ensure_loaded?(SweetXml) do
 
     end
 
-    def parse(resp={:ok, _}, :set_queue_attributes) do
+    def parse({:ok, _}=resp, :set_queue_attributes) do
       parse_request_id(resp, ~x"//SetQueueAttributesResponse")
     end
 
@@ -167,7 +167,7 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse(val, _), do: val
 
-    def parse_request_id({:ok, resp=%{body: xml}}, parent_xpath) do
+    def parse_request_id({:ok, %{body: xml}=resp}, parent_xpath) do
       parsed_body = xml
       |> SweetXml.xpath(parent_xpath,
                         request_id: request_id_xpath())
@@ -175,12 +175,19 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def attribute_list_to_map(list_of_maps) do
+    def attribute_list_to_map(list_of_maps, convert_to_atoms \\ false)
+    def attribute_list_to_map(list_of_maps, convert_to_atoms) do
       list_of_maps
       |> Enum.reduce(%{}, fn(%{name: name, value: val}, acc) ->
         attribute_name = name
         |> Macro.underscore
-        |> String.to_atom
+
+        attribute_name = if convert_to_atoms do
+          String.to_atom(attribute_name)
+        else
+          attribute_name
+        end
+
         Map.put(acc, attribute_name, val)
       end)
     end
