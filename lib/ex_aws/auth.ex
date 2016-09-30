@@ -30,12 +30,19 @@ defmodule ExAws.Auth do
   def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ []) do
     service = service_name(service)
     headers = presigned_url_headers(url)
-    query = presigned_url_query(service, datetime, config, expires, query_params) |> canonical_query_params
+
+    org_query_params = query_params |> Enum.map(fn({k, v}) -> {to_string(k), v} end)
+    amz_query_params = build_amz_query_params(service, datetime, config, expires)
+    {org_query, amz_query} = [org_query_params, amz_query_params]
+    |> Enum.map(&(canonical_query_params(&1)))
+    |> List.to_tuple
+    query_to_sign = org_query_params ++ amz_query_params |> canonical_query_params
+    query_for_url = if Enum.count(org_query_params) == 0 do amz_query else org_query <> "&" <> amz_query end
 
     uri = URI.parse(url)
     path = uri_encode(uri.path)
-    signature = signature(http_method, path, query, headers, nil, service, datetime, config)
-    "#{uri.scheme}://#{uri.authority}#{path}?#{query}&X-Amz-Signature=#{signature}"
+    signature = signature(http_method, path, query_to_sign, headers, nil, service, datetime, config)
+    "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"
   end
 
   defp handle_temp_credentials(headers, %{security_token: token}) do
@@ -116,9 +123,13 @@ defmodule ExAws.Auth do
   end
 
   defp canonical_query_params(nil), do: ""
-  defp canonical_query_params(params) do
+  defp canonical_query_params(params) when is_binary(params) do
     params
     |> String.split("&") |> Enum.map(&List.to_tuple(String.split(&1, "=")))
+    |> canonical_query_params
+  end
+  defp canonical_query_params(params) when is_list(params) do
+    params
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
     |> Enum.map_join("&", &pair/1)
   end
@@ -165,18 +176,18 @@ defmodule ExAws.Auth do
     [{"host", uri.host}]
   end
 
-  defp presigned_url_query(service, datetime, config, expires, query_params) do
-    Enum.reduce(query_params, "", fn({key,value}, acc) ->
-      acc <> "#{to_string(key)}=#{to_string(value)}&"
-    end)
-    <> "X-Amz-Algorithm=AWS4-HMAC-SHA256&"
-    <> "X-Amz-Credential=#{Credentials.generate_credential_v4(service, config, datetime)}&"
-    <> "X-Amz-Date=#{amz_date(datetime)}&"
-    <> "X-Amz-Expires=#{expires}&"
-    <> "X-Amz-SignedHeaders=host"
-    <> case config[:security_token] do
-         nil -> ""
-         token -> "&X-Amz-Security-Token=#{token}"
-       end
+  defp build_amz_query_params(service, datetime, config, expires) do
+    [
+      {"X-Amz-Algorithm",     "AWS4-HMAC-SHA256"},
+      {"X-Amz-Credential",    Credentials.generate_credential_v4(service, config, datetime)},
+      {"X-Amz-Date",          amz_date(datetime)},
+      {"X-Amz-Expires",       expires},
+      {"X-Amz-SignedHeaders", "host"},
+    ] ++
+    if config[:security_token] do
+      [{"X-Amz-Security-Token", config[:security_token]}]
+    else
+      []
+    end
   end
 end

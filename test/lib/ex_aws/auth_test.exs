@@ -58,13 +58,13 @@ defmodule ExAws.AuthTest do
 
     expected =
       "https://examplebucket.s3.amazonaws.com/test.txt" <>
-      "?X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
+      "?partNumber=1" <>
+      "&uploadId=sample.upload.id" <>
+      "&X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
       "&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request" <>
       "&X-Amz-Date=20130524T000000Z" <>
       "&X-Amz-Expires=86400" <>
       "&X-Amz-SignedHeaders=host" <>
-      "&partNumber=1" <>
-      "&uploadId=sample.upload.id" <>
       "&X-Amz-Signature=1fdac5451b2996880dc23162853ce76e4cf0a05257e430aec59e309ecd126ade"
 
     assert expected == actual
