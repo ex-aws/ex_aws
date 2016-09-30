@@ -121,15 +121,15 @@ defmodule ExAws.Auth do
   end
 
   defp canonical_query_params(nil), do: ""
-  defp canonical_query_params(params) when is_binary(params) do
-    params
-    |> String.split("&") |> Enum.map(&List.to_tuple(String.split(&1, "=")))
-    |> canonical_query_params
-  end
   defp canonical_query_params(params) when is_list(params) do
     params
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
     |> Enum.map_join("&", &pair/1)
+  end
+  defp canonical_query_params(params) do
+    params
+    |> String.split("&") |> Enum.map(&List.to_tuple(String.split(&1, "=")))
+    |> canonical_query_params
   end
 
   defp pair({k, _}) when is_list(k) do
