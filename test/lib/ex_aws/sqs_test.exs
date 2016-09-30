@@ -17,6 +17,13 @@ defmodule ExAws.SQSTest do
     assert expected == SQS.list_queues.params
   end
 
+  test "#list_queues with options" do
+    expected = %{"Action" => "ListQueues",
+                 "QueueNamePrefix" => "prefix"
+                }
+    assert expected == SQS.list_queues(queue_name_prefix: "prefix").params
+  end
+
   test "#get_queue_attributes" do
     expected = %{"Action" => "GetQueueAttributes", "AttributeName.1" => "All"}
     assert expected == SQS.get_queue_attributes("982071696186/test_queue").params

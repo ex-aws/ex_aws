@@ -169,7 +169,10 @@ defmodule ExAws.SQS do
   @spec list_queues() :: ExAws.Operation.Query.t
   @spec list_queues(opts :: [queue_name_prefix: binary]) :: ExAws.Operation.Query.t
   def list_queues(opts \\ []) do
-    request("", "ListQueues", Enum.into(opts, %{}))
+    params = opts
+    |> format_regular_opts
+
+    request("", "ListQueues", params)
   end
 
   @doc "Purge all messages in a SQS Queue"
