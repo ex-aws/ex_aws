@@ -51,7 +51,7 @@ defmodule ExAws.Auth do
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
     uri = URI.parse(url)
     path = uri_encode(uri.path)
-    query = uri.query |> canonical_query_params
+    query = if uri.query, do: uri.query |> URI.decode_query |> Enum.to_list |> canonical_query_params, else: ""
     signature = signature(http_method, path, query, headers, body, service, datetime, config)
     [
       "AWS4-HMAC-SHA256 Credential=", Credentials.generate_credential_v4(service, config, datetime), ",",
@@ -121,15 +121,10 @@ defmodule ExAws.Auth do
   end
 
   defp canonical_query_params(nil), do: ""
-  defp canonical_query_params(params) when is_list(params) do
+  defp canonical_query_params(params) do
     params
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
     |> Enum.map_join("&", &pair/1)
-  end
-  defp canonical_query_params(params) do
-    params
-    |> String.split("&") |> Enum.map(&List.to_tuple(String.split(&1, "=")))
-    |> canonical_query_params
   end
 
   defp pair({k, _}) when is_list(k) do
