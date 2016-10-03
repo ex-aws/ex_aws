@@ -517,11 +517,13 @@ defmodule ExAws.S3 do
   |> ExAws.request! #=> :done
   ```
   """
-  def upload(source, bucket, path, opts \\ []) do
-    do_upload(source, bucket, path, opts)
-  end
-
-  defp do_upload(%Flow{} = flow, bucket, path, opts) do
+  @spec upload(
+    source :: Enumerable.t | Flow.t,
+    bucket :: String.t,
+    path :: String.t,
+    opts :: Keyword.t) :: __MODULE__.Upload.t
+  def upload(source, bucket, path, opts \\ [])
+  def upload(%Flow{} = flow, bucket, path, opts) do
     %__MODULE__.Upload{
       src: flow,
       bucket: bucket,
@@ -529,7 +531,7 @@ defmodule ExAws.S3 do
       opts: opts,
     }
   end
-  defp do_upload(source, bucket, path, opts) do
+  def upload(source, bucket, path, opts) do
     source_stream = Stream.with_index(source, 1)
 
     flow =
