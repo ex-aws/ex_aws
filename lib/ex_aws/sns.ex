@@ -67,13 +67,14 @@ defmodule ExAws.SNS do
     {:message_attributes, [message_attribute]} |
     {:message_structure, :json} |
     {:subject, binary} |
+    {:phone_number, binary} | 
     {:target_arn, binary} |
     {:topic_arn, binary}]
 
   @doc """
   Publish message to a target/topic ARN
 
-  You must set either :target_arn or :topic_arn but not both via the options argument.
+  You must set either :phone_number, :target_arn or :topic_arn but only one, via the options argument.
 
   Do NOT assume that because your message is a JSON blob that you should set
   message_structure: to :json. This has a very specific meaning, please see
