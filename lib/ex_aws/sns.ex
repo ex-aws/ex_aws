@@ -104,12 +104,12 @@ defmodule ExAws.SNS do
 
   def build_message_attribute({%{name: name, data_type: data_type, value: {value_type, value}}, i}, params) do
     param_root = "MessageAttribute.#{i}"
-    value_type = value_type |> String.capitalize
+    value_type = value_type |> to_string |> String.capitalize
 
     params
     |> Map.put(param_root <> ".Name", name)
     |> Map.put(param_root <> ".Value.#{value_type}Value", value)
-    |> Map.put(param_root <> ".Value.DataType", data_type)
+    |> Map.put(param_root <> ".Value.DataType", data_type |> to_string |> String.capitalize)
   end
 
   ## Platform
