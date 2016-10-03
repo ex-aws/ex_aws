@@ -503,12 +503,13 @@ defmodule ExAws.S3 do
 
   ## Uploading a flow
 
-  GenStage Flows can also be uploaded directly to S3. However, due to the concurrent
-  nature of flows, the producer must emit events in the following format
-  `{binary, index}` to ensure they are uploaded in the correct order. Binaries
-  will be uploaded as a chunk and must be at least 5 megabytes in size.
+  GenStage Flows can also be uploaded directly to S3. To ensure all parts of
+  the file are assembled in the correct order when the upload is finalized, the
+  producer must emit events with the following format:
+  `{binary, one_based_index}`. Each binary will be uploaded as a chunk and
+  must be at least 5 megabytes in size.
   ```
-  enumerable = ["hello world"] |> Enum.with_index(1)
+  enumerable = ["hello world"] |> Stream.with_index(1)
 
   Flow.new(stages: 4, max_demand: 2)
   |> Flow.from_enumerable(enumerable)
