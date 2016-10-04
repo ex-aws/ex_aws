@@ -1,5 +1,5 @@
 defmodule ExAws.S3.DownloadTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   import Support.FileHelpers
   import Support.BypassHelpers
