@@ -484,6 +484,8 @@ defmodule ExAws.S3 do
     }
   end
 
+  @type upload_opts :: [{:max_concurrency, pos_integer} | initiate_multipart_upload_opts ]
+
   @doc """
   Multipart upload to S3.
 
@@ -531,7 +533,7 @@ defmodule ExAws.S3 do
     source :: Enumerable.t | Flow.t,
     bucket :: String.t,
     path :: String.t,
-    opts :: Keyword.t) :: __MODULE__.Upload.t
+    opts :: upload_opts) :: __MODULE__.Upload.t
   def upload(source, bucket, path, opts \\ []) do
     %__MODULE__.Upload{
       src: source,
