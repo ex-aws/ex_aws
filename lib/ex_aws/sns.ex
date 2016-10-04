@@ -141,7 +141,7 @@ defmodule ExAws.SNS do
   @spec delete_platform_endpoint(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
   def delete_platform_endpoint(platform_application_arn) do
     request("DeleteEndpoint", %{
-      "PlatformApplicationArn" => platform_application_arn
+      "EndpointArn" => platform_application_arn
     })
   end
 
