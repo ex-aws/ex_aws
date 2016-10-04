@@ -47,8 +47,8 @@ defmodule ExAws.S3 do
 
   paths = %{"path/to/src0" => "path/to/dest0", "path/to/src1" => "path/to/dest1"}
 
-  Flow.new(stages: 10, max_demand: 2)
-  |> Flow.from_enumerable(paths)
+  paths
+  |> Flow.from_enumerable(stages: 10, max_demand: 2)
   |> Flow.each(upload_file)
   |> Flow.run
   ```
@@ -56,6 +56,7 @@ defmodule ExAws.S3 do
 
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
+  alias Experimental.Flow
 
   @type acl_opts :: [{:acl, canned_acl} | grant]
   @type grant :: {:grant_read, grantee}
@@ -483,27 +484,59 @@ defmodule ExAws.S3 do
     }
   end
 
+  @type upload_opts :: [{:max_concurrency, pos_integer} | initiate_multipart_upload_opts ]
+
   @doc """
   Multipart upload to S3.
 
   Handles initialization, uploading parts concurrently, and multipart upload completion.
 
-  ## Examples
+  ## Uploading a stream
+
+  Streams that emit binaries may be uploaded directly to S3. Each binary will be uploaded
+  as a chunk, so it must be at least 5 megabytes in size. The `S3.Upload.stream_file`
+  helper takes care of reading the file in 5 megabyte chunks.
   ```
   "path/to/big/file"
-  |> S3.Upload.stream_file!
+  |> S3.Upload.stream_file
   |> S3.upload("my-bucket", "path/on/s3")
-  |> ExAws.request! #=> {:ok, :done}
+  |> ExAws.request! #=> :done
   ```
 
-  ## Notes
+  ## Uploading a flow
 
-  Source is expected to be an enumerable that emits binaries. Each binary will be
-  uploaded as a chunk, so it must be at least 5 megabytes in size.
+  GenStage Flows can also be uploaded directly to S3. To ensure all parts of
+  the file are assembled in the correct order when the upload is finalized, the
+  producer must emit events with the following format:
+  `{binary, one_based_index}`. Each binary will be uploaded as a chunk and
+  must be at least 5 megabytes in size.
+  ```
+  enumerable = ["hello world"] |> Stream.with_index(1)
+
+  Flow.from_enumerable(enumerable, stages: 4, max_demand: 2)
+  |> S3.upload("my-bucket", "test.txt")
+  |> ExAws.request! #=> :done
+  ```
+
+  ## Options
+
+  These options are specific to this function
+
+  * `:max_concurrency` -- The number of concurrent processes reading from this
+     stream. Only applies when uploading a stream.
+
+  All other options (ex. `:content_type`) are passed through to
+  `ExAws.S3.initiate_multipart_upload/3`.
+
   """
-  def upload(source, bucket, path, opts) do
+  @spec upload(
+    source :: Enumerable.t | Flow.t,
+    bucket :: String.t,
+    path :: String.t,
+    opts :: upload_opts) :: __MODULE__.Upload.t
+  def upload(source, bucket, path, opts \\ []) do
     %__MODULE__.Upload{
-      src: source |> Stream.with_index(1),
+      src: source,
       bucket: bucket,
       path: path,
       opts: opts,
