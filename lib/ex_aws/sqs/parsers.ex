@@ -209,7 +209,12 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     defp parse_attribute_value(<<"Binary", _ :: binary>>, %{binary_value: b64_encoded}) do
-      :base64.decode(b64_encoded)
+      case Base.decode64(b64_encoded) do
+        {:ok, decoded} ->
+          decoded
+        _ ->
+          b64_encoded
+      end
     end
 
     defp parse_attribute_value(<<"Number", _ :: binary>>, %{string_value: string_value}) do
