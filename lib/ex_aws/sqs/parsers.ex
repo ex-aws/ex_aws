@@ -186,7 +186,7 @@ if Code.ensure_loaded?(SweetXml) do
           ^attr ->
             Map.put(acc, name, attr)
           parsed ->
-            Map.put(acc, name, %{value: parsed, data_type: data_type})
+            Map.put(acc, name, Map.put(attr, :value, parsed))
         end
       end)
     end

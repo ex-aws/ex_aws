@@ -392,12 +392,12 @@ defmodule ExAws.SQS.ParserTest do
     message = response[:message]
     message_attributes = message[:message_attributes]
 
-    assert %{value: "good", data_type: "String"} == message_attributes["LiveAt"]
-    assert %{value: 382, data_type: "Number"} == message_attributes["NumberVal"]
-    assert %{value: <<3, 6, 9, 12>>, data_type: "Binary"} == message_attributes["BinaryVal"]
-    assert %{value: 382.03, data_type: "Number.float"} == message_attributes["FloatVal"]
-    assert %{value: <<2, 4, 6, 8, 10, 12>>, data_type: "Binary.gif"} == message_attributes["GifVal"]
-    assert %{value: "http://elixir-lang.org", data_type: "String.URL"} == message_attributes["UrlVal"]
+    assert %{value: "good", data_type: "String"} = message_attributes["LiveAt"]
+    assert %{value: 382, data_type: "Number"} = message_attributes["NumberVal"]
+    assert %{value: <<3, 6, 9, 12>>, data_type: "Binary"} = message_attributes["BinaryVal"]
+    assert %{value: 382.03, data_type: "Number.float"} = message_attributes["FloatVal"]
+    assert %{value: <<2, 4, 6, 8, 10, 12>>, data_type: "Binary.gif"} = message_attributes["GifVal"]
+    assert %{value: "http://elixir-lang.org", data_type: "String.URL"} = message_attributes["UrlVal"]
     assert %{string_value: "blarg", binary_value: "", data_type: "Unknown", name: "UnknownVal"} == message_attributes["UnknownVal"]
   end
 
