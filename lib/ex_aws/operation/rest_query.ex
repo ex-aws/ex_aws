@@ -21,6 +21,10 @@ defimpl ExAws.Operation, for: ExAws.Operation.RestQuery do
     ExAws.Request.request(operation.http_method, url(config, operation.path), query, headers, config, operation.service)
   end
 
+  def stream!(%{stream_builder: fun}, config) do
+    fun.(config)
+  end
+
   def url(%{scheme: scheme, host: host, port: port}, queue_name) do
     [
       scheme,
