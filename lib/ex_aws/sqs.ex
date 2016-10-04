@@ -183,6 +183,7 @@ defmodule ExAws.SQS do
 
   @type receive_message_opts :: [
     {:attribute_names, :all | [sqs_message_attribute_name, ...]} |
+    {:message_attribute_names, :all | [String.t, ...]} |
     {:max_number_of_messages, 1..10} |
     {:visibility_timeout, 0..43200} |
     {:wait_time_seconds, 0..20}
@@ -195,10 +196,13 @@ defmodule ExAws.SQS do
     {attrs, opts} = opts
     |> Keyword.pop(:attribute_names, [])
 
-    params =
-      attrs
-      |> format_queue_attributes
-      |> Map.merge(format_regular_opts(opts))
+    {message_attrs, opts} = opts
+    |> Keyword.pop(:message_attribute_names, [])
+
+    params = attrs
+    |> format_queue_attributes
+    |> Map.merge(format_message_attributes(message_attrs))
+    |> Map.merge(format_regular_opts(opts))
 
     request(queue, :receive_message, params)
   end
@@ -326,6 +330,21 @@ defmodule ExAws.SQS do
     key = "AttributeName.#{index + 1}"
 
     Map.put(%{}, key, format_param_key(attribute))
+  end
+
+  defp format_message_attribute({attribute, index}) do
+    %{"MessageAttributeName.#{index + 1}" => attribute}
+  end
+
+  defp format_message_attributes(:all) do
+    %{"MessageAttributeNames" => "All"}
+  end
+
+  defp format_message_attributes(attributes) do
+    attributes
+    |> Enum.with_index
+    |> Enum.map(&format_message_attribute/1)
+    |> Enum.reduce(%{}, &Map.merge(&1, &2))
   end
 
   defp format_batch_message(message, index) do

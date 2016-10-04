@@ -316,6 +316,90 @@ defmodule ExAws.SQS.ParserTest do
     assert "fcd6512a-5746-5803-b2d7-014dfd07f23a" == response[:request_id]
   end
 
+  test "it should handle parsing a message with custom attributes" do
+    rsp = """
+    <?xml version=\"1.0\"?>
+      <ReceiveMessageResponse xmlns=\"http://queue.amazonaws.com/doc/2012-11-05/\">
+        <ReceiveMessageResult>
+          <Message>
+            <MessageId>c13a41a6-be30-4940-a3fb-a673157aaae6</MessageId>
+            <ReceiptHandle>AQEB1HCawlmYXAwe44T7qon7+Q37+S/1SciTg9Qv9/NeoB/or+oxh4aKHlJItnYwyk2xh5uspMdmxZ//xkpYNeMeqyIajl/BETTCUL1IJLprWVN6+5KQKmFU9QJxaVplYpT5dsfc2at5EiY5d25i/x6A52tnyj/OiaLw35WI8gEfaJtrMJJskAoNTbq5X6PrSkLOMzYcpD//9vSp3gnmdQaBm8aQgfeT5/1SASGG1w6jpXlfBSCwpj3hRrhx2qqpP9u2u0711S3/XygJtyWS1iQEMcaSps0KjG5kiQFXAel1geNxrCixNcupLbF54Sam63IUe7NgOZED++y7Qv+d/kNFhuzgF2PjRUbVgjQQBAcLZm3jpd+slKGMNyi4OfePbao5PeS6yIvqUaApCAD3N7t+0+2IjMrosr0B80su4gVpJqc=</ReceiptHandle>
+            <MD5OfBody>c2d900c011c138c4a68934fee2fdd344</MD5OfBody>
+            <MD5OfMessageAttributes>01b71960a46e9ef0bd66bfc5a817e156</MD5OfMessageAttributes>
+            <Body>with attributes</Body>
+            <Attribute><Name>SenderId</Name><Value>IAmTheSender</Value></Attribute>
+            <Attribute><Name>ApproximateFirstReceiveTimestamp</Name><Value>1475601158305</Value></Attribute>
+            <Attribute><Name>ApproximateReceiveCount</Name><Value>1</Value></Attribute>
+            <Attribute><Name>SentTimestamp</Name><Value>1475601143281</Value></Attribute>
+            <MessageAttribute>
+              <Name>BinaryVal</Name>
+              <Value>
+                <BinaryValue>AwYJDA==</BinaryValue>
+                <DataType>Binary</DataType>
+              </Value>
+            </MessageAttribute>
+            <MessageAttribute>
+              <Name>GifVal</Name>
+              <Value>
+                <BinaryValue>AgQGCAoM</BinaryValue>
+                <DataType>Binary.gif</DataType>
+              </Value>
+            </MessageAttribute>
+            <MessageAttribute>
+              <Name>LiveAt</Name>
+              <Value>
+                <StringValue>good</StringValue>
+                <DataType>String</DataType>
+              </Value>
+            </MessageAttribute>
+            <MessageAttribute>
+              <Name>UrlVal</Name>
+              <Value>
+                <StringValue>http://elixir-lang.org</StringValue>
+                <DataType>String.URL</DataType>
+              </Value>
+            </MessageAttribute>
+            <MessageAttribute>
+              <Name>NumberVal</Name>
+              <Value>
+                <StringValue>382</StringValue>
+                <DataType>Number</DataType>
+              </Value>
+            </MessageAttribute>
+            <MessageAttribute>
+              <Name>FloatVal</Name>
+              <Value>
+                <StringValue>382.03</StringValue>
+                <DataType>Number.float</DataType>
+              </Value>
+            </MessageAttribute>
+            <MessageAttribute>
+              <Name>UnknownVal</Name>
+              <Value>
+                <StringValue>blarg</StringValue>
+                <DataType>Unknown</DataType>
+              </Value>
+            </MessageAttribute>
+          </Message>
+        </ReceiveMessageResult>
+      <ResponseMetadata>
+        <RequestId>15d62100-b15d-57d4-bd4b-716d541b2dee</RequestId>
+      </ResponseMetadata>
+    </ReceiveMessageResponse>
+    """
+    |> to_success
+    {:ok, %{body: response}} = Parsers.parse(rsp, :receive_message)
+    message = response[:message]
+    message_attributes = message[:message_attributes]
+
+    assert %{value: "good", data_type: "String"} == message_attributes["LiveAt"]
+    assert %{value: 382, data_type: "Number"} == message_attributes["NumberVal"]
+    assert %{value: <<3, 6, 9, 12>>, data_type: "Binary"} == message_attributes["BinaryVal"]
+    assert %{value: 382.03, data_type: "Number.float"} == message_attributes["FloatVal"]
+    assert %{value: <<2, 4, 6, 8, 10, 12>>, data_type: "Binary.gif"} == message_attributes["GifVal"]
+    assert %{value: "http://elixir-lang.org", data_type: "String.URL"} == message_attributes["UrlVal"]
+    assert %{string_value: "blarg", binary_value: "", data_type: "Unknown", name: "UnknownVal"} == message_attributes["UnknownVal"]
+  end
 
   test "handling a remove permission response" do
     rsp = """
