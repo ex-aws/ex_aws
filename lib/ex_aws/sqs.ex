@@ -183,7 +183,7 @@ defmodule ExAws.SQS do
 
   @type receive_message_opts :: [
     {:attribute_names, :all | [sqs_message_attribute_name, ...]} |
-    {:message_attribute_names, :all | [String.t, ...]} |
+    {:message_attribute_names, :all | [String.Chars.t, ...]} |
     {:max_number_of_messages, 1..10} |
     {:visibility_timeout, 0..43200} |
     {:wait_time_seconds, 0..20}

@@ -204,15 +204,15 @@ if Code.ensure_loaded?(SweetXml) do
       end
     end
 
-    defp parse_attribute_value(<<"String", _rest :: binary>>, %{string_value: string_value}) do
+    defp parse_attribute_value(<<"String", _ :: binary>>, %{string_value: string_value}) do
       string_value
     end
 
-    defp parse_attribute_value(<<"Binary", _rest :: binary>>, %{binary_value: b64_encoded}) do
+    defp parse_attribute_value(<<"Binary", _ :: binary>>, %{binary_value: b64_encoded}) do
       :base64.decode(b64_encoded)
     end
 
-    defp parse_attribute_value(<<"Number", _rest :: binary>>, %{string_value: string_value}) do
+    defp parse_attribute_value(<<"Number", _ :: binary>>, %{string_value: string_value}) do
       try do
         String.to_integer(string_value)
       rescue ArgumentError ->
