@@ -1,6 +1,7 @@
 defmodule ExAws.S3.UploadTest do
   use ExUnit.Case, async: true
 
+  import Support.BypassHelpers
   alias ExAws.S3
   alias Experimental.Flow
 
@@ -16,7 +17,7 @@ defmodule ExAws.S3.UploadTest do
         file_path
         |> S3.Upload.stream_file
         |> S3.upload("my-bucket", "test.txt")
-        |> ExAws.request!(config_for_bypass(bypass))
+        |> ExAws.request!(exaws_config_for_bypass(bypass))
 
       assert_received :initiated_upload
       assert_received :chunk_uploaded
@@ -34,22 +35,12 @@ defmodule ExAws.S3.UploadTest do
       :done =
         flow
         |> S3.upload("my-bucket", "test.txt")
-        |> ExAws.request!(config_for_bypass(bypass))
+        |> ExAws.request!(exaws_config_for_bypass(bypass))
 
       assert_received :initiated_upload
       assert_received :chunk_uploaded
       assert_received :completed_upload
     end
-  end
-
-  defp config_for_bypass(bypass) do
-    ExAws.Config.new(:s3, [
-      access_key_id: "AKIAIOSFODNN7EXAMPLE",
-      secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-      host: "localhost:#{bypass.port}",
-      scheme: "http://",
-      region: "us-east-1",
-    ])
   end
 
   defp setup_multipart_upload_backend(bypass, test_pid, bucket_name, path) do
@@ -84,10 +75,5 @@ defmodule ExAws.S3.UploadTest do
 
       end
     end
-  end
-
-  defp start_bypass(_) do
-    bypass = Bypass.open
-    [bypass: bypass]
   end
 end

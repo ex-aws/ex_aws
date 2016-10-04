@@ -80,6 +80,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
     op = Upload.initialize!(op, config)
 
     op.src
+    |> build_producer(op.opts)
     |> Flow.map(&Upload.upload_chunk!(&1, op, config))
     |> Enum.to_list
     |> Upload.complete!(op, config)
@@ -88,4 +89,16 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
   end
 
   def stream!(_, _), do: raise "not implemented"
+
+  defp build_producer(%Flow{} = flow, _opts) do
+    flow
+  end
+  defp build_producer(source, opts) do
+    source
+    |> Stream.with_index(1)
+    |> Flow.from_enumerable(
+          stages: Keyword.get(opts, :max_concurrency, 4),
+          max_demand: 2
+        )
+  end
 end

@@ -511,35 +511,30 @@ defmodule ExAws.S3 do
   ```
   enumerable = ["hello world"] |> Stream.with_index(1)
 
-  Flow.new(stages: 4, max_demand: 2)
-  |> Flow.from_enumerable(enumerable)
+  Flow.from_enumerable(enumerable, stages: 4, max_demand: 2)
   |> S3.upload("my-bucket", "test.txt")
   |> ExAws.request! #=> :done
   ```
+
+  ## Options
+
+  These options are specific to this function
+
+  * `:max_concurrency` -- The number of concurrent processes reading from this
+     stream. Only applies when uploading a stream.
+
+  All other options (ex. `:content_type`) are passed through to
+  `ExAws.S3.initiate_multipart_upload/3`.
+
   """
   @spec upload(
     source :: Enumerable.t | Flow.t,
     bucket :: String.t,
     path :: String.t,
     opts :: Keyword.t) :: __MODULE__.Upload.t
-  def upload(source, bucket, path, opts \\ [])
-  def upload(%Flow{} = flow, bucket, path, opts) do
+  def upload(source, bucket, path, opts \\ []) do
     %__MODULE__.Upload{
-      src: flow,
-      bucket: bucket,
-      path: path,
-      opts: opts,
-    }
-  end
-  def upload(source, bucket, path, opts) do
-    source_stream = Stream.with_index(source, 1)
-
-    flow =
-      Flow.new(stages: opts[:max_concurrency] || 4, max_demand: 2)
-      |> Flow.from_enumerable(source_stream)
-
-    %__MODULE__.Upload{
-      src: flow,
+      src: source,
       bucket: bucket,
       path: path,
       opts: opts,
