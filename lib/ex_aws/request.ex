@@ -31,7 +31,7 @@ defmodule ExAws.Request do
       Logger.debug("Request BODY: #{inspect req_body}")
     end
 
-    case config[:http_client].request(method, url, req_body, full_headers) do
+    case config[:http_client].request(method, url, req_body, full_headers, Map.get(config, :http_opts, [])) do
       {:ok, response = %{status_code: status}} when status in 200..299 ->
         {:ok, response}
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
