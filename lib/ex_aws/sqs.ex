@@ -333,7 +333,7 @@ defmodule ExAws.SQS do
   end
 
   defp format_message_attribute({attribute, index}) do
-    %{"MessageAttributeName.#{index + 1}" => attribute}
+    %{"MessageAttributeName.#{index + 1}" => to_string(attribute)}
   end
 
   defp format_message_attributes(:all) do
