@@ -67,7 +67,7 @@ defmodule ExAws.SNS do
     {:message_attributes, [message_attribute]} |
     {:message_structure, :json} |
     {:subject, binary} |
-    {:phone_number, binary} | 
+    {:phone_number, binary} |
     {:target_arn, binary} |
     {:topic_arn, binary}]
 
@@ -134,6 +134,14 @@ defmodule ExAws.SNS do
       "PlatformApplicationArn" => platform_application_arn,
       "Token" => token,
       "CustomUserData" => custom_user_data
+    })
+  end
+
+  @doc "Delete platform endpoint"
+  @spec delete_platform_endpoint(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
+  def delete_platform_endpoint(platform_application_arn) do
+    request("DeleteEndpoint", %{
+      "EndpointArn" => platform_application_arn
     })
   end
 
