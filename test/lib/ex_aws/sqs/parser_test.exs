@@ -299,6 +299,55 @@ defmodule ExAws.SQS.ParserTest do
     assert 1250700979248 == attributes["approximate_first_receive_timestamp"]
   end
 
+  test "parsing a receive message response with multiple messages" do
+    rsp = """
+    <?xml version=\"1.0\"?>
+    <ReceiveMessageResponse xmlns=\"http://queue.amazonaws.com/doc/2012-11-05/\">
+      <ReceiveMessageResult>
+        <Message>
+          <MessageId>70723100-7a9e-474c-9342-4a07b5d3bcff</MessageId>
+          <ReceiptHandle>AQEB1vSE6FNrf7oYptJYdkVMvdx1bO6ysaovI++YzylE2GoFH9kXAfnThwfy8wXGjl0XXEx3v7jh3bv353AL3+ODUYSY5vDAr2Xi1JqS96gU/MppM1et/dPYBYQcMUC9a/0GMojJ4AKAfxqYnov9VLzzi5zAgQIxnHp/hB3s30ZP7NaIsOe4d3rXWDwavmqwR/pfl+3krPUhiGwlTaETQkmkmE2KN/iD0X/NPNhxeFho7EHR9tCHK9mzbsdbwbRpRI4ZYfVDzzTx6kjZO9qeEKetL8XZ1InXEhQwqqv96Vvm3gIZJM+2if46WcZQexVT7GiMjIxNkXJjoCaGfAojxf1KAnIseZQZGTJpbt5NqfXPBJBThCJ4ocCt8lRm7qS25fVLHgr1dnQGE032uLpzXc04ti2MXTdBYkJlq285pyCi1wI=</ReceiptHandle>
+          <MD5OfBody>68ee3fbec6195f397d7f696599dd278a</MD5OfBody>
+          <Body>Message 1</Body>
+          <MessageAttribute>
+            <Name>SequenceId</Name>
+              <Value>
+                <StringValue>first</StringValue>
+                <DataType>String</DataType>
+              </Value>
+            </MessageAttribute>
+          </Message>
+          <Message>
+            <MessageId>685b3199-2350-476e-a9b4-b9357597c5f9</MessageId>
+            <ReceiptHandle>AQEBnaNIuXS7t7/+QgcF8e7aD83Is8Q3+jPTLK6Rb7qkZYs50EhaR4JAjNeMrWT4viwwoK4ziWNMGZaZfmIHUS667Pua3yOFC2nKRi5ZnOPxGFfRo/ilVb8kuPQmcoDLFAGwQA5hjVlKwNd3YvfXtYZsJwiMEEbbKqwYhJD1bTxMbMesorO8WtU7kqrlTghS3P7Ze6YD3ESivzVDsghA+wRavj17HGtRSudc5kkCgPhorLQNeVBLtticW2BpqF2+wclv8fB+JtCU6s0nSE/LbqQppj8xrX1MzqdMIcYpTrQ4CGdjZ9JZwv+3yG3H5l31w9zwxced7VuJQ3854I0dHk43Jq1+iaCBKTynRumYgWAViSafeR/V3wIzIfpFsnHVmo5GWtOJVgNWHQLBJ0LocHQZ2vj4JH/hewhhyzdt3jKQ1eA=</ReceiptHandle>
+            <MD5OfBody>47f79c924409f444efd458d9976becb5</MD5OfBody>
+            <Body>Message 2</Body>
+            <MessageAttribute>
+              <Name>SequenceId</Name>
+              <Value>
+                <StringValue>second</StringValue>
+                <DataType>String</DataType>
+              </Value>
+            </MessageAttribute>
+          </Message>
+        </ReceiveMessageResult>
+      <ResponseMetadata>
+        <RequestId>e74a318e-f911-56da-8302-61e0baee07ae</RequestId>
+      </ResponseMetadata>
+    </ReceiveMessageResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: response}} = Parsers.parse(rsp, :receive_message)
+    [message_1, message_2] = response[:messages]
+
+    assert "Message 1" == message_1.body
+    assert %{value: "first"}  = message_1.message_attributes["SequenceId"]
+
+    assert "Message 2" == message_2.body
+    assert %{value: "second"}  = message_2.message_attributes["SequenceId"]
+  end
+
   test "parsing an empty receive message response" do
     rsp = """
     <?xml version=\"1.0\"?>

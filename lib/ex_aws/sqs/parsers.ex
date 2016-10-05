@@ -98,8 +98,8 @@ if Code.ensure_loaded?(SweetXml) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ReceiveMessageResponse",
                         request_id: request_id_xpath(),
-                        message: [
-                          ~x"./ReceiveMessageResult/Message"o,
+                        messages: [
+                          ~x"./ReceiveMessageResult/Message"lo,
                           message_id: ~x"./MessageId/text()"s,
                           receipt_handle: ~x"./ReceiptHandle/text()"s,
                           md5_of_body: ~x"./MD5OfBody/text()"s,
@@ -119,9 +119,23 @@ if Code.ensure_loaded?(SweetXml) do
                           ]
                         ])
 
-      fixed_attributes = parsed_body
-      |> fix_attributes([:message, :attributes], &attribute_list_to_map/1)
-      |> fix_attributes([:message, :message_attributes], &message_attributes_to_map/1)
+      new_messages = parsed_body
+      |> Map.get(:messages)
+      |> Enum.map(fn(message) ->
+        message
+        |> fix_attributes([:attributes], &attribute_list_to_map/1)
+        |> fix_attributes([:message_attributes], &message_attributes_to_map/1)
+      end)
+
+      fixed_attributes = case new_messages do
+                           [message] ->
+                             parsed_body
+                             |> Map.put(:message, message)
+                             |> Map.delete(:messages)
+
+                           messages ->
+                             Map.put(parsed_body, :messages, messages)
+                         end
 
       {:ok, Map.put(resp, :body, fixed_attributes)}
     end
