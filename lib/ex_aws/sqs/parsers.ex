@@ -120,7 +120,7 @@ if Code.ensure_loaded?(SweetXml) do
                         ])
 
       new_messages = parsed_body
-      |> Map.get(:messages)
+      |> Map.get(:messages, [])
       |> Enum.map(fn(message) ->
         message
         |> fix_attributes([:attributes], &attribute_list_to_map/1)

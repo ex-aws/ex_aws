@@ -363,6 +363,7 @@ defmodule ExAws.SQS.ParserTest do
     {:ok, %{body: response}} = Parsers.parse(rsp, :receive_message)
 
     assert "fcd6512a-5746-5803-b2d7-014dfd07f23a" == response[:request_id]
+    assert [] == response[:messages]
   end
 
   test "it should handle parsing a message with custom attributes" do
