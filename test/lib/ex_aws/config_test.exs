@@ -16,4 +16,30 @@ defmodule ExAws.ConfigTest do
     |> ExAws.Config.new([access_key_id: {:system, "AWS_SECURITY_TOKEN"}, security_token: {:system, "AWS_SECURITY_TOKEN"}])
     |> Map.get(:security_token) == value
   end
+
+  test "credentials file is parsed" do
+    example_credentials = """
+    [default]
+    aws_access_key_id     = TESTKEYID
+    aws_secret_access_key = TESTSECRET
+    aws_session_token     = TESTTOKEN
+    """
+
+    credentials = ExAws.Config.parse_ini_file({:ok, example_credentials}, :default)
+    |> ExAws.Config.strip_key_prefix
+
+    assert credentials.access_key_id == "TESTKEYID"
+    assert credentials.secret_access_key == "TESTSECRET"
+  end
+
+  test "config file is parsed" do
+    example_config = """
+    [default]
+    region = eu-west-1
+    """
+
+    config = ExAws.Config.parse_ini_file({:ok, example_config}, :default)
+
+    assert config.region == "eu-west-1"
+  end
 end
