@@ -8,7 +8,7 @@ defmodule ExAws.SQS.ParserTest do
   end
 
   def to_error(doc) do
-    {:error, {:http_error, 403, doc}}
+    {:error, {:http_error, 403, %{body: doc}}}
   end
 
   test "#parsing a list queue response" do
