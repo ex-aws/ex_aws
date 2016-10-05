@@ -157,7 +157,7 @@ if Code.ensure_loaded?(SweetXml) do
       parse_request_id(resp, ~x"//SetQueueAttributesResponse")
     end
 
-    def parse({:error, {type, http_status_code, xml}}, _) do
+    def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ErrorResponse",
                         request_id: ~x"./RequestId/text()"s,
