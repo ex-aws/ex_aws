@@ -127,17 +127,9 @@ if Code.ensure_loaded?(SweetXml) do
         |> fix_attributes([:message_attributes], &message_attributes_to_map/1)
       end)
 
-      fixed_attributes = case new_messages do
-                           [message] ->
-                             parsed_body
-                             |> Map.put(:message, message)
-                             |> Map.delete(:messages)
+      parsed_body = Map.put(parsed_body, :messages, new_messages)
 
-                           messages ->
-                             Map.put(parsed_body, :messages, messages)
-                         end
-
-      {:ok, Map.put(resp, :body, fixed_attributes)}
+      {:ok, Map.put(resp, :body, parsed_body)}
     end
 
     def parse({:ok, %{body: xml}=resp}, :send_message) do

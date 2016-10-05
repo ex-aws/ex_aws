@@ -282,7 +282,7 @@ defmodule ExAws.SQS.ParserTest do
     |> to_success
 
     {:ok, %{body: response}} = Parsers.parse(rsp, :receive_message)
-    message = response[:message]
+    [message] = response[:messages]
 
     handle = "MbZj6wDWli+JvwwJaBV+3dcjk2YW2vA3+STFFljTM8tJJg6HRG6PYSasuWXPJB+CwLj1FjgXUv1uSj1gUPAWV66FU/WeR4mq2OKpEGYWbnLmpRCJVAyeMjeU5ZBdtcQ+QEauMZc8ZRv37sIW2iJKq3M9MFx1YvV11A2x/KSbkJ0="
 
@@ -438,7 +438,7 @@ defmodule ExAws.SQS.ParserTest do
     """
     |> to_success
     {:ok, %{body: response}} = Parsers.parse(rsp, :receive_message)
-    message = response[:message]
+    [message] = response[:messages]
     message_attributes = message[:message_attributes]
 
     assert %{value: "good", data_type: "String"} = message_attributes["LiveAt"]
