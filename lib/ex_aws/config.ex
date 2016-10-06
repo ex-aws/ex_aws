@@ -36,7 +36,7 @@ defmodule ExAws.Config do
     defaults = ExAws.Config.Defaults.get(service)
     common_config = Application.get_all_env(:ex_aws) |> Map.new |> Map.take(@common_config)
     service_config = Application.get_env(:ex_aws, service, []) |> Map.new
-    ini_config = retrieve_ini_config(:default)
+    ini_config = retrieve_ini_config("default")
 
     defaults
     |> Map.merge(ini_config)
@@ -49,7 +49,6 @@ defmodule ExAws.Config do
     credentials =
       File.read("#{System.user_home}/.aws/credentials")
       |> parse_ini_file(profile_name)
-      |> strip_key_prefix
 
     config =
       File.read("#{System.user_home}/.aws/config")
@@ -59,9 +58,15 @@ defmodule ExAws.Config do
   end
 
   def parse_ini_file({:ok, contents}, profile_name) do
-    contents
-    |> Ini.decode
-    |> Map.get(profile_name)
+    parsed_contents = contents
+    |> ConfigParser.parse_string
+
+    case parsed_contents do
+      {:ok, map} ->
+        Map.get(map, profile_name)
+        |> ExAws.Config.strip_key_prefix
+      _ -> %{}
+    end
   end
   def parse_ini_file(_, _), do: %{}
 
@@ -69,7 +74,6 @@ defmodule ExAws.Config do
     credentials
     |> Enum.reduce(%{}, fn({key, val}, acc) ->
       updated_key = key
-      |> Atom.to_string
       |> String.replace_leading("aws_", "")
       |> String.to_atom
       Map.put(acc, updated_key, val)

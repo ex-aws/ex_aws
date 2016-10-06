@@ -25,8 +25,7 @@ defmodule ExAws.ConfigTest do
     aws_session_token     = TESTTOKEN
     """
 
-    credentials = ExAws.Config.parse_ini_file({:ok, example_credentials}, :default)
-    |> ExAws.Config.strip_key_prefix
+    credentials = ExAws.Config.parse_ini_file({:ok, example_credentials}, "default")
 
     assert credentials.access_key_id == "TESTKEYID"
     assert credentials.secret_access_key == "TESTSECRET"
@@ -38,7 +37,7 @@ defmodule ExAws.ConfigTest do
     region = eu-west-1
     """
 
-    config = ExAws.Config.parse_ini_file({:ok, example_config}, :default)
+    config = ExAws.Config.parse_ini_file({:ok, example_config}, "default")
 
     assert config.region == "eu-west-1"
   end
