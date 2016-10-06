@@ -1,6 +1,6 @@
-defmodule ExAws.KinesisFirehoseTest do
+defmodule ExAws.FirehoseTest do
   use ExUnit.Case, async: true
-  alias ExAws.KinesisFirehose
+  alias ExAws.Firehose
 
   ## NOTE:
   # These tests are not intended to be operational examples, but instead mere
@@ -12,13 +12,13 @@ defmodule ExAws.KinesisFirehoseTest do
       %{data: "asdfasdfasdf"},
       %{data: "foobar"}
     ]
-    assert KinesisFirehose.put_record_batch("logs", records).data ==
+    assert Firehose.put_record_batch("logs", records).data ==
       %{"Records" => [%{"Data" => "YXNkZmFzZGZhc2Rm"}, %{"Data" => "Zm9vYmFy"}],
         "DeliveryStreamName" => "logs"}
   end
 
   test "#put_record" do
-    assert KinesisFirehose.put_record("logs", "hey there").data ==
+    assert Firehose.put_record("logs", "hey there").data ==
       %{"Record" => %{"Data" => "aGV5IHRoZXJl"},
         "DeliveryStreamName" => "logs"}
   end

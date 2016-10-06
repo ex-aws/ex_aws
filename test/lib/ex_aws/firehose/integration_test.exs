@@ -1,4 +1,4 @@
-defmodule ExAws.KinesisFirehoseIntegrationTest do
+defmodule ExAws.FirehoseIntegrationTest do
   use ExUnit.Case, async: true
 
   # NOTE
@@ -7,7 +7,7 @@ defmodule ExAws.KinesisFirehoseIntegrationTest do
   #
 
   test "#list_delivery_streams" do
-    assert {:ok, %{"HasMoreDeliveryStreams" => _, "DeliveryStreamNames" => _}} = ExAws.KinesisFirehose.list_delivery_streams |> ExAws.request
+    assert {:ok, %{"HasMoreDeliveryStreams" => _, "DeliveryStreamNames" => _}} = ExAws.Firehose.list_delivery_streams |> ExAws.request
   end
 
 end
