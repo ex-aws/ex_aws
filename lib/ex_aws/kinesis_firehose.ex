@@ -3,7 +3,7 @@ defmodule ExAws.KinesisFirehose do
   AWS Kinesis Firehose
   """
 
-  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
+  import ExAws.Utils, only: [camelize_keys: 1]
   require Logger
 
   @namespace "Firehose_20150804"
