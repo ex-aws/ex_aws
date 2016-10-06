@@ -47,7 +47,7 @@ defmodule ExAws.KinesisFirehose do
   def describe_delivery_stream(stream_name, opts \\ []) do
     data = opts
     |> camelize_keys
-    |> Map.merge(%{"StreamName" => stream_name})
+    |> Map.merge(%{"DeliveryStreamName" => stream_name})
     request(:describe_delivery_stream, data)
   end
 
@@ -62,7 +62,7 @@ defmodule ExAws.KinesisFirehose do
   def create_delivery_stream(stream_name, shard_count \\ 1) do
     data = %{
       "ShardCount" => shard_count,
-      "StreamName" => stream_name}
+      "DeliveryStreamName" => stream_name}
     request(:create_delivery_stream, data)
   end
 
