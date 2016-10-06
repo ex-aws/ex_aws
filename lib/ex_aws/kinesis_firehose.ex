@@ -135,7 +135,7 @@ defmodule ExAws.KinesisFirehose do
       |> Atom.to_string
       |> Macro.camelize
 
-    ExAws.Operation.JSON.new(:kinesis_firehose, %{
+    ExAws.Operation.JSON.new(:firehose, %{
       data: data,
       headers: [
         {"x-amz-target", "#{@namespace}.#{operation}"},
