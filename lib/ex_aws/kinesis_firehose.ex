@@ -69,7 +69,7 @@ defmodule ExAws.KinesisFirehose do
   @doc "Deletes stream"
   @spec delete_delivery_stream(stream_name :: stream_name) :: ExAws.Operation.JSON.t
   def delete_delivery_stream(stream_name) do
-    request(:delete_delivery_stream, %{"StreamName" => stream_name})
+    request(:delete_delivery_stream, %{"DeliveryStreamName" => stream_name})
   end
 
   ## Records
