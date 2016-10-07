@@ -145,6 +145,30 @@ defmodule ExAws.SNS do
     })
   end
 
+  ## Subscriptions
+  ######################
+
+  @doc "Create Subscription"
+  @spec subscribe(topic_arn :: binary, protocol :: binary, endpoint :: binary) :: ExAws.Operation.Query.t
+  def subscribe(topic_arn, protocol, endpoint) do
+    request("Subscribe", %{
+      "TopicArn" => topic_arn,
+      "Protocol" => protocol,
+      "Endpoint" => endpoint,
+    })
+  end
+
+  @doc "List Subscriptions"
+  @spec list_subscriptions() :: ExAws.Operation.Query.t
+  def list_subscriptions() do
+    request("ListSubscriptions", %{})
+  end
+
+  @spec list_subscriptions(next_token :: binary) :: ExAws.Operation.Query.t
+  def list_subscriptions(next_token) do
+    request("ListSubscriptions", %{"NextToken" => next_token})
+  end
+
   ## Request
   ######################
 
