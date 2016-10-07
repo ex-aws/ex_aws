@@ -1,5 +1,4 @@
 defmodule ExAws.Config.Defaults do
-
   @moduledoc """
   Defaults for each service
   """
@@ -20,6 +19,12 @@ defmodule ExAws.Config.Defaults do
     kinesis: %{
       scheme: "https://",
       host: {"$region", "kinesis.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 80
+    },
+    firehose: %{
+      scheme: "https://",
+      host: {"$region", "firehose.$region.amazonaws.com"},
       region: "us-east-1",
       port: 80
     },
