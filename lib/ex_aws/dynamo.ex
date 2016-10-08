@@ -109,6 +109,27 @@ defmodule ExAws.Dynamo do
   @type key_schema :: [{atom | binary, :hash | :range}, ...]
   @type key_definitions :: [{atom | binary, dynamo_type_names}, ...]
 
+  @doc """
+  Decode an item returned from Dynamo. This will handle items wrapped in the ordinary
+  `get_item` response map of `%{"Item" => item}`.
+
+  ## Example
+  ```elixir
+  Dynamo.get_item("users", %{id: "asdf"})
+  |> ExAws.request!
+  |> Dynamo.decode_item(as: User)
+  ```
+  """
+  @spec decode_item(Map.t) :: Map.t
+  @spec decode_item(Map.t, as: atom) :: Map.t
+  def decode_item(item, opts \\ [])
+  def decode_item(%{"Item" => item}, opts) do
+    decode_item(item, opts)
+  end
+  def decode_item(item, opts) do
+    ExAws.Dynamo.Decoder.decode(item, opts)
+  end
+
   @doc "List tables"
   @spec list_tables() :: ExAws.Operation.JSON.t
   def list_tables() do

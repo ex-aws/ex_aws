@@ -1,4 +1,7 @@
 use Mix.Config
+
+config :logger, level: :warn
+
 config :ex_aws,
   json_codec: Test.JSONCodec
 
