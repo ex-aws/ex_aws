@@ -70,7 +70,8 @@ defmodule ExAws do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(ExAws.Config.AuthCache, [[name: ExAws.Config.AuthCache]])
+      worker(ExAws.Config.AuthCache, [[name: ExAws.Config.AuthCache]]),
+      worker(ExAws.Config.CredentialsCache, [[name: ExAws.Config.CredentialsCache]])
     ]
 
     opts = [strategy: :one_for_one, name: ExAws.Supervisor]

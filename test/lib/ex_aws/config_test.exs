@@ -5,7 +5,7 @@ defmodule ExAws.ConfigTest do
     value = "foo"
     System.put_env("ExAwsConfigTest", value)
     assert :s3
-    |> ExAws.Config.new([access_key_id: {:system, "ExAwsConfigTest"}])
+    |> ExAws.Config.new([access_key_id: {:system, "ExAwsConfigTest"}, secret_access_key: {:system, "AWS_SECURITY_TOKEN"}])
     |> Map.get(:access_key_id) == value
   end
 
@@ -25,10 +25,12 @@ defmodule ExAws.ConfigTest do
     aws_session_token     = TESTTOKEN
     """
 
-    credentials = ExAws.Config.parse_ini_file({:ok, example_credentials}, "default")
+    credentials = ExAws.CredentialsIni.parse_ini_file({:ok, example_credentials}, "default")
+    |> ExAws.CredentialsIni.replace_token_key
 
     assert credentials.access_key_id == "TESTKEYID"
     assert credentials.secret_access_key == "TESTSECRET"
+    assert credentials.security_token == "TESTTOKEN"
   end
 
   test "config file is parsed" do
@@ -37,7 +39,7 @@ defmodule ExAws.ConfigTest do
     region = eu-west-1
     """
 
-    config = ExAws.Config.parse_ini_file({:ok, example_config}, "default")
+    config = ExAws.CredentialsIni.parse_ini_file({:ok, example_config}, "default")
 
     assert config.region == "eu-west-1"
   end

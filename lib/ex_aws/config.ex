@@ -18,10 +18,9 @@ defmodule ExAws.Config do
   Builds a complete set of config for an operation.
 
   1) Defaults are pulled from `ExAws.Config.Defaults`
-  2) AWS configuration from ~/.aws/credentials and ~/.aws/config is loaded
-  3) Common values set via e.g `config :ex_aws` are merged in.
-  4) Keys set on the individual service e.g `config :ex_aws, :s3` are merged in
-  5) Finally, any configuration overrides are merged in
+  2) Common values set via e.g `config :ex_aws` are merged in.
+  3) Keys set on the individual service e.g `config :ex_aws, :s3` are merged in
+  4) Finally, any configuration overrides are merged in
   """
   def new(service, opts \\ []) do
     overrides = Map.new(opts)
@@ -36,48 +35,11 @@ defmodule ExAws.Config do
     defaults = ExAws.Config.Defaults.get(service)
     common_config = Application.get_all_env(:ex_aws) |> Map.new |> Map.take(@common_config)
     service_config = Application.get_env(:ex_aws, service, []) |> Map.new
-    ini_config = retrieve_ini_config("default")
 
     defaults
-    |> Map.merge(ini_config)
     |> Map.merge(common_config)
     |> Map.merge(service_config)
     |> Map.merge(overrides)
-  end
-
-  def retrieve_ini_config(profile_name) do
-    credentials =
-      File.read("#{System.user_home}/.aws/credentials")
-      |> parse_ini_file(profile_name)
-
-    config =
-      File.read("#{System.user_home}/.aws/config")
-      |> parse_ini_file(profile_name)
-
-    Map.merge(credentials, config)
-  end
-
-  def parse_ini_file({:ok, contents}, profile_name) do
-    parsed_contents = contents
-    |> ConfigParser.parse_string
-
-    case parsed_contents do
-      {:ok, map} ->
-        Map.get(map, profile_name)
-        |> ExAws.Config.strip_key_prefix
-      _ -> %{}
-    end
-  end
-  def parse_ini_file(_, _), do: %{}
-
-  def strip_key_prefix(credentials) do
-    credentials
-    |> Enum.reduce(%{}, fn({key, val}, acc) ->
-      updated_key = key
-      |> String.replace_leading("aws_", "")
-      |> String.to_atom
-      Map.put(acc, updated_key, val)
-    end)
   end
 
   def retrieve_runtime_config(config) do
@@ -103,6 +65,11 @@ defmodule ExAws.Config do
     config
     |> ExAws.Config.AuthCache.get
     |> Map.take([:access_key_id, :secret_access_key, :security_token])
+  end
+  def retrieve_runtime_value({:awscli, profile}, _) do
+    profile
+    |> ExAws.Config.CredentialsCache.get
+    |> Map.take([:access_key_id, :secret_access_key, :region, :security_token])
   end
   def retrieve_runtime_value(values, config) when is_list(values) do
     values
