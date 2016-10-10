@@ -15,6 +15,12 @@ defmodule ExAws.Config.AuthCache do
       [] -> GenServer.call(__MODULE__, {:refresh_config, config})
     end
   end
+  def get(profile, expiration) do
+    case :ets.lookup(__MODULE__, :awscli) do
+      [{:awscli, auth_config}] -> auth_config
+      [] -> GenServer.call(__MODULE__, {:refresh_awscli_config, profile, expiration})
+    end
+  end
 
   ## Callbacks
 
@@ -27,10 +33,25 @@ defmodule ExAws.Config.AuthCache do
     auth = refresh_config(config, ets)
     {:reply, auth, ets}
   end
+  def handle_call({:refresh_awscli_config, profile, expiration}, _from, ets) do
+    auth = refresh_awscli_config(profile, expiration, ets)
+    {:reply, auth, ets}
+  end
 
   def handle_info({:refresh_config, config}, ets) do
     refresh_config(config, ets)
     {:noreply, ets}
+  end
+  def handle_info({:refresh_awscli_config, profile, expiration}, ets) do
+    refresh_awscli_config(profile, expiration, ets)
+    {:noreply, ets}
+  end
+
+  def refresh_awscli_config(profile, expiration, ets) do
+    auth = ExAws.CredentialsIni.security_credentials(profile)
+    :ets.insert(ets, {:awscli, auth})
+    Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
+    auth
   end
 
   def refresh_config(config, ets) do
