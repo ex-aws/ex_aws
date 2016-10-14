@@ -22,7 +22,7 @@ defmodule ExAws.S3 do
   Multipart uploads
   ```
   "path/to/big/file"
-  |> S3.Upload.stream_file!
+  |> S3.Upload.stream_file
   |> S3.upload("my-bucket", "path/on/s3")
   |> ExAws.request! #=> {:ok, :done}
   ```
