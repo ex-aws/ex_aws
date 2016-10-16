@@ -78,8 +78,7 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.list_subscriptions("123456789").params
   end
 
-
-  # Test SMS request structure.
+  # Test SMS request structure. Credentials via (https://www.twilio.com/docs/api/rest/test-credentials).
   test "#publish_sms" do
     expected = %{
       "Action" => "Publish",

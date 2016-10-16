@@ -84,21 +84,10 @@ defmodule ExAws.SNS do
   def publish(message, opts) do
     opts = opts |> Map.new
 
-    # If message structure attribute is set, and has a valid value (:json) convert it to the string value.
-    message_structure = Map.get(opts, :message_structure)
-    opts = case (message_structure) do
-      :json ->
-        opts |> Map.put(:message_structure, "json")
-      _ ->
-        opts |> Map.delete(:message_structure)
-    end
-
-    # Parse and add message attributes to the request.
     message_attrs = opts
     |> Map.get(:message_attributes, [])
     |> build_message_attributes
 
-    # Build out request map.
     params = opts
     |> Map.drop([:message_attributes])
     |> camelize_keys
