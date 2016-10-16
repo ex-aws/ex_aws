@@ -51,7 +51,7 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.create_platform_endpoint("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn", "123abc456def", "user data").params
   end
 
-  test "#publish" do
+  test "#publish_json" do
     expected = %{
       "Action" => "Publish",
       "Message" => "{\"message\": \"MyMessage\"}",
@@ -59,4 +59,50 @@ defmodule ExAws.SNSTest do
     }
     assert expected == SNS.publish("{\"message\": \"MyMessage\"}", [topic_arn: "arn:aws:sns:us-east-1:982071696186:test-topic"]).params
   end
+
+  # Test SMS request structure.
+  test "#publish_sms" do
+    expected = %{
+      "Action" => "Publish",
+      "Message" => "message",
+      "MessageAttribute.0.Name" => "AWS.SNS.SMS.SenderID",
+      "MessageAttribute.0.Value.DataType" => "String",
+      "MessageAttribute.1.Name" => "AWS.SNS.SMS.MaxPrice",
+      "MessageAttribute.1.Value.DataType" => "String",
+      "MessageAttribute.2.Name" => "AWS.SNS.SMS.SMSType",
+      "MessageAttribute.2.Value.DataType" => "String",
+      "PhoneNumber" => "+15005550006",
+      "MessageAttribute.0.Value.StringValue" => "sender",
+      "MessageAttribute.1.Value.StringValue" => "0.8",
+      "MessageAttribute.2.Value.StringValue" => "Transactional"
+    }
+
+    message_attributes = [
+      %{name: "AWS.SNS.SMS.SenderID", data_type: :string, value: {:string, "sender"}},
+      %{name: "AWS.SNS.SMS.MaxPrice", data_type: :string, value: {:string, "0.8"}},
+      %{name: "AWS.SNS.SMS.SMSType", data_type: :string, value: {:string, "Transactional"}}
+    ]
+    publish_opts = [
+      message_attributes: message_attributes,
+      phone_number: "+15005550006"
+    ]
+    assert expected == SNS.publish("message", publish_opts).params
+  end
+
+  # Test that json message structure type is converted correctly in the request.
+  test "#publish_message_structure" do
+      expected = %{
+        "Action" => "Publish",
+        "Message" => "message",
+        "MessageStructure" => "json",
+        "PhoneNumber" => "+15005550006"
+      }
+
+      publish_opts = [
+        message_attributes: [],
+        message_structure: :json,
+        phone_number: "+15005550006"
+      ]
+      assert expected == SNS.publish("message", publish_opts).params
+    end
 end
