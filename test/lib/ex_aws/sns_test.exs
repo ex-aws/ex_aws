@@ -107,20 +107,4 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.publish("message", publish_opts).params
   end
 
-  # Test that json message structure type is converted correctly in the request.
-  test "#publish_message_structure" do
-      expected = %{
-        "Action" => "Publish",
-        "Message" => "message",
-        "MessageStructure" => "json",
-        "PhoneNumber" => "+15005550006"
-      }
-
-      publish_opts = [
-        message_attributes: [],
-        message_structure: :json,
-        phone_number: "+15005550006"
-      ]
-      assert expected == SNS.publish("message", publish_opts).params
-    end
 end
