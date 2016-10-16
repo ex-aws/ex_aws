@@ -166,7 +166,7 @@ defmodule ExAws.Auth do
 
   defp presigned_url_headers(url) do
     uri = URI.parse(url)
-    [{"host", uri.host}]
+    [{"host", uri.authority}]
   end
 
   defp build_amz_query_params(service, datetime, config, expires) do
