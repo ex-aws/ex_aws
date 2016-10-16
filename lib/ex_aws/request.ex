@@ -31,7 +31,7 @@ defmodule ExAws.Request do
       Logger.debug("Request BODY: #{inspect req_body}")
     end
 
-    case config[:http_client].request(method, url, req_body, full_headers) do
+    case config[:http_client].request(method, url, req_body, full_headers, Map.get(config, :http_opts, [])) do
       {:ok, response = %{status_code: status}} when status in 200..299 ->
         {:ok, response}
       {:ok, %{status_code: status} = resp} when status in 400..499 ->
@@ -49,7 +49,7 @@ defmodule ExAws.Request do
     end
   end
 
-  def client_error(%{status_code: status, body: body}, json_codec) do
+  def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
         error_type
@@ -58,8 +58,11 @@ defmodule ExAws.Request do
           [_, type] -> handle_aws_error(type, message)
           _         -> {:error, {:http_error, status, err}}
         end
-      _ -> {:error, {:http_error, status, body}}
+      _ -> {:error, {:http_error, status, error}}
     end
+  end
+  def client_error(%{status_code: status} = error, _) do
+    {:error, {:http_error, status, error}}
   end
 
   def handle_aws_error("ProvisionedThroughputExceededException" = type, message) do

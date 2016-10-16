@@ -200,6 +200,43 @@ defmodule ExAws.SQSTest do
                                                                       wait_timeout: 20).params
   end
 
+  test "#receive_message can set the message attributes to all" do
+    expected = %{"Action" => "ReceiveMessage", "MessageAttributeNames" => "All"}
+
+    actual = SQS.receive_message("12345/test_queue", message_attribute_names: :all)
+    assert expected == actual.params
+  end
+
+  test "#receive_message can specify message attributes" do
+    expected = %{"Action" => "ReceiveMessage",
+                 "MessageAttributeName.1" => "FooAttr",
+                 "MessageAttributeName.2" => "BarAttr",
+                 "MessageAttributeName.3" => "BazAttr"}
+
+    actual = SQS.receive_message("12345/test_queue",
+                                 message_attribute_names: ["FooAttr", "BarAttr", "BazAttr"])
+    assert expected == actual.params
+  end
+
+  test "#receive_message can specify wildcard attributes" do
+    expected = %{"Action" => "ReceiveMessage",
+                 "MessageAttributeName.1" => "Foo.*"}
+    actual = SQS.receive_message("12345/test_queue",
+                                 message_attribute_names: ["Foo.*"])
+    assert expected == actual.params
+  end
+
+  test "receive_message can set atom message attributes" do
+    expected = %{"Action" => "ReceiveMessage",
+                 "MessageAttributeName.1" => "FooAttr",
+                 "MessageAttributeName.2" => "BarAttr",
+                 "MessageAttributeName.3" => "BazAttr"}
+
+    actual = SQS.receive_message("12345/test_queue",
+                                 message_attribute_names: [:"FooAttr", :"BarAttr", :"BazAttr"])
+    assert expected == actual.params
+  end
+
   test "#delete_message" do
     expected = %{"Action" => "DeleteMessage", "ReceiptHandle" => "AQEB0aw+z96sMOUWLQuIzA7nPHS7zUOIRlV0OEqvDoKtNcHxSVDQEfY0gBOJKGcnyTvIUncpimPv0CfQDFbwmdU9E00793cP19Bx8BqzuS0sNrARyY4M4xVi7ceVYHMSNU1uyF/+sK6u8yAGnsbsgmPg4AUs5oapv5Qawiq5HJGgH3cmRPy5/IW+b9W6HVy//uNzejbIcAjQX58Dd79D4AGb9Iu4dqfEVK7zo5BCTy+pz9hqGf5MT3jkrd5umjwGdrg3sVBYhrLjmgaqftON8JclkmrUJk0LzPwQ4DdpT8oz5mh7VzAjRXkIA0IQ8PGFFGPMIb8gWNzJ4KA4/OYlnDYyGw=="}
     assert expected == SQS.delete_message("982071696186/test_queue", "AQEB0aw+z96sMOUWLQuIzA7nPHS7zUOIRlV0OEqvDoKtNcHxSVDQEfY0gBOJKGcnyTvIUncpimPv0CfQDFbwmdU9E00793cP19Bx8BqzuS0sNrARyY4M4xVi7ceVYHMSNU1uyF/+sK6u8yAGnsbsgmPg4AUs5oapv5Qawiq5HJGgH3cmRPy5/IW+b9W6HVy//uNzejbIcAjQX58Dd79D4AGb9Iu4dqfEVK7zo5BCTy+pz9hqGf5MT3jkrd5umjwGdrg3sVBYhrLjmgaqftON8JclkmrUJk0LzPwQ4DdpT8oz5mh7VzAjRXkIA0IQ8PGFFGPMIb8gWNzJ4KA4/OYlnDYyGw==").params

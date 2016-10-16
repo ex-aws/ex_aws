@@ -22,10 +22,10 @@ defmodule ExAws.S3.Lazy do
     end, &(&1))
   end
 
-  def next_marker(%{next_marker: nil, contents: contents}) do
+  def next_marker(%{next_marker: "", contents: contents}) do
     contents
     |> List.last
-    |> Map.get(:key)
+    |> Map.fetch!(:key)
   end
   def next_marker(%{next_marker: marker}), do: marker
 end

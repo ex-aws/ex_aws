@@ -5,9 +5,9 @@ defmodule ExAws.S3.Upload do
   ## Examples
   ```
   "path/to/big/file"
-  |> S3.Upload.stream_file!
+  |> S3.Upload.stream_file
   |> S3.upload("my-bucket", "path/on/s3")
-  |> ExAws.request! #=> {:ok, :done}
+  |> ExAws.request! #=> :done
   ```
   """
 
@@ -66,7 +66,10 @@ defmodule ExAws.S3.Upload do
     %{headers: headers} = ExAws.S3.upload_part(op.bucket, op.path, op.upload_id, i, chunk, op.opts)
     |> ExAws.request!(config)
 
-    {_, etag} = List.keyfind(headers, "ETag", 0)
+    {_, etag} = Enum.find(headers, fn {k, v} ->
+      String.downcase(k) == "etag"
+    end)
+
     {i, etag}
   end
 end
@@ -79,8 +82,8 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
   def perform(op, config) do
     op = Upload.initialize!(op, config)
 
-    Flow.new(stages: op.opts[:max_concurrency] || 4, max_demand: 2)
-    |> Flow.from_enumerable(op.src)
+    op.src
+    |> build_producer(op.opts)
     |> Flow.map(&Upload.upload_chunk!(&1, op, config))
     |> Enum.to_list
     |> Upload.complete!(op, config)
@@ -89,4 +92,16 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
   end
 
   def stream!(_, _), do: raise "not implemented"
+
+  defp build_producer(%Flow{} = flow, _opts) do
+    flow
+  end
+  defp build_producer(source, opts) do
+    source
+    |> Stream.with_index(1)
+    |> Flow.from_enumerable(
+          stages: Keyword.get(opts, :max_concurrency, 4),
+          max_demand: 2
+        )
+  end
 end

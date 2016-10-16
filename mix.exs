@@ -1,7 +1,7 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
-  @version "1.0.0-rc.1"
+  @version "1.0.0-rc.3"
 
   def project do
     [app: :ex_aws,
@@ -34,13 +34,13 @@ defmodule ExAws.Mixfile do
   defp deps(:test_dev) do
     [
       {:sweet_xml, "~> 0.5", optional: true},
-      {:earmark, "~> 0.2.1", only: :dev},
-      {:ex_doc, "~> 0.11.4", only: :dev},
+      {:ex_doc, "~> 0.14", only: :dev},
       {:hackney, "~> 1.5", optional: true},
       {:poison, "~> 1.2 or ~> 2.0", optional: true},
       {:jsx, "~> 2.8", optional: true},
-      {:gen_stage, "~> 0.5.0"},
+      {:gen_stage, "~> 0.6.0"},
       {:dialyze, "~> 0.2.0", only: :dev},
+      {:bypass, "~> 0.1", only: :test},
     ]
   end
 

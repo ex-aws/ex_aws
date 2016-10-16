@@ -48,6 +48,8 @@ defmodule ExAws.Config do
         Map.put(config, :host, retrieve_runtime_value(host, config))
       {:retries, retries}, config ->
         Map.put(config, :retries, retries)
+      {:http_opts, http_opts}, config ->
+        Map.put(config, :http_opts, http_opts)
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
           %{} = result -> Map.merge(config, result)

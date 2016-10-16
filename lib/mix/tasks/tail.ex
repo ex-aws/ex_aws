@@ -19,12 +19,6 @@ defmodule Mix.Tasks.Kinesis.Tail do
       $mix kinesis.tail logs --debug --poll 10
   """
 
-  @dialyzer {:no_return,
-           run: 1,
-           get_shards: 1
-          }
-  # @dialyzer {:no_behaviours, post_object_restore: 4}
-
   def run(_) do
     raise "Not yet implemented in 1.0.0-beta1"
   end

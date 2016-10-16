@@ -9,3 +9,4 @@ erl_crash.dump
 /mnesia/test
 /mnesia/prod
 *.pem
+/tmp

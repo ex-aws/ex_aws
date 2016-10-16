@@ -98,8 +98,8 @@ if Code.ensure_loaded?(SweetXml) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ReceiveMessageResponse",
                         request_id: request_id_xpath(),
-                        message: [
-                          ~x"./ReceiveMessageResult/Message"o,
+                        messages: [
+                          ~x"./ReceiveMessageResult/Message"lo,
                           message_id: ~x"./MessageId/text()"s,
                           receipt_handle: ~x"./ReceiptHandle/text()"s,
                           md5_of_body: ~x"./MD5OfBody/text()"s,
@@ -109,17 +109,27 @@ if Code.ensure_loaded?(SweetXml) do
                             ~x"./Attribute"lo,
                             name: ~x"./Name/text()"s,
                             value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast_to_number/1)
+                          ],
+                          message_attributes: [
+                            ~x"./MessageAttribute"lo,
+                            name: ~x"./Name/text()"s,
+                            string_value: ~x"./Value/StringValue/text()"os,
+                            binary_value: ~x"./Value/BinaryValue/text()"os,
+                            data_type: ~x"./Value/DataType/text()"s
                           ]
                         ])
-      fixed_attributes = case get_in(parsed_body, [:message, :attributes]) do
-                           nil ->
-                             parsed_body
 
-                             v when is_list(v) ->
-                             update_in(parsed_body, [:message, :attributes], &attribute_list_to_map/1)
-                         end
+      new_messages = parsed_body
+      |> Map.get(:messages, [])
+      |> Enum.map(fn(message) ->
+        message
+        |> fix_attributes([:attributes], &attribute_list_to_map/1)
+        |> fix_attributes([:message_attributes], &message_attributes_to_map/1)
+      end)
 
-      {:ok, Map.put(resp, :body, fixed_attributes)}
+      parsed_body = Map.put(parsed_body, :messages, new_messages)
+
+      {:ok, Map.put(resp, :body, parsed_body)}
     end
 
     def parse({:ok, %{body: xml}=resp}, :send_message) do
@@ -153,7 +163,7 @@ if Code.ensure_loaded?(SweetXml) do
       parse_request_id(resp, ~x"//SetQueueAttributesResponse")
     end
 
-    def parse({:error, {type, http_status_code, xml}}, _) do
+    def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ErrorResponse",
                         request_id: ~x"./RequestId/text()"s,
@@ -173,6 +183,60 @@ if Code.ensure_loaded?(SweetXml) do
                         request_id: request_id_xpath())
 
       {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def message_attributes_to_map(list_of_message_attribtues) do
+      list_of_message_attribtues
+      |> Enum.reduce(%{}, fn(%{name: name, data_type: data_type} = attr, acc) ->
+        case parse_attribute_value(data_type, attr) do
+          ^attr ->
+            Map.put(acc, name, attr)
+          parsed ->
+            Map.put(acc, name, Map.put(attr, :value, parsed))
+        end
+      end)
+    end
+
+    defp fix_attributes(parsed_body, attribute_path, fixup_fn) do
+      case get_in(parsed_body, attribute_path) do
+        nil ->
+          parsed_body
+
+        [] ->
+          parsed_body
+
+        v when is_list(v) ->
+          update_in(parsed_body, attribute_path, fixup_fn)
+      end
+    end
+
+    defp parse_attribute_value(<<"String", _ :: binary>>, %{string_value: string_value}) do
+      string_value
+    end
+
+    defp parse_attribute_value(<<"Binary", _ :: binary>>, %{binary_value: b64_encoded}) do
+      case Base.decode64(b64_encoded) do
+        {:ok, decoded} ->
+          decoded
+        _ ->
+          b64_encoded
+      end
+    end
+
+    defp parse_attribute_value(<<"Number", _ :: binary>>, %{string_value: string_value}) do
+      try do
+        String.to_integer(string_value)
+      rescue ArgumentError ->
+          try do
+            String.to_float(string_value)
+          rescue ArgumentError ->
+              string_value
+          end
+      end
+    end
+
+    defp parse_attribute_value(_data_type, other) do
+      other
     end
 
     def attribute_list_to_map(list_of_maps, convert_to_atoms \\ false)

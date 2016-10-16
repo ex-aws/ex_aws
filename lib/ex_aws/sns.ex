@@ -67,7 +67,7 @@ defmodule ExAws.SNS do
     {:message_attributes, [message_attribute]} |
     {:message_structure, :json} |
     {:subject, binary} |
-    {:phone_number, binary} | 
+    {:phone_number, binary} |
     {:target_arn, binary} |
     {:topic_arn, binary}]
 
@@ -146,6 +146,38 @@ defmodule ExAws.SNS do
       "Token" => token,
       "CustomUserData" => custom_user_data
     })
+  end
+
+  @doc "Delete platform endpoint"
+  @spec delete_platform_endpoint(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
+  def delete_platform_endpoint(platform_application_arn) do
+    request("DeleteEndpoint", %{
+      "EndpointArn" => platform_application_arn
+    })
+  end
+
+  ## Subscriptions
+  ######################
+
+  @doc "Create Subscription"
+  @spec subscribe(topic_arn :: binary, protocol :: binary, endpoint :: binary) :: ExAws.Operation.Query.t
+  def subscribe(topic_arn, protocol, endpoint) do
+    request("Subscribe", %{
+      "TopicArn" => topic_arn,
+      "Protocol" => protocol,
+      "Endpoint" => endpoint,
+    })
+  end
+
+  @doc "List Subscriptions"
+  @spec list_subscriptions() :: ExAws.Operation.Query.t
+  def list_subscriptions() do
+    request("ListSubscriptions", %{})
+  end
+
+  @spec list_subscriptions(next_token :: binary) :: ExAws.Operation.Query.t
+  def list_subscriptions(next_token) do
+    request("ListSubscriptions", %{"NextToken" => next_token})
   end
 
   ## Request

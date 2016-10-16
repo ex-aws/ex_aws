@@ -1,6 +1,5 @@
 defmodule ExAws.DynamoIntegrationTest do
   alias ExAws.Dynamo
-  alias ExAws.Dynamo.Decoder
   use ExUnit.Case, async: true
 
   ## These tests run against DynamoDb Local
@@ -37,8 +36,13 @@ defmodule ExAws.DynamoIntegrationTest do
     user = %Test.User{email: "foo@bar.com", name: %{first: "bob", last: "bubba"}, age: 23, admin: false}
     assert {:ok, _} = Dynamo.put_item(Test.User, user) |> ExAws.request
 
-    {:ok, %{"Item" => item}} = Dynamo.get_item(Test.User, %{email: user.email}) |> ExAws.request
-    assert user == item |> Decoder.decode(as: Test.User)
+    item =
+      Test.User
+      |> Dynamo.get_item(%{email: user.email})
+      |> ExAws.request!
+      |> Dynamo.decode_item(as: Test.User)
+
+    assert user == item
   end
 
   test "stream scan" do
@@ -54,22 +58,22 @@ defmodule ExAws.DynamoIntegrationTest do
     |> ExAws.stream!
     |> Enum.count == 3
   end
-  
+
   test "batch_write_item works" do
     {:ok, _} = Dynamo.create_table("books", [title: "hash", format: "range"], [title: :string, format: :string], 1, 1) |> ExAws.request
-    
+
     requests = [
       [put_request: [item: %{title: "Tale of Two Cities", format: "hardcover", price: 20.00}]],
       [put_request: [item: %{title: "Tale of Two Cities", format: "softcover", price: 10.00}]]
     ]
     assert {:ok, _} = Dynamo.batch_write_item(%{"books" => requests}) |> ExAws.request
-    
+
     delete_requests = [
       [delete_request: [key: %{title: "Tale of Two Cities", format: "hardcover"}]],
       [delete_request: [key: %{title: "Tale of Two Cities", format: "softcover"}]]
     ]
     assert {:ok, _} = Dynamo.batch_write_item(%{"books" => delete_requests}) |> ExAws.request
-    
+
   end
 
 end
