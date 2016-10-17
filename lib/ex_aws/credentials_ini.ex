@@ -45,4 +45,10 @@ if Code.ensure_loaded?(ConfigParser) do
       |> Map.put(:security_token, token)
     end
   end
+else
+  defmodule ExAws.CredentialsIni do
+    def security_credentials(_), do: raise "ConfigParser required to use"
+    def parse_ini_file(_, _), do: raise "ConfigParser required to use"
+    def replace_token_key(_), do: raise "ConfigParser required to use"
+  end
 end
