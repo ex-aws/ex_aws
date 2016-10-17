@@ -28,6 +28,7 @@ if Code.ensure_loaded?(ConfigParser) do
 
     def strip_key_prefix(credentials) do
       credentials
+      |> Enum.filter(fn({key, val}) -> Enum.member?(~w(aws_access_key_id aws_secret_access_key aws_session_token region), key) end)
       |> Enum.reduce(%{}, fn({key, val}, acc) ->
         updated_key = key
         |> String.replace_leading("aws_", "")
