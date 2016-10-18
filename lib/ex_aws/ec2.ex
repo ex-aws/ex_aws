@@ -3,7 +3,7 @@ defmodule ExAws.EC2 do
   Operations on AWS EC2
   """
 
-  import ExAws.Utils
+  import ExAws.Utils, only: [normalize_opts: 1]
 
   @version "2015-10-01"
 
@@ -2074,12 +2074,6 @@ defmodule ExAws.EC2 do
       params: data,
       service: :ec2
     }
-  end
-
-  defp normalize_opts(opts) do
-    opts
-    |> Enum.into(%{})
-    |> camelize_keys
   end
 
   defp list_builder([h | []], key, count, state) do

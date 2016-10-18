@@ -5,6 +5,12 @@ defmodule ExAws.Utils do
 
   def identity(x, _), do: x
 
+  def normalize_opts(opts) do
+    opts
+    |> Map.new
+    |> camelize_keys
+  end
+
   def camelize_keys(opts) do
     camelize_keys(opts, deep: false)
   end
