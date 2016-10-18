@@ -20,7 +20,7 @@ defmodule ExAws.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :crypto],
+    [applications: [:logger, :crypto, :gen_stage],
      mod: {ExAws, []}]
   end
 
