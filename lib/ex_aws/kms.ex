@@ -19,6 +19,19 @@ defmodule ExAws.KMS do
     request(:list_keys, query_params)
   end
 
+  def generate_data_key(key_id, opts \\[]) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "GenerateDataKey",
+          "Version" => @version,
+          "KeyId"   => key_id,
+          "KeySpec" => opts[:key_spec] || "AES_256"
+                 })
+
+    request(:generate_data_key, query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################
