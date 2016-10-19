@@ -1,19 +1,7 @@
 defmodule ExAws.KMSTest do
   use ExUnit.Case, async: true
-  alias ExAws.KMS
 
-  @version "2014-11-01"
-
-  test "list_keys" do
-    expected =
-      %ExAws.Operation.RestQuery{service: :kms,
-        params: %{
-          "Action"  => "ListKeys",
-          "Version" => @version
-        },
-        path: "/",
-        http_method: :post
-      }
-    assert expected == KMS.list_keys
+  test "#list_keys" do
+    assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
   end
 end
