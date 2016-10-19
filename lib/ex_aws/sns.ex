@@ -10,8 +10,8 @@ defmodule ExAws.SNS do
   ## Topics
   ######################
 
-  @type topic_name :: binary
-  @type topic_arn  :: binary
+  @type topic_name   :: binary
+  @type topic_arn    :: binary
   @type topic_attribute_name ::
     :policy |
     :display_name |
@@ -25,19 +25,19 @@ defmodule ExAws.SNS do
     |> Map.new
     |> camelize_keys
 
-    request("ListTopics", opts)
+    request(:list_topics, opts)
   end
 
   @doc "Create topic"
   @spec create_topic(topic_name :: topic_name) :: ExAws.Operation.Query.t
   def create_topic(topic_name) do
-    request("CreateTopic", %{"Name" => topic_name})
+    request(:create_topic, %{"Name" => topic_name})
   end
 
   @doc "Get topic attributes"
   @spec get_topic_attributes(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
   def get_topic_attributes(topic_arn) do
-    request("GetTopicAttributes", %{"TopicArn" => topic_arn})
+    request(:get_topic_attributes, %{"TopicArn" => topic_arn})
   end
 
   @doc "Set topic attributes"
@@ -45,7 +45,7 @@ defmodule ExAws.SNS do
                                    attribute_value :: binary,
                                    topic_arn :: topic_arn) :: ExAws.Operation.Query.t
   def set_topic_attributes(attribute_name, attribute_value, topic_arn) do
-    request("SetTopicAttributes", %{
+    request(:set_topic_attributes, %{
       "AttributeName" => attribute_name |> camelize_key,
       "AttributeValue" => attribute_value,
       "TopicArn" => topic_arn
@@ -55,7 +55,7 @@ defmodule ExAws.SNS do
   @doc "Delete topic"
   @spec delete_topic(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
   def delete_topic(topic_arn) do
-    request("DeleteTopic", %{"TopicArn" => topic_arn})
+    request(:delete_topic, %{"TopicArn" => topic_arn})
   end
 
   @type message_attribute :: %{
@@ -94,7 +94,7 @@ defmodule ExAws.SNS do
     |> Map.put("Message", message)
     |> Map.merge(message_attrs)
 
-    request("Publish", params)
+    request(:publish, params)
   end
 
   defp build_message_attributes(attrs) do
@@ -121,7 +121,7 @@ defmodule ExAws.SNS do
   @doc "Create plaform application"
   @spec create_platform_application(name :: binary, platform :: binary) :: ExAws.Operation.Query.t
   def create_platform_application(name, platform),
-    do: request("CreatePlatformApplication", %{"Name" => name, "Platform" => platform})
+    do: request(:create_platform_application, %{"Name" => name, "Platform" => platform})
 
   @doc "Create platform endpoint"
   @spec create_platform_endpoint(platform_application_arn :: platform_application_arn,
@@ -130,7 +130,7 @@ defmodule ExAws.SNS do
                                    token :: binary,
                                    custom_user_data :: binary) :: ExAws.Operation.Query.t
   def create_platform_endpoint(platform_application_arn, token, custom_user_data \\ nil) do
-    request("CreatePlatformEndpoint", %{
+    request(:create_platform_endpoint, %{
       "PlatformApplicationArn" => platform_application_arn,
       "Token" => token,
       "CustomUserData" => custom_user_data
@@ -140,7 +140,7 @@ defmodule ExAws.SNS do
   @doc "Delete platform endpoint"
   @spec delete_platform_endpoint(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
   def delete_platform_endpoint(platform_application_arn) do
-    request("DeleteEndpoint", %{
+    request(:delete_endpoint, %{
       "EndpointArn" => platform_application_arn
     })
   end
@@ -151,7 +151,7 @@ defmodule ExAws.SNS do
   @doc "Create Subscription"
   @spec subscribe(topic_arn :: binary, protocol :: binary, endpoint :: binary) :: ExAws.Operation.Query.t
   def subscribe(topic_arn, protocol, endpoint) do
-    request("Subscribe", %{
+    request(:subscribe, %{
       "TopicArn" => topic_arn,
       "Protocol" => protocol,
       "Endpoint" => endpoint,
@@ -161,22 +161,74 @@ defmodule ExAws.SNS do
   @doc "List Subscriptions"
   @spec list_subscriptions() :: ExAws.Operation.Query.t
   def list_subscriptions() do
-    request("ListSubscriptions", %{})
+    request(:list_subscriptions, %{})
   end
 
   @spec list_subscriptions(next_token :: binary) :: ExAws.Operation.Query.t
   def list_subscriptions(next_token) do
-    request("ListSubscriptions", %{"NextToken" => next_token})
+    request(:list_subscriptions, %{"NextToken" => next_token})
+  end
+
+  ## Endpoints
+  ######################
+
+  @type endpoint_arn :: binary
+
+  @type endpoint_attributes :: [
+    {:token, binary}
+    | {:enabled, boolean}
+    | {:custom_user_data, binary}
+  ]
+
+  @doc "Get endpoint attributes"
+  @spec get_endpoint_attributes(endpoint_arn :: endpoint_arn) :: ExAws.Operation.Query.t
+  def get_endpoint_attributes(endpoint_arn) do
+    request(:get_endpoint_attributes, %{"EndpointArn" => endpoint_arn})
+  end
+
+  @doc "Set endpoint attributes"
+  @spec set_endpoint_attributes(endpoint_arn :: endpoint_arn, attributes :: endpoint_attributes) :: ExAws.Operation.Query.t
+  def set_endpoint_attributes(endpoint_arn, attributes) do
+    params =
+      attributes
+      |> build_attrs
+
+    request(:set_endpoint_attributes, Map.put(params, "EndpointArn", endpoint_arn))
   end
 
   ## Request
   ######################
 
   defp request(action, params) do
+    action_string = action |> Atom.to_string |> Macro.camelize
+
     %ExAws.Operation.Query{
       path: "/",
-      params: params |> Map.put("Action", action),
-      service: :sns
+      params: params |> Map.put("Action", action_string),
+      service: :sns,
+      action: action,
+      parser: &ExAws.SNS.Parsers.parse/2
     }
+  end
+
+  defp build_attrs(attrs) do
+    attrs
+    |> Enum.with_index(1)
+    |> Enum.map(&build_attr/1)
+    |> Enum.reduce(%{}, &Map.merge(&1, &2))
+  end
+
+  defp build_attr({{name, value}, index}) do
+    prefix = "Attributes.entry.#{index}."
+    %{}
+    |> Map.put(prefix <> "name",  format_param_key(name))
+    |> Map.put(prefix <> "value", value)
+  end
+
+  defp format_param_key("*"), do: "*"
+  defp format_param_key(key) do
+    key
+    |> Atom.to_string
+    |> ExAws.Utils.camelize
   end
 end

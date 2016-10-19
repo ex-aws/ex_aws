@@ -107,4 +107,25 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.publish("message", publish_opts).params
   end
 
+  test "#get_endpoint_attributes" do
+    expected = %{
+      "Action" => "GetEndpointAttributes",
+      "EndpointArn" => "test-endpoint-arn"
+    }
+    assert expected == SNS.get_endpoint_attributes("test-endpoint-arn").params
+  end
+
+  test "#set_endpoint_attributes" do
+    expected = %{
+      "Action" => "SetEndpointAttributes",
+      "Attributes.entry.1.name" => "Token",
+      "Attributes.entry.1.value" => "1234",
+      "Attributes.entry.2.name" => "Enabled",
+      "Attributes.entry.2.value" => false,
+      "Attributes.entry.3.name" => "CustomUserData",
+      "Attributes.entry.3.value" => "blah",
+      "EndpointArn" => "test-endpoint-arn"
+    }
+    assert expected == SNS.set_endpoint_attributes("test-endpoint-arn", token: "1234", enabled: false, custom_user_data: "blah").params
+  end
 end
