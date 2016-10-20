@@ -32,6 +32,18 @@ defmodule ExAws.KMS do
     request(:generate_data_key, query_params)
   end
 
+  def decrypt(ciphertext, opts \\[]) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "Decrypt",
+          "Version" => @version,
+          "CiphertextBlob"   => ciphertext,
+                 })
+
+    request(:decrypt, query_params)
+  end
+
   ########################
   ### Helper Functions ###
   ########################

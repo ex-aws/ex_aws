@@ -5,10 +5,18 @@ defmodule ExAws.KMSTest do
     assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
   end
 
-  test "#generate_data_key" do
+  test "#generate_data_key and #decrypt" do
     key_arn = System.get_env("AWS_KEY_ARN")
-    assert {:ok, %{"CiphertextBlob" => _ciphertext,
-                   "KeyId" => _key_id,
-                   "Plaintext" => _plaintext}} = ExAws.KMS.generate_data_key(key_arn) |> ExAws.request
+    assert {:ok, %{"CiphertextBlob" => ciphertext,
+                   "KeyId" => key_id,
+                   "Plaintext" => plaintext}} = ExAws.KMS.generate_data_key(key_arn) |> ExAws.request
+
+    assert key_arn == key_id
+
+    assert {:ok, %{"KeyId" => decrypt_key_id,
+                   "Plaintext" => decrypt_plaintext}} = ExAws.KMS.decrypt(ciphertext) |> ExAws.request
+
+    assert key_id == decrypt_key_id
+    assert plaintext == decrypt_plaintext
   end
 end
