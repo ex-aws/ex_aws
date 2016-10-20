@@ -41,6 +41,14 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.create_platform_application("ApplicationName", "APNS").params
   end
 
+  test "#delete_platform_application" do
+    expected = %{
+      "Action" => "DeletePlatformApplication",
+      "PlatformApplicationArn" => "test-endpoint-arn"
+    }
+    assert expected == SNS.delete_platform_application("test-endpoint-arn").params
+  end
+
   test "#create_platform_endpoint" do
     expected = %{
       "Action" => "CreatePlatformEndpoint",
@@ -127,5 +135,13 @@ defmodule ExAws.SNSTest do
       "EndpointArn" => "test-endpoint-arn"
     }
     assert expected == SNS.set_endpoint_attributes("test-endpoint-arn", token: "1234", enabled: false, custom_user_data: "blah").params
+  end
+
+  test "#delete_endpoint" do
+    expected = %{
+      "Action" => "DeleteEndpoint",
+      "EndpointArn" => "test-endpoint-arn"
+    }
+    assert expected == SNS.delete_endpoint("test-endpoint-arn").params
   end
 end

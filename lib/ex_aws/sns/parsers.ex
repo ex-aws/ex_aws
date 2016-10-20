@@ -71,10 +71,9 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :create_platform_application) do
+    def parse({:ok, %{body: xml}=resp}, :delete_platform_application) do
       parsed_body = xml
-      |> SweetXml.xpath(~x"//CreatePlatformApplicationResponse",
-                        platform_application_arn: ~x"./CreatePlatformApplicationResult/PlatformApplicationArn/text()"s,
+      |> SweetXml.xpath(~x"//DeletePlatformApplicationResponse",
                         request_id: request_id_xpath())
 
       {:ok, Map.put(resp, :body, parsed_body)}
@@ -130,6 +129,14 @@ if Code.ensure_loaded?(SweetXml) do
     def parse({:ok, %{body: xml}=resp}, :set_endpoint_attributes) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//SetEndpointAttributesResponse",
+                        request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :delete_endpoint) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DeleteEndpointResponse",
                         request_id: request_id_xpath())
 
       {:ok, Map.put(resp, :body, parsed_body)}

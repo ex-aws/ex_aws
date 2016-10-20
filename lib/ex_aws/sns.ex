@@ -123,6 +123,14 @@ defmodule ExAws.SNS do
   def create_platform_application(name, platform),
     do: request(:create_platform_application, %{"Name" => name, "Platform" => platform})
 
+  @doc "Delete platform application"
+  @spec delete_platform_application(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
+  def delete_platform_application(platform_application_arn) do
+    request(:delete_platform_application, %{
+      "PlatformApplicationArn" => platform_application_arn
+    })
+  end
+
   @doc "Create platform endpoint"
   @spec create_platform_endpoint(platform_application_arn :: platform_application_arn,
                                    token :: binary) :: ExAws.Operation.Query.t
@@ -134,14 +142,6 @@ defmodule ExAws.SNS do
       "PlatformApplicationArn" => platform_application_arn,
       "Token" => token,
       "CustomUserData" => custom_user_data
-    })
-  end
-
-  @doc "Delete platform endpoint"
-  @spec delete_platform_endpoint(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
-  def delete_platform_endpoint(platform_application_arn) do
-    request(:delete_endpoint, %{
-      "EndpointArn" => platform_application_arn
     })
   end
 
@@ -194,6 +194,14 @@ defmodule ExAws.SNS do
       |> build_attrs
 
     request(:set_endpoint_attributes, Map.put(params, "EndpointArn", endpoint_arn))
+  end
+
+  @doc "Delete endpoint"
+  @spec delete_endpoint(endpoint_arn :: endpoint_arn) :: ExAws.Operation.Query.t
+  def delete_endpoint(endpoint_arn) do
+    request(:delete_endpoint, %{
+      "EndpointArn" => endpoint_arn
+    })
   end
 
   ## Request

@@ -163,6 +163,20 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc[:request_id] == "b6f0e78b-e9d4-5a0e-b973-adc04e8a4ff9"
   end
 
+  test "#parsing a delete_platform_application response" do
+    rsp = """
+      <DeletePlatformApplicationResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ResponseMetadata>
+          <RequestId>097dac18-7a77-5823-a8dd-e65476dcb037</RequestId>
+        </ResponseMetadata>
+      </DeletePlatformApplicationResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_platform_application)
+    assert parsed_doc[:request_id] == "097dac18-7a77-5823-a8dd-e65476dcb037"
+  end
+
   test "#parsing a create_platform_endpoint response" do
     rsp = """
       <CreatePlatformEndpointResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
@@ -278,6 +292,20 @@ defmodule ExAws.SNS.ParserTest do
 
     {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :set_endpoint_attributes)
     assert parsed_doc[:request_id] == "2fe0bfc7-3e85-5ee5-a9e2-f58b35e85f6a"
+  end
+
+  test "#parsing a delete_endpoint response" do
+    rsp = """
+      <DeleteEndpointResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ResponseMetadata>
+          <RequestId>c1d2b191-353c-5a5f-8969-fbdd3900afa8</RequestId>
+        </ResponseMetadata>
+      </DeleteEndpointResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_endpoint)
+    assert parsed_doc[:request_id] == "c1d2b191-353c-5a5f-8969-fbdd3900afa8"
   end
 
   test "it should handle parsing an error" do
