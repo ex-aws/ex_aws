@@ -88,6 +88,37 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :list_platform_applications) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//ListPlatformApplicationsResponse",
+                        applications: [
+                          ~x"./ListPlatformApplicationsResult/PlatformApplications/member"l,
+                          attributes: [
+                            ~x"./Attributes/entry"l,
+                            key: ~x"./key/text()"s,
+                            value: ~x"./value/text()"s
+                          ],
+                          platform_application_arn: ~x"./PlatformApplicationArn/text()"s
+                        ],
+                        next_token: ~x"./ListPlatformApplicationsResult/NextToken/text()"s,
+                        request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :get_platform_application_attributes) do
+      parsed_body = xml
+      |> SweetXml.xpath(
+        ~x"//GetPlatformApplicationAttributesResponse",
+        event_endpoint_created: ~x"./GetPlatformApplicationAttributesResult/Attributes/entry[./key = 'EventEndpointCreated']/value/text()"s,
+        event_endpoint_deleted: ~x"./GetPlatformApplicationAttributesResult/Attributes/entry[./key = 'EventEndpointDeleted']/value/text()"s,
+        event_endpoint_updated: ~x"./GetPlatformApplicationAttributesResult/Attributes/entry[./key = 'EventEndpointUpdated']/value/text()"s,
+        event_delivery_failure: ~x"./GetPlatformApplicationAttributesResult/Attributes/entry[./key = 'EventDeliveryFailure']/value/text()"s,
+        request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :subscribe) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//SubscribeResponse",
@@ -108,6 +139,39 @@ if Code.ensure_loaded?(SweetXml) do
                           subscription_arn: ~x"./SubscriptionArn/text()"s,
                           topic_arn: ~x"./TopicArn/text()"s,
                         ],
+                        next_token: ~x"./ListSubscriptionsResult/NextToken/text()"s,
+                        request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :unsubscribe) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//UnsubscribeResponse",
+                        request_id: request_id_xpath())
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :get_subscription_attributes) do
+      parsed_body = xml
+      |> SweetXml.xpath(
+        ~x"//GetSubscriptionAttributesResponse",
+        subscription_arn: ~x"./GetSubscriptionAttributesResult/Attributes/entry[./key = 'SubscriptionArn']/value/text()"s,
+        topic_arn: ~x"./GetSubscriptionAttributesResult/Attributes/entry[./key = 'TopicArn']/value/text()"s,
+        owner: ~x"./GetSubscriptionAttributesResult/Attributes/entry[./key = 'Owner']/value/text()"s,
+        confirmation_was_authenticated: ~x"./GetSubscriptionAttributesResult/Attributes/entry[./key = 'ConfirmationWasAuthenticated']/value/text()"s,
+        delivery_policy: ~x"./GetSubscriptionAttributesResult/Attributes/entry[./key = 'DeliveryPolicy']/value/text()"s,
+        effective_delivery_policy: ~x"./GetSubscriptionAttributesResult/Attributes/entry[./key = 'EffectiveDeliveryPolicy']/value/text()"s,
+        request_id: request_id_xpath())
+
+      parsed_body = Map.put(parsed_body, :confirmation_was_authenticated, parsed_body[:confirmation_was_authenticated] == "true")
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :set_subscription_attributes) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//SetSubscriptionAttributesResponse",
                         request_id: request_id_xpath())
 
       {:ok, Map.put(resp, :body, parsed_body)}

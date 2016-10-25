@@ -195,6 +195,142 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc[:request_id] == "6613341d-3e15-53f7-bf3c-7e56994ba278"
   end
 
+  test "#parsing a list_platform_applications response" do
+    rsp = """
+      <ListPlatformApplicationsResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ListPlatformApplicationsResult>
+          <PlatformApplications>
+            <member>
+              <PlatformApplicationArn>arn:aws:sns:us-west-2:123456789012:app/APNS_SANDBOX/apnspushapp</PlatformApplicationArn>
+               <Attributes>
+                <entry>
+                  <key>AllowEndpointPolicies</key>
+                  <value>false</value>
+                </entry>
+              </Attributes>
+            </member>
+            <member>
+              <PlatformApplicationArn>arn:aws:sns:us-west-2:123456789012:app/GCM/gcmpushapp</PlatformApplicationArn>
+              <Attributes>
+                <entry>
+                  <key>AllowEndpointPolicies</key>
+                  <value>true</value>
+                </entry>
+              </Attributes>
+            </member>
+          </PlatformApplications>
+        </ListPlatformApplicationsResult>
+        <ResponseMetadata>
+          <RequestId>315a335e-85d8-52df-9349-791283cbb529</RequestId>
+        </ResponseMetadata>
+      </ListPlatformApplicationsResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_platform_applications)
+    assert parsed_doc[:applications] == [
+     %{
+       platform_application_arn: "arn:aws:sns:us-west-2:123456789012:app/APNS_SANDBOX/apnspushapp",
+       attributes: [%{key: "AllowEndpointPolicies", value: "false"}]
+     },
+     %{
+       platform_application_arn: "arn:aws:sns:us-west-2:123456789012:app/GCM/gcmpushapp",
+       attributes: [%{key: "AllowEndpointPolicies", value: "true"}]
+     }
+    ]
+    assert parsed_doc[:next_token] == ""
+    assert parsed_doc[:request_id] == "315a335e-85d8-52df-9349-791283cbb529"
+  end
+
+  test "#parsing a list_platform_applications response with next_token" do
+    rsp = """
+      <ListPlatformApplicationsResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ListPlatformApplicationsResult>
+          <PlatformApplications>
+            <member>
+              <PlatformApplicationArn>arn:aws:sns:us-west-2:123456789012:app/APNS_SANDBOX/apnspushapp</PlatformApplicationArn>
+               <Attributes>
+                <entry>
+                  <key>AllowEndpointPolicies</key>
+                  <value>false</value>
+                </entry>
+              </Attributes>
+            </member>
+            <member>
+              <PlatformApplicationArn>arn:aws:sns:us-west-2:123456789012:app/GCM/gcmpushapp</PlatformApplicationArn>
+              <Attributes>
+                <entry>
+                  <key>AllowEndpointPolicies</key>
+                  <value>true</value>
+                </entry>
+              </Attributes>
+            </member>
+          </PlatformApplications>
+          <NextToken>123456789</NextToken>
+        </ListPlatformApplicationsResult>
+        <ResponseMetadata>
+          <RequestId>315a335e-85d8-52df-9349-791283cbb529</RequestId>
+        </ResponseMetadata>
+      </ListPlatformApplicationsResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_platform_applications)
+    assert parsed_doc[:applications] == [
+     %{
+       platform_application_arn: "arn:aws:sns:us-west-2:123456789012:app/APNS_SANDBOX/apnspushapp",
+       attributes: [%{key: "AllowEndpointPolicies", value: "false"}]
+     },
+     %{
+       platform_application_arn: "arn:aws:sns:us-west-2:123456789012:app/GCM/gcmpushapp",
+       attributes: [%{key: "AllowEndpointPolicies", value: "true"}]
+     }
+    ]
+    assert parsed_doc[:next_token] == "123456789"
+    assert parsed_doc[:request_id] == "315a335e-85d8-52df-9349-791283cbb529"
+  end
+
+  test "#parsing a get_platform_application_attributes response" do
+    created_arn = "arn:aws:sns:us-east-1:123456789012:Event-Created"
+    updated_arn = "arn:aws:sns:us-east-1:123456789012:Event-Updated"
+    deleted_arn = "arn:aws:sns:us-east-1:123456789012:Event-Deleted"
+    failure_arn = "arn:aws:sns:us-east-1:123456789012:Delivery-Failure"
+    rsp = """
+      <GetPlatformApplicationAttributesResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <GetPlatformApplicationAttributesResult>
+          <Attributes>
+            <entry>
+              <key>EventEndpointCreated</key>
+              <value>#{created_arn}</value>
+            </entry>
+            <entry>
+              <key>EventEndpointUpdated</key>
+              <value>#{updated_arn}</value>
+            </entry>
+            <entry>
+              <key>EventEndpointDeleted</key>
+              <value>#{deleted_arn}</value>
+            </entry>
+            <entry>
+              <key>EventDeliveryFailure</key>
+              <value>#{failure_arn}</value>
+            </entry>
+          </Attributes>
+        </GetPlatformApplicationAttributesResult>
+        <ResponseMetadata>
+          <RequestId>74848df2-87f6-55ed-890c-c7be80442462</RequestId>
+        </ResponseMetadata>
+      </GetPlatformApplicationAttributesResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :get_platform_application_attributes)
+    assert parsed_doc[:event_endpoint_created] == created_arn
+    assert parsed_doc[:event_endpoint_updated] == updated_arn
+    assert parsed_doc[:event_endpoint_deleted] == deleted_arn
+    assert parsed_doc[:event_delivery_failure] == failure_arn
+  end
+
   test "#parsing a subscribe response" do
     rsp = """
       <SubscribeResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
@@ -244,8 +380,116 @@ defmodule ExAws.SNS.ParserTest do
         topic_arn: "arn:aws:sns:us-east-1:698519295917:My-Topic"
       }
     ]
+    assert parsed_doc[:next_token] == ""
     assert parsed_doc[:request_id] == "384ac68d-3775-11df-8963-01868b7c937a"
   end
+
+  test "#parsing a list_subscriptions response with a next token" do
+    rsp = """
+      <ListSubscriptionsResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ListSubscriptionsResult>
+          <Subscriptions>
+            <member>
+              <TopicArn>arn:aws:sns:us-east-1:698519295917:My-Topic</TopicArn>
+              <Protocol>email</Protocol>
+              <SubscriptionArn>arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca</SubscriptionArn>
+              <Owner>123456789012</Owner>
+              <Endpoint>example@amazon.com</Endpoint>
+            </member>
+          </Subscriptions>
+          <NextToken>123456789</NextToken>
+        </ListSubscriptionsResult>
+        <ResponseMetadata>
+          <RequestId>384ac68d-3775-11df-8963-01868b7c937a</RequestId>
+        </ResponseMetadata>
+      </ListSubscriptionsResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_subscriptions)
+    assert parsed_doc[:subscriptions] == [
+      %{
+        owner: "123456789012",
+        endpoint: "example@amazon.com",
+        protocol: "email",
+        subscription_arn: "arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca",
+        topic_arn: "arn:aws:sns:us-east-1:698519295917:My-Topic"
+      }
+    ]
+    assert parsed_doc[:next_token] == "123456789"
+    assert parsed_doc[:request_id] == "384ac68d-3775-11df-8963-01868b7c937a"
+  end
+
+  test "#parsing an unsubscribe response" do
+    rsp = """
+      <UnsubscribeResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ResponseMetadata>
+          <RequestId>18e0ac39-3776-11df-84c0-b93cc1666b84</RequestId>
+        </ResponseMetadata>
+      </UnsubscribeResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :unsubscribe)
+    assert parsed_doc[:request_id] == "18e0ac39-3776-11df-84c0-b93cc1666b84"
+  end
+
+  test "#parsing a get_subscription_attributes response" do
+    rsp = """
+      <GetSubscriptionAttributesResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <GetSubscriptionAttributesResult>
+          <Attributes>
+            <entry>
+              <key>Owner</key>
+              <value>123456789012</value>
+            </entry>
+            <entry>
+              <key>DeliveryPolicy</key>
+              <value>{&quot;healthyRetryPolicy&quot;:{&quot;numRetries&quot;:10}}</value>
+            </entry>
+            <entry>
+              <key>EffectiveDeliveryPolicy</key>
+              <value>{&quot;healthyRetryPolicy&quot;:{&quot;numRetries&quot;:10}}</value>
+            </entry>
+            <entry>
+              <key>SubscriptionArn</key>
+              <value>arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca</value>
+            </entry>
+            <entry>
+              <key>ConfirmationWasAuthenticated</key>
+              <value>true</value>
+            </entry>
+          </Attributes>
+        </GetSubscriptionAttributesResult>
+        <ResponseMetadata>
+          <RequestId>057f074c-33a7-11df-9540-99d0768312d3</RequestId>
+        </ResponseMetadata>
+      </GetSubscriptionAttributesResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :get_subscription_attributes)
+    assert parsed_doc[:owner] == "123456789012"
+    assert parsed_doc[:delivery_policy] == ~s({"healthyRetryPolicy":{"numRetries":10}})
+    assert parsed_doc[:effective_delivery_policy] == ~s({"healthyRetryPolicy":{"numRetries":10}})
+    assert parsed_doc[:subscription_arn] == "arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca"
+    assert parsed_doc[:confirmation_was_authenticated] == true
+  end
+
+  test "#parsing a set_subscription_attributes response" do
+    rsp = """
+      <SetSubscriptionAttributesResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ResponseMetadata>
+          <RequestId>a8763b99-33a7-11df-a9b7-05d48da6f042</RequestId>
+        </ResponseMetadata>
+      </SetSubscriptionAttributesResponse> 
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :set_subscription_attributes)
+    assert parsed_doc[:request_id] == "a8763b99-33a7-11df-a9b7-05d48da6f042"
+  end
+
 
   test "#parsing a get_endpoint_attributes response" do
     rsp = """
