@@ -9,8 +9,13 @@ defmodule ExAws.KMSTest do
     assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
   end
 
+  test "#disable_key_rotation" do
+    assert {:ok, %{}} = key_arn |> ExAws.KMS.disable_key_rotation |> ExAws.request
+  end
+
   test "#enable_key_rotation" do
-    assert {:ok, %{"KeyRotationEnabled" => true}} = key_arn |> ExAws.KMS.enable_key_rotation |> ExAws.request
+    assert {:ok, %{"KeyRotationEnabled" => bool}} = key_arn |> ExAws.KMS.enable_key_rotation |> ExAws.request
+    assert is_boolean(bool)
   end
 
   test "#get_key_rotation_status" do
