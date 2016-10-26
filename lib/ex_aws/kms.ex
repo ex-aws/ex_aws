@@ -7,6 +7,17 @@ defmodule ExAws.KMS do
 
   @version "2014-11-01"
 
+  def enable_key_rotation(key_id, opts \\[]) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "EnableKeyRotation",
+          "Version" => @version,
+          "KeyId"   => key_id})
+
+    request(:get_key_rotation_status, query_params)
+  end
+
   def get_key_rotation_status(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
