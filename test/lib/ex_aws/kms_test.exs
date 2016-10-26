@@ -1,13 +1,21 @@
 defmodule ExAws.KMSTest do
   use ExUnit.Case, async: true
 
+  defp key_arn do
+    System.get_env("AWS_KEY_ARN")
+  end
+
   test "#list_keys" do
     assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
   end
 
-  test "#generate_data_key and #decrypt" do
-    key_arn = System.get_env("AWS_KEY_ARN")
+  test "#get_key_rotation_statuso" do
+    assert {:ok, %{"KeyRotationEnabled" => bool }} = key_arn |> ExAws.KMS.get_key_rotation_status |> ExAws.request
+    assert {:ok, %{"KeyRotationEnabled" => bool}} = key_arn |> ExAws.KMS.get_key_rotation_status |> ExAws.request
+    assert is_boolean(bool)
+  end
 
+  test "#generate_data_key and #decrypt" do
     assert {:ok, %{"CiphertextBlob" => ciphertext,
                    "KeyId" => key_id,
                    "Plaintext" => plaintext}} = ExAws.KMS.generate_data_key(key_arn) |> ExAws.request
