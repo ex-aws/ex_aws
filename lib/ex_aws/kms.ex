@@ -7,6 +7,17 @@ defmodule ExAws.KMS do
 
   @version "2014-11-01"
 
+  def describe_key(key_id, opts \\[]) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "DescribeKey",
+          "Version" => @version,
+          "KeyId"   => key_id})
+
+    request(:describe_key, query_params)
+  end
+
   def disable_key_rotation(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts

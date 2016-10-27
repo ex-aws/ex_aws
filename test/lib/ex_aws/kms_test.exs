@@ -5,6 +5,10 @@ defmodule ExAws.KMSTest do
     System.get_env("AWS_KEY_ARN")
   end
 
+  test "#describe_key" do
+    assert {:ok, %{"KeyMetadata" => _}} = key_arn |> ExAws.KMS.describe_key |> ExAws.request
+  end
+
   test "#list_keys" do
     assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
   end
