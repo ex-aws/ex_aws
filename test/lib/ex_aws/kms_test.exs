@@ -97,7 +97,19 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.delete_alias(alias_name)
   end
 
-  # DeleteImportedKeyMaterial
+  test "DeleteImportedKeyMaterial" do
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "DeleteImportedKeyMaterial",
+                                         "KeyId"   => key_arn,
+                                         "Version" => @version},
+                                 headers: [{"x-amz-target", "TrentService.DeleteImportedKeyMaterial"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.delete_imported_key_material(key_arn)
+  end
 
   test "#describe_key" do
     assert {:ok, %{"KeyMetadata" => _}} = key_arn |> ExAws.KMS.describe_key |> ExAws.request

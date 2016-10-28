@@ -41,6 +41,17 @@ defmodule ExAws.KMS do
     request(:delete_alias, query_params)
   end
 
+  def delete_imported_key_material(key_id, opts \\[]) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "DeleteImportedKeyMaterial",
+          "Version" => @version,
+          "KeyId"   => key_id})
+
+    request(:delete_imported_key_material, query_params)
+  end
+
   def describe_key(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
