@@ -40,7 +40,21 @@ defmodule ExAws.KMSTest do
 
   # CreateGrant
   # CreateKey
-  # Dfined: Decrypt
+
+  test "Decrypt" do
+    ciphertext = "ciphertext"
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"         => "Decrypt",
+                                         "CiphertextBlob" => ciphertext,
+                                         "Version"        => @version},
+                                 headers: [{"x-amz-target", "TrentService.Decrypt"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.decrypt(ciphertext)
+  end
 
   test "DeleteAlias" do
     alias_name = "alias name"
