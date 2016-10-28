@@ -156,7 +156,7 @@ defmodule ExAws.KMS do
     request(:get_key_policy, query_params)
   end
 
-  def get_key_rotation_status(key_id, opts \\[]) do
+  def get_key_rotation_status(key_id, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -167,7 +167,17 @@ defmodule ExAws.KMS do
     request(:get_key_rotation_status, query_params)
   end
 
-  def decrypt(ciphertext, opts \\[]) do
+  def create_key(opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "CreateKey",
+          "Version" => @version})
+
+    request(:create_key, query_params)
+  end
+
+  def decrypt(ciphertext, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{

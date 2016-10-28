@@ -39,7 +39,19 @@ defmodule ExAws.KMSTest do
   end
 
   # CreateGrant
-  # CreateKey
+
+  test "CreateKey" do
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "CreateKey",
+                                         "Version" => @version},
+                                 headers: [{"x-amz-target", "TrentService.CreateKey"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.create_key
+  end
 
   test "Decrypt" do
     ciphertext = "ciphertext"
