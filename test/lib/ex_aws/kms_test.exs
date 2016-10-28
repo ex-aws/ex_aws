@@ -271,19 +271,18 @@ defmodule ExAws.KMSTest do
   end
 
   test "ReEncrypt" do
-    assert {:ok, %{"CiphertextBlob" => ciphertext,
-                   "KeyId"          => key_id,
-                   "Plaintext"      => _plaintext}} = ExAws.KMS.generate_data_key(key_arn) |> ExAws.request
-
-    new_key_id = System.get_env("AWS_KEY_ARN_2")
-
-    assert {:ok, %{"CiphertextBlob" => re_encrypted_ciphertext,
-                   "KeyId"          => re_encrypted_key_id,
-                   "SourceKeyId"    => old_key_id}} = ExAws.KMS.re_encrypt(ciphertext, new_key_id) |> ExAws.request
-
-    assert key_id == old_key_id
-    assert ciphertext != re_encrypted_ciphertext
-    assert key_id != re_encrypted_key_id
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"           => "ReEncrypt",
+                                         "CiphertextBlob"   => "ciphertext",
+                                         "DestinationKeyId" => "key-id",
+                                         "Version"          => @version},
+                                 headers: [{"x-amz-target", "TrentService.ReEncrypt"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.re_encrypt("ciphertext", "key-id")
   end
 
   test "RetireGrant .retire_grant/1 use grant token" do
@@ -298,7 +297,6 @@ defmodule ExAws.KMSTest do
                                  path: "/",
                                  service: :kms,
                                  stream_builder: nil} = ExAws.KMS.retire_grant(grant_token: "grant-token")
-
   end
 
   test "RetireGrant .retire_grant/1 use grant id and key id" do
@@ -390,8 +388,17 @@ defmodule ExAws.KMSTest do
   end
 
   test "UpdateKeyDescription" do
-    description = "for development2 dev2"
-    update_key = System.get_env("AWS_KEY_ARN_2")
-    assert {:ok, %{}} = ExAws.KMS.update_key_description(description, update_key) |> ExAws.request
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"      => "UpdateKeyDescription",
+                                         "Description" => "description",
+                                         "KeyId"       => "key-id",
+                                         "Version"     => @version},
+                                 headers: [{"x-amz-target", "TrentService.UpdateKeyDescription"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.update_key_description("description", "key-id")
   end
 end
