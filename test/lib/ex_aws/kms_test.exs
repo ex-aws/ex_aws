@@ -106,30 +106,30 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.delete_imported_key_material("key-id")
   end
 
-  test "#describe_key" do
+  test "DescribeKey" do
     assert {:ok, %{"KeyMetadata" => _}} = key_arn |> ExAws.KMS.describe_key |> ExAws.request
   end
 
-  test "#disable_key" do
+  test "DisableKey" do
     key_id = System.get_env("AWS_KEY_ARN_2")
     assert {:ok, %{}} = key_id |> ExAws.KMS.disable_key |> ExAws.request
   end
 
-  test "#disable_key_rotation" do
+  test "DisableKeyRotation" do
     assert {:ok, %{}} = key_arn |> ExAws.KMS.disable_key_rotation |> ExAws.request
   end
 
-  test "#enable_key" do
+  test "EnableKey" do
     key_id = System.get_env("AWS_KEY_ARN_2")
     assert {:ok, %{}} = key_id |> ExAws.KMS.enable_key |> ExAws.request
   end
 
-  test "#enable_key_rotation" do
+  test "EnableKeyRotation" do
     assert {:ok, %{"KeyRotationEnabled" => bool}} = key_arn |> ExAws.KMS.enable_key_rotation |> ExAws.request
     assert is_boolean(bool)
   end
 
-  test "#encrypt" do
+  test "Encrypt" do
     plaintext = Base.encode64("foobar")
     assert {:ok, %{"CiphertextBlob" => ciphertext,
                    "KeyId"          => key_id}} = ExAws.KMS.encrypt(key_arn, plaintext) |> ExAws.request
@@ -137,7 +137,7 @@ defmodule ExAws.KMSTest do
     assert ciphertext != Base.decode64(ciphertext)
   end
 
-  test "#generate_data_key and #decrypt" do
+  test "GenerateDataKey and Decrypt" do
     assert {:ok, %{"CiphertextBlob" => ciphertext,
                    "KeyId" => key_id,
                    "Plaintext" => plaintext}} = ExAws.KMS.generate_data_key(key_arn) |> ExAws.request
@@ -157,13 +157,13 @@ defmodule ExAws.KMSTest do
     assert "hello" == :crypto.block_decrypt(:aes_gcm, key, iv, {"", encrypt_ciphertext, encrypt_ciphertag})
   end
 
-  test "#generate_data_key_without_plaintext" do
+  test "GenerateDataKeyWithoutPlaintext" do
     assert {:ok, %{"CiphertextBlob" => _blob,
                    "KeyId"          => _key_id}} = key_arn |> ExAws.KMS.generate_data_key_without_plaintext |> ExAws.request
 
   end
 
-  test "#generate_random" do
+  test "GenerateRandom" do
     assert {:ok, %{"Plaintext" => blob}} = 32 |> ExAws.KMS.generate_random |> ExAws.request
     assert {:ok, data} = Base.decode64(blob)
     assert byte_size(data) == 32
@@ -184,7 +184,7 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.get_key_policy("key-id", "policy-name")
   end
 
-  test "#get_key_rotation_status" do
+  test "GetKeyRotationStatus" do
     assert {:ok, %{"KeyRotationEnabled" => bool}} = key_arn |> ExAws.KMS.get_key_rotation_status |> ExAws.request
     assert is_boolean(bool)
   end
@@ -221,26 +221,26 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.import_key_material("encrypted-key-material", "import-token", "key-id")
   end
 
-  test "#list_aliases" do
+  test "ListAliases" do
     assert {:ok, %{"Aliases" => _, "Truncated" => bool}} = ExAws.KMS.list_aliases |> ExAws.request
     assert is_boolean(bool)
   end
 
-  test "#list_grants" do
+  test "ListGrants" do
     assert {:ok, %{"Grants" => _, "Truncated" => bool}} = key_arn |> ExAws.KMS.list_grants |> ExAws.request
     assert is_boolean(bool)
   end
 
-  test "#list_key_policies" do
+  test "ListKeyPolicies" do
     assert {:ok, %{"PolicyNames" => _policy_name, "Truncated" => bool}} = key_arn |> ExAws.KMS.list_key_policies |> ExAws.request
     assert is_boolean(bool)
   end
 
-  test "#list_keys" do
+  test "ListKeys" do
     assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
   end
 
-  test "#list_retirable_grants" do
+  test "ListRetirableGrants" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"            => "ListRetirableGrants",
                                          "RetiringPrincipal" => "retiring-principal",
@@ -270,7 +270,7 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.put_key_policy("key-id", "policy", "policy-name")
   end
 
-  test "#re_encrypt" do
+  test "ReEncrypt" do
     assert {:ok, %{"CiphertextBlob" => ciphertext,
                    "KeyId"          => key_id,
                    "Plaintext"      => _plaintext}} = ExAws.KMS.generate_data_key(key_arn) |> ExAws.request
@@ -286,7 +286,7 @@ defmodule ExAws.KMSTest do
     assert key_id != re_encrypted_key_id
   end
 
-  test ".retire_grant/1 use grant token" do
+  test "RetireGrant .retire_grant/1 use grant token" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "RetireGrant",
                                          "GrantToken" => "grant-token",
@@ -301,7 +301,7 @@ defmodule ExAws.KMSTest do
 
   end
 
-  test ".retire_grant/1 use grant id and key id" do
+  test "RetireGrant .retire_grant/1 use grant id and key id" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "RetireGrant",
                                          "GrantId" => 123,
@@ -316,7 +316,7 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.retire_grant(grant_id: 123, key_id: "key-id")
   end
 
-  test ".retire_grant/2" do
+  test "RetireGrant .retire_grant/2" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "RetireGrant",
                                          "GrantToken" => "grant-token",
@@ -330,7 +330,7 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.retire_grant("grant-token")
   end
 
-  test ".retire_grant/3" do
+  test "RetireGrant .retire_grant/3" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "RetireGrant",
                                          "GrantId" => 123,
@@ -389,7 +389,7 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.update_alias("alias_name", "target_key_id")
   end
 
-  test "#update_key_description" do
+  test "UpdateKeyDescription" do
     description = "for development2 dev2"
     update_key = System.get_env("AWS_KEY_ARN_2")
     assert {:ok, %{}} = ExAws.KMS.update_key_description(description, update_key) |> ExAws.request
