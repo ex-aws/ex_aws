@@ -167,6 +167,19 @@ defmodule ExAws.KMS do
     request(:get_key_rotation_status, query_params)
   end
 
+  def get_parameters_for_import(key_id, wrapping_algorithm \\ "RSAES_PKCS1_V1_5", wrapping_key_spec \\ "RSA_2048", opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"            => "GetParametersForImport",
+          "Version"           => @version,
+          "KeyId"             => key_id,
+          "WrappingAlgorithm" => wrapping_algorithm,
+          "WrappingKeySpec"   => wrapping_key_spec})
+
+    request(:get_parameters_for_import, query_params)
+  end
+
   def create_grant(grantee_principal, key_id, opts \\ []) do
     query_params = opts
     |> normalize_opts

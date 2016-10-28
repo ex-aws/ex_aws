@@ -183,7 +183,22 @@ defmodule ExAws.KMSTest do
     assert is_boolean(bool)
   end
 
-  # GetParametersForImport
+  test "GetParametersForImport" do
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"            => "GetParametersForImport",
+                                         "KeyId"             => key_arn,
+                                         "WrappingAlgorithm" => "RSAES_PKCS1_V1_5",
+                                         "WrappingKeySpec"   => "RSA_2048",
+                                         "Version"           => @version},
+                                 headers: [{"x-amz-target", "TrentService.GetParametersForImport"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.get_parameters_for_import(key_arn)
+  end
+
   # ImportKeyMaterial
 
   test "#list_aliases" do
