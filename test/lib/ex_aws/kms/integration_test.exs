@@ -6,6 +6,11 @@ defmodule ExAws.KMSIntegratinTest do
   end
 
   if System.get_env("AWS_KEY_ARN") do
+
+    test "ListKeys" do
+      assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
+    end
+
     test "UpdateKeyDescription" do
       description = "ex_aws test key"
       assert {:ok, %{}} = ExAws.KMS.update_key_description(description, key_id) |> ExAws.request

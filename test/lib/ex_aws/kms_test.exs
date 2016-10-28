@@ -237,7 +237,16 @@ defmodule ExAws.KMSTest do
   end
 
   test "ListKeys" do
-    assert {:ok, %{"Keys" => _keys}} = ExAws.KMS.list_keys |> ExAws.request
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"            => "ListKeys",
+                                         "Version"           => @version},
+                                 headers: [{"x-amz-target", "TrentService.ListKeys"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.list_keys
   end
 
   test "ListRetirableGrants" do
