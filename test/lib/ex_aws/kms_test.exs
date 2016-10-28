@@ -38,7 +38,21 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.create_alias(alias_name, key_arn)
   end
 
-  # CreateGrant
+  test "CreateGrant" do
+    grantee_principal = "grantee principal"
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"            => "CreateGrant",
+                                          "Version"          => @version,
+                                          "GranteePrincipal" => grantee_principal,
+                                          "KeyId"            => key_arn},
+                                 headers: [{"x-amz-target", "TrentService.CreateGrant"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.create_grant(grantee_principal, key_arn)
+  end
 
   test "CreateKey" do
     assert %ExAws.Operation.JSON{before_request: nil,

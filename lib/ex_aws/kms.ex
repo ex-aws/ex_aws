@@ -167,6 +167,18 @@ defmodule ExAws.KMS do
     request(:get_key_rotation_status, query_params)
   end
 
+  def create_grant(grantee_principal, key_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"           => "CreateGrant",
+          "Version"          => @version,
+          "GranteePrincipal" => grantee_principal,
+          "KeyId"            => key_id})
+
+    request(:create_grant, query_params)
+  end
+
   def create_key(opts \\ []) do
     query_params = opts
     |> normalize_opts
