@@ -199,7 +199,23 @@ defmodule ExAws.KMSTest do
                                  stream_builder: nil} = ExAws.KMS.get_parameters_for_import(key_arn)
   end
 
-  # ImportKeyMaterial
+  test "ImportKeyMaterial" do
+    encrypted_key_material = "The encrypted key material"
+    import_token = "The import token"
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"               => "ImportKeyMaterial",
+                                         "EncryptedKeyMaterial" => encrypted_key_material,
+                                         "ImportToken"          => import_token,
+                                         "KeyId"                => key_arn,
+                                         "Version"              => @version},
+                                 headers: [{"x-amz-target", "TrentService.ImportKeyMaterial"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.import_key_material(encrypted_key_material, import_token, key_arn)
+  end
 
   test "#list_aliases" do
     assert {:ok, %{"Aliases" => _, "Truncated" => bool}} = ExAws.KMS.list_aliases |> ExAws.request

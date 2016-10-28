@@ -214,6 +214,19 @@ defmodule ExAws.KMS do
     request(:decrypt, query_params)
   end
 
+  def import_key_material(encrypted_key_material, import_token, key_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"               => "ImportKeyMaterial",
+          "Version"              => @version,
+          "EncryptedKeyMaterial" => encrypted_key_material,
+          "ImportToken"          => import_token,
+          "KeyId"                => key_id})
+
+    request(:import_key_material, query_params)
+  end
+
   def list_aliases(opts \\ []) do
     query_params = opts
     |> normalize_opts
