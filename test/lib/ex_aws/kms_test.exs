@@ -10,7 +10,7 @@ defmodule ExAws.KMSTest do
   test "CancelKeyDeletion" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "CancelKeyDeletion",
-                                         "KeyId"      => key_arn,
+                                         "KeyId"      => "key-id",
                                          "Version"    => @version},
                                  headers: [{"x-amz-target", "TrentService.CancelKeyDeletion"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -18,16 +18,14 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.cancel_key_deletion(key_arn)
+                                 stream_builder: nil} = ExAws.KMS.cancel_key_deletion("key-id")
   end
 
   test "CreateAlias" do
-    alias_name ="alias name"
-
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"      => "CreateAlias",
-                                         "AliasName"   => alias_name,
-                                         "TargetKeyId" => key_arn,
+                                         "AliasName"   => "alias-name",
+                                         "TargetKeyId" => "key-id",
                                          "Version"     => @version},
                                  headers: [{"x-amz-target", "TrentService.CreateAlias"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -35,23 +33,22 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.create_alias(alias_name, key_arn)
+                                 stream_builder: nil} = ExAws.KMS.create_alias("alias-name", "key-id")
   end
 
   test "CreateGrant" do
-    grantee_principal = "grantee principal"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"            => "CreateGrant",
                                           "Version"          => @version,
-                                          "GranteePrincipal" => grantee_principal,
-                                          "KeyId"            => key_arn},
+                                          "GranteePrincipal" => "grantee-principal",
+                                          "KeyId"            => "key-id"},
                                  headers: [{"x-amz-target", "TrentService.CreateGrant"},
                                            {"content-type", "application/x-amz-json-1.0"}],
                                  http_method: :post,
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.create_grant(grantee_principal, key_arn)
+                                 stream_builder: nil} = ExAws.KMS.create_grant("grantee-principal", "key-id")
   end
 
   test "CreateKey" do
@@ -68,10 +65,9 @@ defmodule ExAws.KMSTest do
   end
 
   test "Decrypt" do
-    ciphertext = "ciphertext"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"         => "Decrypt",
-                                         "CiphertextBlob" => ciphertext,
+                                         "CiphertextBlob" => "ciphertext",
                                          "Version"        => @version},
                                  headers: [{"x-amz-target", "TrentService.Decrypt"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -79,14 +75,13 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.decrypt(ciphertext)
+                                 stream_builder: nil} = ExAws.KMS.decrypt("ciphertext")
   end
 
   test "DeleteAlias" do
-    alias_name = "alias name"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"    => "DeleteAlias",
-                                         "AliasName" => alias_name,
+                                         "AliasName" => "alias-name",
                                          "Version"   => @version},
                                  headers: [{"x-amz-target", "TrentService.DeleteAlias"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -94,13 +89,13 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.delete_alias(alias_name)
+                                 stream_builder: nil} = ExAws.KMS.delete_alias("alias-name")
   end
 
   test "DeleteImportedKeyMaterial" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "DeleteImportedKeyMaterial",
-                                         "KeyId"   => key_arn,
+                                         "KeyId"   => "key-id",
                                          "Version" => @version},
                                  headers: [{"x-amz-target", "TrentService.DeleteImportedKeyMaterial"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -108,7 +103,7 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.delete_imported_key_material(key_arn)
+                                 stream_builder: nil} = ExAws.KMS.delete_imported_key_material("key-id")
   end
 
   test "#describe_key" do
@@ -175,11 +170,10 @@ defmodule ExAws.KMSTest do
   end
 
   test "GetKeyPolicy" do
-    policy_name = "policy name"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "GetKeyPolicy",
-                                         "KeyId"      => key_arn,
-                                         "PolicyName" => policy_name,
+                                         "KeyId"      => "key-id",
+                                         "PolicyName" => "policy-name",
                                          "Version"    => @version},
                                  headers: [{"x-amz-target", "TrentService.GetKeyPolicy"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -187,7 +181,7 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.get_key_policy(key_arn, policy_name)
+                                 stream_builder: nil} = ExAws.KMS.get_key_policy("key-id", "policy-name")
   end
 
   test "#get_key_rotation_status" do
@@ -198,7 +192,7 @@ defmodule ExAws.KMSTest do
   test "GetParametersForImport" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"            => "GetParametersForImport",
-                                         "KeyId"             => key_arn,
+                                         "KeyId"             => "key-id",
                                          "WrappingAlgorithm" => "RSAES_PKCS1_V1_5",
                                          "WrappingKeySpec"   => "RSA_2048",
                                          "Version"           => @version},
@@ -208,17 +202,15 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.get_parameters_for_import(key_arn)
+                                 stream_builder: nil} = ExAws.KMS.get_parameters_for_import("key-id")
   end
 
   test "ImportKeyMaterial" do
-    encrypted_key_material = "The encrypted key material"
-    import_token = "The import token"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"               => "ImportKeyMaterial",
-                                         "EncryptedKeyMaterial" => encrypted_key_material,
-                                         "ImportToken"          => import_token,
-                                         "KeyId"                => key_arn,
+                                         "EncryptedKeyMaterial" => "encrypted-key-material",
+                                         "ImportToken"          => "import-token",
+                                         "KeyId"                => "key-id",
                                          "Version"              => @version},
                                  headers: [{"x-amz-target", "TrentService.ImportKeyMaterial"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -226,7 +218,7 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.import_key_material(encrypted_key_material, import_token, key_arn)
+                                 stream_builder: nil} = ExAws.KMS.import_key_material("encrypted-key-material", "import-token", "key-id")
   end
 
   test "#list_aliases" do
@@ -249,11 +241,9 @@ defmodule ExAws.KMSTest do
   end
 
   test "#list_retirable_grants" do
-    retiring_principal = "arn"
-
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"            => "ListRetirableGrants",
-                                         "RetiringPrincipal" => retiring_principal,
+                                         "RetiringPrincipal" => "retiring-principal",
                                          "Version"           => @version},
                                  headers: [{"x-amz-target", "TrentService.ListRetirableGrants"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -261,17 +251,15 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.list_retirable_grants(retiring_principal)
+                                 stream_builder: nil} = ExAws.KMS.list_retirable_grants("retiring-principal")
   end
 
   test "PutKeyPolicy" do
-    policy = "json policy"
-    policy_name = "test policy"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "PutKeyPolicy",
-                                         "KeyId"      => key_arn,
-                                         "Policy"     => policy,
-                                         "PolicyName" => policy_name,
+                                         "KeyId"      => "key-id",
+                                         "Policy"     => "policy",
+                                         "PolicyName" => "policy-name",
                                          "Version"    => @version},
                                  headers: [{"x-amz-target", "TrentService.PutKeyPolicy"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -279,7 +267,7 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.put_key_policy(key_arn, policy, policy_name)
+                                 stream_builder: nil} = ExAws.KMS.put_key_policy("key-id", "policy", "policy-name")
   end
 
   test "#re_encrypt" do
@@ -299,10 +287,9 @@ defmodule ExAws.KMSTest do
   end
 
   test ".retire_grant/1 use grant token" do
-    grant_token = "grant token"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "RetireGrant",
-                                         "GrantToken" => grant_token,
+                                         "GrantToken" => "grant-token",
                                          "Version"    => @version},
                                  headers: [{"x-amz-target", "TrentService.RetireGrant"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -310,16 +297,15 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.retire_grant(grant_token: grant_token)
+                                 stream_builder: nil} = ExAws.KMS.retire_grant(grant_token: "grant-token")
 
   end
 
   test ".retire_grant/1 use grant id and key id" do
-    grant_id = 1
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "RetireGrant",
-                                         "GrantId" => grant_id,
-                                         "KeyId"   => key_arn,
+                                         "GrantId" => 123,
+                                         "KeyId"   => "key-id",
                                          "Version" => @version},
                                  headers: [{"x-amz-target", "TrentService.RetireGrant"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -327,14 +313,13 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.retire_grant(grant_id: grant_id, key_id: key_arn)
+                                 stream_builder: nil} = ExAws.KMS.retire_grant(grant_id: 123, key_id: "key-id")
   end
 
   test ".retire_grant/2" do
-    grant_token = "grant token"
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "RetireGrant",
-                                         "GrantToken" => grant_token,
+                                         "GrantToken" => "grant-token",
                                          "Version"    => @version},
                                  headers: [{"x-amz-target", "TrentService.RetireGrant"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -342,15 +327,14 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.retire_grant(grant_token)
+                                 stream_builder: nil} = ExAws.KMS.retire_grant("grant-token")
   end
 
   test ".retire_grant/3" do
-    grant_id = 1
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "RetireGrant",
-                                         "GrantId" => grant_id,
-                                         "KeyId"   => key_arn,
+                                         "GrantId" => 123,
+                                         "KeyId"   => "key-id",
                                          "Version" => @version},
                                  headers: [{"x-amz-target", "TrentService.RetireGrant"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -358,15 +342,14 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.retire_grant(grant_id, key_arn)
+                                 stream_builder: nil} = ExAws.KMS.retire_grant(123, "key-id")
   end
 
   test "RevokeGrant" do
-    grant_id = 1
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "RevokeGrant",
-                                         "GrantId" => grant_id,
-                                         "KeyId"   => key_arn,
+                                         "GrantId" => 123,
+                                         "KeyId"   => "key-id",
                                          "Version" => @version},
                                  headers: [{"x-amz-target", "TrentService.RevokeGrant"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -374,13 +357,13 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.revoke_grant(grant_id, key_arn)
+                                 stream_builder: nil} = ExAws.KMS.revoke_grant(123, "key-id")
   end
 
   test "ScheduleKeyDeletion" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "ScheduleKeyDeletion",
-                                         "KeyId"   => key_arn,
+                                         "KeyId"   => "key-id",
                                          "Version" => @version},
                                  headers: [{"x-amz-target", "TrentService.ScheduleKeyDeletion"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -388,17 +371,14 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.schedule_key_deletion(key_arn)
+                                 stream_builder: nil} = ExAws.KMS.schedule_key_deletion("key-id")
   end
 
   test "UpdateAlias" do
-    alias_name = "name"
-    target_key_id = "key_id"
-
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"      => "UpdateAlias",
-                                         "AliasName"   => alias_name,
-                                         "TargetKeyId" => target_key_id,
+                                         "AliasName"   => "alias_name",
+                                         "TargetKeyId" => "target_key_id",
                                          "Version"    => @version},
                                  headers: [{"x-amz-target", "TrentService.UpdateAlias"},
                                            {"content-type", "application/x-amz-json-1.0"}],
@@ -406,7 +386,7 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.update_alias(alias_name, target_key_id)
+                                 stream_builder: nil} = ExAws.KMS.update_alias("alias_name", "target_key_id")
   end
 
   test "#update_key_description" do
