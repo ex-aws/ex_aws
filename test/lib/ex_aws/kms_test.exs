@@ -120,8 +120,17 @@ defmodule ExAws.KMSTest do
   end
 
   test "EnableKey" do
-    key_id = System.get_env("AWS_KEY_ARN_2")
-    assert {:ok, %{}} = key_id |> ExAws.KMS.enable_key |> ExAws.request
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "EnableKey",
+                                         "Version" => @version,
+                                         "KeyId"   => "key-id"},
+                                 headers: [{"x-amz-target", "TrentService.EnableKey"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.enable_key("key-id")
   end
 
   test "EnableKeyRotation" do
