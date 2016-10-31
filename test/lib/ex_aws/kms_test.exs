@@ -222,8 +222,16 @@ defmodule ExAws.KMSTest do
   end
 
   test "ListAliases" do
-    assert {:ok, %{"Aliases" => _, "Truncated" => bool}} = ExAws.KMS.list_aliases |> ExAws.request
-    assert is_boolean(bool)
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "ListAliases",
+                                         "Version" => @version},
+                                 headers: [{"x-amz-target", "TrentService.ListAliases"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.list_aliases
   end
 
   test "ListGrants" do

@@ -7,7 +7,12 @@ defmodule ExAws.KMSIntegratinTest do
 
   if System.get_env("AWS_KEY_ARN") do
 
-    test "ListGrants" do
+    test "ListAliases" do
+      assert {:ok, %{"Aliases" => _, "Truncated" => bool}} = ExAws.KMS.list_aliases |> ExAws.request
+      assert is_boolean(bool)
+    end
+
+  test "ListGrants" do
       assert {:ok, %{"Grants" => _, "Truncated" => bool}} = key_id |> ExAws.KMS.list_grants |> ExAws.request
       assert is_boolean(bool)
     end
