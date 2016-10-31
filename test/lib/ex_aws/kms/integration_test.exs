@@ -25,6 +25,10 @@ defmodule ExAws.KMSIntegratinTest do
       assert "hello" == :crypto.block_decrypt(:aes_gcm, key, iv, {"", encrypt_ciphertext, encrypt_ciphertag})
     end
 
+    test "EnableKeyRotation" do
+      assert {:ok, %{}} = key_id |> ExAws.KMS.enable_key_rotation |> ExAws.request
+    end
+
     test "Encrypt" do
       plaintext = Base.encode64("foobar")
       assert {:ok, %{"CiphertextBlob" => ciphertext,

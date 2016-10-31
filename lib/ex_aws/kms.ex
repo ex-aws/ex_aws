@@ -104,7 +104,7 @@ defmodule ExAws.KMS do
           "Version" => @version,
           "KeyId"   => key_id})
 
-    request(:get_key_rotation_status, query_params)
+    request(:enable_key_rotation, query_params)
   end
 
   def encrypt(key_id, plaintext, opts \\[]) do

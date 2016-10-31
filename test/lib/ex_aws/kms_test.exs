@@ -125,8 +125,17 @@ defmodule ExAws.KMSTest do
   end
 
   test "EnableKeyRotation" do
-    assert {:ok, %{"KeyRotationEnabled" => bool}} = key_arn |> ExAws.KMS.enable_key_rotation |> ExAws.request
-    assert is_boolean(bool)
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"    => "EnableKeyRotation",
+                                         "Version"   => @version,
+                                         "KeyId"     => "key-id"},
+                                 headers: [{"x-amz-target", "TrentService.EnableKeyRotation"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.enable_key_rotation("key-id")
   end
 
   test "Encrypt" do
