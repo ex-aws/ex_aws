@@ -30,6 +30,10 @@ defmodule ExAws.KMSIntegratinTest do
       assert "hello" == :crypto.block_decrypt(:aes_gcm, key, iv, {"", encrypt_ciphertext, encrypt_ciphertag})
     end
 
+    test "DescribeKey" do
+      assert {:ok, %{"KeyMetadata" => _}} = key_id |> ExAws.KMS.describe_key |> ExAws.request
+    end
+
     test "DisableKeyRotation" do
       assert {:ok, %{}} = key_id |> ExAws.KMS.disable_key_rotation |> ExAws.request
     end

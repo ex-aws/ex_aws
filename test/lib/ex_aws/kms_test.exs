@@ -3,10 +3,6 @@ defmodule ExAws.KMSTest do
 
   @version "2014-11-01"
 
-  defp key_arn do
-    System.get_env("AWS_KEY_ARN")
-  end
-
   test "CancelKeyDeletion" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"     => "CancelKeyDeletion",
@@ -107,7 +103,17 @@ defmodule ExAws.KMSTest do
   end
 
   test "DescribeKey" do
-    assert {:ok, %{"KeyMetadata" => _}} = key_arn |> ExAws.KMS.describe_key |> ExAws.request
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "DescribeKey",
+                                         "Version" => @version,
+                                         "KeyId"   => "key-id"},
+                                 headers: [{"x-amz-target", "TrentService.DescribeKey"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.describe_key("key-id")
   end
 
   test "DisableKey" do
