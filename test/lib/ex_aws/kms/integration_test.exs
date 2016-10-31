@@ -7,6 +7,11 @@ defmodule ExAws.KMSIntegratinTest do
 
   if System.get_env("AWS_KEY_ARN") do
 
+    test "DisableKey and EnableKey" do
+      assert {:ok, %{}} = key_id |> ExAws.KMS.disable_key |> ExAws.request
+      assert {:ok, %{}} = key_id |> ExAws.KMS.enable_key |> ExAws.request
+    end
+
     test "GenerateDataKey and Decrypt" do
       assert {:ok, %{"CiphertextBlob" => ciphertext,
                      "KeyId" => key_id,
@@ -27,10 +32,6 @@ defmodule ExAws.KMSIntegratinTest do
 
     test "DisableKeyRotation" do
       assert {:ok, %{}} = key_id |> ExAws.KMS.disable_key_rotation |> ExAws.request
-    end
-
-    test "EnableKey" do
-      assert {:ok, %{}} = key_id |> ExAws.KMS.enable_key |> ExAws.request
     end
 
     test "EnableKeyRotation" do
