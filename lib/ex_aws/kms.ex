@@ -7,6 +7,9 @@ defmodule ExAws.KMS do
 
   @version "2014-11-01"
 
+  @doc "Canel a key deletion"
+  @spec cancel_key_deletion(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec cancel_key_deletion(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def cancel_key_deletion(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -18,6 +21,9 @@ defmodule ExAws.KMS do
     request(:cancel_key_deletion, query_params)
   end
 
+  @doc "Create a alias"
+  @spec create_alias(alias_name :: binary, target_key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec create_alias(alias_name :: binary, target_key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def create_alias(alias_name, target_key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -30,6 +36,9 @@ defmodule ExAws.KMS do
     request(:create_alias, query_params)
   end
 
+  @doc "Delete a alias"
+  @spec delete_alias(alias_name :: binary) :: ExAws.Operation.JSON.t
+  @spec delete_alias(alias_name :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def delete_alias(alias_name, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -41,6 +50,9 @@ defmodule ExAws.KMS do
     request(:delete_alias, query_params)
   end
 
+  @doc "Delete a imported key material"
+  @spec delete_imported_key_material(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec delete_imported_key_material(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def delete_imported_key_material(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -52,6 +64,9 @@ defmodule ExAws.KMS do
     request(:delete_imported_key_material, query_params)
   end
 
+  @doc "Describe a key"
+  @spec describe_key(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec describe_key(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def describe_key(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -63,6 +78,9 @@ defmodule ExAws.KMS do
     request(:describe_key, query_params)
   end
 
+  @doc "Disable a key"
+  @spec disable_key(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec disable_key(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def disable_key(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -74,6 +92,9 @@ defmodule ExAws.KMS do
     request(:disable_key, query_params)
   end
 
+  @doc "Disable a key rotation"
+  @spec disable_key_rotation(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec disable_key_rotation(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def disable_key_rotation(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -85,6 +106,9 @@ defmodule ExAws.KMS do
     request(:disable_key_rotation, query_params)
   end
 
+  @doc "Enable a key"
+  @spec enable_key(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec enable_key(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def enable_key(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -96,6 +120,9 @@ defmodule ExAws.KMS do
     request(:enable_key, query_params)
   end
 
+  @doc "Enable a key rotation"
+  @spec enable_key_rotation(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec enable_key_rotation(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def enable_key_rotation(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -107,6 +134,9 @@ defmodule ExAws.KMS do
     request(:enable_key_rotation, query_params)
   end
 
+  @doc "Encrypt a data by a key"
+  @spec encrypt(key_id :: binary, plaintext :: binary) :: ExAws.Operation.JSON.t
+  @spec encrypt(key_id :: binary, plaintext :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def encrypt(key_id, plaintext, opts \\[]) do
     query_params = opts
     |> normalize_opts
@@ -119,6 +149,9 @@ defmodule ExAws.KMS do
     request(:encrypt, query_params)
   end
 
+  @doc "Generate a data key"
+  @spec generate_data_key(key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec generate_data_key(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
   def generate_data_key(key_id, opts \\[]) do
     query_params = opts
     |> normalize_opts
