@@ -227,8 +227,17 @@ defmodule ExAws.KMSTest do
   end
 
   test "ListGrants" do
-    assert {:ok, %{"Grants" => _, "Truncated" => bool}} = key_arn |> ExAws.KMS.list_grants |> ExAws.request
-    assert is_boolean(bool)
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "ListGrants",
+                                         "Version" => @version,
+                                         "KeyId"   => "key-id"},
+                                 headers: [{"x-amz-target", "TrentService.ListGrants"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.list_grants("key-id")
   end
 
   test "ListKeyPolicies" do
