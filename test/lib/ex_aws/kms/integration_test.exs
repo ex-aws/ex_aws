@@ -25,6 +25,14 @@ defmodule ExAws.KMSIntegratinTest do
       assert "hello" == :crypto.block_decrypt(:aes_gcm, key, iv, {"", encrypt_ciphertext, encrypt_ciphertag})
     end
 
+    test "Encrypt" do
+      plaintext = Base.encode64("foobar")
+      assert {:ok, %{"CiphertextBlob" => ciphertext,
+                     "KeyId"          => key_arn}} = ExAws.KMS.encrypt(key_id, plaintext) |> ExAws.request
+      assert key_arn == key_id
+      assert ciphertext != Base.decode64(ciphertext)
+    end
+
     test "GenerateDataKeyWithoutPlaintext" do
       assert {:ok, %{"CiphertextBlob" => _blob,
                      "KeyId"          => _key_id}} = key_id |> ExAws.KMS.generate_data_key_without_plaintext |> ExAws.request

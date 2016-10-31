@@ -130,11 +130,18 @@ defmodule ExAws.KMSTest do
   end
 
   test "Encrypt" do
-    plaintext = Base.encode64("foobar")
-    assert {:ok, %{"CiphertextBlob" => ciphertext,
-                   "KeyId"          => key_id}} = ExAws.KMS.encrypt(key_arn, plaintext) |> ExAws.request
-    assert key_id == key_arn
-    assert ciphertext != Base.decode64(ciphertext)
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"    => "Encrypt",
+                                         "Version"   => @version,
+                                         "KeyId"     => "key-id",
+                                         "Plaintext" => "plaintext"},
+                                 headers: [{"x-amz-target", "TrentService.Encrypt"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.encrypt("key-id", "plaintext")
   end
 
   test "GenerateDataKey" do
