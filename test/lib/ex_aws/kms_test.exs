@@ -158,9 +158,17 @@ defmodule ExAws.KMSTest do
   end
 
   test "GenerateDataKeyWithoutPlaintext" do
-    assert {:ok, %{"CiphertextBlob" => _blob,
-                   "KeyId"          => _key_id}} = key_arn |> ExAws.KMS.generate_data_key_without_plaintext |> ExAws.request
-
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "GenerateDataKeyWithoutPlaintext",
+                                         "Version" => @version,
+                                         "KeyId"   => "key-id"},
+                                 headers: [{"x-amz-target", "TrentService.GenerateDataKeyWithoutPlaintext"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.generate_data_key_without_plaintext("key-id")
   end
 
   test "GenerateRandom" do

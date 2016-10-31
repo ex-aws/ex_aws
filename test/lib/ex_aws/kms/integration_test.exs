@@ -7,6 +7,11 @@ defmodule ExAws.KMSIntegratinTest do
 
   if System.get_env("AWS_KEY_ARN") do
 
+    test "GenerateDataKeyWithoutPlaintext" do
+      assert {:ok, %{"CiphertextBlob" => _blob,
+                     "KeyId"          => _key_id}} = key_id |> ExAws.KMS.generate_data_key_without_plaintext |> ExAws.request
+    end
+
     test "GenerateRandom" do
       assert {:ok, %{"Plaintext" => blob}} = 32 |> ExAws.KMS.generate_random |> ExAws.request
       assert {:ok, data} = Base.decode64(blob)
