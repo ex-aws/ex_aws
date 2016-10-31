@@ -7,6 +7,7 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.Dynamo`
 - `ExAws.EC2`
 - `ExAws.Kinesis`
+- `ExAws.Kms`
 - `ExAws.Lambda`
 - `ExAws.RDS`
 - `ExAws.S3`
@@ -73,6 +74,7 @@ Add ex_aws to your mix.exs, along with your json parser and http client of choic
 
 - Dynamo: json
 - Kinesis: json
+- Kms: json
 - Lambda: json
 - SQS: xml
 - S3: xml
