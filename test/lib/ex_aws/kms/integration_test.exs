@@ -7,17 +7,23 @@ defmodule ExAws.KMSIntegratinTest do
 
   if System.get_env("AWS_KEY_ARN") do
 
+    test "GenerateRandom" do
+      assert {:ok, %{"Plaintext" => blob}} = 32 |> ExAws.KMS.generate_random |> ExAws.request
+      assert {:ok, data} = Base.decode64(blob)
+      assert byte_size(data) == 32
+    end
+
     test "GetKeyRotationStatus" do
       assert {:ok, %{"KeyRotationEnabled" => bool}} = key_id |> ExAws.KMS.get_key_rotation_status |> ExAws.request
       assert is_boolean(bool)
     end
 
-  test "ListAliases" do
-    assert {:ok, %{"Aliases" => _, "Truncated" => bool}} = ExAws.KMS.list_aliases |> ExAws.request
-    assert is_boolean(bool)
-  end
+    test "ListAliases" do
+      assert {:ok, %{"Aliases" => _, "Truncated" => bool}} = ExAws.KMS.list_aliases |> ExAws.request
+      assert is_boolean(bool)
+    end
 
-  test "ListGrants" do
+    test "ListGrants" do
       assert {:ok, %{"Grants" => _, "Truncated" => bool}} = key_id |> ExAws.KMS.list_grants |> ExAws.request
       assert is_boolean(bool)
     end

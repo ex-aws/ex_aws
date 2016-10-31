@@ -39,9 +39,9 @@ defmodule ExAws.KMSTest do
   test "CreateGrant" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"            => "CreateGrant",
-                                          "Version"          => @version,
-                                          "GranteePrincipal" => "grantee-principal",
-                                          "KeyId"            => "key-id"},
+                                         "Version"          => @version,
+                                         "GranteePrincipal" => "grantee-principal",
+                                         "KeyId"            => "key-id"},
                                  headers: [{"x-amz-target", "TrentService.CreateGrant"},
                                            {"content-type", "application/x-amz-json-1.0"}],
                                  http_method: :post,
@@ -164,9 +164,17 @@ defmodule ExAws.KMSTest do
   end
 
   test "GenerateRandom" do
-    assert {:ok, %{"Plaintext" => blob}} = 32 |> ExAws.KMS.generate_random |> ExAws.request
-    assert {:ok, data} = Base.decode64(blob)
-    assert byte_size(data) == 32
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"        => "GenerateRandom",
+                                         "Version"       => @version,
+                                         "NumberOfBytes" => 32},
+                                 headers: [{"x-amz-target", "TrentService.GenerateRandom"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.generate_random(32)
   end
 
   test "GetKeyPolicy" do
