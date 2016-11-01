@@ -114,6 +114,19 @@ defmodule ExAws.KMSTest do
                                  path: "/",
                                  service: :kms,
                                  stream_builder: nil} = ExAws.KMS.describe_key("key-id")
+
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "DescribeKey",
+                                         "Version" => @version,
+                                         "KeyId"   => "key-id",
+                                         "GrantTokens" => ["list"]},
+                                 headers: [{"x-amz-target", "TrentService.DescribeKey"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.describe_key("key-id", grant_tokens: ["list"])
   end
 
   test "DisableKey" do
@@ -128,6 +141,19 @@ defmodule ExAws.KMSTest do
                                  path: "/",
                                  service: :kms,
                                  stream_builder: nil} = ExAws.KMS.disable_key("key-id")
+
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"  => "DisableKey",
+                                         "Version" => @version,
+                                         "KeyId"   => "key-id",
+                                         "GrantTokens" => ["list"]},
+                                 headers: [{"x-amz-target", "TrentService.DisableKey"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.disable_key("key-id", grant_tokens: ["list"])
   end
 
   test "DisableKeyRotation" do
@@ -185,6 +211,21 @@ defmodule ExAws.KMSTest do
                                  path: "/",
                                  service: :kms,
                                  stream_builder: nil} = ExAws.KMS.encrypt("key-id", "plaintext")
+
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"            => "Encrypt",
+                                         "Version"           => @version,
+                                         "KeyId"             => "key-id",
+                                         "Plaintext"         => "plaintext",
+                                         "EncryptionContext" => %{"key" => "value"},
+                                         "GrantTokens"       => ["token"]},
+                                 headers: [{"x-amz-target", "TrentService.Encrypt"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.encrypt("key-id", "plaintext", encryption_context: %{ "key" => "value" }, grant_tokens: ["token"])
   end
 
   test "GenerateDataKey" do
@@ -199,6 +240,22 @@ defmodule ExAws.KMSTest do
                                  path: "/",
                                  service: :kms,
                                  stream_builder: nil} = ExAws.KMS.generate_data_key("key-id")
+
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"            => "GenerateDataKey",
+                                         "Version"           => @version,
+                                         "KeyId"             => "key-id",
+                                         "EncryptionContext" => %{"key" => "value"},
+                                         "GrantTokens"       => ["token"],
+                                         "KeySpec"           => "AES_128",
+                                         "NumberOfBytes"     => 16},
+                                 headers: [{"x-amz-target", "TrentService.GenerateDataKey"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.generate_data_key("key-id", encryption_context: %{ "key" => "value" }, grant_tokens: ["token"], key_spec: "AES_128", number_of_bytes: 16)
   end
 
   test "GenerateDataKeyWithoutPlaintext" do
@@ -213,6 +270,22 @@ defmodule ExAws.KMSTest do
                                  path: "/",
                                  service: :kms,
                                  stream_builder: nil} = ExAws.KMS.generate_data_key_without_plaintext("key-id")
+
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"            => "GenerateDataKeyWithoutPlaintext",
+                                         "Version"           => @version,
+                                         "KeyId"             => "key-id",
+                                         "EncryptionContext" => %{"key" => "value"},
+                                         "GrantTokens"       => ["token"],
+                                         "KeySpec"           => "AES_128",
+                                         "NumberOfBytes"     => 16},
+                                 headers: [{"x-amz-target", "TrentService.GenerateDataKeyWithoutPlaintext"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.generate_data_key_without_plaintext("key-id", encryption_context: %{ "key" => "value" }, grant_tokens: ["token"], key_spec: "AES_128", number_of_bytes: 16)
   end
 
   test "GenerateRandom" do
