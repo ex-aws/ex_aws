@@ -59,6 +59,22 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.create_platform_endpoint("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn", "123abc456def", "user data").params
   end
 
+  test "#list_platform_applications" do
+    expected = %{"Action" => "ListPlatformApplications"}
+    assert expected == SNS.list_platform_applications().params
+
+    expected = %{"Action" => "ListPlatformApplications", "NextToken" => "123456789"}
+    assert expected == SNS.list_platform_applications("123456789").params
+  end
+
+  test "#get_platform_application_attributes" do
+    expected = %{
+      "Action" => "GetPlatformApplicationAttributes",
+      "PlatformApplicationArn" => "arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn"
+    }
+    assert expected == SNS.get_platform_application_attributes("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn").params
+  end
+
   test "#publish_json" do
     expected = %{
       "Action" => "Publish",
@@ -84,6 +100,49 @@ defmodule ExAws.SNSTest do
 
     expected = %{"Action" => "ListSubscriptions", "NextToken" => "123456789" }
     assert expected == SNS.list_subscriptions("123456789").params
+  end
+
+  test "#unsubscribe" do
+    subscription_arn = "arn:aws:sns:us-east-1:982071696186:test-topic:subscription123"
+    expected = %{
+      "Action" => "Unsubscribe",
+      "SubscriptionArn" => subscription_arn
+    }
+    assert expected == SNS.unsubscribe(subscription_arn).params
+  end
+
+  test "#get_subscription_attributes" do
+    subscription_arn = "arn:aws:sns:us-east-1:982071696186:test-topic:subscription123"
+    expected = %{
+      "Action" => "GetSubscriptionAttributes",
+      "SubscriptionArn" => subscription_arn
+    }
+    assert expected == SNS.get_subscription_attributes(subscription_arn).params
+  end
+
+  test "#set_subscription_attributes" do
+    subscription_arn = "arn:aws:sns:us-east-1:982071696186:test-topic:subscription123"
+    expected = %{
+      "Action" => "SetSubscriptionAttributes",
+      "SubscriptionArn" => subscription_arn,
+      "AttributeName" => "DeliveryPolicy",
+      "AttributeValue" => "{\"healthyRetryPolicy\":{\"numRetries\":5}}",
+    }
+    assert expected == SNS.set_subscription_attributes(
+      :delivery_policy,
+      "{\"healthyRetryPolicy\":{\"numRetries\":5}}",
+      subscription_arn).params
+
+    expected = %{
+      "Action" => "SetSubscriptionAttributes",
+      "SubscriptionArn" => subscription_arn,
+      "AttributeName" => "RawMessageDelivery",
+      "AttributeValue" => "{\"healthyRetryPolicy\":{\"numRetries\":5}}",
+    }
+    assert expected == SNS.set_subscription_attributes(
+      :raw_message_delivery,
+      "{\"healthyRetryPolicy\":{\"numRetries\":5}}",
+      subscription_arn).params
   end
 
   # Test SMS request structure. Credentials via (https://www.twilio.com/docs/api/rest/test-credentials).

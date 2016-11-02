@@ -131,6 +131,17 @@ defmodule ExAws.SNS do
     })
   end
 
+  @doc "List platform applications"
+  @spec list_platform_applications() :: ExAws.Operation.Query.t
+  def list_platform_applications() do
+    request(:list_platform_applications, %{})
+  end
+
+  @spec list_platform_applications(next_token :: binary) :: ExAws.Operation.Query.t
+  def list_platform_applications(next_token) do
+    request(:list_platform_applications, %{"NextToken" => next_token})
+  end
+
   @doc "Create platform endpoint"
   @spec create_platform_endpoint(platform_application_arn :: platform_application_arn,
                                    token :: binary) :: ExAws.Operation.Query.t
@@ -145,8 +156,16 @@ defmodule ExAws.SNS do
     })
   end
 
+  @doc "Get platform application attributes"
+  @spec get_platform_application_attributes(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
+  def get_platform_application_attributes(platform_application_arn) do
+    request(:get_platform_application_attributes, %{"PlatformApplicationArn" => platform_application_arn})
+  end
+
   ## Subscriptions
   ######################
+
+  @type subscription_attribute_name :: :delivery_policy | :raw_message_delivery
 
   @doc "Create Subscription"
   @spec subscribe(topic_arn :: binary, protocol :: binary, endpoint :: binary) :: ExAws.Operation.Query.t
@@ -167,6 +186,34 @@ defmodule ExAws.SNS do
   @spec list_subscriptions(next_token :: binary) :: ExAws.Operation.Query.t
   def list_subscriptions(next_token) do
     request(:list_subscriptions, %{"NextToken" => next_token})
+  end
+
+  @doc "Unsubscribe"
+  @spec unsubscribe(subscription_arn :: binary) :: ExAws.Operation.Query.t
+  def unsubscribe(subscription_arn) do
+    request(:unsubscribe, %{
+      "SubscriptionArn" => subscription_arn
+    })
+  end
+
+  @doc "Get subscription attributes"
+  @spec get_subscription_attributes(subscription_arn :: binary) :: ExAws.Operation.Query.t
+  def get_subscription_attributes(subscription_arn) do
+    request(:get_subscription_attributes, %{
+      "SubscriptionArn" => subscription_arn
+    })
+  end
+
+  @doc "Set subscription attributes"
+  @spec set_subscription_attributes(attribute_name :: subscription_attribute_name,
+                                    attribute_value :: binary,
+                                    subscription_arn :: binary) :: ExAws.Operation.Query.t
+  def set_subscription_attributes(attribute_name, attribute_value, subscription_arn) do
+    request(:set_subscription_attributes, %{
+      "AttributeName" => attribute_name |> camelize_key,
+      "AttributeValue" => attribute_value,
+      "SubscriptionArn" => subscription_arn
+    })
   end
 
   ## Endpoints
