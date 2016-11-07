@@ -181,60 +181,50 @@ defmodule ExAws.KMS do
   end
 
   @doc "Generates an unpredictable byte string"
-  @spec generate_random(byte_size :: pos_integer) :: ExAws.Operation.JSON.t
-  @spec generate_random(byte_size :: pos_integer, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def generate_random(byte_size, opts \\[]) when is_list(opts) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"  => "GenerateRandom",
-          "Version" => @version,
-          "NumberOfBytes"   => byte_size,})
+  @spec generate_random(number_of_bytes :: pos_integer) :: ExAws.Operation.JSON.t
+  def generate_random(number_of_bytes) when is_integer(number_of_bytes) do
+    query_params = %{
+      "Action"        => "GenerateRandom",
+      "Version"       => @version,
+      "NumberOfBytes" => number_of_bytes}
 
     request(:generate_random, query_params)
   end
 
   @doc "Retrieves a policy attached to the specified key"
   @spec get_key_policy(key_id :: binary, policy_name :: binary) :: ExAws.Operation.JSON.t
-  @spec get_key_policy(key_id :: binary, policy_name :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def get_key_policy(key_id, policy_name, opts \\[]) when is_list(opts) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"     => "GetKeyPolicy",
-          "Version"    => @version,
-          "KeyId"      => key_id,
-          "PolicyName" => policy_name})
+  def get_key_policy(key_id, policy_name) when is_binary(key_id) and is_binary(policy_name) do
+    query_params = %{
+      "Action"     => "GetKeyPolicy",
+      "Version"    => @version,
+      "KeyId"      => key_id,
+      "PolicyName" => policy_name}
 
     request(:get_key_policy, query_params)
   end
 
   @doc "Indicates whether key rotation is enabled for the specified key"
   @spec get_key_rotation_status(key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec get_key_rotation_status(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def get_key_rotation_status(key_id, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"  => "GetKeyRotationStatus",
-          "Version" => @version,
-          "KeyId"   => key_id})
+  def get_key_rotation_status(key_id) when is_binary(key_id) do
+    query_params = %{
+      "Action"  => "GetKeyRotationStatus",
+      "Version" => @version,
+      "KeyId"   => key_id}
 
     request(:get_key_rotation_status, query_params)
   end
 
   @doc "Import key matrial"
   @spec get_parameters_for_import(key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec get_parameters_for_import(key_id :: binary, wrapping_algorithm :: binary, wrapping_key_spec :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def get_parameters_for_import(key_id, wrapping_algorithm \\ "RSAES_PKCS1_V1_5", wrapping_key_spec \\ "RSA_2048", opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"            => "GetParametersForImport",
-          "Version"           => @version,
-          "KeyId"             => key_id,
-          "WrappingAlgorithm" => wrapping_algorithm,
-          "WrappingKeySpec"   => wrapping_key_spec})
+  @spec get_parameters_for_import(key_id :: binary, wrapping_algorithm :: binary) :: ExAws.Operation.JSON.t
+  @spec get_parameters_for_import(key_id :: binary, wrapping_algorithm :: binary, wrapping_key_spec :: binary) :: ExAws.Operation.JSON.t
+  def get_parameters_for_import(key_id, wrapping_algorithm \\ "RSAES_PKCS1_V1_5", wrapping_key_spec \\ "RSA_2048") do
+    query_params = %{
+      "Action"            => "GetParametersForImport",
+      "Version"           => @version,
+      "KeyId"             => key_id,
+      "WrappingAlgorithm" => wrapping_algorithm,
+      "WrappingKeySpec"   => wrapping_key_spec}
 
     request(:get_parameters_for_import, query_params)
   end
@@ -283,9 +273,13 @@ defmodule ExAws.KMS do
   end
 
   @doc "Imports key material into an AWS KMS customer master key (CMK)"
+  @type import_key_material_opts :: [
+    {:expiration_model, binary} |
+    {:valid_to, binary}
+  ]
   @spec import_key_material(encrypted_key_material :: binary, import_token :: binary, key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec import_key_material(encrypted_key_material :: binary, import_token :: binary, key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def import_key_material(encrypted_key_material, import_token, key_id, opts \\ []) do
+  @spec import_key_material(encrypted_key_material :: binary, import_token :: binary, key_id :: binary, opts :: import_key_material_opts) :: ExAws.Operation.JSON.t
+  def import_key_material(encrypted_key_material, import_token, key_id, opts \\ []) when is_list(opts) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -299,9 +293,13 @@ defmodule ExAws.KMS do
   end
 
   @doc "Lists all of the key aliases"
+  @type list_aliases_opts :: [
+    {:limit, integer} |
+    {:marker, binary}
+  ]
   @spec list_aliases() :: ExAws.Operation.JSON.t
-  @spec list_aliases(opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def list_aliases(opts \\ []) do
+  @spec list_aliases(opts :: list_aliases_opts) :: ExAws.Operation.JSON.t
+  def list_aliases(opts \\ []) when is_list(opts) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -313,8 +311,12 @@ defmodule ExAws.KMS do
   end
 
   @doc "List the grants for a specified key"
+  @type list_grants_opts :: [
+    {:limit, integer} |
+    {:marker, binary}
+  ]
   @spec list_grants(key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec list_grants(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
+  @spec list_grants(key_id :: binary, opts :: list_grants_opts) :: ExAws.Operation.JSON.t
   def list_grants(key_id, opts \\[]) when is_list(opts) do
     query_params = opts
     |> normalize_opts
@@ -327,8 +329,12 @@ defmodule ExAws.KMS do
   end
 
   @doc "Retrieves a list of policies attached to a key"
+  @type list_key_policies_opts :: [
+    {:limit, integer} |
+    {:marker, binary}
+  ]
   @spec list_key_policies(key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec list_key_policies(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
+  @spec list_key_policies(key_id :: binary, opts :: list_key_policies_opts) :: ExAws.Operation.JSON.t
   def list_key_policies(key_id, opts \\[]) when is_list(opts) do
     query_params = opts
     |> normalize_opts
@@ -341,8 +347,12 @@ defmodule ExAws.KMS do
   end
 
   @doc "Lists the customer master keys"
+  @type list_keys_opts :: [
+    {:limit, integer} |
+    {:marker, binary}
+  ]
   @spec list_keys() :: ExAws.Operation.JSON.t
-  @spec list_keys(opts :: Keyword.t) :: ExAws.Operation.JSON.t
+  @spec list_keys(opts :: list_keys_opts) :: ExAws.Operation.JSON.t
   def list_keys(opts \\ []) do
     query_params = opts
     |> normalize_opts
@@ -355,9 +365,13 @@ defmodule ExAws.KMS do
   end
 
   @doc "A list of all grants for which the grant's RetiringPrincipal matches the one specified"
+  @type list_retirable_grants_opts :: [
+    {:limit, integer} |
+    {:marker, binary}
+  ]
   @spec list_retirable_grants(retiring_principal :: binary) :: ExAws.Operation.JSON.t
-  @spec list_retirable_grants(retiring_principal :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def list_retirable_grants(retiring_principal, opts \\ []) do
+  @spec list_retirable_grants(retiring_principal :: binary, opts :: list_retirable_grants_opts) :: ExAws.Operation.JSON.t
+  def list_retirable_grants(retiring_principal, opts \\ []) when is_list(opts) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -370,24 +384,28 @@ defmodule ExAws.KMS do
 
   @doc "Attaches a key policy to the specified customer master key (CMK)"
   @spec put_key_policy(key_id :: binary, policy :: binary, policy_name :: binary) :: ExAws.Operation.JSON.t
-  @spec put_key_policy(key_id :: binary, policy :: binary, policy_name :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def put_key_policy(key_id, policy, policy_name, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"            => "PutKeyPolicy",
-          "Version"           => @version,
-          "KeyId" => key_id,
-          "Policy" => policy,
-          "PolicyName" => policy_name})
+  @spec put_key_policy(key_id :: binary, policy :: binary, policy_name :: binary, bypass_policy_lockout_safety_check :: boolean) :: ExAws.Operation.JSON.t
+  def put_key_policy(key_id, policy, policy_name, bypass_policy_lockout_safety_check \\ false) do
+    query_params = %{
+      "Action"                         => "PutKeyPolicy",
+      "Version"                        => @version,
+      "BypassPolicyLockoutSafetyCheck" => bypass_policy_lockout_safety_check,
+      "KeyId"                          => key_id,
+      "Policy"                         => policy,
+      "PolicyName"                     => policy_name}
 
     request(:put_key_policy, query_params)
   end
 
   @doc "Encrypts data with a new CMK without exposing the plaintext of the data"
+  @type re_encrypt_opts :: [
+    {:destination_encryption_context, map} |
+    {:grant_tokens, list(binary)} |
+    {:source_encryption_context, map}
+  ]
   @spec re_encrypt(ciphertext :: binary, describe_key :: binary) :: ExAws.Operation.JSON.t
-  @spec re_encrypt(ciphertext :: binary, describe_key :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def re_encrypt(ciphertext, destination_key_id, opts \\ []) do
+  @spec re_encrypt(ciphertext :: binary, describe_key :: binary, opts :: re_encrypt_opts) :: ExAws.Operation.JSON.t
+  def re_encrypt(ciphertext, destination_key_id, opts \\ []) when is_list(opts) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -400,7 +418,12 @@ defmodule ExAws.KMS do
   end
 
   @doc "Retires a grant"
-  @spec retire_grant(opts :: Keyword.t) :: ExAws.Operation.JSON.t
+  @type retire_grant_opts :: [
+    {:grant_id, binary} |
+    {:grant_token, binary} |
+    {:key_id, binary}
+  ]
+  @spec retire_grant(opts :: retire_grant_opts) :: ExAws.Operation.JSON.t
   def retire_grant(opts) when is_list(opts) do
     opts
     |> normalize_opts
@@ -439,59 +462,49 @@ defmodule ExAws.KMS do
 
   @doc "Revokes a grant"
   @spec revoke_grant(grant_id :: binary, key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec revoke_grant(grant_id :: binary, key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def revoke_grant(grant_id, key_id, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"  => "RevokeGrant",
-          "Version" => @version,
-          "GrantId" => grant_id,
-          "KeyId"   => key_id})
+  def revoke_grant(grant_id, key_id) when is_binary(grant_id) and is_binary(key_id) do
+    query_params = %{
+      "Action"  => "RevokeGrant",
+      "Version" => @version,
+      "GrantId" => grant_id,
+      "KeyId"   => key_id}
 
     request(:revoke_grant, query_params)
   end
 
   @doc "Schedules the deletion of CMK"
   @spec schedule_key_deletion(key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec schedule_key_deletion(key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def schedule_key_deletion(key_id, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"  => "ScheduleKeyDeletion",
-          "Version" => @version,
-          "KeyId"   => key_id})
+  @spec schedule_key_deletion(key_id :: binary, pending_windows_in_days :: integer) :: ExAws.Operation.JSON.t
+  def schedule_key_deletion(key_id, pending_windows_in_days \\ 30) when pending_windows_in_days > 0 and pending_windows_in_days <= 256 do
+    query_params = %{
+      "Action"  => "ScheduleKeyDeletion",
+      "Version" => @version,
+      "KeyId"   => key_id,
+      "PendingWindowInDays" => pending_windows_in_days}
 
     request(:schedule_key_deletion, query_params)
   end
 
   @doc "Updates an alias to map it to a different key"
   @spec update_alias(alias_name :: binary, target_key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec update_alias(alias_name :: binary, target_key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def update_alias(alias_name, target_key_id, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"      => "UpdateAlias",
-          "Version"     => @version,
-          "AliasName"   => alias_name,
-          "TargetKeyId" => target_key_id})
+  def update_alias(alias_name, target_key_id) when is_binary(alias_name) and is_binary(target_key_id) do
+    query_params = %{
+      "Action"      => "UpdateAlias",
+      "Version"     => @version,
+      "AliasName"   => alias_name,
+      "TargetKeyId" => target_key_id}
 
     request(:update_alias, query_params)
   end
 
   @doc "Updates the description of a key"
   @spec update_key_description(description :: binary, key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec update_key_description(description :: binary, key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def update_key_description(description, key_id, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"  => "UpdateKeyDescription",
-          "Version" => @version,
-          "Description" => description,
-          "KeyId" => key_id})
+  def update_key_description(description, key_id) when is_binary(description) and is_binary(key_id) do
+    query_params = %{
+      "Action"  => "UpdateKeyDescription",
+      "Version" => @version,
+      "Description" => description,
+      "KeyId" => key_id}
 
     request(:update_key_description, query_params)
   end

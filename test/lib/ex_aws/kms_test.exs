@@ -523,7 +523,7 @@ defmodule ExAws.KMSTest do
   test "RevokeGrant" do
     assert %ExAws.Operation.JSON{before_request: nil,
                                  data: %{"Action"  => "RevokeGrant",
-                                         "GrantId" => 123,
+                                         "GrantId" => "grant-id",
                                          "KeyId"   => "key-id",
                                          "Version" => @version},
                                  headers: [{"x-amz-target", "TrentService.RevokeGrant"},
@@ -532,7 +532,7 @@ defmodule ExAws.KMSTest do
                                  parser: _,
                                  path: "/",
                                  service: :kms,
-                                 stream_builder: nil} = ExAws.KMS.revoke_grant(123, "key-id")
+                                 stream_builder: nil} = ExAws.KMS.revoke_grant("grant-id", "key-id")
   end
 
   test "ScheduleKeyDeletion" do
@@ -547,6 +547,19 @@ defmodule ExAws.KMSTest do
                                  path: "/",
                                  service: :kms,
                                  stream_builder: nil} = ExAws.KMS.schedule_key_deletion("key-id")
+
+    assert %ExAws.Operation.JSON{before_request: nil,
+                                 data: %{"Action"              => "ScheduleKeyDeletion",
+                                         "KeyId"               => "key-id",
+                                         "PendingWindowInDays" => 256,
+                                         "Version"             => @version},
+                                 headers: [{"x-amz-target", "TrentService.ScheduleKeyDeletion"},
+                                           {"content-type", "application/x-amz-json-1.0"}],
+                                 http_method: :post,
+                                 parser: _,
+                                 path: "/",
+                                 service: :kms,
+                                 stream_builder: nil} = ExAws.KMS.schedule_key_deletion("key-id", 256)
   end
 
   test "UpdateAlias" do
