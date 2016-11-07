@@ -30,6 +30,49 @@ defmodule ExAws.KMS do
     request(:create_alias, query_params)
   end
 
+  @doc "Adds a grant to a key"
+  @spec create_grant(grantee_principal :: binary, key_id :: binary) :: ExAws.Operation.JSON.t
+  @spec create_grant(grantee_principal :: binary, key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
+  def create_grant(grantee_principal, key_id, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"           => "CreateGrant",
+          "Version"          => @version,
+          "GranteePrincipal" => grantee_principal,
+          "KeyId"            => key_id})
+
+    request(:create_grant, query_params)
+  end
+
+  @doc "Creates a customer master key (CMK)"
+  @spec create_key() :: ExAws.Operation.JSON.t
+  @spec create_key(opts :: Keyword.t) :: ExAws.Operation.JSON.t
+  def create_key(opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "CreateKey",
+          "Version" => @version})
+
+    request(:create_key, query_params)
+  end
+
+  @doc "Decrypts ciphertext"
+  @spec decrypt(ciphertext :: binary) :: ExAws.Operation.JSON.t
+  @spec decrypt(ciphertext :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
+  def decrypt(ciphertext, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{
+          "Action"  => "Decrypt",
+          "Version" => @version,
+          "CiphertextBlob"   => ciphertext,
+                 })
+
+    request(:decrypt, query_params)
+  end
+
   @doc "Delete a alias"
   @spec delete_alias(alias_name :: binary) :: ExAws.Operation.JSON.t
   def delete_alias(alias_name) do
@@ -227,49 +270,6 @@ defmodule ExAws.KMS do
       "WrappingKeySpec"   => wrapping_key_spec}
 
     request(:get_parameters_for_import, query_params)
-  end
-
-  @doc "Adds a grant to a key"
-  @spec create_grant(grantee_principal :: binary, key_id :: binary) :: ExAws.Operation.JSON.t
-  @spec create_grant(grantee_principal :: binary, key_id :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def create_grant(grantee_principal, key_id, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"           => "CreateGrant",
-          "Version"          => @version,
-          "GranteePrincipal" => grantee_principal,
-          "KeyId"            => key_id})
-
-    request(:create_grant, query_params)
-  end
-
-  @doc "Creates a customer master key (CMK)"
-  @spec create_key() :: ExAws.Operation.JSON.t
-  @spec create_key(opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def create_key(opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"  => "CreateKey",
-          "Version" => @version})
-
-    request(:create_key, query_params)
-  end
-
-  @doc "Decrypts ciphertext"
-  @spec decrypt(ciphertext :: binary) :: ExAws.Operation.JSON.t
-  @spec decrypt(ciphertext :: binary, opts :: Keyword.t) :: ExAws.Operation.JSON.t
-  def decrypt(ciphertext, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{
-          "Action"  => "Decrypt",
-          "Version" => @version,
-          "CiphertextBlob"   => ciphertext,
-                 })
-
-    request(:decrypt, query_params)
   end
 
   @doc "Imports key material into an AWS KMS customer master key (CMK)"
