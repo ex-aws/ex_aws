@@ -66,7 +66,7 @@ defmodule ExAws.S3.Upload do
     %{headers: headers} = ExAws.S3.upload_part(op.bucket, op.path, op.upload_id, i, chunk, op.opts)
     |> ExAws.request!(config)
 
-    {_, etag} = Enum.find(headers, fn {k, v} ->
+    {_, etag} = Enum.find(headers, fn {k, _v} ->
       String.downcase(k) == "etag"
     end)
 
