@@ -27,6 +27,26 @@ defmodule ExAws.Auth do
     [{"Authorization", auth_header} | headers ]
   end
 
+  def headers_v2(http_method, url, service, config, headers, body) do
+    datetime = :calendar.universal_time
+    headers = [
+      {"host", URI.parse(url).authority},
+      {"date", Timex.now |> Timex.format!("{WDshort}, {D} {Mshort} {YYYY} {h24}:{m}:{s} {Z}")}
+      | headers
+    ]
+
+    auth_header = auth_header_v2(
+      http_method,
+      url,
+      headers,
+      body,
+      service |> service_name,
+      datetime,
+      config)
+
+    [{"Authorization", auth_header} | headers]
+  end
+
   def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ []) do
     service = service_name(service)
     headers = presigned_url_headers(url)
@@ -60,11 +80,29 @@ defmodule ExAws.Auth do
     ] |> IO.iodata_to_binary
   end
 
+  defp auth_header_v2(http_method, url, headers, body, service, datetime, config) do
+    uri = URI.parse(url)
+    path = uri_encode(uri.path)
+    query = if uri.query, do: uri.query |> URI.decode_query |> Enum.to_list |> canonical_query_params, else: ""
+    signature = signature_v2(http_method, path, query, headers, body, service, datetime, config)
+    [
+      "AWS ",
+      "#{config[:access_key_id]}:",
+      signature
+    ] |> IO.iodata_to_binary
+  end
+
   defp signature(http_method, path, query, headers, body, service, datetime, config) do
     request = build_canonical_request(http_method, path, query, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
 
     Signatures.generate_signature_v4(service, config, datetime, string_to_sign)
+  end
+
+  defp signature_v2(http_method, path, query, headers, body, service, datetime, config) do
+    request = build_canonical_request_v2(http_method, path, query, headers, body, datetime)
+
+    Signatures.generate_signature_v2(service, config, datetime, request)
   end
 
   def build_canonical_request(http_method, path, query, headers, body) do
@@ -93,6 +131,50 @@ defmodule ExAws.Auth do
       signed_headers_list, "\n",
       payload
     ] |> IO.iodata_to_binary
+  end
+
+  def build_canonical_request_v2(http_method, path, query, headers, body, datetime) do
+    http_method = http_method |> method_string |> String.upcase
+
+    content_md5 = find_header_value(headers, "content-md5")
+    content_type = find_header_value(headers, "content-type")
+    date = find_header_value(headers, "date")
+
+    headers = headers |> canonical_headers_v2
+    header_string = headers
+    |> Enum.map(fn {k, v} -> "#{k}:#{remove_dup_spaces(to_string(v))}" end)
+    |> Enum.join("\n")
+
+    resource_string = path <> canonical_query(query)
+
+    [
+      http_method, "\n",
+      content_md5, "\n",
+      content_type, "\n",
+      date, "\n",
+      header_string, "\n",
+      resource_string
+    ] |> IO.iodata_to_binary
+  end
+
+  defp find_header_value(headers, key, default \\ "") do
+    header = Enum.find(headers, fn el ->
+      elem(el, 0) == key
+    end) || {nil, default}
+    elem(header, 1)
+  end
+
+  defp canonical_query(""), do: ""
+  defp canonical_query(query) do
+    "?" <> query
+    |> String.split("&")
+    |> Enum.map(fn chunk ->
+      case chunk |> String.split("=") do
+        [param, ""] -> param
+        [param, value] -> "#{param}=#{value}"
+      end
+    end)
+    |> Enum.join("&")
   end
 
   defp remove_dup_spaces(""), do: ""
@@ -162,6 +244,12 @@ defmodule ExAws.Auth do
       {k, v} -> {String.downcase(k), v}
     end)
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
+  end
+
+  defp canonical_headers_v2(headers) do
+    headers
+    |> Enum.filter(fn {k, v} -> String.starts_with?(k, "x-amz") end)
+    |> canonical_headers
   end
 
   defp presigned_url_headers(url) do
