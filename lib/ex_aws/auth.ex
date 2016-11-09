@@ -137,7 +137,11 @@ defmodule ExAws.Auth do
     http_method = http_method |> method_string |> String.upcase
 
     content_md5 = find_header_value(headers, "content-md5")
-    content_type = find_header_value(headers, "content-type")
+    content_type = if http_method == "PUT" do
+      find_header_value(headers, "content-type", "application/octet-stream")
+    else
+      find_header_value(headers, "content-type")
+    end
     date = find_header_value(headers, "date")
 
     headers = headers |> canonical_headers_v2
