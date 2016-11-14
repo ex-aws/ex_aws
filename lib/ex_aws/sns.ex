@@ -261,15 +261,14 @@ defmodule ExAws.SNS do
   @message_types ["SubscriptionConfirmation", "UnsubscribeConfirmation", "Notification"]
 
   @doc "Verify message signature"
+  @spec verify_message(message_params :: %{String.t => String.t}) :: [:ok | {:error, String.t}]
   def verify_message(message_params) do
     with :ok <- validate_message_params(message_params),
-      :ok <- validate_signature_version(message_params["SignatureVersion"]),
-      {:ok, public_key} <- ExAws.SNS.PublicKeyCache.get(message_params["SigningCertURL"]) do
-        message_params
-        |> get_string_to_sign
-        |> verify(message_params["Signature"], public_key)
-    else
-      {:error, error} -> {false, error}
+         :ok <- validate_signature_version(message_params["SignatureVersion"]),
+         {:ok, public_key} <- ExAws.SNS.PublicKeyCache.get(message_params["SigningCertURL"]) do
+      message_params
+      |> get_string_to_sign
+      |> verify(message_params["Signature"], public_key)
     end
   end
 
@@ -278,7 +277,7 @@ defmodule ExAws.SNS do
       case required_params -- Map.keys(message_params) do
         [] -> :ok
         missing_params -> {:error, "The following parameters are missing: #{inspect missing_params}"}
-      end        
+      end
     end
   end
 
@@ -288,23 +287,23 @@ defmodule ExAws.SNS do
       "SubscriptionConfirmation" -> {:ok, @confirmation_params ++ @signature_params}
       "UnsubscribeConfirmation" -> {:ok, @confirmation_params ++ @signature_params}
       type when is_binary(type) -> {:error, "Invalid Type, expected one of #{inspect @message_types}"}
-      type when is_nil(type) -> {:error, "Missing Type c (Type)"}
-      type -> {:error, "Invalid Type's type, expected a String, got #{inspect type}"}
+      type when is_nil(type) -> {:error, "Missing message type parameter (Type)"}
+      type -> {:error, "Invalid message type's type, expected a String, got #{inspect type}"}
     end
   end
 
   defp validate_signature_version(version) do
     case version do
       "1" -> :ok
-      sig when is_binary(sig) -> {:error, "Unsupported SignatureVersion, expected \"1\", got #{version}"}
-      sig -> {:error, "Invalid SignatureVersion format, expected a String, got #{version}"}
+      val when is_binary(val) -> {:error, "Unsupported SignatureVersion, expected \"1\", got #{version}"}
+      _ -> {:error, "Invalid SignatureVersion format, expected a String, got #{version}"}
     end
   end
 
   defp get_string_to_sign(message_params) do
     message_params
     |> Map.take(get_params_to_sign(message_params["Type"]))
-    |> Enum.reduce("", fn {key, value}, acc -> acc <> key <> "\n" <> value <> "\n" end)
+    |> Enum.map_join(&(elem(&1,0)<>"\n"<>elem(&1,1)<>"\n"))
   end
 
   defp get_params_to_sign(message_type) do
@@ -317,8 +316,8 @@ defmodule ExAws.SNS do
 
   defp verify(message, signature, public_key) do
     case :public_key.verify(message, :sha, Base.decode64!(signature), public_key) do
-      true -> true
-      false -> {false, "Signature is invalid"}
+      true -> :ok
+      false -> {:error, "Signature is invalid"}
     end
   end
 
