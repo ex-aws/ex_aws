@@ -37,6 +37,10 @@ Running the test suite for ex_aws requires a few things:
 
 The test suite can be run with `AWS_ACCESS_KEY_ID=your-aws-access-key AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key mix test`
 
+### Key Management Service
+
+If running integrate test for Key Management Service. Require an environment variable `TEST_EX_AWS_KEY_ARN`. Please set new CMK to `TEST_EX_AWS_KEY_ARN` for integrate test.
+
 ## Organization
 
 ExAws 1.0.0 takes a more data driven approach to querying APIs. The various functions that exist inside a service like `S3.list_objects` or `Dynamo.create_table` all return a struct which holds the information necessary to make that particular operation. Creating a service module then is very easy, as you just need to create functions which return an operations struct, and you're done. If there is not yet an operations struct applicable to the desired service, creating one of those isn't too bad either. See the relevant sections below.

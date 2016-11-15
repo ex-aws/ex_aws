@@ -79,6 +79,12 @@ defmodule ExAws.Config.Defaults do
       region: "us-east-1",
       port: 80
     },
+    kms: %{
+      scheme: "https://",
+      host: {"$region", "kms.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 80
+    },
   }
 
   @doc """
