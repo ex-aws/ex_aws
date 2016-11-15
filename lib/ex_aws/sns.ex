@@ -303,7 +303,8 @@ defmodule ExAws.SNS do
   defp get_string_to_sign(message_params) do
     message_params
     |> Map.take(get_params_to_sign(message_params["Type"]))
-    |> Enum.map_join(&(elem(&1,0)<>"\n"<>elem(&1,1)<>"\n"))
+    |> Enum.map(fn {key, value} -> [to_string(key), "\n", to_string(value), "\n"] end)
+    |> IO.iodata_to_binary
   end
 
   defp get_params_to_sign(message_type) do
