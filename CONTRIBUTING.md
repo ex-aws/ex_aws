@@ -39,7 +39,7 @@ The test suite can be run with `AWS_ACCESS_KEY_ID=your-aws-access-key AWS_SECRET
 
 ### Key Management Service
 
-If running integrate test for Key Management Service. Require an environment variable `AWS_KEY_ARN`. Please set new CMK to `AWS_KEY_ARN` for integrate test.
+If running integrate test for Key Management Service. Require an environment variable `TEST_EX_AWS_KEY_ARN`. Please set new CMK to `TEST_EX_AWS_KEY_ARN` for integrate test.
 
 ## Organization
 

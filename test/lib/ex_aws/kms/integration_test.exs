@@ -2,10 +2,10 @@ defmodule ExAws.KMSIntegratinTest do
   use ExUnit.Case, async: true
 
   defp key_id do
-    System.get_env("AWS_KEY_ARN")
+    System.get_env("TEST_EX_AWS_KEY_ARN")
   end
 
-  if System.get_env("AWS_KEY_ARN") do
+  if System.get_env("TEST_EX_AWS_KEY_ARN") do
 
     test "DisableKey and EnableKey" do
       assert {:ok, %{}} = key_id |> ExAws.KMS.disable_key |> ExAws.request
