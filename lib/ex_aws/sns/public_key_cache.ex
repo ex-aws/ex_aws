@@ -30,11 +30,12 @@ defmodule ExAws.SNS.PublicKeyCache do
   end
 
   defp fetch_certificate(cert_url) do
-    with {:ok, 200, _resp_headers, cert_binary} <- :hackney.get(cert_url, [], "", [:with_body]) do
-      get_pem_entry(:public_key.pem_decode(cert_binary))  
+    http_client = Application.get_env(:ex_aws, :http_client, ExAws.Request.Hackney)
+    with {:ok, %{status_code: 200, body: cert_binary}} <- http_client.request(:get, cert_url) do
+      get_pem_entry(:public_key.pem_decode(cert_binary))
     else
-      {:ok, status_code, _resp_headers, _client} -> {:error, "Could not fetch certificate from #{cert_url}, expected http code 200, got: #{status_code}"}
-      {:error, error} -> {:error, "Unexpected error, could not fetch certificate from #{cert_url}, got #{inspect error}"}
+      {:ok, %{status_code: status_code}} -> {:error, "Could not fetch certificate from #{cert_url}, expected http code 200, got: #{status_code}"}
+      {:error,  %{reason: reason}} -> {:error, "Unexpected error, could not fetch certificate from #{cert_url}, got #{inspect reason}"}
     end
   end
 
