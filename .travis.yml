@@ -1,5 +1,4 @@
 language: elixir
-sudo: false
 elixir: 1.3.1
 notifications:
   recipients:
@@ -14,4 +13,3 @@ before_script:
 addons:
   hosts:
     - dynamodb-local
-script: "MIX_ENV=test mix local.hex --force && MIX_ENV=test mix do deps.get, test"
