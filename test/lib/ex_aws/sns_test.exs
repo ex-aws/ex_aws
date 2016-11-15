@@ -94,6 +94,16 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.subscribe("arn:aws:sns:us-east-1:982071696186:test-topic", "https", "https://example.com").params
   end
 
+  test "#confirm_subscription" do
+    expected = %{
+      "Action"   => "ConfirmSubscription",
+      "TopicArn" => "arn:aws:sns:us-east-1:982071696186:test-topic",
+      "Token" => "topic_token",
+      "AuthenticateOnUnsubscribe" => "true"
+    }
+    assert expected == SNS.confirm_subscription("arn:aws:sns:us-east-1:982071696186:test-topic", "topic_token", true).params
+  end
+
   test "#list_subscriptions" do
     expected = %{"Action" => "ListSubscriptions"}
     assert expected == SNS.list_subscriptions().params
