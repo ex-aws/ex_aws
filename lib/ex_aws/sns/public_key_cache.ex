@@ -7,7 +7,7 @@ defmodule ExAws.SNS.PublicKeyCache do
 
   def get(cert_url) do
       case :ets.lookup(__MODULE__, cert_url) do
-        [{cert_url, public_key}] -> {:ok, public_key}
+        [{_cert_url, public_key}] -> {:ok, public_key}
         [] -> GenServer.call(__MODULE__, {:get_public_key, cert_url})
     end
   end
@@ -43,9 +43,9 @@ defmodule ExAws.SNS.PublicKeyCache do
     case pem_entries do
       [entry] -> 
         try do
-          {:ok, :public_key.pem_entry_decode(Enum.at(pem_entries, 0))}
+          {:ok, :public_key.pem_entry_decode(entry)}
         catch
-          kind, error -> {:error, "Unexpected error while decoding pem entry: #{inspect error}"}
+          _kind, error -> {:error, "Unexpected error while decoding pem entry: #{inspect error}"}
         end
       entries -> 
         {:error, "Invalid PEM entries: #{inspect entries}"}
