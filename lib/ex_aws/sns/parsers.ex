@@ -145,6 +145,23 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :list_subscriptions_by_topic) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//ListSubscriptionsByTopicResponse",
+                        subscriptions: [
+                          ~x"./ListSubscriptionsByTopicResult/Subscriptions/member"l,
+                          owner: ~x"./Owner/text()"s,
+                          endpoint: ~x"./Endpoint/text()"s,
+                          protocol: ~x"./Protocol/text()"s,
+                          subscription_arn: ~x"./SubscriptionArn/text()"s,
+                          topic_arn: ~x"./TopicArn/text()"s,
+                        ],
+                        next_token: ~x"./ListSubscriptionsByTopicResult/NextToken/text()"s,
+                        request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :unsubscribe) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//UnsubscribeResponse",
