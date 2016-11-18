@@ -1,4 +1,11 @@
 defmodule ExAws.Request.Url do
+  @moduledoc """
+  Utility module for request URLs
+  """
+
+  @doc """
+  Builds URL for an operation and a config"
+  """
   def build(operation, config) do
     query =  operation.params |> URI.encode_query
     config
