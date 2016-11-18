@@ -180,7 +180,7 @@ defmodule ExAws.SNS do
   @doc "Confirm Subscription"
   @spec confirm_subscription(topic_arn :: binary, token :: binary, authenticate_on_unsubscribe :: boolean) :: ExAws.Operation.Query.t
   def confirm_subscription(topic_arn, token, authenticate_on_unsubscribe \\ false) do
-    request("ConfirmSubscription", %{
+    request(:confirm_subscription, %{
       "TopicArn" => topic_arn,
       "Token" => token,
       "AuthenticateOnUnsubscribe" => to_string(authenticate_on_unsubscribe),

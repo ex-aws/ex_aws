@@ -349,6 +349,24 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc[:request_id] == "c4407779-24a4-56fa-982c-3d927f93a775"
   end
 
+  test "#parsing a confirm subscription response" do
+    rsp = """
+      <ConfirmSubscriptionResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ConfirmSubscriptionResult>
+          <SubscriptionArn>arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca</SubscriptionArn>
+        </ConfirmSubscriptionResult>
+        <ResponseMetadata>
+          <RequestId>7a50221f-3774-11df-a9b7-05d48da6f042</RequestId>
+        </ResponseMetadata>
+      </ConfirmSubscriptionResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :confirm_subscription)
+    assert parsed_doc[:subscription_arn] == "arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca"
+    assert parsed_doc[:request_id] == "7a50221f-3774-11df-a9b7-05d48da6f042"
+  end
+
   test "#parsing a list_subscriptions response" do
     rsp = """
       <ListSubscriptionsResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
