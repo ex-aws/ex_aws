@@ -75,13 +75,13 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: {"$region", "ec2.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     rds: %{
       scheme: "https://",
       host: {"$region", "rds.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     kms: %{
       scheme: "https://",
@@ -89,6 +89,11 @@ defmodule ExAws.Config.Defaults do
       region: "us-east-1",
       port: 80
     },
+    route53: %{
+      scheme: "https://",
+      host: "route53.amazonaws.com",
+      port: 443
+    }
   }
 
   @doc """
