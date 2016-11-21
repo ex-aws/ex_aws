@@ -1,15 +1,8 @@
 defmodule ExAws.SQS.ParserTest do
   use ExUnit.Case, async: true
+  import Support.ParserHelpers
 
   alias ExAws.SQS.Parsers
-
-  def to_success(doc) do
-    {:ok, %{body: doc}}
-  end
-
-  def to_error(doc) do
-    {:error, {:http_error, 403, %{body: doc}}}
-  end
 
   test "#parsing a list queue response" do
     rsp = """
