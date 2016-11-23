@@ -1,5 +1,5 @@
 defmodule ExAws.Route53 do
-  import ExAws.Utils, only: [uuid: 0, upcase: 1]
+  import ExAws.Utils, only: [uuid: 0, upcase: 1, rename_keys: 2]
   import ExAws.Xml, only: [add_optional_node: 2]
 
   @moduledoc """
@@ -13,12 +13,7 @@ defmodule ExAws.Route53 do
   @doc "List hosted zones"
   @spec list_hosted_zones(opts :: list_hosted_zones_opts) :: ExAws.Operation.RestQuery.t
   def list_hosted_zones(opts \\ []) do
-    opts = opts
-            |> Map.new
-            |> Map.put(:maxitems, opts[:max_items])
-            |> Map.delete(:max_items)
-            |> Enum.reject(fn {_, v} -> is_nil(v) end)
-            |> Enum.into(%{})
+    opts = opts |> rename_keys(max_items: :maxitems) |> Map.new
     request(:get, :list_hosted_zones, params: opts)
   end
 
