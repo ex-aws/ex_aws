@@ -100,4 +100,6 @@ defmodule ExAws.Utils do
 
     greg_secs - @seconds_0_to_1970
   end
+
+  def uuid, do: DateTime.utc_now |> :erlang.phash2
 end
