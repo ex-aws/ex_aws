@@ -15,7 +15,7 @@ defmodule ExAws.Route53.ParsersTest do
               <Comment>Zone comment</Comment>
               <PrivateZone>false</PrivateZone>
            </Config>
-           <Id>ZONE_ID</Id>
+           <Id>/hostedzone/ZONE_ID</Id>
            <Name>ZONE_NAME</Name>
            <ResourceRecordSetCount>5</ResourceRecordSetCount>
         </HostedZone>
@@ -67,7 +67,7 @@ defmodule ExAws.Route53.ParsersTest do
              <Comment>ZONE_COMMENT</Comment>
              <PrivateZone>false</PrivateZone>
           </Config>
-          <Id>ZONE_ID</Id>
+          <Id>/hostedzone/ZONE_ID</Id>
           <Name>ZONE_NAME</Name>
           <ResourceRecordSetCount>15</ResourceRecordSetCount>
        </HostedZone>

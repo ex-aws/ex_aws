@@ -11,7 +11,7 @@ if Code.ensure_loaded?(SweetXml) do
         next_marker: ~x"./NextMarker/text()"s,
         hosted_zones: [
           ~x"./HostedZones/HostedZone"l,
-          id:  ~x"./Id/text()"s,
+          id:  id_node_xpath,
           name:  ~x"./Name/text()"s,
           record_set_count:  ~x"./ResourceRecordSetCount/text()"i,
           caller_reference:  ~x"./CallerReference/text()"s,
@@ -46,7 +46,7 @@ if Code.ensure_loaded?(SweetXml) do
            comment: ~x"./Comment/text()"so,
            private: ~x"./PrivateZone/text()"so |> transform_by(&(&1 == "true")),
          ],
-         id: ~x"./Id/text()"s,
+          id:  id_node_xpath,
          name:  ~x"./Name/text()"s,
          record_set_count:  ~x"./ResourceRecordSetCount/text()"i,
        ],
@@ -71,6 +71,10 @@ if Code.ensure_loaded?(SweetXml) do
        ]
      )
      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    defp id_node_xpath do
+      ~x"./Id/text()"s |> transform_by(&String.replace(&1, ~r/^.+?\//, ""))
     end
   end
 else
