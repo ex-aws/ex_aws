@@ -23,7 +23,6 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     def parse({:ok, %{body: xml}=resp}, :create_hosted_zone) do
-      require IEx; IEx.pry
       parsed_body = xml
       |> SweetXml.xpath(~x"//CreateHostedZoneResponse",
        change_info: [
