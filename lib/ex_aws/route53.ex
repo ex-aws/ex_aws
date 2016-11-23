@@ -1,5 +1,6 @@
 defmodule ExAws.Route53 do
   import ExAws.Utils, only: [uuid: 0]
+  import ExAws.Xml, only: [add_optional_node: 2]
 
   @moduledoc """
   Operations on AWS Route53
@@ -35,11 +36,11 @@ defmodule ExAws.Route53 do
       :CreateHostedZoneRequest, %{xmlns: "https://route53.amazonaws.com/doc/2013-04-01/"}, [
        {:CallerReference, nil, uuid},
        {:Name, nil, opts[:name]}]
-    } |> ExAws.Xml.add_optional_node(
+    } |> add_optional_node(
           {:HostedZoneConfig, nil, nil}
-          |> ExAws.Xml.add_optional_node({:Comment, nil, opts[:comment]})
-          |> ExAws.Xml.add_optional_node({:PrivateZone, nil, opts[:private]})
-    ) |> ExAws.Xml.add_optional_node({
+          |> add_optional_node({:Comment, nil, opts[:comment]})
+          |> add_optional_node({:PrivateZone, nil, opts[:private]})
+    ) |> add_optional_node({
          :VPC, nil, [
            {:VPCId, nil, opts[:vpc_id]},
            {:VPCRegion, nil, opts[:vpc_region]}]
