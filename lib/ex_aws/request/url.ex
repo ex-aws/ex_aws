@@ -1,7 +1,5 @@
 defmodule ExAws.Request.Url do
-  @moduledoc """
-  Utility module for request URLs
-  """
+  @moduledoc false
 
   @doc """
   Builds URL for an operation and a config"
