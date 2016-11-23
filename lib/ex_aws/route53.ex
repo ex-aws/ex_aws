@@ -68,7 +68,7 @@ defmodule ExAws.Route53 do
     {:action, record_actions} |
     {:name, binary} |
     {:type, record_types} |
-    {:ttl, Integer.t} |
+    {:ttl, non_neg_integer} |
     {:records, [String.t, ...]} |
     {:batch, [record_opts, ...]}
   ]
