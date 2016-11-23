@@ -28,4 +28,8 @@ defmodule ExAws.UtilsTest do
   test "iso_z_to_secs/1" do
     assert iso_z_to_secs("2015-07-05T22:16:18Z") == 1436134578
   end
+
+  test "rename_keys renames keys in a list of keywords" do
+    assert [d: 1, b: 2, e: 3] == [a: 1, b: 2, c: 3] |> rename_keys(a: :d, c: :e)
+  end
 end

@@ -102,4 +102,13 @@ defmodule ExAws.Utils do
   end
 
   def uuid, do: DateTime.utc_now |> :erlang.phash2
+
+  def rename_keys(keywords, mapping) do
+    keywords |> Enum.map(fn {k, v} ->
+     cond do
+       Keyword.has_key?(mapping, k) -> {mapping[k], v}
+       true -> {k, v}
+     end
+    end)
+  end
 end
