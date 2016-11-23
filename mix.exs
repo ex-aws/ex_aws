@@ -38,6 +38,7 @@ defmodule ExAws.Mixfile do
       {:hackney, "~> 1.5", optional: true},
       {:poison, "~> 1.2 or ~> 2.0", optional: true},
       {:jsx, "~> 2.8", optional: true},
+      {:ini, "~> 0.0.1"},
       {:gen_stage, "~> 0.8.0"},
       {:dialyze, "~> 0.2.0", only: :dev},
       {:bypass, "~> 0.1", only: :test},
