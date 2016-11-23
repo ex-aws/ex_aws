@@ -133,4 +133,29 @@ defmodule ExAws.Route53.ParsersTest do
       }
     }
   end
+
+  test "parsing a change resource record sets" do
+    rsp = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <ChangeResourceRecordSetsResponse>
+       <ChangeInfo>
+          <Comment>CHANGE_COMMENT</Comment>
+          <Id>CHANGE_ID</Id>
+          <Status>STATUS</Status>
+          <SubmittedAt>2016-01-01</SubmittedAt>
+       </ChangeInfo>
+    </ChangeResourceRecordSetsResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :change_record_sets)
+    assert parsed_doc == %{
+      change_info: %{
+        comment: "CHANGE_COMMENT",
+        id: "CHANGE_ID",
+        status: "STATUS",
+        submitted_at: "2016-01-01"
+      }
+    }
+  end
 end

@@ -2,36 +2,26 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.Route53.Parsers do
     import SweetXml, only: [sigil_x: 2, transform_by: 2]
 
-    def parse({:ok, %{body: xml}=resp}, :list_hosted_zones) do
-      parsed_body = xml
-      |> SweetXml.xpath(~x"//ListHostedZonesResponse",
+    def parse({:ok, resp}, :list_hosted_zones) do
+      resp |> parse_xml(~x"//ListHostedZonesResponse",
         is_truncated: ~x"./IsTruncated/text()"s |> transform_by(&(&1 == "true")),
         marker: ~x"./Marker/text()"s,
         max_items: ~x"./MaxItems/text()"i,
         next_marker: ~x"./NextMarker/text()"s,
         hosted_zones: [
           ~x"./HostedZones/HostedZone"l,
-          id:  id_node_xpath,
+          id:  id_node,
           name:  ~x"./Name/text()"s,
           record_set_count:  ~x"./ResourceRecordSetCount/text()"i,
           caller_reference:  ~x"./CallerReference/text()"s,
           comment:  ~x"./Config/Comment/text()"s
         ]
       )
-
-      {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :create_hosted_zone) do
-      parsed_body = xml
-      |> SweetXml.xpath(~x"//CreateHostedZoneResponse",
-       change_info: [
-         ~x"./ChangeInfo",
-         comment: ~x"./Comment/text()"s,
-         id: ~x"./Id/text()"s,
-         status: ~x"./Status/text()"s,
-         submitted_at: ~x"./SubmittedAt/text()"s
-       ],
+    def parse({:ok, resp}, :create_hosted_zone) do
+      resp |> parse_xml(~x"//CreateHostedZoneResponse",
+       change_info: change_info_node,
        delegation_set: [
          ~x"./DelegationSet",
          caller_reference: ~x"./CallerReference/text()"so,
@@ -46,7 +36,7 @@ if Code.ensure_loaded?(SweetXml) do
            comment: ~x"./Comment/text()"so,
            private: ~x"./PrivateZone/text()"so |> transform_by(&(&1 == "true")),
          ],
-          id:  id_node_xpath,
+          id:  id_node,
          name:  ~x"./Name/text()"s,
          record_set_count:  ~x"./ResourceRecordSetCount/text()"i,
        ],
@@ -56,25 +46,33 @@ if Code.ensure_loaded?(SweetXml) do
          vpc_region: ~x"./VPCRegion/text()"so,
        ]
      )
-      {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :delete_hosted_zone) do
-      parsed_body = xml
-      |> SweetXml.xpath(~x"//DeleteHostedZoneResponse",
-       change_info: [
+    def parse({:ok, resp}, :delete_hosted_zone) do
+      resp |> parse_xml(~x"//DeleteHostedZoneResponse", change_info: change_info_node)
+    end
+
+    def parse({:ok, resp}, :change_record_sets) do
+      resp |> parse_xml(~x"//ChangeResourceRecordSetsResponse", change_info: change_info_node)
+    end
+
+    defp id_node do
+      ~x"./Id/text()"s |> transform_by(&String.replace(&1, ~r/^.+?\//, ""))
+    end
+
+    defp change_info_node do
+      [
          ~x"./ChangeInfo",
          comment: ~x"./Comment/text()"s,
-         id: ~x"./Id/text()"s,
+         id: id_node,
          status: ~x"./Status/text()"s,
          submitted_at: ~x"./SubmittedAt/text()"s
        ]
-     )
-     {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    defp id_node_xpath do
-      ~x"./Id/text()"s |> transform_by(&String.replace(&1, ~r/^.+?\//, ""))
+    defp parse_xml(%{body: xml} = resp, xpath, elements) do
+      parsed_body = xml |> SweetXml.xpath(xpath, elements)
+     {:ok, Map.put(resp, :body, parsed_body)}
     end
   end
 else

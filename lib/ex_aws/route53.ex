@@ -1,5 +1,5 @@
 defmodule ExAws.Route53 do
-  import ExAws.Utils, only: [uuid: 0]
+  import ExAws.Utils, only: [uuid: 0, upcase: 1]
   import ExAws.Xml, only: [add_optional_node: 2]
 
   @moduledoc """
@@ -49,9 +49,58 @@ defmodule ExAws.Route53 do
   end
 
   @doc "Delete hosted zone"
-  @spec delete_hosted_zone(id :: string) :: ExAws.Operation.RestQuery.t
+  @spec delete_hosted_zone(id :: String.t) :: ExAws.Operation.RestQuery.t
   def delete_hosted_zone(id) do
     request(:delete, :delete_hosted_zone, path: "/#{id}")
+  end
+
+  @type record_actions :: [:create | :delete | :upsert]
+  @type record_types :: [:a | :aaaa | :cname | :mx | :naptr | :ns | :ptr | :soa | :spf | :srv | :txt]
+  @type record_opts :: [
+    {:action, record_actions} |
+    {:name, binary} |
+    {:type, record_types} |
+    {:ttl, Integer.t} |
+    {:records, [String.t, ...]}
+  ]
+  @type change_record_sets_opts :: [
+    {:comment, binary} |
+    {:action, record_actions} |
+    {:name, binary} |
+    {:type, record_types} |
+    {:ttl, Integer.t} |
+    {:records, [String.t, ...]} |
+    {:batch, [record_opts, ...]}
+  ]
+  @doc "Change resource record sets"
+  @spec change_record_sets(id :: String.t, opts :: change_record_sets_opts) :: ExAws.Operation.RestQuery.t
+  def change_record_sets(id, opts \\ []) do
+    changes = opts |> Keyword.get(:batch, Map.new(opts)) |> List.wrap
+    payload = {
+      :ChangeResourceRecordSetsRequest, %{xmlns: "https://route53.amazonaws.com/doc/2013-04-01/"},[
+       {:ChangeBatch, nil, [
+         {:Changes, nil, [
+           changes |> Enum.map(fn(change) ->
+             {:Change, nil, [
+               {:Action, nil, upcase(change[:action])},
+               {:ResourceRecordSet, nil, [
+                 {:Name, nil, change[:name]},
+                 {:Type, nil, upcase(change[:type])},
+                 {:TTL, nil, change[:ttl]},
+                 {:ResourceRecords, nil, change |> Map.get(:records, []) |> Enum.map(fn value ->
+                   {:ResourceRecord, nil, [
+                     {:Value, nil, value}
+                   ]}
+                 end)}
+               ]}
+             ]}
+           end)
+         ]},
+         {:Comment, nil, opts[:comment]}
+       ]}
+     ]
+    } |> XmlBuilder.doc
+    request(:post, :change_record_sets, path: "/#{id}/rrset", body: payload)
   end
 
   ## Request
