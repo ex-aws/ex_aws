@@ -108,4 +108,29 @@ defmodule ExAws.Route53.ParsersTest do
       }
     }
   end
+
+  test "parsing a delete hosted zone response" do
+    rsp = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <DeleteHostedZoneResponse>
+       <ChangeInfo>
+          <Comment>CHANGE_COMMENT</Comment>
+          <Id>CHANGE_ID</Id>
+          <Status>STATUS</Status>
+          <SubmittedAt>2016-12-01</SubmittedAt>
+       </ChangeInfo>
+    </DeleteHostedZoneResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_hosted_zone)
+    assert parsed_doc == %{
+      change_info: %{
+        comment: "CHANGE_COMMENT",
+        id: "CHANGE_ID",
+        status: "STATUS",
+        submitted_at: "2016-12-01"
+      }
+    }
+  end
 end

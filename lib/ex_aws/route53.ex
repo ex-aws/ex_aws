@@ -48,13 +48,20 @@ defmodule ExAws.Route53 do
     request(:post, :create_hosted_zone, body: payload)
   end
 
+  @doc "Delete hosted zone"
+  @spec delete_hosted_zone(id :: string) :: ExAws.Operation.RestQuery.t
+  def delete_hosted_zone(id) do
+    request(:delete, :delete_hosted_zone, path: "/#{id}")
+  end
+
   ## Request
   ######################
 
   defp request(http_method, action, opts) do
+    path = Keyword.get(opts, :path, "")
     %ExAws.Operation.RestQuery{
       http_method: http_method,
-      path: "/2013-04-01/hostedzone",
+      path: "/2013-04-01/hostedzone#{path}",
       params: Keyword.get(opts, :params, %{}),
       body: Keyword.get(opts, :body, ""),
       service: :route53,

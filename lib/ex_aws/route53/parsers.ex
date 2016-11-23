@@ -58,6 +58,20 @@ if Code.ensure_loaded?(SweetXml) do
      )
       {:ok, Map.put(resp, :body, parsed_body)}
     end
+
+    def parse({:ok, %{body: xml}=resp}, :delete_hosted_zone) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DeleteHostedZoneResponse",
+       change_info: [
+         ~x"./ChangeInfo",
+         comment: ~x"./Comment/text()"s,
+         id: ~x"./Id/text()"s,
+         status: ~x"./Status/text()"s,
+         submitted_at: ~x"./SubmittedAt/text()"s
+       ]
+     )
+     {:ok, Map.put(resp, :body, parsed_body)}
+    end
   end
 else
   defmodule ExAws.Route53.Parsers do

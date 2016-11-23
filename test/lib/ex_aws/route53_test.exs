@@ -80,4 +80,17 @@ defmodule ExAws.Route53Test do
     assert "VPC_ID" == payload[:vpc_id]
     assert "VPC_REGION" == payload[:vpc_region]
   end
+
+  test "delete hosted zone" do
+    expected = %RestQuery{
+      service: :route53,
+      path: "/2013-04-01/hostedzone/ZONE_ID",
+      action: :delete_hosted_zone,
+      http_method: :delete,
+      params: %{},
+      body: "",
+      parser: &ExAws.Route53.Parsers.parse/2
+    }
+    assert expected == Route53.delete_hosted_zone("ZONE_ID")
+  end
 end
