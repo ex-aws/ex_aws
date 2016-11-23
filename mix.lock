@@ -1,5 +1,6 @@
 %{"bypass": {:hex, :bypass, "0.5.1", "cf3e8a4d376ee1dcd89bf362dfaf1f4bf4a6e19895f52fdc2bafbd8207ce435f", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: false]}, {:plug, "~> 1.0", [hex: :plug, optional: false]}]},
   "certifi": {:hex, :certifi, "0.4.0", "a7966efb868b179023618d29a407548f70c52466bf1849b9e8ebd0e34b7ea11f", [:rebar3], []},
+  "configparser_ex": {:hex, :configparser_ex, "0.2.1", "47a15fa6ebc7d5284bd6dbe1a88be7315fde91a1328915739509c5b75e26eb93", [:mix], []},
   "cowboy": {:hex, :cowboy, "1.0.4", "a324a8df9f2316c833a470d918aaf73ae894278b8aa6226ce7a9bf699388f878", [:rebar, :make], [{:cowlib, "~> 1.0.0", [hex: :cowlib, optional: false]}, {:ranch, "~> 1.0", [hex: :ranch, optional: false]}]},
   "cowlib": {:hex, :cowlib, "1.0.2", "9d769a1d062c9c3ac753096f868ca121e2730b9a377de23dec0f7e08b1df84ee", [:make], []},
   "dialyze": {:hex, :dialyze, "0.2.1", "9fb71767f96649020d769db7cbd7290059daff23707d6e851e206b1fdfa92f9d", [:mix], []},
