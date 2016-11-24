@@ -5,6 +5,23 @@ end
 
 defmodule ExAws.KMS.ClientEncryption do
 
+  @doc "Encrypts a map as json with a data key generated for the master key_id provided"
+  @spec encrypt(data :: Map.t(), key_id :: String.t()) :: ExAws.KMS.ClientEncryption.Result
+  def encrypt_map(%{} = data, key_id) do
+    config = ExAws.Config.new(:kms)
+    json = config[:json_codec].encode!(data)
+    encrypt(json, key_id)
+  end
+
+  @doc "Decrypts the result of a call to encrypt_map() (Note: keys will be strings)"
+  @spec decrypt(message :: ExAws.KMS.ClientEncryption.Result) :: Map.t()
+  def decrypt_map(message) do
+    plaintext = decrypt(message)
+    config = ExAws.Config.new(:kms)
+    {:ok, obj} = config[:json_codec].decode(plaintext)
+    obj
+  end
+
   @doc "Encrypts plaintext with a data key generated for the master key_id provided"
   @spec encrypt(plaintext :: String.t(), key_id :: String.t()) :: ExAws.KMS.ClientEncryption.Result
   def encrypt(plaintext, key_id) do
