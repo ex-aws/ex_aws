@@ -18,9 +18,10 @@ if Code.ensure_loaded?(ConfigParser) do
       |> ConfigParser.parse_string
 
       case parsed_contents do
-        {:ok, map} ->
-          Map.get(map, profile_name)
+        {:ok, %{^profile_name => config}} ->
+	  config
           |> strip_key_prefix
+	{:ok, %{}} -> raise "Missing #{profile_name} entry in configuration"
         _ -> %{}
       end
     end
