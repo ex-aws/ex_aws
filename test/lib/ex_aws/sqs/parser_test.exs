@@ -534,28 +534,4 @@ defmodule ExAws.SQS.ParserTest do
 
     assert "e5cca473-4fc0-4198-a451-8abb94d02c75" == response[:request_id]
   end
-
-  test "it should handle parsing an error" do
-    rsp = """
-    <?xml version=\"1.0\"?>
-    <ErrorResponse xmlns=\"http://queue.amazonaws.com/doc/2012-11-05/\">
-      <Error>
-        <Type>Sender</Type>
-        <Code>ExpiredToken</Code>
-        <Message>The security token included in the request is expired</Message>
-        <Detail/>
-      </Error>
-      <RequestId>f7ac5905-2fb6-5529-a86d-09628dae67f4</RequestId>
-    </ErrorResponse>
-    """
-    |> to_error
-
-    {:error, {:http_error, 403, err}} = Parsers.parse(rsp, :set_queue_attributes)
-
-    assert "f7ac5905-2fb6-5529-a86d-09628dae67f4" == err[:request_id]
-    assert "Sender" == err[:type]
-    assert "ExpiredToken" == err[:code]
-    assert "The security token included in the request is expired" == err[:message]
-  end
-
 end
