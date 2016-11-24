@@ -8,7 +8,7 @@ if Code.ensure_loaded?(ConfigParser) do
 
       config =
         File.read("#{System.user_home}/.aws/config")
-        |> parse_ini_file(profile_name)
+        |> parse_ini_file("profile #{profile_name}")
 
       Map.merge(credentials, config)
     end
