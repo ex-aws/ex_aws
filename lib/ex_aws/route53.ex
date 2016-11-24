@@ -20,6 +20,7 @@ defmodule ExAws.Route53 do
   @type create_hosted_zone_opts :: [
     {:name, binary} |
     {:comment, binary} |
+    {:delegation_set, binary} |
     {:private, boolean} |
     {:vpc_is, binary} |
     {:vpc_region, binary}
@@ -31,7 +32,8 @@ defmodule ExAws.Route53 do
       :CreateHostedZoneRequest, %{xmlns: "https://route53.amazonaws.com/doc/2013-04-01/"}, [
        {:CallerReference, nil, uuid},
        {:Name, nil, opts[:name]}]
-    } |> add_optional_node(
+    } |> add_optional_node({:DelegationSetId, nil, opts[:delegation_set]})
+      |> add_optional_node(
           {:HostedZoneConfig, nil, nil}
           |> add_optional_node({:Comment, nil, opts[:comment]})
           |> add_optional_node({:PrivateZone, nil, opts[:private]})

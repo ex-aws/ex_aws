@@ -81,6 +81,18 @@ defmodule ExAws.Route53Test do
     assert "VPC_REGION" == payload[:vpc_region]
   end
 
+  test "create hosted zone with a delegation set" do
+    response = Route53.create_hosted_zone name: "example.com", delegation_set: "DELEGATION_SET_ID"
+    delegation_set_id = response.body |> xpath(~x"//CreateHostedZoneRequest/DelegationSetId/text()"s)
+    assert "DELEGATION_SET_ID" == delegation_set_id
+  end
+
+  test "create hosted zone without delegation set" do
+    response = Route53.create_hosted_zone name: "example.com"
+    delegation_set_id = response.body |> xpath(~x"//CreateHostedZoneRequest/DelegationSetId"o)
+    refute delegation_set_id
+  end
+
   test "delete hosted zone" do
     expected_response = %RestQuery{
       service: :route53,
