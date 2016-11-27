@@ -40,9 +40,13 @@ if Code.ensure_loaded?(ConfigParser) do
     def replace_token_key(credentials) do
       token = Map.get(credentials, :session_token)
 
-      credentials
-      |> Map.delete(:session_token)
-      |> Map.put(:security_token, token)
+      if token do
+        credentials
+        |> Map.delete(:session_token)
+        |> Map.put(:security_token, token)
+      else
+        credentials
+      end
     end
   end
 else
