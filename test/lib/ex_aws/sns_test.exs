@@ -94,6 +94,16 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.subscribe("arn:aws:sns:us-east-1:982071696186:test-topic", "https", "https://example.com").params
   end
 
+  test "#confirm_subscription" do
+    expected = %{
+      "Action"   => "ConfirmSubscription",
+      "TopicArn" => "arn:aws:sns:us-east-1:982071696186:test-topic",
+      "Token" => "topic_token",
+      "AuthenticateOnUnsubscribe" => "true"
+    }
+    assert expected == SNS.confirm_subscription("arn:aws:sns:us-east-1:982071696186:test-topic", "topic_token", true).params
+  end
+
   test "#list_subscriptions" do
     expected = %{"Action" => "ListSubscriptions"}
     assert expected == SNS.list_subscriptions().params
@@ -203,4 +213,41 @@ defmodule ExAws.SNSTest do
     }
     assert expected == SNS.delete_endpoint("test-endpoint-arn").params
   end
+
+  describe "verify_message/1" do
+    setup [:add_verify_message]
+
+    test "validate a pristine message from SNS", %{verify_message: message} do
+      assert :ok == SNS.verify_message(message)
+    end
+
+    test "fails with tampered message", %{verify_message: message} do
+      assert {:error, _message} = SNS.verify_message(message |> Map.put("Message", "message"))
+    end
+    
+    test "fails with a missing message params", %{verify_message: message} do
+      assert {:error, _message} = SNS.verify_message(message |> Map.delete("Timestamp"))
+    end
+
+    test "fails with an invalid signature version", %{verify_message: message} do
+      assert {:error, _message} = SNS.verify_message(message |> Map.put("SignatureVersion","2"))
+    end
+  end
+
+  defp add_verify_message(context) do
+    message = %{
+      "Type" => "SubscriptionConfirmation",
+      "MessageId" => "c98bfcda-56fc-459e-9257-88b9553e22d7",
+      "Token" => "2336412f37fb687f5d51e6e241d44a2dc0dc1808be349325be7bdd46c777d7461673f5800c81ae6d5ec8e7ff8e24985fadefa80d9d9471fdf3091a6c239105468b29615b925b53382a5b69a53872116c1d1dc3af2122db5399d6be5cea19ef72aa09a8309e00f296e4e461561bb2397d",
+      "TopicArn" => "arn:aws:sns:eu-west-1:511293508251:ex_aws_test",
+      "Message" => "You have chosen to subscribe to the topic arn:aws:sns:eu-west-1:511293508251:ex_aws_test.\nTo confirm the subscription, visit the SubscribeURL included in this message.",
+      "SubscribeURL" => "https://sns.eu-west-1.amazonaws.com/?Action=ConfirmSubscription&TopicArn=arn:aws:sns:eu-west-1:511293508251:ex_aws_test&Token=2336412f37fb687f5d51e6e241d44a2dc0dc1808be349325be7bdd46c777d7461673f5800c81ae6d5ec8e7ff8e24985fadefa80d9d9471fdf3091a6c239105468b29615b925b53382a5b69a53872116c1d1dc3af2122db5399d6be5cea19ef72aa09a8309e00f296e4e461561bb2397d",
+      "Timestamp" => "2016-11-16T01:52:21.709Z",
+      "SignatureVersion" => "1",
+      "Signature" => "lAUpZvBd+bA0bBFOl//ZR8+Ud1tMQR9QDiRSS0VrCPIaY67zURqTeRhmSQFBVsqGOBM+MHnCinDC5HttGGv9L2N15urvj3L5YfZOA87TLvHPJzxiA2XCD40lrSFBRDGhO7jq49hwY48K56jik9CFiMw84jLxKMrdw9KkHYAyWt12NiZWoLWa/PHbT7tmlh1+Tkc5EN4u/t3tGwS4bSZOXWq0DIKh+rE7U84Yxyph9R9ykEArEAwXEiGBfkleXpFB4AtF4PMmXXETnBI770v24LWgsopVUIBV+p1jEJi1Mcg9D/+00BnkAFFq4S0Foryr7xA/mgPZJNTlV2nK7eaQ4g==",
+      "SigningCertURL" => "https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem"
+    }
+    context |> Map.put(:verify_message, message)
+  end
+
 end
