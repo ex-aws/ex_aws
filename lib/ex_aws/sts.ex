@@ -6,8 +6,12 @@ defmodule ExAws.STS do
   http://docs.aws.amazon.com/STS/latest/APIReference/API_Operations.html
   """
 
+  @type policy :: %{
+    binary => :all
+  }
+
   @doc "Get Federation Token"
-  @spec get_federation_token(duration :: pos_integer(), name :: binary, policy :: map()) :: ExAws.Operation.Query.t
+  @spec get_federation_token(duration :: pos_integer(), name :: binary, policy :: policy) :: ExAws.Operation.Query.t
   def get_federation_token(duration, name, policy) do
     request(:get_federation_token, %{
       "Version" => "2011-06-15",
