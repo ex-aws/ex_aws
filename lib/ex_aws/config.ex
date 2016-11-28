@@ -65,10 +65,12 @@ defmodule ExAws.Config do
     config
     |> ExAws.Config.AuthCache.get
     |> Map.take([:access_key_id, :secret_access_key, :security_token])
+    |> valid_map_or_nil
   end
   def retrieve_runtime_value({:awscli, profile, expiration}, _) do
     ExAws.Config.AuthCache.get(profile, expiration)
     |> Map.take([:access_key_id, :secret_access_key, :region, :security_token])
+    |> valid_map_or_nil
   end
   def retrieve_runtime_value(values, config) when is_list(values) do
     values
@@ -87,5 +89,8 @@ defmodule ExAws.Config do
     end
   end
   def parse_host_for_region(config), do: config
+
+  defp valid_map_or_nil(map) when map == %{}, do: nil
+  defp valid_map_or_nil(map), do: map
 
 end
