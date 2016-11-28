@@ -32,11 +32,12 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     def replace_token_key(credentials) do
-      token = Map.get(credentials, :session_token)
-
-      credentials
-      |> Map.delete(:session_token)
-      |> Map.put(:security_token, token)
+      case Map.pop(credentials, :session_token) do
+	{nil, credentials} ->
+	  credentials
+	{token, credentials} ->
+	  Map.put(credentials, :security_token, token)
+      end
     end
 
     defp profile_from_shared_credentials(profile_name) do
