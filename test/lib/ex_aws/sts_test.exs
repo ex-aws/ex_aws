@@ -17,6 +17,8 @@ defmodule ExAws.STSTest do
       ]
     }
 
+    params = %{duration: duration, name: name, policy: policy}
+
     expected = %{
       "Action" => "GetFederationToken",
       "DurationSeconds" => duration,
@@ -25,6 +27,6 @@ defmodule ExAws.STSTest do
       "Version" => version,
     }
 
-    assert expected == STS.get_federation_token(duration, name, policy).params
+    assert expected == STS.get_federation_token(params).params
   end
 end
