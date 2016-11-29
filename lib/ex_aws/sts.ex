@@ -43,7 +43,7 @@ defmodule ExAws.STS do
 
   defp maybe_add_duration(params, opts) do
     if Keyword.has_key?(opts, :duration) do
-      Map.merge(params, %{"DurationSeconds" => Keyword.get(opts, :duration)})
+      Map.merge(params, %{"DurationSeconds" => opts[:duration]})
     else
       params
     end
@@ -51,7 +51,7 @@ defmodule ExAws.STS do
 
   defp maybe_add_policy(params, opts) do
     if Keyword.has_key?(opts, :policy) do
-      encoded_policy = Poison.encode!(Keyword.get(opts, :policy))
+      encoded_policy = Poison.encode!(opts[:policy])
 
       Map.merge(params, %{"Policy" => encoded_policy})
     else
