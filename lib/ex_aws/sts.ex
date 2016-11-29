@@ -10,21 +10,20 @@ defmodule ExAws.STS do
     binary => :all
   }
 
-  @type get_federation_token_params :: %{
-    :duration => pos_integer(),
-    :name => binary,
-    :policy => policy
-  }
+  @type get_federation_token_opt :: {:duration, pos_integer} | {:policy, policy}
 
   @doc "Get Federation Token"
-  @spec get_federation_token(params :: get_federation_token_params) :: ExAws.Operation.Query.t
-  def get_federation_token(%{duration: duration, name: name, policy: policy}) do
-    request(:get_federation_token, %{
-      "Version" => "2011-06-15",
-      "DurationSeconds" => duration,
-      "Name" => name,
-      "Policy" => Poison.encode!(policy),
-    })
+  @spec get_federation_token(name :: String.t, [get_federation_token_opt]) :: ExAws.Operation.Query.t
+  def get_federation_token(name, opts) do
+    params =
+      %{
+        "Version" => "2011-06-15",
+        "Name" => name,
+      }
+      |> maybe_add_duration(opts)
+      |> maybe_add_policy(opts)
+
+    request(:get_federation_token, params)
   end
 
   ## Request
@@ -40,5 +39,23 @@ defmodule ExAws.STS do
       action: action,
       parser: &ExAws.STS.Parsers.parse/2
     }
+  end
+
+  defp maybe_add_duration(params, opts) do
+    if Keyword.has_key?(opts, :duration) do
+      Map.merge(params, %{"DurationSeconds" => Keyword.get(opts, :duration)})
+    else
+      params
+    end
+  end
+
+  defp maybe_add_policy(params, opts) do
+    if Keyword.has_key?(opts, :policy) do
+      encoded_policy = Poison.encode!(Keyword.get(opts, :policy))
+
+      Map.merge(params, %{"Policy" => encoded_policy})
+    else
+      params
+    end
   end
 end
