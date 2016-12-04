@@ -148,6 +148,7 @@ defmodule ExAws.S3 do
     {:encoding_type, binary} |
     {:max_keys, 0..1000}
   ]
+
   @doc """
   List objects in bucket
 
