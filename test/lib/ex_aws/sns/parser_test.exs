@@ -438,6 +438,77 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc[:request_id] == "384ac68d-3775-11df-8963-01868b7c937a"
   end
 
+  test "#parsing a list_subscriptions_by_topic response" do
+    rsp = """
+      <ListSubscriptionsByTopicResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ListSubscriptionsByTopicResult>
+          <Subscriptions>
+            <member>
+              <TopicArn>arn:aws:sns:us-east-1:123456789012:My-Topic</TopicArn>
+              <Protocol>email</Protocol>
+              <SubscriptionArn>arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca</SubscriptionArn>
+              <Owner>123456789012</Owner>
+              <Endpoint>example@amazon.com</Endpoint>
+            </member>
+          </Subscriptions>
+        </ListSubscriptionsByTopicResult>
+        <ResponseMetadata>
+          <RequestId>b9275252-3774-11df-9540-99d0768312d3</RequestId>
+        </ResponseMetadata>
+      </ListSubscriptionsByTopicResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_subscriptions_by_topic)
+    assert parsed_doc[:subscriptions] == [
+      %{
+        owner: "123456789012",
+        endpoint: "example@amazon.com",
+        protocol: "email",
+        subscription_arn: "arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca",
+        topic_arn: "arn:aws:sns:us-east-1:123456789012:My-Topic"
+      }
+    ]
+    assert parsed_doc[:next_token] == ""
+    assert parsed_doc[:request_id] == "b9275252-3774-11df-9540-99d0768312d3"
+  end
+
+  test "#parsing a list_subscriptions_by_topic response with a next token" do
+    rsp = """
+      <ListSubscriptionsByTopicResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ListSubscriptionsByTopicResult>
+          <Subscriptions>
+            <member>
+              <TopicArn>arn:aws:sns:us-east-1:123456789012:My-Topic</TopicArn>
+              <Protocol>email</Protocol>
+              <SubscriptionArn>arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca</SubscriptionArn>
+              <Owner>123456789012</Owner>
+              <Endpoint>example@amazon.com</Endpoint>
+            </member>
+          </Subscriptions>
+          <NextToken>123456789</NextToken>
+        </ListSubscriptionsByTopicResult>
+        <ResponseMetadata>
+          <RequestId>b9275252-3774-11df-9540-99d0768312d3</RequestId>
+        </ResponseMetadata>
+      </ListSubscriptionsByTopicResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_subscriptions_by_topic)
+    assert parsed_doc[:subscriptions] == [
+      %{
+        owner: "123456789012",
+        endpoint: "example@amazon.com",
+        protocol: "email",
+        subscription_arn: "arn:aws:sns:us-east-1:123456789012:My-Topic:80289ba6-0fd4-4079-afb4-ce8c8260f0ca",
+        topic_arn: "arn:aws:sns:us-east-1:123456789012:My-Topic"
+      }
+    ]
+    assert parsed_doc[:next_token] == "123456789"
+    assert parsed_doc[:request_id] == "b9275252-3774-11df-9540-99d0768312d3"
+  end
+
   test "#parsing an unsubscribe response" do
     rsp = """
       <UnsubscribeResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
@@ -500,7 +571,7 @@ defmodule ExAws.SNS.ParserTest do
         <ResponseMetadata>
           <RequestId>a8763b99-33a7-11df-a9b7-05d48da6f042</RequestId>
         </ResponseMetadata>
-      </SetSubscriptionAttributesResponse> 
+      </SetSubscriptionAttributesResponse>
     """
     |> to_success
 

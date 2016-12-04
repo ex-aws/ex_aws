@@ -206,6 +206,17 @@ defmodule ExAws.SNS do
     request(:list_subscriptions, %{"NextToken" => next_token})
   end
 
+  @doc "List Subscriptions by Topic"
+  @spec list_subscriptions_by_topic(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
+  def list_subscriptions_by_topic(topic_arn) do
+    request(:list_subscriptions_by_topic, %{"TopicArn" => topic_arn})
+  end
+
+  @spec list_subscriptions_by_topic(topic_arn :: topic_arn, next_token :: binary) :: ExAws.Operation.Query.t
+  def list_subscriptions_by_topic(topic_arn, next_token) do
+    request(:list_subscriptions_by_topic, %{"TopicArn" => topic_arn, "NextToken" => next_token})
+  end
+
   @doc "Unsubscribe"
   @spec unsubscribe(subscription_arn :: binary) :: ExAws.Operation.Query.t
   def unsubscribe(subscription_arn) do
