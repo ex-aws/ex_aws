@@ -41,8 +41,8 @@ defmodule ExAws.Dynamo.Decoder do
   end
   def decode(%{"N" => value}) when is_binary(value), do: binary_to_number(value)
   def decode(%{"N" => value}) when value |> is_integer or value |> is_float, do: value
-  def decode(item = %{}) do
-    item |> Enum.reduce(%{}, fn({k, v}, map) ->
+  def decode(%{"Item" => value}) do
+    value |> Enum.reduce(%{}, fn({k,v}, map) ->
       Map.put(map, k, decode(v))
     end)
   end
