@@ -119,7 +119,7 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.list_subscriptions_by_topic("arn:aws:sns:us-east-1:982071696186:test-topic").params
 
     expected = %{"Action" => "ListSubscriptionsByTopic", "TopicArn" => "arn:aws:sns:us-east-1:982071696186:test-topic", "NextToken" => "123456789"}
-    assert expected == SNS.list_subscriptions_by_topic("arn:aws:sns:us-east-1:982071696186:test-topic", "123456789").params
+    assert expected == SNS.list_subscriptions_by_topic("arn:aws:sns:us-east-1:982071696186:test-topic", next_token: "123456789").params
   end
 
   test "#unsubscribe" do
