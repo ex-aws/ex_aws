@@ -36,9 +36,11 @@ defmodule ExAws.SNSTest do
     expected = %{
       "Action" => "CreatePlatformApplication",
       "Name" => "ApplicationName",
-      "Platform" => "APNS"
+      "Platform" => "APNS",
+      "Attributes.entry.1.key" => "PlatformCredential",
+      "Attributes.entry.1.value" => "foo",
     }
-    assert expected == SNS.create_platform_application("ApplicationName", "APNS").params
+    assert expected == SNS.create_platform_application("ApplicationName", "APNS", %{"PlatformCredential" => "foo"}).params
   end
 
   test "#delete_platform_application" do
@@ -224,7 +226,7 @@ defmodule ExAws.SNSTest do
     test "fails with tampered message", %{verify_message: message} do
       assert {:error, _message} = SNS.verify_message(message |> Map.put("Message", "message"))
     end
-    
+
     test "fails with a missing message params", %{verify_message: message} do
       assert {:error, _message} = SNS.verify_message(message |> Map.delete("Timestamp"))
     end
