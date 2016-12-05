@@ -85,6 +85,12 @@ defmodule ExAws.Config.Defaults do
       region: "us-east-1",
       port: 80
     },
+    ecs: %{
+      scheme: "https://",
+      host: {"$region", "ecs.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 80
+    },
   }
 
   @doc """
