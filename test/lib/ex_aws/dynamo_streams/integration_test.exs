@@ -11,7 +11,7 @@ defmodule ExAws.DynamoStreamsIntegrationTest do
   #
 
   setup_all do
-    Dynamo.delete_table("StreamUser") |> ExAws.request!
+    Dynamo.delete_table("StreamUser") |> ExAws.request
     Dynamo.create_table("StreamUser", [email: :hash, age: :range], [email: :string, age: :number], 1, 1) |> ExAws.request!
     Dynamo.update_table("StreamUser", stream_specification: %{ stream_enabled: true, stream_view_type: "NEW_AND_OLD_IMAGES"}) |> ExAws.request!
     %{"Table" => %{ "LatestStreamArn" => arn }} = Dynamo.describe_table("StreamUser") |> ExAws.request!
