@@ -26,8 +26,8 @@ defmodule ExAws.Dynamo.EncoderTest do
   end
 
   test "encoder handles lists properly" do
-    assert ["foo", "bar"] |> Encoder.encode == %{"SS" => ["foo", "bar"]}
-    assert [1, 2] |> Encoder.encode == %{"NS" => ["1", "2"]}
+    assert ["foo", "bar"] |> Encoder.encode == %{"L" => [%{"S" => "foo"}, %{"S" => "bar"}]}
+    assert [1, 2] |> Encoder.encode == %{"L" => [%{"N" => "1"}, %{"N" => "2"}]}
     assert ["foo", 1] |> Encoder.encode == %{"L" => [%{"S" => "foo"}, %{"N" => "1"}]}
   end
 
@@ -38,7 +38,7 @@ defmodule ExAws.Dynamo.EncoderTest do
 
   test "encoder works with nested structs" do
     nested_structs = %Test.Nested{items: [%Test.Nested{items: ["asdf"], secret: "foo"}], secret: "bar"} |> Encoder.encode_root
-    expected = %{"items" => %{"L" => [%{"M" => %{"items" => %{"SS" => ["asdf"]}}}]}}
+    expected = %{"items" => %{"L" => [%{"M" => %{"items" => %{"L" => [%{"S" => "asdf"}]}}}]}}
     assert nested_structs == expected
   end
 end

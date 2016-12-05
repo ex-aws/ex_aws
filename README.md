@@ -5,6 +5,7 @@ ExAws
 A flexible easy to use set of AWS APIs.
 
 - `ExAws.Dynamo`
+- `ExAws.DynamoStreams`
 - `ExAws.EC2`
 - `ExAws.Kinesis`
 - `ExAws.Kms`
@@ -14,7 +15,7 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.SNS`
 - `ExAws.SQS`
 
-## 1.0.0-beta0 Changes
+## 1.0.0 Changes
 
 The `v0.5` branch holds the legacy approach.
 
@@ -25,7 +26,7 @@ return a struct which holds the information necessary to make that particular op
 You then have 4 ways you can choose to execute that operation:
 
 ```elixir
-# Normal
+# Simple
 S3.list_buckets |> ExAws.request #=> {:ok, response}
 # With per request configuration overrides
 S3.list_buckets |> ExAws.request(config) #=> {:ok, response}
@@ -59,6 +60,12 @@ ExAws.S3.get_object("my-bucket", "path/to/object")
 This change greatly simplifies the ExAws code paths, and removes entirely the complex
 meta-programming pervasive to the original approach. However, it does constitute
 a breaking change for anyone who had a client with custom logic.
+
+#### DynamoDB Users
+
+Lists are always encoded as dynamodb lists now. Previously if you had `[1,2,3]`
+it would be encoded as an integer set. This had issues because if the list was `[1,2,1]`
+you could get an error because the items are not unique.
 
 ## Highlighted Features
 - Easy configuration.
