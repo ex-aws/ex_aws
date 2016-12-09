@@ -5,10 +5,9 @@ defmodule ExAws.Request.Url do
   Builds URL for an operation and a config"
   """
   def build(operation, config) do
-    query =  operation.params |> normalize_params |> URI.encode_query
     config
     |> Map.take([:scheme, :host, :port])
-    |> Map.put(:query, query)
+    |> Map.put(:query, query(operation))
     |> Map.put(:path, operation.path)
     |> normalize_scheme
     |> normalize_path
@@ -16,6 +15,13 @@ defmodule ExAws.Request.Url do
     |> URI.to_string
     |> String.trim_trailing("?")
   end 
+
+  defp query(operation) do
+    operation
+    |> Map.get(:params, %{})
+    |> normalize_params
+    |> URI.encode_query
+  end
 
   defp normalize_scheme(url) do
     url |> Map.update(:scheme, "", &String.replace(&1, "://", ""))

@@ -44,6 +44,11 @@ defmodule ExAws.Request.UrlTest do
     assert Url.build(query, config) == "https://example.com/path"
   end
 
+  test "it accepts query without params key", %{query: query, config: config} do
+    query = query |> Map.delete(:params)
+    assert Url.build(query, config) == "https://example.com/path"
+  end
+
   test "it cleans up excessive slashes in the path", %{query: query, config: config} do
     query = query |> Map.put(:path, "//path///with/too/many//slashes//")
     assert Url.build(query, config) == "https://example.com/path/with/too/many/slashes/?foo=bar"
