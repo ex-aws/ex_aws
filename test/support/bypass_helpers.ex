@@ -8,7 +8,8 @@ defmodule Support.BypassHelpers do
     ExAws.Config.new(:s3, [
       access_key_id: "AKIAIOSFODNN7EXAMPLE",
       secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-      host: "localhost:#{bypass.port}",
+      host: "localhost",
+      port: bypass.port,
       scheme: "http://",
       region: "us-east-1",
     ])
