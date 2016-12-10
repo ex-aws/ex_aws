@@ -70,4 +70,25 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc[:verification_attributes] == verification_attributes
   end
 
+  test "#parse error" do
+    rsp = """
+      <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/\">
+        <Error>
+          <Type>Sender</Type>
+          <Code>MalformedInput</Code>
+          <Message>Top level element may not be treated as a list</Message>
+        </Error>
+        <RequestId>3ac0a9e8-bebd-11e6-9ec4-e5c47e708fa8</RequestId>
+      </ErrorResponse>
+    """
+    |> to_error
+
+
+    {:error, {:http_error, 403, err}} = Parsers.parse(rsp, :get_identity_verification_attributes)
+
+    assert "Sender" == err[:type]
+    assert "MalformedInput" == err[:code]
+    assert "Top level element may not be treated as a list" == err[:message]
+    assert "3ac0a9e8-bebd-11e6-9ec4-e5c47e708fa8" == err[:request_id]
+  end
 end
