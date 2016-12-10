@@ -34,6 +34,25 @@ if Code.ensure_loaded?(SweetXml) do
     end
     def parse_list_objects(val), do: val
 
+    def parse_all_my_buckets_result({:ok, resp = %{body: xml}}) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//ListAllMyBucketsResult",
+        owner: [
+          ~x"./Owner",
+          id: ~x"./ID/text()"s,
+          display_name: ~x"./DisplayName/text()"s
+        ],
+        buckets: [
+          ~x".//Bucket"l,
+          name: ~x"./Name/text()"s,
+          creation_date: ~x"./CreationDate/text()"s
+        ]
+      )
+
+      {:ok, %{resp | body: parsed_body}}
+    end
+    def parse_all_my_buckets_result(val), do: val
+
     def parse_initiate_multipart_upload({:ok, resp = %{body: xml}}) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//InitiateMultipartUploadResult",
@@ -69,6 +88,7 @@ if Code.ensure_loaded?(SweetXml) do
 else
   defmodule ExAws.S3.Parsers do
     def parse_list_objects(val), do: val
+    def parse_all_my_buckets_result(val), do: val
     def parse_initiate_multipart_upload(val), do: val
     def parse_upload_part_copy(val), do: val
     def parse_complete_multipart_upload(val), do: val

@@ -10,3 +10,7 @@ erl_crash.dump
 /mnesia/prod
 *.pem
 /tmp
+
+# IntelliJ IDEA files
+/.idea
+/exaws.iml
