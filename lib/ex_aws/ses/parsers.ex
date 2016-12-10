@@ -2,13 +2,28 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.SES.Parsers do
     import SweetXml, only: [sigil_x: 2]
 
+    @moduledoc false
+
     def parse({:ok, %{body: xml}=resp}, :verify_email_identity) do
       parsed_body = SweetXml.xpath(xml, ~x"//VerifyEmailIdentityResponse", request_id: request_id_xpath())
 
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse(val, _), do: val
+    def parse({:ok, %{body: xml}=resp}, :get_identity_verification_attributes) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//GetIdentityVerificationAttributesResponse",
+      verification_attributes: [
+      ~x"./GetIdentityVerificationAttributesResult/VerificationAttributes/entry"l,
+      entry: ~x"./key/text()"s,
+      verification_status: ~x"./value/VerificationStatus/text()"s,
+      verification_token: ~x"./value/VerificationToken/text()"so
+      ],
+      request_id: request_id_xpath())
+      |> update_in([:verification_attributes], &verification_attributes_list_to_map/1)
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
 
     def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
       parsed_body = xml
@@ -22,12 +37,28 @@ if Code.ensure_loaded?(SweetXml) do
       {:error, {type, http_status_code, parsed_body}}
     end
 
+    def parse(val, _), do: val
+
     defp request_id_xpath do
       ~x"./ResponseMetadata/RequestId/text()"s
+    end
+
+    defp verification_attributes_list_to_map(attributes) do
+      Enum.reduce(attributes, %{}, fn(%{entry: key} = attribute, acc) ->
+        props =
+          attribute
+          |> Map.delete(:entry)
+          |> Enum.reject(fn (kv) -> elem(kv, 1) in ["", nil] end)
+          |> Enum.into(%{})
+
+        Map.put_new(acc, key, props)
+      end)
     end
   end
 else
   defmodule ExAws.SES.Parsers do
+    @moduledoc false
+
     def parse(val, _), do: val
   end
 end

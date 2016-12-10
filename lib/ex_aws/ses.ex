@@ -1,6 +1,4 @@
 defmodule ExAws.SES do
-  #import ExAws.Utils, only: [camelize_key: 1, camelize_keys: 1]
-
   @moduledoc """
   Operations on AWS SES
 
@@ -11,6 +9,19 @@ defmodule ExAws.SES do
   @spec verify_email_identity(email :: binary) :: ExAws.Operation.Query.t
   def verify_email_identity(email) do
     request(:verify_email_identity, %{"EmailAddress" => email})
+  end
+
+  @doc "Fetch identities verification status and token (for domains)"
+  @spec identity_verification_attributes([binary]) :: ExAws.Operation.Query.t
+  def identity_verification_attributes(identities) when is_list(identities) do
+    params =
+      identities
+      |> Enum.with_index
+      |> Enum.reduce(%{}, fn({identity, index}, params) ->
+        Map.put_new(params, "Identities.member.#{index + 1}", identity)
+      end)
+
+    request(:get_identity_verification_attributes, params)
   end
 
   ## Request
