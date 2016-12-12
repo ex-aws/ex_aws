@@ -1,4 +1,4 @@
-defmodule ExAws.Parsers do
+defmodule ExAws.Operation.Query.Parser do
   defmacro __using__(_opts) do
     quote do
       import SweetXml, only: [sigil_x: 2]

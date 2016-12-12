@@ -1,11 +1,11 @@
-defmodule ExAws.ParsersTest.Dummy.Parsers do
-  use ExAws.Parsers
+defmodule ExAws.Operation.Query.ParserTest.Dummy.Parser do
+  use ExAws.Operation.Query.Parser
 end
 
-defmodule ExAws.ParsersTest do
+defmodule ExAws.Operation.Query.ParserTest do
   use ExUnit.Case, async: true
   import Support.ParserHelpers
-  alias ExAws.ParsersTest.Dummy.Parsers
+  alias ExAws.Operation.Query.ParserTest.Dummy.Parser
 
   test "it should handle parsing an error" do
     rsp = """
@@ -22,7 +22,7 @@ defmodule ExAws.ParsersTest do
     """
     |> to_error
 
-    {:error, {:http_error, 403, err}} = Parsers.parse(rsp, :set_endpoint_attributes)
+    {:error, {:http_error, 403, err}} = Parser.parse(rsp, :set_endpoint_attributes)
 
     assert "f7ac5905-2fb6-5529-a86d-09628dae67f4" == err[:request_id]
     assert "Sender" == err[:type]

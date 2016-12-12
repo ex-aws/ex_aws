@@ -1,6 +1,6 @@
 if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.Route53.Parsers do
-    use ExAws.Parsers
+    use ExAws.Operation.Query.Parser
     import SweetXml, only: [sigil_x: 2, transform_by: 2]
 
     def parse({:ok, resp}, :list_hosted_zones) do

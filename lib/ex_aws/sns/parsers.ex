@@ -1,6 +1,6 @@
 if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.SNS.Parsers do
-    use ExAws.Parsers
+    use ExAws.Operation.Query.Parser
 
     def parse({:ok, %{body: xml}=resp}, :list_topics) do
       parsed_body = xml
