@@ -1,21 +1,37 @@
 defmodule ExAws.CloudFront.CannedPolicy do
-  defstruct [:url, :expire_time, :ip_range]
+  defstruct [:url, :expire_time]
 
   @doc """
-  Create a new `CannedPolicy`.
+  Create a Canned Policy.
   """
-  def create(url, expire_time, ip_range \\ nil) do
+  def create(url, expire_time) do
     %__MODULE__{
       url: url,
-      expire_time: expire_time,
-      ip_range: ip_range
+      expire_time: expire_time
     }
+  end
+end
+
+defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CannedPolicy do
+  import ExAws.CloudFront.Utils
+
+  @doc """
+  Create a Signed URL Using a Canned Policy.
+  """
+  def get_signed_url(canned_policy, keypair_id, private_key_string) do
+    get_signed_url(canned_policy, fn statement ->
+      with payload = statement |> Poison.encode!, do: [
+        {"Expires", canned_policy.expire_time},
+        {"Signature", payload |> create_signature(private_key_string) |> aws_encode64},
+        {"Key-Pair-Id", keypair_id}
+      ]
+    end)
   end
 
   @doc """
-  Serialize the CannedPolicy instance.
+  Create a Policy Statement for a Signed URL That Uses a Canned Policy.
   """
-  def encode(%__MODULE__{url: url, expire_time: expire_time, ip_range: ip_range}) do
+  def to_statement(%{url: url, expire_time: expire_time}) do
     unless is_binary url do
       raise ArgumentError, message: "Missing string param: `url`"
     end
@@ -25,28 +41,22 @@ defmodule ExAws.CloudFront.CannedPolicy do
     end
 
     unless expire_time < 2147483647 do
-      raise ArgumentError, message: "`expire_time` must be less than January 19, 2038 03:14:08 GMT due to the limits of UNIX time"
+      raise ArgumentError, message:
+        "`expire_time` must be less than January 19, 2038 03:14:08 GMT due to the limits of UNIX time"
     end
 
     unless expire_time > ExAws.Utils.now_in_seconds do
       raise ArgumentError, message: "`expire_time` must be after the current time"
     end
 
-    condition = %{
-      "DateLessThan": %{
-        "AWS:EpochTime": expire_time
-      }
-    }
-
-    Poison.encode! %{
-      "Statement": [%{
-        "Resource": url,
-        "Condition":
-          if is_binary ip_range do
-            condition |> Map.put("IpAddress", %{"AWS:SourceIp": ip_range})
-          else
-            condition
-          end
+    %{
+      "Statement" => [%{
+        "Resource" => url,
+        "Condition" => %{
+          "DateLessThan" => %{
+            "AWS:EpochTime" => expire_time
+          }
+        }
       }]
     }
   end
