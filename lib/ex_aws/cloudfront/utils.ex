@@ -17,6 +17,10 @@ defmodule ExAws.CloudFront.Utils do
     |> to_string
   end
 
+  def get_signed_cookies(policy, cookies_builder) do
+    policy |> Policy.to_statement |> cookies_builder.()
+  end
+
   def create_signature(payload, private_key) when is_binary(private_key) do
     create_signature payload, private_key |> decode_rsa_key
   end

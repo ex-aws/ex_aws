@@ -5,6 +5,11 @@ defprotocol ExAws.CloudFront.Policy do
   def get_signed_url(policy, keypair_id, private_key)
 
   @doc """
+  Creating a Signature for a Signed Cookie That Uses a Policy.
+  """
+  def get_signed_cookies(policy, keypair_id, private_key)
+
+  @doc """
   Create a Policy Statement for a Signed URL That Uses a Policy.
   """
   def to_statement(policy)
