@@ -5,6 +5,8 @@ Contributing
 
 The organizational structure of ExAws has been greatly simplified as we move into 1.0. Please read this document carefully as it has changed.
 
+NOTE: ExAws uses tabs instead of spaces. Please do not submit PRs with tabs.
+
 Contributions to ExAws are absolutely appreciated. For general bug fixes or other tweaks to existing code, a regular pull request is fine. For those who wish to add to the set of APIs supported by ExAws, please consult the rest of this document, as any PRs adding a service are expected to follow the structure defined herein.
 
 ## Running Tests
