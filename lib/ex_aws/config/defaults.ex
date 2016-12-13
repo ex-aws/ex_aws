@@ -34,12 +34,6 @@ defmodule ExAws.Config.Defaults do
       region: "us-east-1",
       port: 80
     },
-    dynamodb_streams: %{
-      scheme: "https://",
-      host: {"$region", "streams.dynamodb.$region.amazonaws.com"},
-      region: "us-east-1",
-      port: 80
-    },
     lambda: %{
       host: {"$region", "lambda.$region.amazonaws.com"},
       scheme: "https://",
