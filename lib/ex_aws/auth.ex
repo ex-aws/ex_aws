@@ -20,7 +20,7 @@ defmodule ExAws.Auth do
       url,
       headers,
       body,
-      service |> service_name,
+      service |> service_override(config) |> service_name,
       datetime,
       config)
 
@@ -181,6 +181,14 @@ defmodule ExAws.Auth do
       [{"X-Amz-Security-Token", config[:security_token]}]
     else
       []
+    end
+  end
+
+  defp service_override(service, config) do
+    if config[:service_override] do
+      config[:service_override]
+    else
+      service
     end
   end
 end
