@@ -20,11 +20,11 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CannedPolicy do
   @doc """
   Create a Signed URL Using a Canned Policy.
   """
-  def get_signed_url(canned_policy, keypair_id, private_key_string) do
+  def get_signed_url(canned_policy, keypair_id, private_key) do
     get_signed_url(canned_policy, fn statement ->
       with payload = statement |> Poison.encode!, do: [
         {"Expires", canned_policy.expire_time},
-        {"Signature", payload |> create_signature(private_key_string) |> aws_encode64},
+        {"Signature", payload |> create_signature(private_key) |> aws_encode64},
         {"Key-Pair-Id", keypair_id}
       ]
     end)

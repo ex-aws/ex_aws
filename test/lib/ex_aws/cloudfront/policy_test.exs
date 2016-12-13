@@ -6,26 +6,21 @@ defmodule ExAws.CloudFront.PolicyTest do
   alias ExAws.CloudFront.CustomPolicy
   alias ExAws.CloudFront.Utils
 
-  setup context do
+  setup_all context do
     context
     |> Map.put(:keypair_id, "APKAIL7VCI7EL2WS2MSA")
-    |> Map.put(:private_key_string, "#{__DIR__}/files/private.pem" |> File.read!)
-    |> Map.put(:public_key,
-      "#{__DIR__}/files/public.pem"
-      |> File.read!
-      |> :public_key.pem_decode
-      |> Enum.map(&:public_key.pem_entry_decode/1)
-      |> List.first)
+    |> Map.put(:private_key, "#{__DIR__}/files/private.pem" |> File.read! |> Utils.decode_rsa_key)
+    |> Map.put(:public_key, "#{__DIR__}/files/public.pem" |> File.read! |> Utils.decode_rsa_key)
   end
 
   test "Policy.get_signed_url/3, for: CannedPolicy", %{
     keypair_id: keypair_id,
-    private_key_string: private_key_string,
+    private_key: private_key,
     public_key: public_key
   } do
     expire_time = 2147483646
     policy = "http://d7311xa8wes2l.cloudfront.net/index.html" |> CannedPolicy.create(expire_time)
-    uri = policy |> Policy.get_signed_url(keypair_id, private_key_string) |> URI.parse
+    uri = policy |> Policy.get_signed_url(keypair_id, private_key) |> URI.parse
     query = uri |> Map.get(:query) |> URI.query_decoder |> Map.new
 
     assert "http://d7311xa8wes2l.cloudfront.net/index.html" == %{uri | query: nil} |> to_string
@@ -43,7 +38,7 @@ defmodule ExAws.CloudFront.PolicyTest do
 
   test "Policy.get_signed_url/3, for: CustomPolicy", %{
     keypair_id: keypair_id,
-    private_key_string: private_key_string,
+    private_key: private_key,
     public_key: public_key
   } do
     date_less_than = 2147483646
@@ -54,7 +49,7 @@ defmodule ExAws.CloudFront.PolicyTest do
       |> CustomPolicy.create(date_less_than)
       |> CustomPolicy.put_date_greater_than(date_greater_than)
       |> CustomPolicy.put_ip_address(ip_address)
-    uri = policy |> Policy.get_signed_url(keypair_id, private_key_string) |> URI.parse
+    uri = policy |> Policy.get_signed_url(keypair_id, private_key) |> URI.parse
     query = uri |> Map.get(:query) |> URI.query_decoder |> Map.new
 
     assert "http://d7311xa8wes2l.cloudfront.net/index.html" == %{uri | query: nil} |> to_string

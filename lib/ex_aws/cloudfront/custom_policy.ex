@@ -38,11 +38,11 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CustomPolicy do
   @doc """
   Create a Signed URL Using a Custom Policy.
   """
-  def get_signed_url(custom_policy, keypair_id, private_key_string) do
+  def get_signed_url(custom_policy, keypair_id, private_key) do
     get_signed_url(custom_policy, fn statement ->
       with payload = statement |> Poison.encode!, do: [
         {"Policy", payload |> aws_encode64},
-        {"Signature", payload |> create_signature(private_key_string) |> aws_encode64},
+        {"Signature", payload |> create_signature(private_key) |> aws_encode64},
         {"Key-Pair-Id", keypair_id}
       ]
     end)
