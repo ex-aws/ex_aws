@@ -4,7 +4,9 @@ defmodule ExAws.CloudFront.CannedPolicy do
   @doc """
   Create a Canned Policy.
   """
-  def create(url, expire_time) do
+  def create(url), do: create url, ExAws.Utils.now_in_seconds + 1800
+  def create(url, %DateTime{} = expire_time), do: create url, expire_time |> DateTime.to_unix
+  def create(url, expire_time) when is_binary(url) and is_integer(expire_time) do
     %__MODULE__{
       url: url,
       expire_time: expire_time

@@ -4,7 +4,9 @@ defmodule ExAws.CloudFront.CustomPolicy do
   @doc """
   Create a Custom Policy.
   """
-  def create(url, date_less_than) do
+  def create(url), do: create url, ExAws.Utils.now_in_seconds + 1800
+  def create(url, %DateTime{} = date_less_than), do: create url, date_less_than |> DateTime.to_unix
+  def create(url, date_less_than) when is_binary(url) and is_integer(date_less_than) do
     %__MODULE__{
       url: url,
       date_less_than: date_less_than
@@ -14,15 +16,19 @@ defmodule ExAws.CloudFront.CustomPolicy do
   @doc """
   Puts a beginning date and time in Unix time format and UTC.
   """
-  def put_date_greater_than(%__MODULE__{} = policy, date) do
-    %__MODULE__{ policy | date_greater_than: date }
+  def put_date_greater_than(%__MODULE__{} = policy, %DateTime{} = value) do
+    put_date_greater_than policy, value |> DateTime.to_unix
+  end
+
+  def put_date_greater_than(%__MODULE__{} = policy, value) when is_nil(value) or is_integer(value) do
+    %__MODULE__{ policy | date_greater_than: value }
   end
 
   @doc """
   Puts an IP address.
   """
-  def put_ip_address(%__MODULE__{} = policy, ip_address) do
-    %__MODULE__{ policy | ip_address: ip_address }
+  def put_ip_address(%__MODULE__{} = policy, value) when is_nil(value) or is_binary(value) do
+    %__MODULE__{ policy | ip_address: value }
   end
 end
 

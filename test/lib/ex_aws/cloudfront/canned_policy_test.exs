@@ -6,13 +6,13 @@ defmodule ExAws.CloudFront.CannedPolicyTest do
 
   test "should fail if `url` is missing" do
     assert_raise ArgumentError, "Missing string param: `url`", fn ->
-      CannedPolicy.create(nil, ExAws.Utils.now_in_seconds + 10000) |> Policy.to_statement
+      %CannedPolicy{expire_time: ExAws.Utils.now_in_seconds + 10000} |> Policy.to_statement
     end
   end
 
   test "should fail if `expire_time` is missing" do
     assert_raise ArgumentError, "Missing integer param: `expire_time`", fn ->
-      CannedPolicy.create("http://t.com", nil) |> Policy.to_statement
+      %CannedPolicy{url: "http://t.com"} |> Policy.to_statement
     end
   end
 

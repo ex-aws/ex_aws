@@ -6,13 +6,13 @@ defmodule ExAws.CloudFront.CustomPolicyTest do
 
   test "should fail if `url` is missing" do
     assert_raise ArgumentError, "Missing string param: `url`", fn ->
-      CustomPolicy.create(nil, ExAws.Utils.now_in_seconds + 10000) |> Policy.to_statement
+      %CustomPolicy{date_less_than: ExAws.Utils.now_in_seconds + 10000} |> Policy.to_statement
     end
   end
 
   test "should fail if `date_less_than` is missing" do
     assert_raise ArgumentError, "Missing integer param: `date_less_than`", fn ->
-      CustomPolicy.create("http://t.com", nil) |> Policy.to_statement
+      %CustomPolicy{url: "http://t.com"} |> Policy.to_statement
     end
   end
 
@@ -30,9 +30,11 @@ defmodule ExAws.CloudFront.CustomPolicyTest do
 
   test "should fail if `date_greater_than` is missing" do
     assert_raise ArgumentError, "Missing integer param: `date_greater_than`", fn ->
-      CustomPolicy.create("http://t.com", ExAws.Utils.now_in_seconds + 10000)
-      |> CustomPolicy.put_date_greater_than("not_a_number")
-      |> Policy.to_statement
+      %CustomPolicy{
+        url: "http://t.com",
+        date_less_than: ExAws.Utils.now_in_seconds + 10000,
+        date_greater_than: "not_a_number"
+      } |> Policy.to_statement
     end
   end
 
