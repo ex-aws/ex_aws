@@ -19,7 +19,7 @@ defmodule ExAws.InstanceMeta do
   end
 
   def instance_role(config) do
-    ExAws.InstanceMeta.request(config, "/iam/security-credentials/")
+    ExAws.InstanceMeta.request(config, @meta_path_root <> "/iam/security-credentials/")
   end
 
   def task_role_credentials(config) do
