@@ -80,7 +80,7 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CustomPolicy do
 
     unless date_less_than < 2147483647 do
       raise ArgumentError, message:
-        "`date_less_than` must be less than January 19, 2038 03:14:08 GMT due to the limits of UNIX time"
+        "`date_less_than` must be less than 2147483647 (January 19, 2038 03:14:08 GMT)"
     end
 
     unless date_less_than > ExAws.Utils.now_in_seconds do

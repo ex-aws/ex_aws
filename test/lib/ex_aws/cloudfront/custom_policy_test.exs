@@ -17,7 +17,7 @@ defmodule ExAws.CloudFront.CustomPolicyTest do
   end
 
   test "should fail if `date_less_than` is after the end of time" do
-    assert_raise ArgumentError, "`date_less_than` must be less than January 19, 2038 03:14:08 GMT due to the limits of UNIX time", fn ->
+    assert_raise ArgumentError, "`date_less_than` must be less than 2147483647 (January 19, 2038 03:14:08 GMT)", fn ->
       CustomPolicy.create("http://t.com", 3000000000000) |> Policy.to_statement
     end
   end

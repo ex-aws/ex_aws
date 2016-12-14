@@ -17,7 +17,7 @@ defmodule ExAws.CloudFront.CannedPolicyTest do
   end
 
   test "should fail if `expire_time` is after the end of time" do
-    assert_raise ArgumentError, "`expire_time` must be less than January 19, 2038 03:14:08 GMT due to the limits of UNIX time", fn ->
+    assert_raise ArgumentError, "`expire_time` must be less than 2147483647 (January 19, 2038 03:14:08 GMT)", fn ->
       CannedPolicy.create("http://t.com", 3000000000000) |> Policy.to_statement
     end
   end

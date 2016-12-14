@@ -57,7 +57,7 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CannedPolicy do
 
     unless expire_time < 2147483647 do
       raise ArgumentError, message:
-        "`expire_time` must be less than January 19, 2038 03:14:08 GMT due to the limits of UNIX time"
+        "`expire_time` must be less than 2147483647 (January 19, 2038 03:14:08 GMT)"
     end
 
     unless expire_time > ExAws.Utils.now_in_seconds do
