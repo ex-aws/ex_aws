@@ -68,11 +68,16 @@ if Code.ensure_loaded?(SweetXml) do
   end
 else
   defmodule ExAws.S3.Parsers do
-    def parse_list_objects(val), do: val
-    def parse_initiate_multipart_upload(val), do: val
-    def parse_upload_part_copy(val), do: val
-    def parse_complete_multipart_upload(val), do: val
-    def parse_list_parts(val), do: val
-  end
+    @error_message """
+      The package sweet_xml is not found, and needs to be included in your
+      application. If it is loaded, make sure it is loaded before ex_aws in your
+      application list.
+      """
 
+    def parse_list_objects(val), do: raise @error_message
+    def parse_initiate_multipart_upload(val), do: raise @error_message
+    def parse_upload_part_copy(val), do: raise @error_message
+    def parse_complete_multipart_upload(val), do: raise @error_message
+    def parse_list_parts(val), do: raise @error_message
+  end
 end
