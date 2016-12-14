@@ -20,7 +20,7 @@ config :ex_aws, :rds,
 
 config :ex_aws, :ses,
   scheme: "https://",
-  host: "email.us-west-2.amazonaws.com",
-  region: "us-west-2",
+  host: "email.us-east-1.amazonaws.com",
+  region: "us-east-1",
   port: 80
 

@@ -17,6 +17,6 @@ defmodule ExAws.SESTest do
       "Identities.member.1" => ctx.email
     }
 
-    assert expected = SES.identity_verification_attributes([ctx.email]).params
+    assert expected == SES.identity_verification_attributes([ctx.email]).params
   end
 end
