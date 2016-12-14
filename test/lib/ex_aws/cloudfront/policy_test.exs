@@ -9,8 +9,8 @@ defmodule ExAws.CloudFront.PolicyTest do
   setup_all context do
     context
     |> Map.put(:keypair_id, "APKAIL7VCI7EL2WS2MSA")
-    |> Map.put(:private_key, "#{__DIR__}/files/private.pem" |> File.read! |> Utils.decode_rsa_key)
-    |> Map.put(:public_key, "#{__DIR__}/files/public.pem" |> File.read! |> Utils.decode_rsa_key)
+    |> Map.put(:private_key, "#{__DIR__}/fixtures/private_key.pem" |> File.read! |> Utils.decode_rsa_key)
+    |> Map.put(:public_key, "#{__DIR__}/fixtures/public_key.pem" |> File.read! |> Utils.decode_rsa_key)
   end
 
   test "Policy.get_signed_url/3, for: CannedPolicy", %{
