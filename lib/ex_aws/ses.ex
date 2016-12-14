@@ -1,4 +1,6 @@
 defmodule ExAws.SES do
+  import ExAws.Utils, only: [camelize_keys: 1]
+
   @moduledoc """
   Operations on AWS SES
 
@@ -22,6 +24,19 @@ defmodule ExAws.SES do
       end)
 
     request(:get_identity_verification_attributes, params)
+  end
+
+  defp configuration_sets(opts \\ []) do
+    params = build_opts(opts, [:max_items, :next_token])
+
+    request(:list_configuration_sets, params)
+  end
+
+  defp build_opts(opts, permitted) do
+    opts
+    |> Map.new
+    |> Map.take(permitted)
+    |> camelize_keys
   end
 
   ## Request

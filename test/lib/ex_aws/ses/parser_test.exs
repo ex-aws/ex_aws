@@ -28,7 +28,7 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc == %{request_id: "d8eb8250-be9b-11e6-b7f7-d570946af758"}
   end
 
-  test "#parsing a dentity_verification_attributes" do
+  test "#parsing identity_verification_attributes" do
     rsp = """
       <GetIdentityVerificationAttributesResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
         <GetIdentityVerificationAttributesResult>
@@ -68,6 +68,33 @@ defmodule ExAws.SNS.ParserTest do
 
     {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :get_identity_verification_attributes)
     assert parsed_doc[:verification_attributes] == verification_attributes
+  end
+
+  test "#parsing configuration_sets" do
+    rsp = """
+      <ListConfigurationSetsResponse xmlns=\"http://ses.amazonaws.com/doc/2010-12-01/\">
+        <ListConfigurationSetsResult>
+          <ConfigurationSets>
+            <member>
+              <Name>test</Name>
+            </member>
+          </ConfigurationSets>
+          <NextToken>QUFBQUF</NextToken>
+        </ListConfigurationSetsResult>
+        <ResponseMetadata>
+          <RequestId>c177d6ce-c1b0-11e6-9770-29713cf492ad</RequestId>
+        </ResponseMetadata>
+      </ListConfigurationSetsResponse>
+    """
+    |> to_success
+
+    configuration_sets = %{
+      members: ["test"],
+      next_token: "QUFBQUF"
+    }
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_configuration_sets)
+    assert parsed_doc[:configuration_sets] == configuration_sets
   end
 
   test "#parse error" do

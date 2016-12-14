@@ -13,14 +13,29 @@ if Code.ensure_loaded?(SweetXml) do
     def parse({:ok, %{body: xml}=resp}, :get_identity_verification_attributes) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//GetIdentityVerificationAttributesResponse",
-      verification_attributes: [
-      ~x"./GetIdentityVerificationAttributesResult/VerificationAttributes/entry"l,
-      entry: ~x"./key/text()"s,
-      verification_status: ~x"./value/VerificationStatus/text()"s,
-      verification_token: ~x"./value/VerificationToken/text()"so
-      ],
-      request_id: request_id_xpath())
+                        verification_attributes: [
+                          ~x"./GetIdentityVerificationAttributesResult/VerificationAttributes/entry"l,
+                          entry: ~x"./key/text()"s,
+                          verification_status: ~x"./value/VerificationStatus/text()"s,
+                          verification_token: ~x"./value/VerificationToken/text()"so
+                        ],
+                        request_id: request_id_xpath()
+      )
       |> update_in([:verification_attributes], &verification_attributes_list_to_map/1)
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :list_configuration_sets) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//ListConfigurationSetsResponse",
+                        configuration_sets: [
+                          ~x"./ListConfigurationSetsResult",
+                            members: ~x"./ConfigurationSets/member/Name/text()"ls,
+                            next_token: ~x"./NextToken/text()"so,
+                          ],
+                          request_id: request_id_xpath()
+      )
 
       {:ok, Map.put(resp, :body, parsed_body)}
     end

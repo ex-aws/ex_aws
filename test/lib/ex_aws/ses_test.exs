@@ -19,4 +19,9 @@ defmodule ExAws.SESTest do
 
     assert expected == SES.identity_verification_attributes([ctx.email]).params
   end
+
+  test "#configuration_sets" do
+    expected = %{"Action" => "ListConfigurationSets", "MaxItems" => 1, "NextToken" => "QUFBQUF"}
+    assert expected == SES.configuration_sets(max_items: 1, next_token: "QUFBQUF").params
+  end
 end
