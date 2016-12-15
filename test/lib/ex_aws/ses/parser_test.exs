@@ -12,7 +12,7 @@ defmodule ExAws.SNS.ParserTest do
     {:error, {:http_error, 403, %{body: doc}}}
   end
 
-  test "#parsing a verify_email_identity response" do
+  test "#parse a verify_email_identity response" do
     rsp = """
       <VerifyEmailIdentityResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
       <VerifyEmailIdentityResult/>
@@ -28,7 +28,7 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc == %{request_id: "d8eb8250-be9b-11e6-b7f7-d570946af758"}
   end
 
-  test "#parsing identity_verification_attributes" do
+  test "#parse identity_verification_attributes" do
     rsp = """
       <GetIdentityVerificationAttributesResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
         <GetIdentityVerificationAttributesResult>
@@ -70,7 +70,7 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc[:verification_attributes] == verification_attributes
   end
 
-  test "#parsing configuration_sets" do
+  test "#parse configuration_sets" do
     rsp = """
       <ListConfigurationSetsResponse xmlns=\"http://ses.amazonaws.com/doc/2010-12-01/\">
         <ListConfigurationSetsResult>
@@ -95,6 +95,26 @@ defmodule ExAws.SNS.ParserTest do
 
     {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_configuration_sets)
     assert parsed_doc[:configuration_sets] == configuration_sets
+  end
+
+  test "#parse send_email" do
+    rsp = """
+    <SendEmailResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+      <SendEmailResult>
+        <MessageId>0100015914b22075-7a4e3573-ca72-41ce-8eda-388f81232ad9-000000</MessageId>
+      </SendEmailResult>
+      <ResponseMetadata>
+        <RequestId>8194094b-c58a-11e6-b49d-838795cc7d3f</RequestId>
+      </ResponseMetadata>
+    </SendEmailResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :send_email)
+    assert parsed_doc == %{
+      request_id: "8194094b-c58a-11e6-b49d-838795cc7d3f",
+      message_id: "0100015914b22075-7a4e3573-ca72-41ce-8eda-388f81232ad9-000000"
+    }
   end
 
   test "#parse error" do
