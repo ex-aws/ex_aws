@@ -4,18 +4,6 @@ defmodule ExAws.CloudFront.CustomPolicyTest do
   alias ExAws.CloudFront.Policy
   alias ExAws.CloudFront.CustomPolicy
 
-  test "should fail if `url` is missing" do
-    assert_raise ArgumentError, "Missing string param: `url`", fn ->
-      %CustomPolicy{date_less_than: ExAws.Utils.now_in_seconds + 10000} |> Policy.to_statement
-    end
-  end
-
-  test "should fail if `date_less_than` is missing" do
-    assert_raise ArgumentError, "Missing integer param: `date_less_than`", fn ->
-      %CustomPolicy{url: "http://t.com"} |> Policy.to_statement
-    end
-  end
-
   test "should fail if `date_less_than` is after the end of time" do
     assert_raise ArgumentError, "`date_less_than` must be less than 2147483647 (January 19, 2038 03:14:08 GMT)", fn ->
       CustomPolicy.create("http://t.com", 3000000000000) |> Policy.to_statement
@@ -25,16 +13,6 @@ defmodule ExAws.CloudFront.CustomPolicyTest do
   test "should fail if `date_less_than` is before now" do
     assert_raise ArgumentError, "`date_less_than` must be after the current time", fn ->
       CustomPolicy.create("http://t.com", ExAws.Utils.now_in_seconds - 10000) |> Policy.to_statement
-    end
-  end
-
-  test "should fail if `date_greater_than` is missing" do
-    assert_raise ArgumentError, "Missing integer param: `date_greater_than`", fn ->
-      %CustomPolicy{
-        url: "http://t.com",
-        date_less_than: ExAws.Utils.now_in_seconds + 10000,
-        date_greater_than: "not_a_number"
-      } |> Policy.to_statement
     end
   end
 
@@ -55,11 +33,15 @@ defmodule ExAws.CloudFront.CustomPolicyTest do
   end
 
   test "put_date_greater_than/2" do
-    assert %{date_greater_than: 2147483646} = %CustomPolicy{} |> CustomPolicy.put_date_greater_than(2147483646)
+    assert %{date_greater_than: 2147483646} =
+      CustomPolicy.create("http://t.com", ExAws.Utils.now_in_seconds + 10000)
+      |> CustomPolicy.put_date_greater_than(2147483646)
   end
 
   test "put_ip_address/2" do
-    assert %{ip_address: "1.2.3.0/24"} = %CustomPolicy{} |> CustomPolicy.put_ip_address("1.2.3.0/24")
+    assert %{ip_address: "1.2.3.0/24"} =
+      CustomPolicy.create("http://t.com", ExAws.Utils.now_in_seconds + 10000)
+      |> CustomPolicy.put_ip_address("1.2.3.0/24")
   end
 
   test "should return the custom policy statement" do

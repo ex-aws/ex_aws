@@ -1,4 +1,6 @@
 defmodule ExAws.CloudFront.CannedPolicy do
+  @enforce_keys [:url, :expire_time]
+
   defstruct [:url, :expire_time]
 
   @doc """
@@ -47,14 +49,6 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CannedPolicy do
   Create a Policy Statement for a Signed URL That Uses a Canned Policy.
   """
   def to_statement(%{url: url, expire_time: expire_time}) do
-    unless is_binary(url) do
-      raise ArgumentError, message: "Missing string param: `url`"
-    end
-
-    unless is_integer(expire_time) do
-      raise ArgumentError, message: "Missing integer param: `expire_time`"
-    end
-
     unless expire_time < 2147483647 do
       raise ArgumentError, message:
         "`expire_time` must be less than 2147483647 (January 19, 2038 03:14:08 GMT)"

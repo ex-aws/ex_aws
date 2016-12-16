@@ -1,4 +1,6 @@
 defmodule ExAws.CloudFront.CustomPolicy do
+  @enforce_keys [:url, :date_less_than]
+
   defstruct [:url, :date_less_than, :date_greater_than, :ip_address]
 
   @doc """
@@ -70,14 +72,6 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CustomPolicy do
     date_greater_than: date_greater_than,
     ip_address: ip_address
   }) do
-    unless is_binary(url) do
-      raise ArgumentError, message: "Missing string param: `url`"
-    end
-
-    unless is_integer(date_less_than) do
-      raise ArgumentError, message: "Missing integer param: `date_less_than`"
-    end
-
     unless date_less_than < 2147483647 do
       raise ArgumentError, message:
         "`date_less_than` must be less than 2147483647 (January 19, 2038 03:14:08 GMT)"
@@ -88,10 +82,6 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CustomPolicy do
     end
 
     unless is_nil(date_greater_than) do
-      unless is_integer date_greater_than do
-        raise ArgumentError, message: "Missing integer param: `date_greater_than`"
-      end
-
       unless date_greater_than < date_less_than do
         raise ArgumentError, message: "`date_greater_than` must be before the `date_less_than`"
       end
