@@ -4,8 +4,8 @@ defmodule ExAws.CloudFront.CannedPolicy do
   @doc """
   Create a Canned Policy.
   """
-  def create(url), do: create url, ExAws.Utils.now_in_seconds + 1800
-  def create(url, %DateTime{} = expire_time), do: create url, expire_time |> DateTime.to_unix
+  def create(url), do: create(url, ExAws.Utils.now_in_seconds + 1800)
+  def create(url, %DateTime{} = expire_time), do: create(url, DateTime.to_unix(expire_time))
   def create(url, expire_time) when is_binary(url) and is_integer(expire_time) do
     %__MODULE__{
       url: url,
@@ -47,11 +47,11 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CannedPolicy do
   Create a Policy Statement for a Signed URL That Uses a Canned Policy.
   """
   def to_statement(%{url: url, expire_time: expire_time}) do
-    unless is_binary url do
+    unless is_binary(url) do
       raise ArgumentError, message: "Missing string param: `url`"
     end
 
-    unless is_integer expire_time do
+    unless is_integer(expire_time) do
       raise ArgumentError, message: "Missing integer param: `expire_time`"
     end
 

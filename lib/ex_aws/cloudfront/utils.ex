@@ -33,7 +33,7 @@ defmodule ExAws.CloudFront.Utils do
   def deurlify(value), do: value |> String.replace("-", "+") |> String.replace("_", "=") |> String.replace("~", "/")
 
   def decode_rsa_key(rsa_key) when is_binary(rsa_key) do
-    [pem_entry] = :public_key.pem_decode rsa_key
-    :public_key.pem_entry_decode pem_entry
+    [pem_entry] = :public_key.pem_decode(rsa_key)
+    :public_key.pem_entry_decode(pem_entry)
   end
 end

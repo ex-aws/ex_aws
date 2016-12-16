@@ -4,8 +4,8 @@ defmodule ExAws.CloudFront.CustomPolicy do
   @doc """
   Create a Custom Policy.
   """
-  def create(url), do: create url, ExAws.Utils.now_in_seconds + 1800
-  def create(url, %DateTime{} = date_less_than), do: create url, date_less_than |> DateTime.to_unix
+  def create(url), do: create(url, ExAws.Utils.now_in_seconds + 1800)
+  def create(url, %DateTime{} = date_less_than), do: create(url, DateTime.to_unix(date_less_than))
   def create(url, date_less_than) when is_binary(url) and is_integer(date_less_than) do
     %__MODULE__{
       url: url,
@@ -17,7 +17,7 @@ defmodule ExAws.CloudFront.CustomPolicy do
   Puts a beginning date and time in Unix time format and UTC.
   """
   def put_date_greater_than(%__MODULE__{} = policy, %DateTime{} = value) do
-    put_date_greater_than policy, value |> DateTime.to_unix
+    put_date_greater_than(policy, DateTime.to_unix(value))
   end
 
   def put_date_greater_than(%__MODULE__{} = policy, value) when is_nil(value) or is_integer(value) do
@@ -70,11 +70,11 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CustomPolicy do
     date_greater_than: date_greater_than,
     ip_address: ip_address
   }) do
-    unless is_binary url do
+    unless is_binary(url) do
       raise ArgumentError, message: "Missing string param: `url`"
     end
 
-    unless is_integer date_less_than do
+    unless is_integer(date_less_than) do
       raise ArgumentError, message: "Missing integer param: `date_less_than`"
     end
 
