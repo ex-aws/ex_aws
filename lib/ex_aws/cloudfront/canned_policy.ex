@@ -21,8 +21,8 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CannedPolicy do
   Create a Signed URL Using a Canned Policy.
   """
   def get_signed_url(canned_policy, keypair_id, private_key) do
-    get_signed_url(canned_policy, fn statement ->
-      with payload = statement |> Poison.encode!, do: [
+    get_signed_url(canned_policy, fn payload ->
+      [
         {"Expires", canned_policy.expire_time},
         {"Signature", payload |> create_signature(private_key) |> aws_encode64},
         {"Key-Pair-Id", keypair_id}
@@ -34,8 +34,8 @@ defimpl ExAws.CloudFront.Policy, for: ExAws.CloudFront.CannedPolicy do
   Creating a Signature for a Signed Cookie That Uses a Canned Policy.
   """
   def get_signed_cookies(canned_policy, keypair_id, private_key) do
-    get_signed_cookies(canned_policy, fn statement ->
-      with payload = statement |> Poison.encode!, do: %{
+    get_signed_cookies(canned_policy, fn payload ->
+      %{
         "CloudFront-Expires" => canned_policy.expire_time |> to_string,
         "CloudFront-Signature" => payload |> create_signature(private_key) |> aws_encode64,
         "CloudFront-Key-Pair-Id" => keypair_id

@@ -11,14 +11,14 @@ defmodule ExAws.CloudFront.Utils do
       query
       |> to_string
       |> URI.query_decoder
-      |> Stream.concat(policy |> Policy.to_statement |> query_builder.())
+      |> Stream.concat(policy |> Policy.to_statement |> Poison.encode! |> query_builder.())
       |> URI.encode_query
     end)
     |> to_string
   end
 
   def get_signed_cookies(policy, cookies_builder) do
-    policy |> Policy.to_statement |> cookies_builder.()
+    policy |> Policy.to_statement |> Poison.encode! |> cookies_builder.()
   end
 
   def create_signature(payload, private_key) when is_binary(private_key) do
@@ -33,8 +33,7 @@ defmodule ExAws.CloudFront.Utils do
   def deurlify(value), do: value |> String.replace("-", "+") |> String.replace("_", "=") |> String.replace("~", "/")
 
   def decode_rsa_key(rsa_key) when is_binary(rsa_key) do
-    with [pem_entry] = :public_key.pem_decode(rsa_key) do
-      :public_key.pem_entry_decode pem_entry
-    end
+    [pem_entry] = :public_key.pem_decode rsa_key
+    :public_key.pem_entry_decode pem_entry
   end
 end
