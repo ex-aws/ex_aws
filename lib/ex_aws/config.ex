@@ -9,7 +9,7 @@ defmodule ExAws.Config do
 
   @common_config [
     :http_client, :json_codec, :access_key_id, :secret_access_key, :debug_requests,
-    :region, :security_token, :retries
+    :region, :security_token, :retries, :profile
   ]
 
   @type t :: %{} | Keyword.t
@@ -58,9 +58,14 @@ defmodule ExAws.Config do
     end)
   end
 
+  def retrieve_runtime_value(:credentials_file, %{:profile => profile} = config) do
+    CredentialsFile.load_profile(profile)
+  end
+
   def retrieve_runtime_value({:system, env_key}, _) do
     System.get_env(env_key)
   end
+
   def retrieve_runtime_value(:instance_role, config) do
     config
     |> ExAws.Config.AuthCache.get
