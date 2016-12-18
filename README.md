@@ -5,7 +5,6 @@ ExAws
 A flexible easy to use set of AWS APIs.
 
 - `ExAws.Dynamo`
-- `ExAws.DynamoStreams`
 - `ExAws.EC2`
 - `ExAws.Kinesis`
 - `ExAws.Kms`
@@ -19,9 +18,10 @@ A flexible easy to use set of AWS APIs.
 
 The `v0.5` branch holds the legacy approach.
 
-ExAws 1.0.0 takes a more data driven approach to querying APIs. The various functions
-that exist inside a service like `S3.list_objects` or `Dynamo.create_table` all
-return a struct which holds the information necessary to make that particular operation.
+ExAws 1.0.0 takes a more data driven approach to querying APIs. The various
+functions that exist inside a service like `S3.list_objects` or
+`Dynamo.create_table` all return a struct which holds the information necessary
+to make that particular operation.
 
 You then have 4 ways you can choose to execute that operation:
 
@@ -57,15 +57,15 @@ not
 ExAws.S3.get_object("my-bucket", "path/to/object")
 ```
 
-This change greatly simplifies the ExAws code paths, and removes entirely the complex
-meta-programming pervasive to the original approach. However, it does constitute
-a breaking change for anyone who had a client with custom logic.
+This change greatly simplifies the ExAws code paths, and removes entirely the
+complex meta-programming pervasive to the original approach. However, it does
+constitute a breaking change for anyone who had a client with custom logic.
 
 #### DynamoDB Users
 
 Lists are always encoded as dynamodb lists now. Previously if you had `[1,2,3]`
-it would be encoded as an integer set. This had issues because if the list was `[1,2,1]`
-you could get an error because the items are not unique.
+it would be encoded as an integer set. This had issues because if the list was
+`[1,2,1]` you could get an error because the items are not unique.
 
 ## Highlighted Features
 - Easy configuration.
@@ -77,7 +77,11 @@ you could get an error because the items are not unique.
 
 ## Getting started
 
-Add ex_aws to your mix.exs, along with your json parser and http client of choice. ExAws works out of the box with Poison and :hackney and sweet_xml. All APIs require an http client, but only some require a json or xml codec. You only need the codec for the API you intend to use. At this time only SweetXml is supported for xml parsing.
+Add ex_aws to your mix.exs, along with your json parser and http client of
+choice. ExAws works out of the box with Poison and :hackney and sweet_xml. All
+APIs require an http client, but only some require a json or xml codec. You only
+need the codec for the API you intend to use. At this time only SweetXml is
+supported for xml parsing.
 
 - Dynamo: json
 - Kinesis: json
@@ -86,7 +90,8 @@ Add ex_aws to your mix.exs, along with your json parser and http client of choic
 - SQS: xml
 - S3: xml
 
-If you wish to use instance roles to obtain AWS access keys you will need to add a JSON codec whether the particular API requires one or not.
+If you wish to use instance roles to obtain AWS access keys you will need to add
+a JSON codec whether the particular API requires one or not.
 
 ```elixir
 def deps do
@@ -97,7 +102,9 @@ def deps do
   ]
 end
 ```
-Don't forget to add :hackney to your applications list if that's in fact the http client you choose. `:ex_aws` must always be added to your applications list.
+Don't forget to add :hackney to your applications list if that's in fact the
+http client you choose. `:ex_aws` must always be added to your applications
+list.
 
 ```elixir
 def application do
@@ -111,20 +118,34 @@ ExAws has by default the equivalent including the following in your mix.exs
 
 ```elixir
 config :ex_aws,
-  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
 ```
 
 This means it will try to resolve credentials in order
 * Look for the AWS standard `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables
-* Try to load the awscli files `~/.aws/config` and `~/.aws/credentials` and use the `default` profile
 * Resolve credentials with IAM
   * If running inside ECS and a [task role](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html) has been assigned it will use it
   * Otherwise it will fall back to the [instance role](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
 
+AWS CLI config files are supported, but require an additional dependency:
+
+```elixir
+{:configparser_ex, "~> 0.2.1"}
+```
+
+You can then add `{:awscli, "profile_name", timeout}` to the above config and it
+will pull information from `~/.aws/config` and `~/.aws/credentials`
+```elixir
+config :ex_aws,
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
+```
 ## Retries
 
-ExAws will retry failed AWS API requests using exponential backoff per the "Full Jitter" formula described in https://www.awsarchitectureblog.com/2015/03/backoff.html
+ExAws will retry failed AWS API requests using exponential backoff per the "Full
+Jitter" formula described in
+https://www.awsarchitectureblog.com/2015/03/backoff.html
 
 The algorithm uses three values, which are configurable:
 
