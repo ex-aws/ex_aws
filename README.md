@@ -96,7 +96,7 @@ a JSON codec whether the particular API requires one or not.
 ```elixir
 def deps do
   [
-    {:ex_aws, "~> 1.0.0-beta0"},
+    {:ex_aws, "~> 1.0"},
     {:poison, "~> 2.0"},
     {:hackney, "~> 1.6"}
   ]
