@@ -11,28 +11,29 @@ defmodule ExAws.Cloudformation do
   ### Stack Actions ###
   #####################
 
-  @type resource_status :: (:create_in_progress | :create_failed | :create_complete |
-                            :delete_in_progress | :delete_failed | :delete_complete | :delete_skipped |
-                            :update_in_progress | :update_failed | :update_complete)
+  @type resource_status :: [
+    :create_in_progress | :create_failed | :create_complete |
+    :delete_in_progress | :delete_failed | :delete_complete | :delete_skipped |
+    :update_in_progress | :update_failed | :update_complete
+  ]
 
   @type stack_resource_summary :: {
-    resource_status :: resource_status,
+    resource_status        :: resource_status,
     resource_status_reason :: binary,
-    logical_resource_id :: binary,
+    logical_resource_id    :: binary,
     last_updated_timestamp :: binary,
-    physical_resource_id :: binary,
-    resource_type :: binary
+    physical_resource_id   :: binary,
+    resource_type          :: binary
   }
 
   @type stack_resource_summary_list :: [stack_resource_summary]
 
-  @spec list_stack_resources(stack_name :: binary) :: ExAws.Operation.RestQuery.t
-  @spec list_stack_resources(stack_name :: binary, opts :: [next_token: binary]) :: ExAws.Operation.RestQuery.t
+  @spec list_stack_resources(stack_name :: binary) :: ExAws.Operation.Query.t
+  @spec list_stack_resources(stack_name :: binary, opts :: [next_token: binary]) :: ExAws.Operation.Query.t
   def list_stack_resources(stack_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
-      "Action" => "ListStackResources",
       "Version" => @version,
       "StackName" => stack_name
       })
@@ -45,11 +46,13 @@ defmodule ExAws.Cloudformation do
   ########################
 
   defp request(action, params) do
+    action_string = action |> Atom.to_string |> Macro.camelize
+
     %ExAws.Operation.Query{
-      action: action,
       path: "/",
-      params: params,
+      params: params |> Map.put("Action", action_string),
       service: :cloudformation,
+      action: action,
       parser: &ExAws.Cloudformation.Parsers.parse/2
     }
   end
