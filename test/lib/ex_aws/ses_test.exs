@@ -11,6 +11,11 @@ defmodule ExAws.SESTest do
     assert expected == SES.verify_email_identity(ctx.email).params
   end
 
+  test "#verify_email_identity request" do
+    resp = SES.verify_email_identity("success@simulator.amazonses.com") |> ExAws.request
+    assert {:ok, %{body: %{request_id: _}}} = resp
+  end
+
   test "#identity_verification_attributes", ctx do
     expected = %{
       "Action" => "GetIdentityVerificationAttributes",

@@ -21,7 +21,7 @@ defmodule ExAws.SES do
   end
 
   @doc "Fetch configuration sets associated with AWS account"
-  @spec configuration_sets([any]) :: ExAws.Operation.t
+  @spec configuration_sets(list) :: ExAws.Operation.t
   def configuration_sets(opts \\ []) do
     params = build_opts(opts, [:max_items, :next_token])
     request(:list_configuration_sets, params)
@@ -37,7 +37,7 @@ defmodule ExAws.SES do
   @type destination :: %{cc_addresses: [binary], bcc_addresses: [binary], bcc_addresses: [binary]}
 
   @doc "Composes an email message"
-  @type send_email(destination, message, binary, list) :: ExAws.Operation.t
+  @type send_email(dst :: destination, msg :: message, src :: binary, opts ::list) :: ExAws.Operation.t
   def send_email(dst, msg, src, opts \\ []) do
     params = opts
     |> build_opts([:configuration_set_name, :return_path, :return_path_arn, :source_arn, :bcc])
