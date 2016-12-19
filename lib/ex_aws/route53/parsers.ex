@@ -5,7 +5,7 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse({:ok, resp}, :list_hosted_zones) do
       resp |> parse_xml(~x"//ListHostedZonesResponse",
-        is_truncated: ~x"./IsTruncated/text()"s |> transform_by(&(&1 == "true")),
+        is_truncated: ~x"./IsTruncated/text()"s |> to_boolean,
         marker: ~x"./Marker/text()"s,
         max_items: ~x"./MaxItems/text()"i,
         next_marker: ~x"./NextMarker/text()"s,
@@ -35,7 +35,7 @@ if Code.ensure_loaded?(SweetXml) do
          config: [
            ~x"./Config",
            comment: ~x"./Comment/text()"so,
-           private: ~x"./PrivateZone/text()"so |> transform_by(&(&1 == "true")),
+           private: ~x"./PrivateZone/text()"so |> to_boolean,
          ],
           id:  id_node,
          name:  ~x"./Name/text()"s,
@@ -57,8 +57,47 @@ if Code.ensure_loaded?(SweetXml) do
       resp |> parse_xml(~x"//ChangeResourceRecordSetsResponse", change_info: change_info_node)
     end
 
+    def parse({:ok, resp}, :list_record_sets) do
+      resp |> parse_xml(~x"//ListResourceRecordSetsResponse",
+        is_truncated: ~x"./IsTruncated/text()"s |> to_boolean,
+        max_items: ~x"./MaxItems/text()"i,
+        next_record_identifier: ~x"./NextRecordIdentifier/text()"so,
+        next_record_name: ~x"./NextRecordName/text()"so,
+        next_record_type: ~x"./NextRecordType/text()"so,
+        record_sets: [
+          ~x"./ResourceRecordSets/ResourceRecordSet"l,
+          alias_target: [
+            ~x"./AliasTarget"o,
+            dns_name: ~x"./DNSName/text()"s,
+            evaluate_target_health: ~x"./EvaluateTargetHealth/text()"s,
+            hosted_zone_id: ~x"./HostedZoneId/text()"s
+          ],
+          failover: ~x"./Failover/text()"so,
+          geo_location: [
+            ~x"./GeoLocation"o,
+            continent_code: ~x"./ContinentCode/text()"s,
+            country_code: ~x"./CountryCode/text()"s,
+            subdivision_code: ~x"./SubdivisionCode/text()"s
+          ],
+          health_check_id: ~x"./HealthCheckId/text()"so,
+          name: ~x"./Name/text()"s,
+          region: ~x"./Region/text()"so,
+          values: ~x"./ResourceRecords/ResourceRecord/Value/text()"sl,
+          set_identifier: ~x"./SetIdentifier/text()"so,
+          traffic_policy_instance_id: ~x"./TrafficPolicyInstanceId/text()"so,
+          ttl: ~x"./TTL/text()"i,
+          type: ~x"./Type/text()"s,
+          weight: ~x"./Weight/text()"Io
+        ]
+      )
+    end
+
     defp id_node do
       ~x"./Id/text()"s |> transform_by(&String.replace(&1, ~r/^.+?\//, ""))
+    end
+
+    defp to_boolean(xpath) do
+      xpath |> transform_by(&(&1 == "true"))
     end
 
     defp change_info_node do

@@ -190,6 +190,34 @@ defmodule ExAws.Route53Test do
     ]
   end
 
+  test "list record sets" do
+    expected = %RestQuery{
+      service: :route53,
+      path: "/2013-04-01/hostedzone/ZONE_ID/rrset",
+      action: :list_record_sets,
+      http_method: :get,
+      params: %{},
+      body: "",
+      parser: &ExAws.Route53.Parsers.parse/2
+    }
+    assert expected == Route53.list_record_sets("ZONE_ID")
+  end
+
+  test "list record sets with options" do
+    request = Route53.list_record_sets("ZONE_ID",
+      identifier: "NEXT_IDENTIFIER",
+      max_items: 15,
+      name: "www.",
+      type: "NS"
+    )
+    assert request.params == %{
+      identifier: "NEXT_IDENTIFIER",
+      maxitems: 15,
+      name: "www.",
+      type: "NS"
+    }
+  end
+
   defp parse_change_record_sets_response(%{body: body}) do
     body |> xpath(
       ~x"//ChangeResourceRecordSetsRequest/ChangeBatch/Changes/Change"l,

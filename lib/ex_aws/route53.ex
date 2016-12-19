@@ -5,6 +5,7 @@ defmodule ExAws.Route53 do
   @moduledoc """
   Operations on AWS Route53
   """
+  @type record_type :: [:a | :aaaa | :cname | :mx | :naptr | :ns | :ptr | :soa | :spf | :srv | :txt]
 
   @type list_hosted_zones_opts :: [
     {:marker, binary} |
@@ -13,7 +14,6 @@ defmodule ExAws.Route53 do
   @doc "List hosted zones"
   @spec list_hosted_zones(opts :: list_hosted_zones_opts) :: ExAws.Operation.RestQuery.t
   def list_hosted_zones(opts \\ []) do
-    opts = opts |> rename_keys(max_items: :maxitems) |> Map.new
     request(:get, :list_hosted_zones, params: opts)
   end
 
@@ -51,20 +51,19 @@ defmodule ExAws.Route53 do
     request(:delete, :delete_hosted_zone, path: "/#{id}")
   end
 
-  @type record_actions :: [:create | :delete | :upsert]
-  @type record_types :: [:a | :aaaa | :cname | :mx | :naptr | :ns | :ptr | :soa | :spf | :srv | :txt]
+  @type record_action :: [:create | :delete | :upsert]
   @type record_opts :: [
-    {:action, record_actions} |
+    {:action, record_action} |
     {:name, binary} |
-    {:type, record_types} |
+    {:type, record_type} |
     {:ttl, Integer.t} |
     {:records, [String.t, ...]}
   ]
   @type change_record_sets_opts :: [
     {:comment, binary} |
-    {:action, record_actions} |
+    {:action, record_action} |
     {:name, binary} |
-    {:type, record_types} |
+    {:type, record_type} |
     {:ttl, non_neg_integer} |
     {:records, [String.t, ...]} |
     {:batch, [record_opts, ...]}
@@ -100,15 +99,28 @@ defmodule ExAws.Route53 do
     request(:post, :change_record_sets, path: "/#{id}/rrset", body: payload)
   end
 
+  @doc "List resource record sets"
+  @type list_record_sets_opts :: [
+    {:identifier, binary} |
+    {:name, binary} |
+    {:type, record_type} |
+    {:max_items, non_neg_integer}
+  ]
+  @spec list_record_sets(id :: String.t, opts :: list_record_sets_opts) :: ExAws.Operation.RestQuery.t
+  def list_record_sets(id, opts \\ []) do
+    request(:get, :list_record_sets, path: "/#{id}/rrset", params: opts)
+  end
+
   ## Request
   ######################
 
   defp request(http_method, action, opts) do
     path = Keyword.get(opts, :path, "")
+    params = opts |> Keyword.get(:params, []) |> rename_keys(max_items: :maxitems) |> Map.new
     %ExAws.Operation.RestQuery{
       http_method: http_method,
       path: "/2013-04-01/hostedzone#{path}",
-      params: Keyword.get(opts, :params, %{}),
+      params: params,
       body: Keyword.get(opts, :body, ""),
       service: :route53,
       action: action,
