@@ -11,22 +11,31 @@ defmodule ExAws.Cloudformation do
   ### Stack Actions ###
   #####################
 
-  @type resource_status :: [
-    :create_in_progress | :create_failed | :create_complete |
-    :delete_in_progress | :delete_failed | :delete_complete | :delete_skipped |
-    :update_in_progress | :update_failed | :update_complete
-  ]
+#  @type resource_status :: [
+#    :create_in_progress | :create_failed | :create_complete |
+#    :delete_in_progress | :delete_failed | :delete_complete | :delete_skipped |
+#    :update_in_progress | :update_failed | :update_complete
+#  ]
+#  @type stack_resource_summary :: {
+#    resource_status        :: resource_status,
+#    resource_status_reason :: binary,
+#    logical_resource_id    :: binary,
+#    last_updated_timestamp :: binary,
+#    physical_resource_id   :: binary,
+#    resource_type          :: binary
+#  }
+#  @type stack_resource_summary_list :: [stack_resource_summary]
 
-  @type stack_resource_summary :: {
-    resource_status        :: resource_status,
-    resource_status_reason :: binary,
-    logical_resource_id    :: binary,
-    last_updated_timestamp :: binary,
-    physical_resource_id   :: binary,
-    resource_type          :: binary
-  }
+  @spec describe_stack_resource(stack_name :: binary, logical_resource_id :: binary) :: ExAws.Operation.Query.t
+  def describe_stack_resource(stack_name, logical_resource_id) do
+    query_params = %{
+      "Version"   => @version,
+      "StackName" => stack_name,
+      "LogicalResourceId" => logical_resource_id
+    }
 
-  @type stack_resource_summary_list :: [stack_resource_summary]
+    request(:describe_stack_resource, query_params)
+  end
 
   @spec list_stack_resources(stack_name :: binary) :: ExAws.Operation.Query.t
   @spec list_stack_resources(stack_name :: binary, opts :: [next_token: binary]) :: ExAws.Operation.Query.t
