@@ -46,7 +46,7 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     defp const_to_atom(string) do
-      string |> String.downcase |> String.to_atom
+      string |> String.downcase |> String.to_existing_atom
     end
 
     defp parse_metadata_json(json) do
