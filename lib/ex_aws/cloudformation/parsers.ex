@@ -2,7 +2,7 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.Cloudformation.Parsers do
     import SweetXml, only: [sigil_x: 2, transform_by: 2]
 
-    def parse({:ok, %{body: xml}=resp}, :describe_stack_resource) do
+    def parse({:ok, %{body: xml}=resp}, :describe_stack_resource, config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//DescribeStackResourceResponse",
         request_id: request_id_xpath(),
@@ -10,14 +10,14 @@ if Code.ensure_loaded?(SweetXml) do
           ~x"./DescribeStackResourceResult/StackResourceDetail",
           stack_id: ~x"./StackId/text()"s,
           stack_name: ~x"./StackName/text()"s,
-          metadata: ~x"./Metadata/text()"s |> transform_by(&parse_metadata_json/1),
+          metadata: ~x"./Metadata/text()"s |> transform_by(&(parse_metadata_json(&1, config))),
           ] ++ resource_description_fields
         )
 
         {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :list_stack_resources) do
+    def parse({:ok, %{body: xml}=resp}, :list_stack_resources, _config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListStackResourcesResponse",
         next_token: ~x"./ListPlatformApplicationsResult/NextToken/text()"s,
@@ -49,9 +49,7 @@ if Code.ensure_loaded?(SweetXml) do
       string |> String.downcase |> String.to_existing_atom
     end
 
-    defp parse_metadata_json(json) do
-      config = ExAws.Config.new(:cloudformation)
-
+    defp parse_metadata_json(json, config) do
       json
       |> String.trim
       |> config.json_codec.decode!

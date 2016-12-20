@@ -62,7 +62,7 @@ defmodule ExAws.Cloudformation do
       params: params |> Map.put("Action", action_string),
       service: :cloudformation,
       action: action,
-      parser: &ExAws.Cloudformation.Parsers.parse/2
+      parser: &ExAws.Cloudformation.Parsers.parse/3
     }
   end
 

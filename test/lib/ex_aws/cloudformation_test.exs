@@ -15,7 +15,7 @@ defmodule ExAws.CloudformationTest do
       path: "/",
       service: :cloudformation,
       action: :describe_stack_resource,
-      parser: &ExAws.Cloudformation.Parsers.parse/2
+      parser: &ExAws.Cloudformation.Parsers.parse/3
     }
 
     assert expected == Cloudformation.describe_stack_resource("test_stack", "MyTestInstance")
@@ -30,7 +30,7 @@ defmodule ExAws.CloudformationTest do
       path: "/",
       service: :cloudformation,
       action: :list_stack_resources,
-      parser: &ExAws.Cloudformation.Parsers.parse/2
+      parser: &ExAws.Cloudformation.Parsers.parse/3
     }
 
     assert expected == Cloudformation.list_stack_resources("test_stack")
@@ -46,7 +46,7 @@ defmodule ExAws.CloudformationTest do
           path: "/",
           service: :cloudformation,
           action: :list_stack_resources,
-          parser: &ExAws.Cloudformation.Parsers.parse/2
+          parser: &ExAws.Cloudformation.Parsers.parse/3
         }
 
     assert expected == Cloudformation.list_stack_resources("test_stack", next_token: "Next")

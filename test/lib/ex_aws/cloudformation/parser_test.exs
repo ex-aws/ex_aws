@@ -28,7 +28,7 @@ defmodule ExAws.Cloudformation.ParserTest do
     """
     |> to_success
 
-     {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :describe_stack_resource)
+     {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :describe_stack_resource, config())
      assert parsed_doc[:request_id] == "b9b4b068-3a41-11e5-94eb-example"
      %{resource: resource} = parsed_doc
 
@@ -67,7 +67,7 @@ defmodule ExAws.Cloudformation.ParserTest do
     """
     |> to_success
 
-    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_stack_resources)
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_stack_resources, config())
     assert parsed_doc[:request_id] == "2d06e36c-ac1d-11e0-a958-example"
     assert parsed_doc[:resources] |> length == 2
 
@@ -77,5 +77,7 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert first_resource[:logical_resource_id] == "DBSecurityGroup"
     assert first_resource[:physical_resource_id] == "gmarcteststack-dbsecuritygroup-1s5m0ez5lkk6w"
   end
+
+  defp config(), do: ExAws.Config.new(:cloudformation, [])
 
 end
