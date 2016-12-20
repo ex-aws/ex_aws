@@ -8,23 +8,23 @@ defmodule ExAws.Cloudformation.ParserTest do
 
   test "parsing a describe_stack_resource response" do
     rsp = """
-     <DescribeStackResourceResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
-       <DescribeStackResourceResult>
-         <StackResourceDetail>
-           <StackId>arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83</StackId>
-           <StackName>MyStack</StackName>
-           <LogicalResourceId>MyDBInstance</LogicalResourceId>
-           <PhysicalResourceId>MyStack_DB1</PhysicalResourceId>
-           <ResourceType>AWS::RDS::DBInstance</ResourceType>
-           <LastUpdatedTimestamp>2011-07-07T22:27:28Z</LastUpdatedTimestamp>
-           <ResourceStatus>CREATE_COMPLETE</ResourceStatus>
-           <Metadata>{&quot;CustomKey&quot;:&quot;CustomValue&quot;}\n</Metadata>
-         </StackResourceDetail>
-       </DescribeStackResourceResult>
-       <ResponseMetadata>
-         <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
-       </ResponseMetadata>
-     </DescribeStackResourceResponse>
+    <DescribeStackResourceResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <DescribeStackResourceResult>
+        <StackResourceDetail>
+          <StackId>arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83</StackId>
+          <StackName>MyStack</StackName>
+          <LogicalResourceId>MyDBInstance</LogicalResourceId>
+          <PhysicalResourceId>MyStack_DB1</PhysicalResourceId>
+          <ResourceType>AWS::RDS::DBInstance</ResourceType>
+          <LastUpdatedTimestamp>2011-07-07T22:27:28Z</LastUpdatedTimestamp>
+          <ResourceStatus>CREATE_COMPLETE</ResourceStatus>
+          <Metadata>{&quot;CustomKey&quot;:&quot;CustomValue&quot;}\n</Metadata>
+        </StackResourceDetail>
+      </DescribeStackResourceResult>
+      <ResponseMetadata>
+        <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+      </ResponseMetadata>
+    </DescribeStackResourceResponse>
     """
     |> to_success
 
@@ -37,6 +37,52 @@ defmodule ExAws.Cloudformation.ParserTest do
      assert resource[:logical_resource_id] == "MyDBInstance"
      assert resource[:physical_resource_id] == "MyStack_DB1"
      assert resource[:metadata] == %{"CustomKey" => "CustomValue"}
+  end
+
+  test "parsing a list_stacks response" do
+    rsp = """
+    <ListStacksResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <ListStacksResult>
+        <NextToken>NextPageToken</NextToken>
+        <StackSummaries>
+          <member>
+            <StackId>arn:aws:cloudformation:us-east-1:1234567:stack/TestCreate1/aaaaa</StackId>
+            <StackStatus>CREATE_IN_PROGRESS</StackStatus>
+            <StackName>vpc1</StackName>
+            <CreationTime>2011-05-23T15:47:44Z</CreationTime>
+            <TemplateDescription>Creates one EC2 instance and a load balancer.</TemplateDescription>
+            <ResourceTypes>
+              <member>AWS::EC2::Instance</member>
+              <member>AWS::ElasticLoadBalancing::LoadBalancer</member>
+            </ResourceTypes>
+          </member>
+          <member>
+            <StackId>arn:aws:cloudformation:us-east-1:1234567:stack/TestDelete2/bbbbb</StackId>
+            <StackStatus>DELETE_COMPLETE</StackStatus>
+            <DeletionTime>2011-03-10T16:20:51Z</DeletionTime>
+            <StackName>WP1</StackName>
+            <CreationTime>2011-03-05T19:57:58Z</CreationTime>
+          </member>
+        </StackSummaries>
+      </ListStacksResult>
+      <ResponseMetadata>
+        <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+      </ResponseMetadata>
+    </ListStacksResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_stacks, config())
+    assert parsed_doc[:request_id] == "b9b4b068-3a41-11e5-94eb-example"
+    assert parsed_doc[:next_token] == "NextPageToken"
+    assert parsed_doc[:stacks] |> length == 2
+
+    first_stack = parsed_doc[:stacks] |> hd
+    assert first_stack[:status] == :create_in_progress
+    assert first_stack[:name] == "vpc1"
+    assert first_stack[:creation_time] == "2011-05-23T15:47:44Z"
+    assert first_stack[:template_description] == "Creates one EC2 instance and a load balancer."
+    assert first_stack[:resource_types] == ["AWS::EC2::Instance", "AWS::ElasticLoadBalancing::LoadBalancer"]
   end
 
   test "parsing a list_stack_resources response" do

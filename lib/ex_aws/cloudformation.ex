@@ -7,22 +7,9 @@ defmodule ExAws.Cloudformation do
 
   @version "2010-05-15"
 
-  @type resource_status ::
-    :create_in_progress | :create_failed | :create_complete |
-    :delete_in_progress | :delete_failed | :delete_complete | :delete_skipped |
-    :update_in_progress | :update_failed | :update_complete
-
-  @type stack_status ::
-    resource_status |
-    :rollback_in_progress     | :rollback_failed    | :rollback_complete |
-    :update_rollback_failed   | :update_rollback_in_progress |
-    :update_rollback_complete | :review_in_progress |
-    :update_complete_cleanup_in_progress            |
-    :update_rollback_complete_cleanup_in_progress
-
   @type list_stacks_opts :: [
     next_token: binary,
-    status_filter: [stack_status, ...]
+    status_filter: [ExAws.Cloudformation.Parsers.stack_status, ...]
   ]
 
   #####################
