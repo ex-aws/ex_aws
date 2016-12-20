@@ -21,6 +21,36 @@ defmodule ExAws.CloudformationTest do
     assert expected == Cloudformation.describe_stack_resource("test_stack", "MyTestInstance")
   end
 
+  test "list_stacks no options" do
+    expected = %Query{
+      params: %{"Action" => "ListStacks",
+                "Version"   => @version
+                },
+      path: "/",
+      service: :cloudformation,
+      action: :list_stacks,
+      parser: &ExAws.Cloudformation.Parsers.parse/3
+    }
+
+    assert expected == Cloudformation.list_stacks
+  end
+
+  test "list_stacks with status filters" do
+    expected = %Query{
+      params: %{"Action" => "ListStacks",
+                "Version"   => @version,
+                "StackStatusFilter.member.1" => "ROLLBACK_IN_PROGRESS",
+                "StackStatusFilter.member.2" => "ROLLBACK_COMPLETE",
+                },
+      path: "/",
+      service: :cloudformation,
+      action: :list_stacks,
+      parser: &ExAws.Cloudformation.Parsers.parse/3
+    }
+
+    assert expected == Cloudformation.list_stacks(status_filter: [:rollback_in_progress, :rollback_complete])
+  end
+
   test "list_stack_resources no options" do
     expected = %Query{
       params: %{"Action"    => "ListStackResources",
