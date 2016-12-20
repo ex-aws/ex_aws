@@ -143,7 +143,7 @@ defmodule ExAws.Cloudformation.ParserTest do
     """
     |> to_error
 
-    {:error, {:http_error, 403, err}} = Parsers.parse(rsp, :set_endpoint_attributes)
+    {:error, {:http_error, 403, err}} = Parsers.parse(rsp, :list_stacks, config())
 
     assert err[:request_id] == "f7ac5905-2fb6-5529-a86d-09628dae67f4"
     assert err[:type] == "Sender"

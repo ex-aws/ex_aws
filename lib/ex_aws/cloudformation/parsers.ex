@@ -61,7 +61,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
+    def parse({:error, {type, http_status_code, %{body: xml}}}, _, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ErrorResponse",
                         request_id: ~x"./RequestId/text()"s,
