@@ -6,6 +6,10 @@ defmodule ExAws.Cloudformation.ParserTest do
     {:ok, %{body: doc}}
   end
 
+  def to_error(doc) do
+    {:error, {:http_error, 403, %{body: doc}}}
+  end
+
   test "parsing a describe_stack_resource response" do
     rsp = """
     <DescribeStackResourceResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
@@ -122,6 +126,29 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert first_resource[:resource_type] == "AWS::RDS::DBSecurityGroup"
     assert first_resource[:logical_resource_id] == "DBSecurityGroup"
     assert first_resource[:physical_resource_id] == "gmarcteststack-dbsecuritygroup-1s5m0ez5lkk6w"
+  end
+
+  test "it should handle parsing an error" do
+    rsp = """
+    <?xml version=\"1.0\"?>
+    <ErrorResponse xmlns=\"http://queue.amazonaws.com/doc/2012-11-05/\">
+      <Error>
+        <Type>Sender</Type>
+        <Code>InvalidClientTokenId</Code>
+        <Message>The security token included in the request is invalid.</Message>
+        <Detail/>
+      </Error>
+      <RequestId>f7ac5905-2fb6-5529-a86d-09628dae67f4</RequestId>
+    </ErrorResponse>
+    """
+    |> to_error
+
+    {:error, {:http_error, 403, err}} = Parsers.parse(rsp, :set_endpoint_attributes)
+
+    assert err[:request_id] == "f7ac5905-2fb6-5529-a86d-09628dae67f4"
+    assert err[:type] == "Sender"
+    assert err[:code] == "InvalidClientTokenId"
+    assert err[:message] == "The security token included in the request is invalid."
   end
 
   defp config(), do: ExAws.Config.new(:cloudformation, [])
