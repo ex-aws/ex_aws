@@ -51,6 +51,7 @@ defmodule ExAws.Config.Defaults do
         "ap-southeast-1" => "s3-ap-southeast-1.amazonaws.com",
         "ap-southeast-2" => "s3-ap-southeast-2.amazonaws.com",
         "ap-northeast-1" => "s3-ap-northeast-1.amazonaws.com",
+        "ap-northeast-2" => "s3-ap-northeast-2.amazonaws.com",
         "sa-east-1" => "s3-sa-east-1.amazonaws.com",
       },
       region: "us-east-1"
