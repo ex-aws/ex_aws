@@ -10,7 +10,11 @@ defmodule ExAws.Auth.Signatures do
   end
 
   defp signing_key(service, datetime, config) do
-    ["AWS4", config[:secret_access_key]]
+    {:ok, secret_access_key} = Map.fetch(config, :secret_access_key)
+    if secret_access_key == nil do
+      raise ":secret_access_key is not configured"
+    end
+    ["AWS4", secret_access_key]
     |> hmac_sha256(date(datetime))
     |> hmac_sha256(config[:region])
     |> hmac_sha256(service)
