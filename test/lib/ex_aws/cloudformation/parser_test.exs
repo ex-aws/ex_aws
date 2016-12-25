@@ -6,10 +6,6 @@ defmodule ExAws.Cloudformation.ParserTest do
     {:ok, %{body: doc}}
   end
 
-  def to_error(doc) do
-    {:error, {:http_error, 403, %{body: doc}}}
-  end
-
   test "parsing a describe_stack_resource response" do
     rsp = """
     <DescribeStackResourceResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
@@ -41,6 +37,50 @@ defmodule ExAws.Cloudformation.ParserTest do
      assert resource[:logical_resource_id] == "MyDBInstance"
      assert resource[:physical_resource_id] == "MyStack_DB1"
      assert resource[:metadata] == %{"CustomKey" => "CustomValue"}
+  end
+
+  test "parsing a describe_stack_resources response" do
+    rsp = """
+    <DescribeStackResourcesResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <DescribeStackResourcesResult>
+        <StackResources>
+          <member>
+            <StackId>arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83</StackId>
+            <StackName>MyStack</StackName>
+            <LogicalResourceId>MyDBInstance</LogicalResourceId>
+            <PhysicalResourceId>MyStack_DB1</PhysicalResourceId>
+            <ResourceType>AWS::DBInstance</ResourceType>
+            <Timestamp>2010-07-27T22:27:28Z</Timestamp>
+            <ResourceStatus>CREATE_COMPLETE</ResourceStatus>
+          </member>
+          <member>
+            <StackId>arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83</StackId>
+            <StackName>MyStack</StackName>
+            <LogicalResourceId>MyAutoScalingGroup</LogicalResourceId>
+            <PhysicalResourceId>MyStack_ASG1</PhysicalResourceId>
+            <ResourceType>AWS::AutoScalingGroup</ResourceType>
+            <Timestamp>2010-07-27T22:28:28Z</Timestamp>
+            <ResourceStatus>CREATE_IN_PROGRESS</ResourceStatus>
+          </member>
+        </StackResources>
+      </DescribeStackResourcesResult>
+      <ResponseMetadata>
+        <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+      </ResponseMetadata>
+    </DescribeStackResourcesResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :describe_stack_resources, config())
+    assert parsed_doc[:request_id] == "b9b4b068-3a41-11e5-94eb-example"
+
+    first_resource = parsed_doc[:resources] |> hd
+    assert first_resource[:resource_status] == :create_complete
+    assert first_resource[:resource_type] == "AWS::DBInstance"
+    assert first_resource[:logical_resource_id] == "MyDBInstance"
+    assert first_resource[:physical_resource_id] == "MyStack_DB1"
+    assert first_resource[:stack_id] == "arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83"
+    assert first_resource[:stack_name] == "MyStack"
   end
 
   test "parsing a list_stacks response" do
@@ -126,6 +166,10 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert first_resource[:resource_type] == "AWS::RDS::DBSecurityGroup"
     assert first_resource[:logical_resource_id] == "DBSecurityGroup"
     assert first_resource[:physical_resource_id] == "gmarcteststack-dbsecuritygroup-1s5m0ez5lkk6w"
+  end
+
+  def to_error(doc) do
+    {:error, {:http_error, 403, %{body: doc}}}
   end
 
   test "it should handle parsing an error" do

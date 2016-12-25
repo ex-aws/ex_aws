@@ -12,6 +12,11 @@ defmodule ExAws.Cloudformation do
     status_filter: [ExAws.Cloudformation.Parsers.stack_status, ...]
   ]
 
+  @type describe_stack_resources_opts :: [
+    logical_resource_id: binary,
+    physical_resource_id: binary
+  ]
+
   #####################
   ### Stack Actions ###
   #####################
@@ -24,6 +29,15 @@ defmodule ExAws.Cloudformation do
     }
 
     request(:describe_stack_resource, query_params)
+  end
+
+  @spec describe_stack_resources(stack_name :: binary, opts :: describe_stack_resources_opts) :: ExAws.Operation.Query.t
+  def describe_stack_resources(stack_name, opts \\ []) do
+    query_params = opts
+    |> normalize_opts
+    |> Map.merge(%{ "StackName" => stack_name })
+
+    request(:describe_stack_resources, query_params)
   end
 
   @spec list_stacks(opts :: list_stacks_opts) :: ExAws.Operation.Query.t
@@ -45,9 +59,7 @@ defmodule ExAws.Cloudformation do
   def list_stack_resources(stack_name, opts \\ []) do
     query_params = opts
     |> normalize_opts
-    |> Map.merge(%{
-      "StackName" => stack_name
-      })
+    |> Map.merge(%{ "StackName" => stack_name })
 
     request(:list_stack_resources, query_params)
   end

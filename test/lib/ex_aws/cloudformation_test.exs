@@ -21,6 +21,23 @@ defmodule ExAws.CloudformationTest do
     assert expected == Cloudformation.describe_stack_resource("test_stack", "MyTestInstance")
   end
 
+  test "describe_stack_resources" do
+    expected = %Query{
+      params: %{"Action"    => "DescribeStackResources",
+                "StackName" => "test_stack",
+                "PhysicalResourceId" => "MyTestResource",
+                "Version"   => @version
+               },
+      path: "/",
+      service: :cloudformation,
+      action: :describe_stack_resources,
+      parser: &ExAws.Cloudformation.Parsers.parse/3
+    }
+
+    assert expected == Cloudformation.describe_stack_resources("test_stack",
+                                          [physical_resource_id: "MyTestResource"])
+  end
+
   test "list_stacks no options" do
     expected = %Query{
       params: %{"Action" => "ListStacks",

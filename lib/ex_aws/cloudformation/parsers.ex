@@ -18,14 +18,26 @@ if Code.ensure_loaded?(SweetXml) do
     def parse({:ok, %{body: xml}=resp}, :describe_stack_resource, config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//DescribeStackResourceResponse",
-        request_id: request_id_xpath(),
-        resource: [
-          ~x"./DescribeStackResourceResult/StackResourceDetail",
-          stack_id: ~x"./StackId/text()"s,
-          stack_name: ~x"./StackName/text()"s,
-          metadata: ~x"./Metadata/text()"s |> transform_by(&(parse_metadata_json(&1, config))),
-          ] ++ resource_description_fields
-        )
+           request_id: request_id_xpath(),
+           resource: [
+             ~x"./DescribeStackResourceResult/StackResourceDetail",
+             last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s,
+             metadata: ~x"./Metadata/text()"so |> transform_by(&(parse_metadata_json(&1, config)))
+           ] ++ resource_description_fields ++ stack_fields
+         )
+
+        {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :describe_stack_resources, _config) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DescribeStackResourcesResponse",
+           request_id: request_id_xpath(),
+           resources: [
+             ~x"./DescribeStackResourcesResult/StackResources/member"l,
+             timestamp: ~x"./Timestamp/text()"s,
+           ] ++ resource_description_fields ++ stack_fields
+         )
 
         {:ok, Map.put(resp, :body, parsed_body)}
     end
@@ -33,18 +45,18 @@ if Code.ensure_loaded?(SweetXml) do
     def parse({:ok, %{body: xml}=resp}, :list_stacks, _config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListStacksResponse",
-        next_token: ~x"./ListStacksResult/NextToken/text()"s,
-        request_id: request_id_xpath(),
-        stacks: [
-          ~x"./ListStacksResult/StackSummaries/member"l,
-          id: ~x"./StackId/text()"s,
-          name: ~x"./StackName/text()"s,
-          status: ~x"./StackStatus/text()"s |> transform_by(&const_to_atom/1),
-          creation_time: ~x"./CreationTime/text()"s,
-          template_description: ~x"./TemplateDescription/text()"so,
-          resource_types: ~x"./ResourceTypes/member/text()"slo
-        ]
-      )
+           next_token: ~x"./ListStacksResult/NextToken/text()"s,
+           request_id: request_id_xpath(),
+           stacks: [
+             ~x"./ListStacksResult/StackSummaries/member"l,
+             id: ~x"./StackId/text()"s,
+             name: ~x"./StackName/text()"s,
+             status: ~x"./StackStatus/text()"s |> transform_by(&const_to_atom/1),
+             creation_time: ~x"./CreationTime/text()"s,
+             template_description: ~x"./TemplateDescription/text()"so,
+             resource_types: ~x"./ResourceTypes/member/text()"slo
+           ]
+         )
 
       {:ok, Map.put(resp, :body, parsed_body)}
     end
@@ -52,11 +64,12 @@ if Code.ensure_loaded?(SweetXml) do
     def parse({:ok, %{body: xml}=resp}, :list_stack_resources, _config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListStackResourcesResponse",
-        next_token: ~x"./ListStackResourcesResult/NextToken/text()"s,
-        request_id: request_id_xpath(),
-        resources: [ ~x"./ListStackResourcesResult/StackResourceSummaries/member"l ]
-                    ++ resource_description_fields
-        )
+          next_token: ~x"./ListStackResourcesResult/NextToken/text()"s,
+          request_id: request_id_xpath(),
+          resources: [ ~x"./ListStackResourcesResult/StackResourceSummaries/member"l,
+                       last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s
+                     ] ++ resource_description_fields
+         )
 
       {:ok, Map.put(resp, :body, parsed_body)}
     end
@@ -79,9 +92,15 @@ if Code.ensure_loaded?(SweetXml) do
       [
         resource_status: ~x"./ResourceStatus/text()"s |> transform_by(&const_to_atom/1),
         logical_resource_id: ~x"./LogicalResourceId/text()"s,
-        last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s,
         physical_resource_id: ~x"./PhysicalResourceId/text()"s,
         resource_type: ~x"./ResourceType/text()"s
+      ]
+    end
+
+    defp stack_fields do
+      [
+        stack_id: ~x"./StackId/text()"s,
+        stack_name: ~x"./StackName/text()"s
       ]
     end
 
@@ -94,6 +113,7 @@ if Code.ensure_loaded?(SweetXml) do
       string |> String.downcase |> String.to_existing_atom
     end
 
+    defp parse_metadata_json("", _), do: %{}
     defp parse_metadata_json(json, config) do
       json
       |> String.trim
