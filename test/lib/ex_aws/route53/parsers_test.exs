@@ -189,7 +189,7 @@ defmodule ExAws.Route53.ParsersTest do
                    <Value>VALUE_1</Value>
                 </ResourceRecord>
                 <ResourceRecord>
-                   <Value>VALUE_2</Value>
+                   <Value>&quot;v=spf1 include:mailgun.org ~all&quot;</Value>
                 </ResourceRecord></ResourceRecords>
              <SetIdentifier>SET_IDENTIFIER</SetIdentifier>
              <TrafficPolicyInstanceId>TRAFFIC_POLICY_INSTANCE_ID</TrafficPolicyInstanceId>
@@ -224,7 +224,7 @@ defmodule ExAws.Route53.ParsersTest do
           health_check_id: "HEALTH_CHECK_ID",
           name: "NAME",
           region: "REGION",
-          values: ["VALUE_1", "VALUE_2"],
+          values: ["VALUE_1", "\"v=spf1 include:mailgun.org ~all\""],
           set_identifier: "SET_IDENTIFIER",
           traffic_policy_instance_id: "TRAFFIC_POLICY_INSTANCE_ID",
           ttl: 500,

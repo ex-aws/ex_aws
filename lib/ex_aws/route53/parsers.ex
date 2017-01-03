@@ -58,7 +58,7 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     def parse({:ok, resp}, :list_record_sets) do
-      resp |> parse_xml(~x"//ListResourceRecordSetsResponse",
+      resp |> decode_entities |> parse_xml(~x"//ListResourceRecordSetsResponse",
         is_truncated: ~x"./IsTruncated/text()"s |> to_boolean,
         max_items: ~x"./MaxItems/text()"i,
         next_record_identifier: ~x"./NextRecordIdentifier/text()"so,
@@ -92,6 +92,8 @@ if Code.ensure_loaded?(SweetXml) do
       )
     end
 
+    def parse(val, _), do: val
+
     defp id_node do
       ~x"./Id/text()"s |> transform_by(&String.replace(&1, ~r/^.+?\//, ""))
     end
@@ -108,6 +110,10 @@ if Code.ensure_loaded?(SweetXml) do
          status: ~x"./Status/text()"s,
          submitted_at: ~x"./SubmittedAt/text()"s
        ]
+    end
+
+    defp decode_entities(resp) do
+      resp |> Map.update(:body, "", &String.replace(&1, "&quot;", "\""))
     end
 
     defp parse_xml(%{body: xml} = resp, xpath, elements) do
