@@ -11,9 +11,9 @@ defmodule ExAws.Mixfile do
      description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
-     package: package,
+     package: package(),
      dialyzer: [flags: "--fullpath"],
-     deps: deps,
+     deps: deps(),
      docs: [main: "ExAws", source_ref: "v#{@version}",
        source_url: "https://github.com/cargosense/ex_aws"]
      ]
