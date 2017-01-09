@@ -63,7 +63,8 @@ defmodule ExAws.SES do
   end
 
   defp format_dst(dst) do
-     Map.to_list(dst)
+    dst
+    |> Map.to_list
     |> format_member_attributes([:bcc_addresses, :cc_addresses, :to_addresses])
     |> flatten_attrs("destination")
   end
@@ -72,9 +73,9 @@ defmodule ExAws.SES do
 
   defp format_tags(tags) do
     tags
-    |> Enum.with_index
+    |> Enum.with_index(1)
     |> Enum.reduce(%{}, fn({tag, index}, acc) ->
-      key = camelize_key("tags.member.#{index + 1}")
+      key = camelize_key("tags.member.#{index}")
       Map.merge(acc, flatten_attrs(tag, key))
     end)
   end
@@ -116,9 +117,9 @@ defmodule ExAws.SES do
 
   defp format_member_attribute({key, collection}) do
     collection
-    |> Enum.with_index
-    |> Enum.reduce(%{}, fn({item, index}, params) ->
-      Map.put_new(params, "#{camelize_key(key)}.member.#{index + 1}", item)
+    |> Enum.with_index(1)
+    |> Map.new(fn {item, index} ->
+      {"#{camelize_key(key)}.member.#{index }", item}
     end)
   end
 
