@@ -1,5 +1,4 @@
-
-defmodule ExAws.SNS.ParserTest do
+defmodule ExAws.SES.ParserTest do
   use ExUnit.Case, async: true
 
   alias ExAws.SES.Parsers
