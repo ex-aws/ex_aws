@@ -119,9 +119,17 @@ defmodule ExAws.SNS do
   @type platform_application_arn:: binary
 
   @doc "Create plaform application"
-  @spec create_platform_application(name :: binary, platform :: binary) :: ExAws.Operation.Query.t
-  def create_platform_application(name, platform),
-    do: request(:create_platform_application, %{"Name" => name, "Platform" => platform})
+  @spec create_platform_application(name :: binary, platform :: binary, attributes :: %{String.t => String.t}) :: ExAws.Operation.Query.t
+  def create_platform_application(name, platform, attributes) do
+    attributes =
+      attributes
+      |> build_kv_attrs
+      |> Map.merge(%{
+        "Name" => name,
+        "Platform" => platform,
+      })
+    request(:create_platform_application, attributes)
+  end
 
   @doc "Delete platform application"
   @spec delete_platform_application(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
@@ -196,6 +204,21 @@ defmodule ExAws.SNS do
   @spec list_subscriptions(next_token :: binary) :: ExAws.Operation.Query.t
   def list_subscriptions(next_token) do
     request(:list_subscriptions, %{"NextToken" => next_token})
+  end
+
+  @type list_subscriptions_by_topic_opt :: {:next_token, binary}
+
+  @doc "List Subscriptions by Topic"
+  @spec list_subscriptions_by_topic(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
+  @spec list_subscriptions_by_topic(topic_arn :: topic_arn, [list_subscriptions_by_topic_opt]) :: ExAws.Operation.Query.t
+  def list_subscriptions_by_topic(topic_arn, opts \\ []) do
+    params = case opts do
+      [next_token: next_token] ->
+        %{"TopicArn" => topic_arn, "NextToken" => next_token}
+      _ ->
+        %{"TopicArn" => topic_arn}
+    end
+    request(:list_subscriptions_by_topic, params)
   end
 
   @doc "Unsubscribe"
@@ -358,6 +381,20 @@ defmodule ExAws.SNS do
     prefix = "Attributes.entry.#{index}."
     %{}
     |> Map.put(prefix <> "name",  format_param_key(name))
+    |> Map.put(prefix <> "value", value)
+  end
+
+  defp build_kv_attrs(attrs) do
+    attrs
+    |> Enum.with_index(1)
+    |> Enum.map(&build_kv_attr/1)
+    |> Enum.reduce(%{}, &Map.merge(&1, &2))
+  end
+
+  defp build_kv_attr({{key, value}, index}) do
+    prefix = "Attributes.entry.#{index}."
+    %{}
+    |> Map.put(prefix <> "key", key)
     |> Map.put(prefix <> "value", value)
   end
 

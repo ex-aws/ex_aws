@@ -102,43 +102,12 @@ defimpl ExAws.Dynamo.Encodable, for: List do
 
   @doc """
   Dynamodb offers typed sets and L, a generic list of typed attributes.
-
-  If all items in the list have the same dynamo type, This will return the
-  corrosponding Dynamo type set ie
-  [%{"N" => 1},%{"N" => 2}] #=> %{"NS" => [1,2]}
-
-  Otherwise, it will use the generic list type ie
-  [%{"N" => 1},%{"S" => "Foo"}] #=> %{"L" => [%{"N" => 1},%{"S" => "Foo"}]}
   """
   def encode(list, _) do
-    {typed_values, list_type} = list
-    |> Enum.map_reduce(:first,
-        fn
-        value, :first ->
-          typed_value = Encodable.encode(value, [])
-          dynamo_type = typed_value |> Map.keys() |> hd()
-          {typed_value, dynamo_type}
-
-        value, dynamo_type ->
-          typed_value = Encodable.encode(value, [])
-          new_dynamo_type = typed_value |> Map.keys() |> hd()
-          if dynamo_type == new_dynamo_type do
-            {typed_value, dynamo_type}
-          else
-            {typed_value, "generic"}
-          end
-        end)
-    case list_type do
-      "N" ->
-        values = typed_values |> Enum.map(fn %{"N" => value} -> value end)
-        %{"NS" => values}
-      "S" ->
-        values = typed_values |> Enum.map(fn %{"S" => value} -> value end)
-        %{"SS" => values}
-      "B" ->
-        values = typed_values |> Enum.map(fn %{"B" => value} -> value end)
-        %{"BS" => values}
-      _ -> %{"L"  => typed_values}
+    typed_values = for value <- list do
+      Encodable.encode(value, [])
     end
+
+    %{"L"  => typed_values}
   end
 end

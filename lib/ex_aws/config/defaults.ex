@@ -4,8 +4,8 @@ defmodule ExAws.Config.Defaults do
   """
 
   @common %{
-    access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
-    secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
+    access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
+    secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
     http_client: ExAws.Request.Hackney,
     json_codec: Poison,
     retries: [
@@ -47,11 +47,15 @@ defmodule ExAws.Config.Defaults do
         "us-west-1" => "s3-us-west-1.amazonaws.com",
         "us-west-2" => "s3-us-west-2.amazonaws.com",
         "eu-west-1" => "s3-eu-west-1.amazonaws.com",
+        "eu-west-2" => "s3-eu-west-2.amazonaws.com",
         "eu-central-1" => "s3-eu-central-1.amazonaws.com",
+        "ap-south-1" => "s3-ap-south-1.amazonaws.com",
         "ap-southeast-1" => "s3-ap-southeast-1.amazonaws.com",
         "ap-southeast-2" => "s3-ap-southeast-2.amazonaws.com",
         "ap-northeast-1" => "s3-ap-northeast-1.amazonaws.com",
+        "ap-northeast-2" => "s3-ap-northeast-2.amazonaws.com",
         "sa-east-1" => "s3-sa-east-1.amazonaws.com",
+        "ca-central-1" => "s3-ca-central-1.amazonaws.com",
       },
       region: "us-east-1"
     },
