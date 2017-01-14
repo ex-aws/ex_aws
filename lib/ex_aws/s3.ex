@@ -878,18 +878,14 @@ defmodule ExAws.S3 do
   a multipart upload directly from the browser.
   """
   @spec presigned_url(config :: %{}, http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: {:ok, binary} | {:error, binary}
-  @one_week 60 * 60 * 24 * 7
   def presigned_url(config, http_method, bucket, object, opts \\ []) do
     expires_in = Keyword.get(opts, :expires_in, 3600)
     virtual_host = Keyword.get(opts, :virtual_host, false)
     query_params = Keyword.get(opts, :query_params, [])
-    case expires_in > @one_week do
-      true -> {:error, "expires_in_exceeds_one_week"}
-      false ->
-        url = url_to_sign(bucket, object, config, virtual_host)
-        datetime = :calendar.universal_time
-        {:ok, ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in, query_params)}
-    end
+
+    url = url_to_sign(bucket, object, config, virtual_host)
+    datetime = :calendar.universal_time
+    {:ok, ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in, query_params)}
   end
 
   defp url_to_sign(bucket, object, config, virtual_host) do
