@@ -892,6 +892,72 @@ defmodule ExAws.S3 do
     end
   end
 
+  @type presigned_post_opts :: [
+    {:expires_in, pos_integer()}
+    | {:current_datetime, :calendar.datetime}
+    | {:fields, [{String.t, String.t}]}
+  ]
+  @type presigned_post_response :: %{
+    url: String.t,
+    form_fields: %{optional(String.t) => String.t}
+  }
+
+  @doc """
+  Generates a presigned POST request that can be used for uploading an object.
+
+  This generates a presigned post request that can be used by the browser to
+  directly upload an object to s3. Given the following request,
+
+  ```
+  response = S3.presigned_post(config, "my-bucket", "path/to/my/file.txt")
+  ```
+
+  the browser must send a POST request with enctype of `multipart/form-data` to `response.url`.
+  This request should have `response.form_fields` as its body, plus an additional field
+  named `file` which contains the contents of the file to be uploaded.
+
+  ## Options
+
+  * `fields`: Additional form fields to be signed and included in request.
+  * `expires_in`: Number of seconds until this presigned post expires. Defaults to 1 hour.
+  * `current_datetime`: Allows overriding the datetime that the request is signed.
+     Defaults to the current datetime.
+
+  ## Examples
+
+  ```
+  # Presigned post with no additional fields
+  S3.presigned_post(config, "my-bucket", "path/to/my/file.txt")
+
+  # Presigned post with acl and content-type preset
+  S3.presigned_post(
+    config,
+    "my-bucket",
+    "path/to/my/file.txt",
+    fields: [%{"acl" => "public-read"}, %{"content-type" => "text/plain"}]
+    )
+
+  # Presigned post where original filename is kept intact.
+  S3.presigned_post(config, "my-bucket", "path/to/my/${filename}")
+
+  # Presigned post that expires in 5 minutes
+  S3.presigned_post(config, "my-bucket", "path/to/my/file.txt", expires_in: 60 * 5)
+  ```
+
+  For more information, see http://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
+  """
+  @spec presigned_post(
+    config :: %{},
+    bucket_name :: String.t,
+    key :: String.t,
+    opts :: presigned_post_opts) :: presigned_post_response
+  def presigned_post(config, bucket_name, key, opts \\ []) do
+    presigned_post = ExAws.Auth.PresignedPosts.generate_presigned_post(
+      config, bucket_name, key, opts)
+
+    presigned_post
+  end
+
   defp url_to_sign(bucket, object, config, virtual_host) do
     object = ensure_slash(object)
     case virtual_host do

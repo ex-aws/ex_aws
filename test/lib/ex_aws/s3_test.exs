@@ -150,6 +150,17 @@ defmodule ExAws.S3Test do
     assert "expires_in_exceeds_one_week" == reason
   end
 
+  test "#presigned_post returns PresignedPosts.generate_presigned_post" do
+    config = config()
+    bucket_name = "test_bucket"
+    key = "test_uploads/${filename}"
+
+    presigned_post = S3.presigned_post(config, bucket_name, key)
+
+    assert presigned_post == ExAws.Auth.PresignedPosts.generate_presigned_post(
+      config, bucket_name, key)
+  end
+
   defp assert_pre_signed_url(url, expected_scheme_host_path, expected_expire) do
     uri = URI.parse(url)
     assert expected_scheme_host_path == "#{uri.scheme}://#{uri.host}#{uri.path}"
