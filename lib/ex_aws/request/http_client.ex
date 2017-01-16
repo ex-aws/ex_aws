@@ -1,6 +1,4 @@
 defmodule ExAws.Request.HttpClient do
-  use Behaviour
-
   @moduledoc """
   Specifies expected behaviour of an http client
 
