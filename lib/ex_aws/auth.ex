@@ -72,18 +72,33 @@ defmodule ExAws.Auth do
   end
 
   def presigned_url_v2(:get, url, :s3, datetime, config, expires, query_params \\ []) do
+    expires = :os.system_time(:seconds) + expires
+
     string_to_sign = [
       "GET\n",
       "\n",
       "\n",
-      expires <> "\n",
+      inspect(expires) <> "\n",
       "",
       url
     ]
-    |> String.join("\n")
-    |> Auth.Utils.hmac_sha
+    |> Enum.join("\n")
+
+    signature = config[:secret_access_key]
+    |> ExAws.Auth.Utils.hmac_sha(string_to_sign)
     |> Base.encode64
-    |> URI.encode
+    |> ExAws.Auth.Utils.uri_encode
+
+    uri = URI.parse(url)
+    path = uri_encode(uri.path)
+    query_for_url = [
+      "AWSAccessKeyId=" <> config[:access_key_id],
+      "Signature=" <> signature,
+      "Expires=" <> inspect(expires)
+    ]
+    |> Enum.join("&")
+
+    "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}"
   end
 
   defp handle_temp_credentials(headers, %{security_token: token}) do
