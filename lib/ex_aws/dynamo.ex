@@ -26,7 +26,7 @@ defmodule ExAws.Dynamo do
   # Retrieve the user by email and decode it as a User struct.
   result = Dynamo.get_item("Users", %{email: user.email})
   |> ExAws.request!
-  |> Dynamo.Decoder.decode(as: User)
+  |> Dynamo.decode_item(as: User)
 
   assert user == result
   ```
