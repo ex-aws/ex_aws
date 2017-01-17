@@ -176,6 +176,14 @@ defmodule ExAws.SQS.ParserTest do
             <Name>MessageRetentionPeriod</Name>
             <Value>345600</Value>
           </Attribute>
+          <Attribute>
+            <Name>FifoQueue</Name>
+            <Value>true</Value>
+          </Attribute>
+          <Attribute>
+            <Name>ContentBasedDeduplication</Name>
+            <Value>false</Value>
+          </Attribute>
         </GetQueueAttributesResult>
         <ResponseMetadata>
           <RequestId>1ea71be5-b5a2-4f9d-b85a-945d8d08cd0b</RequestId>
@@ -189,6 +197,8 @@ defmodule ExAws.SQS.ParserTest do
     assert 2 == attributes[:receive_message_wait_time_seconds]
     assert "arn:aws:sqs:us-east-1:123456789012:qfoo" == attributes[:queue_arn]
     assert 30 == attributes[:visibility_timeout]
+    assert true == attributes[:fifo_queue]
+    assert false == attributes[:content_based_deduplication]
     assert "1ea71be5-b5a2-4f9d-b85a-945d8d08cd0b" == response[:request_id]
   end
 
