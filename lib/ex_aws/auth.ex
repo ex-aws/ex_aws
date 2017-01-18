@@ -76,10 +76,9 @@ defmodule ExAws.Auth do
 
     string_to_sign = [
       "GET\n",
-      "\n",
-      "\n",
-      inspect(expires) <> "\n",
       "",
+      "",
+      inspect(expires),
       url
     ]
     |> Enum.join("\n")
