@@ -86,10 +86,11 @@ defmodule ExAws.Auth do
     signature = config[:secret_access_key]
     |> ExAws.Auth.Utils.hmac_sha(string_to_sign)
     |> Base.encode64
-    |> URI.encode
+    |> URI.encode(&ExAws.Auth.Utils.valid_path_char?/1)
 
     uri = URI.parse(url)
-    path = URI.encode(uri.path)
+    path = uri.path
+           |> URI.encode(&ExAws.Auth.Utils.valid_path_char?/1)
     query_for_url = [
       "AWSAccessKeyId=" <> config[:access_key_id],
       "Expires=" <> inspect(expires),
