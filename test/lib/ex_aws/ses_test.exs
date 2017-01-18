@@ -32,7 +32,7 @@ defmodule ExAws.SESTest do
 
   describe "#send_email" do
     test "with required params only" do
-      dst =  %{to_addresses:  ["success@simulator.amazonses.com"]}
+      dst =  %{to:  ["success@simulator.amazonses.com"]}
       msg = %{body: %{}, subject: %{data: "subject"}}
       expected = %{
         "Action" => "SendEmail", "Destination.ToAddresses.member.1" => "success@simulator.amazonses.com",
@@ -44,9 +44,9 @@ defmodule ExAws.SESTest do
 
     test "with all optional params" do
       dst =  %{
-        bcc_addresses: ["success@simulator.amazonses.com"],
-        cc_addresses:  ["success@simulator.amazonses.com"],
-        to_addresses:  ["success@simulator.amazonses.com", "bounce@simulator.amazonses.com"]
+        bcc: ["success@simulator.amazonses.com"],
+        cc:  ["success@simulator.amazonses.com"],
+        to:  ["success@simulator.amazonses.com", "bounce@simulator.amazonses.com"]
       }
       msg = SES.build_message("html", "text", "subject")
 
@@ -72,7 +72,7 @@ defmodule ExAws.SESTest do
         dst, msg, "user@example.com", configuration_set_name: "test", return_path: "feedback@example.com",
         return_path_arn: "arn:aws:ses:us-east-1:123456789012:identity/example.com",
         source_arn: "east-1:123456789012:identity/example.com",
-        reply_to_addresses: ["user@example.com", "user1@example.com"],
+        reply_to: ["user@example.com", "user1@example.com"],
         tags:  [%{name: "tag1", value: "tag1value1"}, %{name: "tag2", value: "tag2value1"}]
       ).params
     end

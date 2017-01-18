@@ -40,10 +40,17 @@ defmodule ExAws.SES do
   @doc "Composes an email message"
   @type send_email(dst :: destination, msg :: message, src :: binary, opts ::list) :: ExAws.Operation.t
   def send_email(dst, msg, src, opts \\ []) do
+    dst = Enum.reduce([:to, :bcc, :cc], %{}, fn key, acc ->
+      case Map.fetch(dst, key) do
+        {:ok, val} -> Map.put(acc, :"#{key}_addresses", val)
+        _ -> acc
+      end
+    end)
+
     params =
       opts
       |> build_opts([:configuration_set_name, :return_path, :return_path_arn, :source_arn, :bcc])
-      |> Map.merge(format_member_attribute(:reply_to, opts[:reply_to]))
+      |> Map.merge(format_member_attribute(:reply_to_addresses, opts[:reply_to]))
       |> Map.merge(flatten_attrs(msg, "message"))
       |> Map.merge(format_tags(opts[:tags]))
       |> Map.merge(format_dst(dst))
@@ -76,7 +83,7 @@ defmodule ExAws.SES do
   defp format_dst(dst) do
     dst
     |> Map.to_list
-    |> format_member_attributes([:bcc, :cc, :to])
+    |> format_member_attributes([:bcc_addresses, :cc_addresses, :to_addresses])
     |> flatten_attrs("destination")
   end
 
