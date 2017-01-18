@@ -79,17 +79,17 @@ defmodule ExAws.Auth do
       "",
       "",
       inspect(expires),
-      url
+      "/" <> url
     ]
     |> Enum.join("\n")
 
     signature = config[:secret_access_key]
-    |> ExAws.Auth.Utils.hmac_sha(string_to_sign)
-    |> Base.encode64
-    |> uri_encode
+                |> ExAws.Auth.Utils.hmac_sha(string_to_sign)
+                |> Base.encode64
+                |> uri_encode_v2
 
     uri = URI.parse(url)
-    path = uri.path |> uri_encode
+    path = uri.path
     query_for_url = [
       "AWSAccessKeyId=" <> config[:access_key_id],
       "Expires=" <> inspect(expires),
@@ -97,7 +97,7 @@ defmodule ExAws.Auth do
     ]
     |> Enum.join("&")
 
-    "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}"
+    "#{path}?#{query_for_url}"
   end
 
   defp handle_temp_credentials(headers, %{security_token: token}) do
