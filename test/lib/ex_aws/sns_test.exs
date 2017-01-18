@@ -86,6 +86,25 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.publish("{\"message\": \"MyMessage\"}", [topic_arn: "arn:aws:sns:us-east-1:982071696186:test-topic"]).params
   end
 
+  test"#publish with message attributes" do
+    expected = %{
+      "Action" => "Publish",
+      "Message" => "Hello World",
+      "TopicArn" => "arn:aws:sns:us-east-1:982071696186:test-topic",
+      "MessageAttribute.entry.1.Name" => "SenderID",
+      "MessageAttribute.entry.1.Value.DataType" => "String",
+      "MessageAttribute.entry.1.Value.StringValue" => "sender"
+    }
+
+    attrs = [%{
+      name: "SenderID",
+      data_type: :string,
+      value: {:string, "sender"}
+    }]
+
+    assert expected == SNS.publish("Hello World", [topic_arn: "arn:aws:sns:us-east-1:982071696186:test-topic", message_attributes: attrs]).params
+  end
+
   test "#subscribe" do
     expected = %{
       "Action"   => "Subscribe",
@@ -170,16 +189,16 @@ defmodule ExAws.SNSTest do
     expected = %{
       "Action" => "Publish",
       "Message" => "message",
-      "MessageAttribute.0.Name" => "AWS.SNS.SMS.SenderID",
-      "MessageAttribute.0.Value.DataType" => "String",
-      "MessageAttribute.1.Name" => "AWS.SNS.SMS.MaxPrice",
-      "MessageAttribute.1.Value.DataType" => "String",
-      "MessageAttribute.2.Name" => "AWS.SNS.SMS.SMSType",
-      "MessageAttribute.2.Value.DataType" => "String",
-      "PhoneNumber" => "+15005550006",
-      "MessageAttribute.0.Value.StringValue" => "sender",
-      "MessageAttribute.1.Value.StringValue" => "0.8",
-      "MessageAttribute.2.Value.StringValue" => "Transactional"
+      "MessageAttribute.entry.1.Name" => "AWS.SNS.SMS.SenderID",
+      "MessageAttribute.entry.1.Value.DataType" => "String",
+      "MessageAttribute.entry.1.Value.StringValue" => "sender",
+      "MessageAttribute.entry.2.Name" => "AWS.SNS.SMS.MaxPrice",
+      "MessageAttribute.entry.2.Value.DataType" => "String",
+      "MessageAttribute.entry.2.Value.StringValue" => "0.8",
+      "MessageAttribute.entry.3.Name" => "AWS.SNS.SMS.SMSType",
+      "MessageAttribute.entry.3.Value.DataType" => "String",
+      "MessageAttribute.entry.3.Value.StringValue" => "Transactional",
+      "PhoneNumber" => "+15005550006"
     }
 
     message_attributes = [
