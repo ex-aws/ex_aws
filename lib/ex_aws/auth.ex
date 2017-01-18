@@ -93,8 +93,8 @@ defmodule ExAws.Auth do
     path = uri_encode(uri.path)
     query_for_url = [
       "AWSAccessKeyId=" <> config[:access_key_id],
-      "Signature=" <> signature,
-      "Expires=" <> inspect(expires)
+      "Expires=" <> inspect(expires),
+      "Signature=" <> signature
     ]
     |> Enum.join("&")
 
