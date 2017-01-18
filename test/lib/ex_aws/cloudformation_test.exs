@@ -10,6 +10,30 @@ defmodule ExAws.CloudformationTest do
     assert expected == Cloudformation.cancel_update_stack("test_stack")
   end
 
+  test "continue_update_rollback no options" do
+    expected = query(:continue_update_rollback, %{"StackName" => "test_stack"})
+    assert expected == Cloudformation.continue_update_rollback("test_stack")
+  end
+
+  test "continue_update_rollback with skip resources" do
+    expected = query(:continue_update_rollback, %{
+      "ResourcesToSkip.member.1" => "TestResource",
+      "ResourcesToSkip.member.2" => "TestResource2",
+      "StackName" => "test_stack"
+    })
+    assert expected == Cloudformation.continue_update_rollback("test_stack",
+                         [skip_resources: ["TestResource", "TestResource2"]])
+  end
+
+  test "continue_update_rollback with role arn" do
+    expected = query(:continue_update_rollback, %{
+      "RoleArn" => "arn:my:thing",
+      "StackName" => "test_stack"
+    })
+    assert expected == Cloudformation.continue_update_rollback("test_stack",
+                                                  [role_arn: "arn:my:thing"])
+  end
+
   test "describe_stack_resource" do
     expected = query(:describe_stack_resource,
       %{ "LogicalResourceId" => "MyTestInstance",

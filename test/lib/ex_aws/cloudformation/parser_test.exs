@@ -16,7 +16,20 @@ defmodule ExAws.Cloudformation.ParserTest do
     """
     |> to_success
 
-    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :cancel_update_stack, config())
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :cancel_update_stack, nil)
+    assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
+  end
+
+  test "parsing a continue_update_rollback response:" do
+    rsp = """
+    <ContinueUpdateRollbackResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <ResponseMetadata>
+        <RequestId>5ccc7dcd-744c-11e5-be70-example</RequestId>
+      </ResponseMetadata>
+    </ContinueUpdateRollbackResponse>
+    """
+    |> to_success
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :continue_update_rollback, nil)
     assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
   end
 

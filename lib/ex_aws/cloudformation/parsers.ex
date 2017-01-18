@@ -17,9 +17,13 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse({:ok, %{body: xml}=resp}, :cancel_update_stack, _) do
       parsed_body = xml
-      |> SweetXml.xpath(~x"//CancelUpdateStackResponse",
-           request_id: request_id_xpath()
-         )
+      |> SweetXml.xpath(~x"//CancelUpdateStackResponse", request_id: request_id_xpath() )
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :continue_update_rollback, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//ContinueUpdateRollbackResponse", request_id: request_id_xpath() )
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
