@@ -5,98 +5,58 @@ defmodule ExAws.CloudformationTest do
 
   @version "2010-05-15"
 
+  test "cancel_update_stack" do
+    expected = query(:cancel_update_stack, %{"StackName" => "test_stack"})
+    assert expected == Cloudformation.cancel_update_stack("test_stack")
+  end
+
   test "describe_stack_resource" do
-    expected = %Query{
-      params: %{"Action"    => "DescribeStackResource",
-                "LogicalResourceId" => "MyTestInstance",
-                "StackName" => "test_stack",
-                "Version"   => @version
-               },
-      path: "/",
-      service: :cloudformation,
-      action: :describe_stack_resource,
-      parser: &ExAws.Cloudformation.Parsers.parse/3
-    }
+    expected = query(:describe_stack_resource,
+      %{ "LogicalResourceId" => "MyTestInstance",
+         "StackName" => "test_stack" })
 
     assert expected == Cloudformation.describe_stack_resource("test_stack", "MyTestInstance")
   end
 
   test "describe_stack_resources" do
-    expected = %Query{
-      params: %{"Action"    => "DescribeStackResources",
-                "StackName" => "test_stack",
-                "PhysicalResourceId" => "MyTestResource",
-                "Version"   => @version
-               },
-      path: "/",
-      service: :cloudformation,
-      action: :describe_stack_resources,
-      parser: &ExAws.Cloudformation.Parsers.parse/3
-    }
+    expected = query(:describe_stack_resources,
+      %{ "StackName" => "test_stack", "PhysicalResourceId" => "MyTestResource" })
 
     assert expected == Cloudformation.describe_stack_resources("test_stack",
                                           [physical_resource_id: "MyTestResource"])
   end
 
   test "list_stacks no options" do
-    expected = %Query{
-      params: %{"Action" => "ListStacks",
-                "Version"   => @version
-                },
-      path: "/",
-      service: :cloudformation,
-      action: :list_stacks,
-      parser: &ExAws.Cloudformation.Parsers.parse/3
-    }
-
+    expected = query(:list_stacks)
     assert expected == Cloudformation.list_stacks
   end
 
   test "list_stacks with status filters" do
-    expected = %Query{
-      params: %{"Action" => "ListStacks",
-                "Version"   => @version,
-                "StackStatusFilter.member.1" => "ROLLBACK_IN_PROGRESS",
-                "StackStatusFilter.member.2" => "ROLLBACK_COMPLETE",
-                },
-      path: "/",
-      service: :cloudformation,
-      action: :list_stacks,
-      parser: &ExAws.Cloudformation.Parsers.parse/3
-    }
-
+    expected = query(:list_stacks, %{"StackStatusFilter.member.1" => "ROLLBACK_IN_PROGRESS",
+                                     "StackStatusFilter.member.2" => "ROLLBACK_COMPLETE"})
     assert expected == Cloudformation.list_stacks(status_filter: [:rollback_in_progress, :rollback_complete])
   end
 
   test "list_stack_resources no options" do
-    expected = %Query{
-      params: %{"Action"    => "ListStackResources",
-                "StackName" => "test_stack",
-                "Version"   => @version
-               },
-      path: "/",
-      service: :cloudformation,
-      action: :list_stack_resources,
-      parser: &ExAws.Cloudformation.Parsers.parse/3
-    }
-
+    expected = query(:list_stack_resources, %{"StackName" => "test_stack"})
     assert expected == Cloudformation.list_stack_resources("test_stack")
   end
 
   test "list_stack_resources with next_token" do
-        expected = %Query{
-          params: %{"Action"    => "ListStackResources",
-                    "StackName" => "test_stack",
-                    "Version"   => @version,
-                    "NextToken" => "Next"
-                   },
-          path: "/",
-          service: :cloudformation,
-          action: :list_stack_resources,
-          parser: &ExAws.Cloudformation.Parsers.parse/3
-        }
-
+    expected = query(:list_stack_resources, %{"StackName" => "test_stack",
+                                              "NextToken" => "Next"})
     assert expected == Cloudformation.list_stack_resources("test_stack", next_token: "Next")
+  end
+
+  defp query(action, params \\ %{}) do
+    action_param = action |> Atom.to_string |> Macro.camelize
+    %Query{
+      params: params |> Map.merge(%{"Version" => @version, "Action" => action_param}),
+      path: "/",
+      service: :cloudformation,
+      action: action,
+      parser: &ExAws.Cloudformation.Parsers.parse/3
+    }
   end
 
 end

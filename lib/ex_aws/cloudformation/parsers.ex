@@ -15,6 +15,14 @@ if Code.ensure_loaded?(SweetXml) do
       :update_complete_cleanup_in_progress            |
       :update_rollback_complete_cleanup_in_progress
 
+    def parse({:ok, %{body: xml}=resp}, :cancel_update_stack, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//CancelUpdateStackResponse",
+           request_id: request_id_xpath()
+         )
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :describe_stack_resource, config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//DescribeStackResourceResponse",
@@ -29,7 +37,7 @@ if Code.ensure_loaded?(SweetXml) do
         {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :describe_stack_resources, _config) do
+    def parse({:ok, %{body: xml}=resp}, :describe_stack_resources, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//DescribeStackResourcesResponse",
            request_id: request_id_xpath(),
@@ -42,7 +50,7 @@ if Code.ensure_loaded?(SweetXml) do
         {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :list_stacks, _config) do
+    def parse({:ok, %{body: xml}=resp}, :list_stacks, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListStacksResponse",
            next_token: ~x"./ListStacksResult/NextToken/text()"s,
@@ -61,7 +69,7 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :list_stack_resources, _config) do
+    def parse({:ok, %{body: xml}=resp}, :list_stack_resources, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListStackResourcesResponse",
           next_token: ~x"./ListStackResourcesResult/NextToken/text()"s,

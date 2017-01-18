@@ -6,6 +6,20 @@ defmodule ExAws.Cloudformation.ParserTest do
     {:ok, %{body: doc}}
   end
 
+  test "parsing a cancel_update_stack response" do
+    rsp = """
+    <CancelUpdateStackResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <ResponseMetadata>
+        <RequestId>5ccc7dcd-744c-11e5-be70-example</RequestId>
+      </ResponseMetadata>
+    </CancelUpdateStackResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :cancel_update_stack, config())
+    assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
+  end
+
   test "parsing a describe_stack_resource response" do
     rsp = """
     <DescribeStackResourceResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">

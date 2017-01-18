@@ -21,6 +21,11 @@ defmodule ExAws.Cloudformation do
   ### Stack Actions ###
   #####################
 
+  @spec cancel_update_stack(stack_name :: binary) :: ExAws.Operation.Query.t
+  def cancel_update_stack(stack_name) do
+    request(:cancel_update_stack, %{"StackName" => stack_name})
+  end
+
   @spec describe_stack_resource(stack_name :: binary, logical_resource_id :: binary) :: ExAws.Operation.Query.t
   def describe_stack_resource(stack_name, logical_resource_id) do
     query_params = %{
