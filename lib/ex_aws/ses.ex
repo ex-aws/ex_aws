@@ -1,3 +1,4 @@
+
 defmodule ExAws.SES do
   import ExAws.Utils, only: [camelize_key: 1, camelize_keys: 1]
 
@@ -34,20 +35,30 @@ defmodule ExAws.SES do
     body: %{html: %{data: binary, charset: binary}, text: %{data: binary, charset: binary}},
     subject: %{data: binary, charset: binary}
   }
-  @type destination :: %{cc_addresses: [binary], bcc_addresses: [binary], bcc_addresses: [binary]}
+  @type destination :: %{to: [binary], bcc: [binary], bcc: [binary]}
 
   @doc "Composes an email message"
   @type send_email(dst :: destination, msg :: message, src :: binary, opts ::list) :: ExAws.Operation.t
   def send_email(dst, msg, src, opts \\ []) do
-    params = opts
-    |> build_opts([:configuration_set_name, :return_path, :return_path_arn, :source_arn, :bcc])
-    |> Map.merge(format_member_attribute(:reply_to_addresses, opts[:reply_to_addresses]))
-    |> Map.merge(flatten_attrs(msg, "message"))
-    |> Map.merge(format_tags(opts[:tags]))
-    |> Map.merge(format_dst(dst))
-    |> Map.put_new("Source", src)
+    params =
+      opts
+      |> build_opts([:configuration_set_name, :return_path, :return_path_arn, :source_arn, :bcc])
+      |> Map.merge(format_member_attribute(:reply_to, opts[:reply_to]))
+      |> Map.merge(flatten_attrs(msg, "message"))
+      |> Map.merge(format_tags(opts[:tags]))
+      |> Map.merge(format_dst(dst))
+      |> Map.put_new("Source", src)
 
     request(:send_email, params)
+  end
+
+  def send_raw_email(raw_msg, opts \\ []) do
+    params =
+      opts
+      |> Map.new
+      |> Map.put("RawMessage.Data", Base.encode64(raw_msg))
+
+    request(:send_raw_email, params)
   end
 
   @doc "Build message object"
@@ -65,7 +76,7 @@ defmodule ExAws.SES do
   defp format_dst(dst) do
     dst
     |> Map.to_list
-    |> format_member_attributes([:bcc_addresses, :cc_addresses, :to_addresses])
+    |> format_member_attributes([:bcc, :cc, :to])
     |> flatten_attrs("destination")
   end
 
