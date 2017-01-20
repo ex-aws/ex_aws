@@ -76,7 +76,6 @@ end
 
 defimpl ExAws.Operation, for: ExAws.S3.Upload do
 
-  alias Experimental.Flow
   alias ExAws.S3.Upload
 
   def perform(op, config) do
