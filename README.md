@@ -41,6 +41,8 @@ Certain operations also support Elixir streams:
 ```elixir
 S3.list_objects("my-bucket") |> ExAws.stream! #=> #Function<13.52451638/2 in Stream.resource/3>
 S3.list_objects("my-bucket") |> ExAws.stream!(config) #=> #Function<13.52451638/2 in Stream.resource/3>
+S3.list_objects("my-bucket", prefix: "some/inner/obj/path") |> ExAws.stream! #=> #Function<51.36862645/2 in Stream.resource/3>
+S3.list_objects("my-bucket", max_keys: 24, encoding_type: "url", prefix: "backups") |> ExAws.stream! #=> #Function<51.36862645/2 in Stream.resource/3>
 ```
 
 The ability to return a stream is noticed in the function's documentation.
