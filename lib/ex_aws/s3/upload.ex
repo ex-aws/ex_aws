@@ -76,30 +76,22 @@ end
 
 defimpl ExAws.Operation, for: ExAws.S3.Upload do
 
-  alias Experimental.Flow
   alias ExAws.S3.Upload
 
   def perform(op, config) do
     with {:ok, op} <- Upload.initialize(op, config) do
       op.src
-      |> build_producer(op.opts)
-      |> Flow.map(&Upload.upload_chunk!(&1, op, config))
+      |> Stream.with_index(1)
+      |> Task.async_stream(&Upload.upload_chunk!(&1, op, config),
+        max_concurrency: Keyword.get(op.opts, :max_concurrency, 4),
+        timeout: Keyword.get(op.opts, :timeout, 30_000),
+      )
       |> Enum.to_list
+      |> Enum.map(fn {:ok, val} -> val end)
       |> Upload.complete(op, config)
     end
   end
 
   def stream!(_, _), do: raise "not implemented"
 
-  defp build_producer(%Flow{} = flow, _opts) do
-    flow
-  end
-  defp build_producer(source, opts) do
-    source
-    |> Stream.with_index(1)
-    |> Flow.from_enumerable(
-          stages: Keyword.get(opts, :max_concurrency, 4),
-          max_demand: 2
-        )
-  end
 end
