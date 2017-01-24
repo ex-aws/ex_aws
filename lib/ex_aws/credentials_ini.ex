@@ -7,51 +7,58 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     def parse_ini_file({:ok, contents}, profile_name) do
-      parsed_contents = contents
+      contents
       |> ConfigParser.parse_string
-
-      case parsed_contents do
+      |> case do
         {:ok, %{^profile_name => config}} ->
-	  config
-          |> strip_key_prefix
-	{:ok, %{}} -> raise "Missing #{profile_name} entry in configuration"
-        _ -> %{}
+          strip_key_prefix(config)
+        {:ok, %{}} ->
+          %{}
+        _ ->
+          %{}
       end
     end
     def parse_ini_file(_, _), do: %{}
 
     def strip_key_prefix(credentials) do
       credentials
-      |> Enum.filter(fn({key, _val}) -> Enum.member?(~w(aws_access_key_id aws_secret_access_key aws_session_token region), key) end)
-      |> Enum.reduce(%{}, fn({key, val}, acc) ->
-        updated_key = key
-        |> String.replace_leading("aws_", "")
-        |> String.to_atom
-        Map.put(acc, updated_key, val)
+      |> Map.take(~w(aws_access_key_id aws_secret_access_key aws_session_token region))
+      |> Map.new(fn({key, val}) ->
+        updated_key =
+          key
+          |> String.replace_leading("aws_", "")
+          |> String.to_existing_atom
+
+        {updated_key, val}
       end)
     end
 
     def replace_token_key(credentials) do
       case Map.pop(credentials, :session_token) do
-	{nil, credentials} ->
-	  credentials
-	{token, credentials} ->
-	  Map.put(credentials, :security_token, token)
+        {nil, credentials} ->
+          credentials
+        {token, credentials} ->
+          Map.put(credentials, :security_token, token)
       end
     end
 
     defp profile_from_shared_credentials(profile_name) do
-      File.read("#{System.user_home}/.aws/credentials")
+      System.user_home
+      |> Path.join(".aws/credentials")
+      |> File.read
       |> parse_ini_file(profile_name)
       |> replace_token_key
     end
 
     defp profile_from_config(profile_name) do
       section = case profile_name do
-		  "default" -> "default"
-		  other -> "profile #{other}"
-		end
-      File.read("#{System.user_home}/.aws/config")
+        "default" -> "default"
+        other -> "profile #{other}"
+      end
+
+      System.user_home
+      |> Path.join(".aws/config")
+      |> File.read
       |> parse_ini_file(section)
     end
 

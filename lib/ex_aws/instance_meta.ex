@@ -37,9 +37,9 @@ defmodule ExAws.InstanceMeta do
 
   def security_credentials(config) do
     result = case task_role_credentials(config) do
-	       nil -> instance_role_credentials(config)
-	       credentials -> credentials
-	     end
+      nil -> instance_role_credentials(config)
+      credentials -> credentials
+    end
 
     %{
       access_key_id: result["AccessKeyId"],

@@ -1,7 +1,7 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
-  @version "1.0.0-rc.4"
+  @version "1.0.0"
 
   def project do
     [app: :ex_aws,
@@ -11,9 +11,9 @@ defmodule ExAws.Mixfile do
      description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
-     package: package,
+     package: package(),
      dialyzer: [flags: "--fullpath"],
-     deps: deps,
+     deps: deps(),
      docs: [main: "ExAws", source_ref: "v#{@version}",
        source_url: "https://github.com/cargosense/ex_aws"]
      ]
@@ -33,10 +33,11 @@ defmodule ExAws.Mixfile do
 
   defp deps(:test_dev) do
     [
-      {:sweet_xml, "~> 0.5", optional: true},
+      {:xml_builder, "~> 0.0.6", optional: true},
+      {:sweet_xml, "~> 0.6", optional: true},
       {:ex_doc, "~> 0.14", only: :dev},
-      {:hackney, "~> 1.5", optional: true},
-      {:poison, "~> 1.2 or ~> 2.0", optional: true},
+      {:hackney, "~> 1.6.5", optional: true},
+      {:poison, ">= 1.2.0", optional: true},
       {:jsx, "~> 2.8", optional: true},
       {:gen_stage, "~> 0.8.0"},
       {:dialyze, "~> 0.2.0", only: :dev},

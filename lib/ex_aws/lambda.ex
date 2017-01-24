@@ -6,7 +6,6 @@ defmodule ExAws.Lambda do
   import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
   require Logger
 
-  @namespace "Lambda"
   @actions %{
     add_permission:                :post,
     create_event_source_mapping:   :post,

@@ -21,18 +21,14 @@ defmodule ExAws.Operation.S3 do
   defimpl ExAws.Operation do
 
     def perform(operation, config) do
-      bucket   = operation.bucket
       body     = operation.body
-      resource = operation.resource
-      query    = operation.params |> URI.encode_query
       headers  = operation.headers
-      path     = operation.path
       http_method = operation.http_method
 
-      url =
-        config
-        |> url(bucket, path)
-        |> add_query(resource, query)
+      url = operation
+      |> add_bucket_to_path
+      |> add_resource_to_params
+      |> ExAws.Request.Url.build(config)
 
       hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
 
@@ -49,28 +45,15 @@ defmodule ExAws.Operation.S3 do
       fun.(config)
     end
 
-    def url(%{scheme: scheme, host: host}, bucket, path) do
-      [scheme, do_url(host, bucket, path)]
-      |> IO.iodata_to_binary
+    def add_bucket_to_path(operation) do
+      path = "/#{operation.bucket}/#{operation.path}" |> String.trim_leading("//")
+      operation |> Map.put(:path, path)
     end
 
-    defp do_url(host, "", path) do
-      [host, "/", no_slash(path)]
+    def add_resource_to_params( operation) do
+      params = operation.params |> Map.new |> Map.put(operation.resource, 1)
+      operation |> Map.put(:params, params)
     end
-    defp do_url(host, bucket, path) do
-      [host, "/", bucket, ensure_slash(path)]
-    end
-
-    defp no_slash("/" <> path), do: path
-    defp no_slash(path), do: path
-
-    def ensure_slash("/" <> _ = path), do: path
-    def ensure_slash(path), do:  "/" <> path
-
-    def add_query(url, "", ""),          do: url
-    def add_query(url, "", query),       do: url <> "?" <> query
-    def add_query(url, resource, ""),    do: url <> "?" <> resource
-    def add_query(url, resource, query), do: url <> "?" <> resource <> "&" <> query
   end
 end
 

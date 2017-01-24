@@ -96,7 +96,9 @@ defmodule ExAws.S3 do
   @spec list_buckets() :: ExAws.Operation.S3.t
   @spec list_buckets(opts :: Keyword.t) :: ExAws.Operation.S3.t
   def list_buckets(opts \\ []) do
-    request(:get, "", "/", params: opts)
+    request(:get, "", "/", [params: opts],
+      parser: &ExAws.S3.Parsers.parse_all_my_buckets_result/1
+    )
   end
 
   @doc "Delete a bucket"
@@ -153,6 +155,16 @@ defmodule ExAws.S3 do
   List objects in bucket
 
   Can be streamed.
+
+  ## Examples
+  ```
+  S3.list_objects("my-bucket") |> ExAws.request
+
+  S3.list_objects("my-bucket") |> ExAws.stream!
+  S3.list_objects("my-bucket", delimiter: "/", prefix: "backup") |> ExAws.stream!
+  S3.list_objects("my-bucket", prefix: "some/inner/location/path") |> ExAws.stream!
+  S3.list_objects("my-bucket", max_keys: 5, encoding_type: "url") |> ExAws.stream!
+  ```
   """
   @spec list_objects(bucket :: binary) :: ExAws.Operation.S3.t
   @spec list_objects(bucket :: binary, opts :: list_objects_opts) :: ExAws.Operation.S3.t

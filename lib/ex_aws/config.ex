@@ -68,7 +68,7 @@ defmodule ExAws.Config do
     |> valid_map_or_nil
   end
   def retrieve_runtime_value({:awscli, profile, expiration}, _) do
-    ExAws.Config.AuthCache.get(profile, expiration)
+    ExAws.Config.AuthCache.get(profile, expiration * 1000)
     |> Map.take([:access_key_id, :secret_access_key, :region, :security_token])
     |> valid_map_or_nil
   end
