@@ -10,6 +10,10 @@ defmodule ExAws.STS do
     binary => :all
   }
 
+  def get_caller_identity() do
+    request(:get_caller_identity, %{})
+  end
+
   @type get_federation_token_opt :: {:duration, pos_integer} | {:policy, policy}
 
   @doc "Get Federation Token"
@@ -17,7 +21,6 @@ defmodule ExAws.STS do
   def get_federation_token(name, opts) do
     params =
       %{
-        "Version" => "2011-06-15",
         "Name" => name,
       }
       |> maybe_add_duration(opts)
@@ -32,9 +35,14 @@ defmodule ExAws.STS do
   defp request(action, params) do
     action_string = action |> Atom.to_string |> Macro.camelize
 
+    params = Map.merge(params, %{
+      "Version" => "2011-06-15",
+      "Action" => action_string
+    })
+
     %ExAws.Operation.Query{
       path: "/",
-      params: params |> Map.put("Action", action_string),
+      params: params,
       service: :sts,
       action: action,
       parser: &ExAws.STS.Parsers.parse/2

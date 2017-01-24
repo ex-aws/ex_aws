@@ -2,6 +2,17 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.STS.Parsers do
     import SweetXml, only: [sigil_x: 2]
 
+    def parse({:ok, %{body: xml} = resp}, :get_caller_identity) do
+      parsed_body = SweetXml.xpath(xml, ~x"//GetCallerIdentityResponse", [
+        arn: ~x"./GetCallerIdentityResult/Arn/text()"s,
+        user_id: ~x"./GetCallerIdentityResult/UserId/text()"s,
+        account: ~x"./GetCallerIdentityResult/Account/text()"s,
+        request_id: request_id_xpath()
+      ])
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :get_federation_token) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//GetFederationTokenResponse",
