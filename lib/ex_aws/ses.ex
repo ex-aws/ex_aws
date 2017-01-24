@@ -15,15 +15,19 @@ defmodule ExAws.SES do
   end
 
   @doc "Fetch identities verification status and token (for domains)"
-  @spec identity_verification_attributes([binary]) :: ExAws.Operation.Query.t
-  def identity_verification_attributes(identities) when is_list(identities) do
+  @spec get_identity_verification_attributes([binary]) :: ExAws.Operation.Query.t
+  def get_identity_verification_attributes(identities) when is_list(identities) do
     params = format_member_attribute({:identities, identities})
     request(:get_identity_verification_attributes, params)
   end
 
+  @type list_configuration_sets_opt :: {:max_items, pos_integer}
+    | {:next_token, String.t}
+
   @doc "Fetch configuration sets associated with AWS account"
-  @spec configuration_sets(list) :: ExAws.Operation.t
-  def configuration_sets(opts \\ []) do
+  @spec list_configuration_sets() :: ExAws.Operation.Query.t
+  @spec list_configuration_sets(opts :: [] | [list_configuration_sets_opt]) :: ExAws.Operation.Query.t
+  def list_configuration_sets(opts \\ []) do
     params = build_opts(opts, [:max_items, :next_token])
     request(:list_configuration_sets, params)
   end
@@ -31,14 +35,26 @@ defmodule ExAws.SES do
 
   ## Emails
   ######################
+
+  @type email_address :: binary
+
   @type message :: %{
     body: %{html: %{data: binary, charset: binary}, text: %{data: binary, charset: binary}},
     subject: %{data: binary, charset: binary}
   }
-  @type destination :: %{to: [binary], bcc: [binary], bcc: [binary]}
+  @type destination :: %{to: [email_address], bcc: [email_address], bcc: [email_address]}
+
+  @type send_email_opt :: {:configuration_set_name, String.t}
+    | {:reply_to, [email_address]}
+    | {:return_path, String.t}
+    | {:return_path_arn, String.t}
+    | {:source, String.t}
+    | {:source_arn, String.t}
+    | {:tags, %{(String.t | atom) => String.t}}
 
   @doc "Composes an email message"
-  @type send_email(dst :: destination, msg :: message, src :: binary, opts ::list) :: ExAws.Operation.t
+  @spec send_email(dst :: destination, msg :: message, src :: binary) :: ExAws.Operation.Query.t
+  @spec send_email(dst :: destination, msg :: message, src :: binary, opts :: [send_email_opt]) :: ExAws.Operation.Query.t
   def send_email(dst, msg, src, opts \\ []) do
     dst = Enum.reduce([:to, :bcc, :cc], %{}, fn key, acc ->
       case Map.fetch(dst, key) do
@@ -59,10 +75,22 @@ defmodule ExAws.SES do
     request(:send_email, params)
   end
 
+  @doc """
+  Send a raw Email.
+  """
+  @type send_raw_email_opt :: {:configuration_set_name, String.t}
+    | {:from_arn, String.t}
+    | {:return_path_arn, String.t}
+    | {:source, String.t}
+    | {:source_arn, String.t}
+    | {:tags, %{(String.t | atom) => String.t}}
+
+  @spec send_raw_email(binary, opts :: [send_raw_email_opt]) :: message
   def send_raw_email(raw_msg, opts \\ []) do
     params =
       opts
-      |> Map.new
+      |> camelize_keys
+      |> Map.merge(format_tags(opts[:tags]))
       |> Map.put("RawMessage.Data", Base.encode64(raw_msg))
 
     request(:send_raw_email, params)

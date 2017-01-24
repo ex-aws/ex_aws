@@ -22,12 +22,12 @@ defmodule ExAws.SESTest do
       "Identities.member.1" => ctx.email
     }
 
-    assert expected == SES.identity_verification_attributes([ctx.email]).params
+    assert expected == SES.get_identity_verification_attributes([ctx.email]).params
   end
 
   test "#configuration_sets" do
     expected = %{"Action" => "ListConfigurationSets", "MaxItems" => 1, "NextToken" => "QUFBQUF"}
-    assert expected == SES.configuration_sets(max_items: 1, next_token: "QUFBQUF").params
+    assert expected == SES.list_configuration_sets(max_items: 1, next_token: "QUFBQUF").params
   end
 
   describe "#send_email" do
