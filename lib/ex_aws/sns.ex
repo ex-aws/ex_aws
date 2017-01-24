@@ -104,7 +104,7 @@ defmodule ExAws.SNS do
   end
 
   def build_message_attribute({%{name: name, data_type: data_type, value: {value_type, value}}, i}, params) do
-    param_root = "MessageAttribute.#{i}"
+    param_root = "MessageAttribute.entry.#{i + 1}"
     value_type = value_type |> to_string |> String.capitalize
 
     params
@@ -119,9 +119,17 @@ defmodule ExAws.SNS do
   @type platform_application_arn:: binary
 
   @doc "Create plaform application"
-  @spec create_platform_application(name :: binary, platform :: binary) :: ExAws.Operation.Query.t
-  def create_platform_application(name, platform),
-    do: request(:create_platform_application, %{"Name" => name, "Platform" => platform})
+  @spec create_platform_application(name :: binary, platform :: binary, attributes :: %{String.t => String.t}) :: ExAws.Operation.Query.t
+  def create_platform_application(name, platform, attributes) do
+    attributes =
+      attributes
+      |> build_kv_attrs
+      |> Map.merge(%{
+        "Name" => name,
+        "Platform" => platform,
+      })
+    request(:create_platform_application, attributes)
+  end
 
   @doc "Delete platform application"
   @spec delete_platform_application(platform_application_arn :: platform_application_arn) :: ExAws.Operation.Query.t
@@ -177,6 +185,16 @@ defmodule ExAws.SNS do
     })
   end
 
+  @doc "Confirm Subscription"
+  @spec confirm_subscription(topic_arn :: binary, token :: binary, authenticate_on_unsubscribe :: boolean) :: ExAws.Operation.Query.t
+  def confirm_subscription(topic_arn, token, authenticate_on_unsubscribe \\ false) do
+    request(:confirm_subscription, %{
+      "TopicArn" => topic_arn,
+      "Token" => token,
+      "AuthenticateOnUnsubscribe" => to_string(authenticate_on_unsubscribe),
+    })
+  end
+
   @doc "List Subscriptions"
   @spec list_subscriptions() :: ExAws.Operation.Query.t
   def list_subscriptions() do
@@ -186,6 +204,21 @@ defmodule ExAws.SNS do
   @spec list_subscriptions(next_token :: binary) :: ExAws.Operation.Query.t
   def list_subscriptions(next_token) do
     request(:list_subscriptions, %{"NextToken" => next_token})
+  end
+
+  @type list_subscriptions_by_topic_opt :: {:next_token, binary}
+
+  @doc "List Subscriptions by Topic"
+  @spec list_subscriptions_by_topic(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
+  @spec list_subscriptions_by_topic(topic_arn :: topic_arn, [list_subscriptions_by_topic_opt]) :: ExAws.Operation.Query.t
+  def list_subscriptions_by_topic(topic_arn, opts \\ []) do
+    params = case opts do
+      [next_token: next_token] ->
+        %{"TopicArn" => topic_arn, "NextToken" => next_token}
+      _ ->
+        %{"TopicArn" => topic_arn}
+    end
+    request(:list_subscriptions_by_topic, params)
   end
 
   @doc "Unsubscribe"
@@ -251,6 +284,77 @@ defmodule ExAws.SNS do
     })
   end
 
+  ## Messages
+  ######################
+
+  @notification_params ["Message", "MessageId", "Subject", "Timestamp", "TopicArn", "Type"]
+  @optional_notification_params ["Subject"]
+  @confirmation_params ["Message", "MessageId", "SubscribeURL", "Timestamp", "Token", "TopicArn", "Type"]
+  @signature_params ["SignatureVersion", "Signature", "SigningCertURL"]
+  @message_types ["SubscriptionConfirmation", "UnsubscribeConfirmation", "Notification"]
+
+  @doc "Verify message signature"
+  @spec verify_message(message_params :: %{String.t => String.t}) :: [:ok | {:error, String.t}]
+  def verify_message(message_params) do
+    with :ok <- validate_message_params(message_params),
+         :ok <- validate_signature_version(message_params["SignatureVersion"]),
+         {:ok, public_key} <- ExAws.SNS.PublicKeyCache.get(message_params["SigningCertURL"]) do
+      message_params
+      |> get_string_to_sign
+      |> verify(message_params["Signature"], public_key)
+    end
+  end
+
+  defp validate_message_params(message_params) do
+    with {:ok, required_params} <- get_required_params(message_params["Type"]) do
+      case required_params -- Map.keys(message_params) do
+        [] -> :ok
+        missing_params -> {:error, "The following parameters are missing: #{inspect missing_params}"}
+      end
+    end
+  end
+
+  defp get_required_params(message_type) do
+    case message_type do
+      "Notification" -> {:ok, (@notification_params -- @optional_notification_params) ++ @signature_params}
+      "SubscriptionConfirmation" -> {:ok, @confirmation_params ++ @signature_params}
+      "UnsubscribeConfirmation" -> {:ok, @confirmation_params ++ @signature_params}
+      type when is_binary(type) -> {:error, "Invalid Type, expected one of #{inspect @message_types}"}
+      type when is_nil(type) -> {:error, "Missing message type parameter (Type)"}
+      type -> {:error, "Invalid message type's type, expected a String, got #{inspect type}"}
+    end
+  end
+
+  defp validate_signature_version(version) do
+    case version do
+      "1" -> :ok
+      val when is_binary(val) -> {:error, "Unsupported SignatureVersion, expected \"1\", got #{version}"}
+      _ -> {:error, "Invalid SignatureVersion format, expected a String, got #{version}"}
+    end
+  end
+
+  defp get_string_to_sign(message_params) do
+    message_params
+    |> Map.take(get_params_to_sign(message_params["Type"]))
+    |> Enum.map(fn {key, value} -> [to_string(key), "\n", to_string(value), "\n"] end)
+    |> IO.iodata_to_binary
+  end
+
+  defp get_params_to_sign(message_type) do
+    case message_type do
+      "Notification" -> @notification_params
+      "SubscriptionConfirmation" -> @confirmation_params
+      "UnsubscribeConfirmation" -> @confirmation_params
+    end
+  end
+
+  defp verify(message, signature, public_key) do
+    case :public_key.verify(message, :sha, Base.decode64!(signature), public_key) do
+      true -> :ok
+      false -> {:error, "Signature is invalid"}
+    end
+  end
+
   ## Request
   ######################
 
@@ -277,6 +381,20 @@ defmodule ExAws.SNS do
     prefix = "Attributes.entry.#{index}."
     %{}
     |> Map.put(prefix <> "name",  format_param_key(name))
+    |> Map.put(prefix <> "value", value)
+  end
+
+  defp build_kv_attrs(attrs) do
+    attrs
+    |> Enum.with_index(1)
+    |> Enum.map(&build_kv_attr/1)
+    |> Enum.reduce(%{}, &Map.merge(&1, &2))
+  end
+
+  defp build_kv_attr({{key, value}, index}) do
+    prefix = "Attributes.entry.#{index}."
+    %{}
+    |> Map.put(prefix <> "key", key)
     |> Map.put(prefix <> "value", value)
   end
 

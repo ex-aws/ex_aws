@@ -96,7 +96,9 @@ defmodule ExAws.S3 do
   @spec list_buckets() :: ExAws.Operation.S3.t
   @spec list_buckets(opts :: Keyword.t) :: ExAws.Operation.S3.t
   def list_buckets(opts \\ []) do
-    request(:get, "", "/", params: opts)
+    request(:get, "", "/", [params: opts],
+      parser: &ExAws.S3.Parsers.parse_all_my_buckets_result/1
+    )
   end
 
   @doc "Delete a bucket"
@@ -148,6 +150,7 @@ defmodule ExAws.S3 do
     {:encoding_type, binary} |
     {:max_keys, 0..1000}
   ]
+
   @doc """
   List objects in bucket
 

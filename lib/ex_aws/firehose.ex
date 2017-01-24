@@ -7,15 +7,6 @@ defmodule ExAws.Firehose do
   require Logger
 
   @namespace "Firehose_20150804"
-  @actions [
-    create_delivery_stream:   :post,
-    delete_delivery_stream:   :post,
-    describe_delivery_stream: :post,
-    list_delivery_streams:    :post,
-    put_record:               :post,
-    put_record_batch:         :post,
-    update_destination:       :post,
-  ]
 
   ## Streams
   ######################

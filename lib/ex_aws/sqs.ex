@@ -31,6 +31,8 @@ defmodule ExAws.SQS do
     | :delay_seconds
     | :receive_message_wait_time_seconds
     | :redrive_policy
+    | :fifo_queue
+    | :content_based_deduplication
   @type visibility_timeout :: 0..43200
   @type queue_attributes :: [
     {:policy, binary}
@@ -46,6 +48,8 @@ defmodule ExAws.SQS do
     | {:delay_seconds, 0..900}
     | {:receive_message_wait_time_seconds, 0..20}
     | {:redrive_policy, binary}
+    | {:fifo_queue, boolean}
+    | {:content_based_deduplication, boolean}
   ]
   @type sqs_message_attribute :: %{
     :name => binary,
@@ -215,7 +219,9 @@ defmodule ExAws.SQS do
 
   @type sqs_message_opts :: [
     {:delay_seconds, 0..900} |
-    {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
+    {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]} |
+    {:message_deduplication_id, binary} |
+    {:message_group_id, binary}
   ]
 
   @doc "Send a message to a SQS Queue"
@@ -239,7 +245,9 @@ defmodule ExAws.SQS do
       {:id, binary} |
       {:message_body, binary} |
       {:delay_seconds, 0..900} |
-      {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]}
+      {:message_attributes, sqs_message_attribute | [sqs_message_attribute, ...]} |
+      {:message_deduplication_id, binary} |
+      {:message_group_id, binary}
     ]
 
   @doc "Send up to 10 messages to a SQS Queue in a single request"

@@ -1,6 +1,6 @@
 if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.SQS.Parsers do
-    import SweetXml, only: [sigil_x: 2]
+    use ExAws.Operation.Query.Parser
 
     def parse({:ok, %{body: xml}=resp}, :list_queues) do
       parsed_body = xml
@@ -56,7 +56,7 @@ if Code.ensure_loaded?(SweetXml) do
                         attributes: [
                           ~x"./GetQueueAttributesResult/Attribute"l,
                           name: ~x"./Name/text()"s,
-                          value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast_to_number/1)
+                          value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast/1)
                         ],
                         request_id: request_id_xpath())
       |> update_in([:attributes], &attribute_list_to_map(&1, true))
@@ -108,7 +108,7 @@ if Code.ensure_loaded?(SweetXml) do
                           attributes: [
                             ~x"./Attribute"lo,
                             name: ~x"./Name/text()"s,
-                            value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast_to_number/1)
+                            value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast/1)
                           ],
                           message_attributes: [
                             ~x"./MessageAttribute"lo,
@@ -163,17 +163,6 @@ if Code.ensure_loaded?(SweetXml) do
       parse_request_id(resp, ~x"//SetQueueAttributesResponse")
     end
 
-    def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
-      parsed_body = xml
-      |> SweetXml.xpath(~x"//ErrorResponse",
-                        request_id: ~x"./RequestId/text()"s,
-                        type: ~x"./Error/Type/text()"s,
-                        code: ~x"./Error/Code/text()"s,
-                        message: ~x"./Error/Message/text()"s,
-                        detail: ~x"./Error/Detail/text()"s)
-
-      {:error, {type, http_status_code, parsed_body}}
-    end
 
     def parse(val, _), do: val
 
@@ -256,7 +245,9 @@ if Code.ensure_loaded?(SweetXml) do
       end)
     end
 
-    defp try_cast_to_number(string_val) do
+    defp try_cast("true"), do: true
+    defp try_cast("false"), do: false
+    defp try_cast(string_val) do
       try do
         String.to_integer(string_val)
       rescue ArgumentError ->

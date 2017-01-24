@@ -11,13 +11,13 @@ defmodule ExAws.S3.UploadTest do
     test "uploading a file with a stream", %{bypass: bypass} do
       file_path = __ENV__.file
 
-      setup_multipart_upload_backend(bypass, self, "my-bucket", "test.txt")
+      setup_multipart_upload_backend(bypass, self(), "my-bucket", "test.txt")
 
-      :done =
+      {:ok, _} =
         file_path
         |> S3.Upload.stream_file
         |> S3.upload("my-bucket", "test.txt")
-        |> ExAws.request!(exaws_config_for_bypass(bypass))
+        |> ExAws.request(exaws_config_for_bypass(bypass))
 
       assert_received :initiated_upload
       assert_received :chunk_uploaded
@@ -30,12 +30,12 @@ defmodule ExAws.S3.UploadTest do
         |> Enum.with_index
         |> Flow.from_enumerable
 
-      setup_multipart_upload_backend(bypass, self, "my-bucket", "test.txt")
+      setup_multipart_upload_backend(bypass, self(), "my-bucket", "test.txt")
 
-      :done =
+      {:ok, _}=
         flow
         |> S3.upload("my-bucket", "test.txt")
-        |> ExAws.request!(exaws_config_for_bypass(bypass))
+        |> ExAws.request(exaws_config_for_bypass(bypass))
 
       assert_received :initiated_upload
       assert_received :chunk_uploaded
