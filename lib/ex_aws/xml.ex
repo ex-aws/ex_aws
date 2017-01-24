@@ -1,6 +1,18 @@
 defmodule ExAws.Xml do
   @moduledoc false
 
+  if Code.ensure_loaded?(XmlBuilder) do
+    def build(doc) do
+      XmlBuilder.doc(doc)
+    end
+  else
+    def build(_doc) do
+      raise """
+      XmlBuilder must be added as a dependency to use Route 53
+      """
+    end
+  end
+
   def add_optional_node(nodes, {_, nil, nil}), do: nodes
 
   def add_optional_node({name, attrs, nodes} = parent, {_, nil, children} = node) when is_list(children) do

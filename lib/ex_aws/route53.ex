@@ -30,7 +30,7 @@ defmodule ExAws.Route53 do
   def create_hosted_zone(opts \\ []) do
     payload = {
       :CreateHostedZoneRequest, %{xmlns: "https://route53.amazonaws.com/doc/2013-04-01/"}, [
-       {:CallerReference, nil, uuid},
+       {:CallerReference, nil, uuid()},
        {:Name, nil, opts[:name]}]
     } |> add_optional_node({:DelegationSetId, nil, opts[:delegation_set]})
       |> add_optional_node(
@@ -41,7 +41,7 @@ defmodule ExAws.Route53 do
          :VPC, nil, [
            {:VPCId, nil, opts[:vpc_id]},
            {:VPCRegion, nil, opts[:vpc_region]}]
-    }) |> XmlBuilder.doc
+    }) |> ExAws.Xml.build
     request(:post, :create_hosted_zone, body: payload)
   end
 
@@ -95,7 +95,7 @@ defmodule ExAws.Route53 do
          {:Comment, nil, opts[:comment]}
        ]}
      ]
-    } |> XmlBuilder.doc
+    } |> ExAws.Xml.build
     request(:post, :change_record_sets, path: "/#{id}/rrset", body: payload)
   end
 

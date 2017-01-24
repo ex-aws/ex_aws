@@ -11,7 +11,7 @@ if Code.ensure_loaded?(SweetXml) do
         next_marker: ~x"./NextMarker/text()"s,
         hosted_zones: [
           ~x"./HostedZones/HostedZone"l,
-          id:  id_node,
+          id:  id_node(),
           name:  ~x"./Name/text()"s,
           record_set_count:  ~x"./ResourceRecordSetCount/text()"i,
           caller_reference:  ~x"./CallerReference/text()"s,
@@ -22,7 +22,7 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse({:ok, resp}, :create_hosted_zone) do
       resp |> parse_xml(~x"//CreateHostedZoneResponse",
-       change_info: change_info_node,
+       change_info: change_info_node(),
        delegation_set: [
          ~x"./DelegationSet",
          caller_reference: ~x"./CallerReference/text()"so,
@@ -37,7 +37,7 @@ if Code.ensure_loaded?(SweetXml) do
            comment: ~x"./Comment/text()"so,
            private: ~x"./PrivateZone/text()"so |> to_boolean,
          ],
-          id:  id_node,
+          id:  id_node(),
          name:  ~x"./Name/text()"s,
          record_set_count:  ~x"./ResourceRecordSetCount/text()"i,
        ],
@@ -50,11 +50,11 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     def parse({:ok, resp}, :delete_hosted_zone) do
-      resp |> parse_xml(~x"//DeleteHostedZoneResponse", change_info: change_info_node)
+      resp |> parse_xml(~x"//DeleteHostedZoneResponse", change_info: change_info_node())
     end
 
     def parse({:ok, resp}, :change_record_sets) do
-      resp |> parse_xml(~x"//ChangeResourceRecordSetsResponse", change_info: change_info_node)
+      resp |> parse_xml(~x"//ChangeResourceRecordSetsResponse", change_info: change_info_node())
     end
 
     def parse({:ok, resp}, :list_record_sets) do
@@ -106,7 +106,7 @@ if Code.ensure_loaded?(SweetXml) do
       [
          ~x"./ChangeInfo",
          comment: ~x"./Comment/text()"s,
-         id: id_node,
+         id: id_node(),
          status: ~x"./Status/text()"s,
          submitted_at: ~x"./SubmittedAt/text()"s
        ]

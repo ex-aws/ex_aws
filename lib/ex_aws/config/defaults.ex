@@ -99,7 +99,7 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: "email.us-east-1.amazonaws.com",
       region: "us-east-1",
-      port: 80
+      port: 443
     }
   }
 
