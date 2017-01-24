@@ -5,6 +5,7 @@ defmodule ExAws.Operation.Query do
   These include:
   - SQS
   - SNS
+  - SES
   """
 
   defstruct [
