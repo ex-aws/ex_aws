@@ -76,6 +76,8 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
     )
     |> Stream.run
 
+    File.close(file)
+
     {:ok, :done}
   end
 
