@@ -40,11 +40,12 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
 
   def perform(operation, config) do
     operation = handle_callbacks(operation, config)
+    url = ExAws.Request.Url.build(operation, config)
     headers = [
       {"x-amz-content-sha256", ""} | operation.headers
     ]
 
-    ExAws.Request.request(operation.http_method, config |> url(operation.path), operation.data, headers, config, operation.service)
+    ExAws.Request.request(operation.http_method, url, operation.data, headers, config, operation.service)
     |> parse(config)
   end
 
@@ -67,13 +68,4 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
   defp parse({:ok, %{body: body}}, config) do
     {:ok, config[:json_codec].decode!(body)}
   end
-
-  defp url(%{scheme: scheme, host: host, port: port}, path) do
-    [scheme, host, port |> port, path]
-    |> IO.iodata_to_binary
-  end
-
-  defp port(80), do: ""
-  defp port(443), do: ""
-  defp port(p),  do: ":#{p}"
 end
