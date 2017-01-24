@@ -89,6 +89,12 @@ defmodule ExAws.Config.Defaults do
       region: "us-east-1",
       port: 443
     },
+    sts: %{
+      host: {"$region", "sts.$region.amazonaws.com"},
+      scheme: "https://",
+      region: "us-east-1",
+      port: 443
+    },
     route53: %{
       scheme: "https://",
       host: "route53.amazonaws.com",
