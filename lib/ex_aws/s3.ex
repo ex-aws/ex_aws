@@ -35,7 +35,7 @@ defmodule ExAws.S3 do
 
   ## More high level functionality
 
-  Flow makes some high level flows so easy you don't need explicit ExAws support.
+  Task.async_stream makes some high level flows so easy you don't need explicit ExAws support.
 
   For example, here is how to concurrently upload many files.
 
@@ -48,15 +48,13 @@ defmodule ExAws.S3 do
   paths = %{"path/to/src0" => "path/to/dest0", "path/to/src1" => "path/to/dest1"}
 
   paths
-  |> Flow.from_enumerable(stages: 10, max_demand: 2)
-  |> Flow.each(upload_file)
-  |> Flow.run
+  |> Task.async_stream(upload_file, max_concurrency: 10)
+  |> Stream.run
   ```
   """
 
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
-  alias Experimental.Flow
 
   @type acl_opts :: [{:acl, canned_acl} | grant]
   @type grant :: {:grant_read, grantee}
@@ -516,21 +514,6 @@ defmodule ExAws.S3 do
   |> ExAws.request! #=> :done
   ```
 
-  ## Uploading a flow
-
-  GenStage Flows can also be uploaded directly to S3. To ensure all parts of
-  the file are assembled in the correct order when the upload is finalized, the
-  producer must emit events with the following format:
-  `{binary, one_based_index}`. Each binary will be uploaded as a chunk and
-  must be at least 5 megabytes in size.
-  ```
-  enumerable = ["hello world"] |> Stream.with_index(1)
-
-  Flow.from_enumerable(enumerable, stages: 4, max_demand: 2)
-  |> S3.upload("my-bucket", "test.txt")
-  |> ExAws.request! #=> :done
-  ```
-
   ## Options
 
   These options are specific to this function
@@ -543,7 +526,7 @@ defmodule ExAws.S3 do
 
   """
   @spec upload(
-    source :: Enumerable.t | Flow.t,
+    source :: Enumerable.t,
     bucket :: String.t,
     path :: String.t,
     opts :: upload_opts) :: __MODULE__.Upload.t
