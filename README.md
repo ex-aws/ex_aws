@@ -5,14 +5,19 @@ ExAws
 A flexible easy to use set of AWS APIs.
 
 - `ExAws.Dynamo`
+- `ExAws.DynamoStreams`
 - `ExAws.EC2`
+- `ExAws.Firehose`
 - `ExAws.Kinesis`
-- `ExAws.Kms`
+- `ExAws.KMS`
 - `ExAws.Lambda`
-- `ExAws.RDS`
+- `ExAws.RRDS`
+- `ExAws.Route53`
 - `ExAws.S3`
+- `ExAws.SES`
 - `ExAws.SNS`
 - `ExAws.SQS`
+- `ExAws.STS`
 
 ## 1.0.0 Changes
 

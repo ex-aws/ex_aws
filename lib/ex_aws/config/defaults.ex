@@ -38,7 +38,7 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: {"$region", "streams.dynamodb.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80,
+      port: 443,
       service_override: :dynamodb
     },
     lambda: %{
@@ -110,7 +110,7 @@ defmodule ExAws.Config.Defaults do
     },
     ses: %{
       scheme: "https://",
-      host: "email.us-east-1.amazonaws.com",
+      host: {"$region", "email.$region.amazonaws.com"},
       region: "us-east-1",
       port: 443
     }
