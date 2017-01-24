@@ -399,8 +399,8 @@ defmodule ExAws.Dynamo do
     {:return_item_collection_metrics, return_item_collection_metrics_vals } |
     {:return_values, return_values_vals}
   ]
-  @spec put_item(table_name :: table_name, record :: %{}) :: ExAws.Operation.JSON.t
-  @spec put_item(table_name :: table_name, record :: %{}, opts :: put_item_opts) :: ExAws.Operation.JSON.t
+  @spec put_item(table_name :: table_name, record :: map()) :: ExAws.Operation.JSON.t
+  @spec put_item(table_name :: table_name, record :: map(), opts :: put_item_opts) :: ExAws.Operation.JSON.t
   def put_item(name, record, opts \\ []) do
     data = opts
     |> build_opts
@@ -423,7 +423,7 @@ defmodule ExAws.Dynamo do
   """
   @type write_item :: [
     [delete_request: [key: primary_key]] |
-    [put_request: [item: %{}]]
+    [put_request: [item: map()]]
   ]
   @type batch_write_item_opts :: [
     {:return_consumed_capacity, return_consumed_capacity_vals} |
