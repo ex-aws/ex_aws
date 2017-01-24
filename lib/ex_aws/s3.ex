@@ -898,7 +898,7 @@ defmodule ExAws.S3 do
       false ->
         url = url_to_sign(bucket, object, config, virtual_host)
         datetime = :calendar.universal_time
-        {:ok, ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in, query_params)}
+        ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in, query_params)
     end
   end
 

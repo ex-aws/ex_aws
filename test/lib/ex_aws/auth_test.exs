@@ -7,6 +7,12 @@ defmodule ExAws.AuthTest do
     uri_encode: 1
   ]
 
+  @config %{
+    access_key_id: "AKIAIOSFODNN7EXAMPLE",
+    secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    region: "us-east-1"
+  }
+
   test "build_canonical_request can handle : " do
     expected = "GET\n/bar%3Abaz%40blag\n\n\n\n\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     path = URI.parse("http://foo.com/bar:baz@blag").path |> uri_encode
@@ -20,13 +26,8 @@ defmodule ExAws.AuthTest do
     url = "https://examplebucket.s3.amazonaws.com/test.txt"
     service = :s3
     datetime = {{2013, 5, 24}, {0, 0, 0}}
-    config = [
-      access_key_id: "AKIAIOSFODNN7EXAMPLE",
-      secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-      region: "us-east-1"
-     ]
     expires = 86400
-    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires)
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires)
 
     expected =
       "https://examplebucket.s3.amazonaws.com/test.txt" <>
@@ -37,7 +38,7 @@ defmodule ExAws.AuthTest do
       "&X-Amz-SignedHeaders=host" <>
       "&X-Amz-Signature=aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404"
 
-    assert expected == actual
+    assert {:ok, expected} == actual
   end
 
   test "presigned url with query params" do
@@ -47,14 +48,9 @@ defmodule ExAws.AuthTest do
     url = "https://examplebucket.s3.amazonaws.com/test.txt"
     service = :s3
     datetime = {{2013, 5, 24}, {0, 0, 0}}
-    config = [
-      access_key_id: "AKIAIOSFODNN7EXAMPLE",
-      secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-      region: "us-east-1"
-     ]
     expires = 86400
     query_params = [partNumber: 1, uploadId: "sample.upload.id"]
-    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires, query_params)
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires, query_params)
 
     expected =
       "https://examplebucket.s3.amazonaws.com/test.txt" <>
@@ -67,6 +63,6 @@ defmodule ExAws.AuthTest do
       "&X-Amz-SignedHeaders=host" <>
       "&X-Amz-Signature=1fdac5451b2996880dc23162853ce76e4cf0a05257e430aec59e309ecd126ade"
 
-    assert expected == actual
+    assert {:ok, expected} == actual
   end
 end

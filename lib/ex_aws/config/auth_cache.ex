@@ -12,13 +12,13 @@ defmodule ExAws.Config.AuthCache do
   def get(config) do
     case :ets.lookup(__MODULE__, :aws_instance_auth) do
       [{:aws_instance_auth, auth_config}] -> auth_config
-      [] -> GenServer.call(__MODULE__, {:refresh_config, config})
+      [] -> GenServer.call(__MODULE__, {:refresh_config, config}, 30_000)
     end
   end
   def get(profile, expiration) do
     case :ets.lookup(__MODULE__, :awscli) do
       [{:awscli, auth_config}] -> auth_config
-      [] -> GenServer.call(__MODULE__, {:refresh_awscli_config, profile, expiration})
+      [] -> GenServer.call(__MODULE__, {:refresh_awscli_config, profile, expiration}, 30_000)
     end
   end
 
