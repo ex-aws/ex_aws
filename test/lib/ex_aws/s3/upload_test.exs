@@ -10,7 +10,7 @@ defmodule ExAws.S3.UploadTest do
     test "uploading a file with a stream", %{bypass: bypass} do
       file_path = __ENV__.file
 
-      setup_multipart_upload_backend(bypass, self, "my-bucket", "test.txt")
+      setup_multipart_upload_backend(bypass, self(), "my-bucket", "test.txt")
 
       :done =
         file_path
@@ -29,7 +29,7 @@ defmodule ExAws.S3.UploadTest do
         |> Enum.with_index
         |> Flow.from_enumerable
 
-      setup_multipart_upload_backend(bypass, self, "my-bucket", "test.txt")
+      setup_multipart_upload_backend(bypass, self(), "my-bucket", "test.txt")
 
       :done =
         flow

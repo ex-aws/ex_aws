@@ -100,4 +100,13 @@ defmodule ExAws.Utils do
 
     greg_secs - @seconds_0_to_1970
   end
+
+  def uuid, do: DateTime.utc_now |> :erlang.phash2
+
+  def rename_keys(params, mapping) do
+    mapping = Map.new(mapping)
+    Enum.map(params, fn {k, v} ->
+      {Map.get(mapping, k, k), v}
+    end)
+  end
 end

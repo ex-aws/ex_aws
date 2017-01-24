@@ -9,7 +9,7 @@ config :ex_aws, :kinesis,
   scheme: "https://",
   host: "kinesis.us-east-1.amazonaws.com",
   region: "us-east-1",
-  port: 80
+  port: 443
 
 config :ex_aws, :dynamodb,
   scheme: "http://",
@@ -21,7 +21,7 @@ config :ex_aws, :lambda,
   host: "lambda.us-east-1.amazonaws.com",
   scheme: "https://",
   region: "us-east-1",
-  port: 80
+  port: 443
 
 config :ex_aws, :s3,
   scheme: "https://",
