@@ -11,7 +11,7 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.Kinesis`
 - `ExAws.KMS`
 - `ExAws.Lambda`
-- `ExAws.RRDS`
+- `ExAws.RDS`
 - `ExAws.Route53`
 - `ExAws.S3`
 - `ExAws.SES`

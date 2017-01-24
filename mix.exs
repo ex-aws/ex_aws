@@ -8,7 +8,7 @@ defmodule ExAws.Mixfile do
      version: @version,
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
+     description: "AWS client. Currently supports Dynamo, DynamoStreams, EC2, Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
      package: package(),
@@ -46,7 +46,7 @@ defmodule ExAws.Mixfile do
   end
 
   defp package do
-    [description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
+    [description: "AWS client. Currently supports Dynamo, DynamoStreams, EC2, Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS",
      files: ["lib", "config", "mix.exs", "README*"],
      maintainers: ["Ben Wilson"],
      licenses: ["MIT"],
