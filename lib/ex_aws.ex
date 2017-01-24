@@ -57,6 +57,12 @@ defmodule ExAws do
   ## Examples
   ```
   ExAws.S3.list_objects("my-bucket") |> ExAws.stream!
+
+  ExAws.S3.list_objects("my-bucket", prefix: "some/inner/location/path") |> ExAws.stream!
+
+  S3.list_objects("my-bucket", delimiter: "/", prefix: "backup") |> ExAws.stream!
+
+  S3.list_objects("my-bucket", max_keys: 5, encoding_type: "url") |> ExAws.stream!
   ```
   """
   @spec stream!(ExAws.Operation.t) :: Enumerable.t
