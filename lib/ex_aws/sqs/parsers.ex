@@ -56,7 +56,7 @@ if Code.ensure_loaded?(SweetXml) do
                         attributes: [
                           ~x"./GetQueueAttributesResult/Attribute"l,
                           name: ~x"./Name/text()"s,
-                          value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast_to_number/1)
+                          value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast/1)
                         ],
                         request_id: request_id_xpath())
       |> update_in([:attributes], &attribute_list_to_map(&1, true))
@@ -108,7 +108,7 @@ if Code.ensure_loaded?(SweetXml) do
                           attributes: [
                             ~x"./Attribute"lo,
                             name: ~x"./Name/text()"s,
-                            value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast_to_number/1)
+                            value: ~x"./Value/text()"s |> SweetXml.transform_by(&try_cast/1)
                           ],
                           message_attributes: [
                             ~x"./MessageAttribute"lo,
@@ -245,7 +245,9 @@ if Code.ensure_loaded?(SweetXml) do
       end)
     end
 
-    defp try_cast_to_number(string_val) do
+    defp try_cast("true"), do: true
+    defp try_cast("false"), do: false
+    defp try_cast(string_val) do
       try do
         String.to_integer(string_val)
       rescue ArgumentError ->
