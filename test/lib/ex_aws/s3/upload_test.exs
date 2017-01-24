@@ -3,7 +3,6 @@ defmodule ExAws.S3.UploadTest do
 
   import Support.BypassHelpers
   alias ExAws.S3
-  alias Experimental.Flow
 
   describe "integration test" do
     setup [:start_bypass]
