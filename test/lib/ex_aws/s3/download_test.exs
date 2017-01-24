@@ -11,7 +11,7 @@ defmodule ExAws.S3.DownloadTest do
     test "downloading a file", %{bypass: bypass} do
       file_body = "hello world"
 
-      setup_multipart_download_backend(bypass, self, "my-bucket", "test.txt", file_body)
+      setup_multipart_download_backend(bypass, self(), "my-bucket", "test.txt", file_body)
 
       in_tmp fn _ ->
         :done =
