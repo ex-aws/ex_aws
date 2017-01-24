@@ -30,16 +30,16 @@ defmodule ExAws.S3.Upload do
     service: :s3
   }
 
-  def complete!(parts, op, config) do
+  def complete(parts, op, config) do
     ExAws.S3.complete_multipart_upload(op.bucket, op.path, op.upload_id, Enum.sort_by(parts, &elem(&1, 0)))
-    |> ExAws.request!(config)
+    |> ExAws.request(config)
   end
 
-  def initialize!(op, config) do
-    %{body: %{upload_id: upload_id}} =
-      ExAws.S3.initiate_multipart_upload(op.bucket, op.path, op.opts)
-      |> ExAws.request!(config)
-    %{op | upload_id: upload_id}
+  def initialize(op, config) do
+    init_op = ExAws.S3.initiate_multipart_upload(op.bucket, op.path, op.opts)
+    with {:ok, %{body: %{upload_id: upload_id}}} <- ExAws.request(init_op, config) do
+      {:ok, %{op | upload_id: upload_id}}
+    end
   end
 
   @doc """
@@ -80,15 +80,13 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
   alias ExAws.S3.Upload
 
   def perform(op, config) do
-    op = Upload.initialize!(op, config)
-
-    op.src
-    |> build_producer(op.opts)
-    |> Flow.map(&Upload.upload_chunk!(&1, op, config))
-    |> Enum.to_list
-    |> Upload.complete!(op, config)
-
-    {:ok, :done}
+    with {:ok, op} <- Upload.initialize(op, config) do
+      op.src
+      |> build_producer(op.opts)
+      |> Flow.map(&Upload.upload_chunk!(&1, op, config))
+      |> Enum.to_list
+      |> Upload.complete(op, config)
+    end
   end
 
   def stream!(_, _), do: raise "not implemented"
