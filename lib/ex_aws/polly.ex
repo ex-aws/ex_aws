@@ -5,101 +5,103 @@ defmodule ExAws.Polly do
   http://docs.aws.amazon.com/polly/latest/dg/API_Reference.html
   """
 
+  import ExAws.Utils, only: [camelize_keys: 1, identity: 2]
+
+  @namespace "Polly_20160610"
+
+  @type describe_voices_opts :: [
+    {:langauge_code, binary} |
+    {:next_token, binary}]
+
+  @type list_lexicons_opts :: [{:next_token, binary}]
+
+  @type synthesize_speech_opts :: [
+    {:lexicon_names, [binary]},
+    {:sample_rate, binary},
+    {:text_type, binary}]
+
   ## Voices
   #############
 
   @doc "Describe voices"
-  @spec describe_voices(Map.t) :: ExAws.Operation.Polly.t
-  @spec describe_voices(Map.t, opts :: Keyword.t) :: ExAws.Operation.Polly.t
-  def describe_voices(params \\ %{}, opts \\ %{}) do
-    data =
-      [http_method: :get,
-       parser: Map.get(opts, :parser, &ExAws.Polly.Parsers.parse_describe_voices/2),
-       resource: "voices",
-       params: params]
-    request(data, opts)
+  @spec describe_voices(opts :: describe_voices_opts) :: ExAws.Operation.JSON.t
+  def describe_voices(opts \\ []) do
+    request_opts =
+      %{http_method: :get,
+        path: "/v1/voices"}
+    request(:describe_voices, camelize_keys(opts), request_opts)
   end
 
   ## Lexicons
   #############
 
   @doc "Get lexicon"
-  @spec get_lexicon(String.t) :: ExAws.Operation.Polly.t
-  @spec get_lexicon(String.t, opts :: Keyword.t) :: ExAws.Operation.Polly.t
-  def get_lexicon(lexicon_name, opts \\ %{}) do
-    data =
-      [http_method: :get,
-       parser: Map.get(opts, :parser, &ExAws.Polly.Parsers.parse_get_lexicon/2),
-       resource: "lexicons",
-       lexicon_name: lexicon_name,
-       params: %{}]
-    request(data, opts)
+  @spec get_lexicon(lexicon_name :: binary) :: ExAws.Operation.JSON.t
+  def get_lexicon(lexicon_name) do
+    request_opts =
+      %{http_method: :get,
+        path: "/v1/lexicons/#{lexicon_name}"}
+    request(:get_lexicon, %{}, request_opts)
   end
 
   @doc "Get lexicons"
-  @spec list_lexicons() :: ExAws.Operation.Polly.t
-  @spec list_lexicons(Map.t) :: ExAws.Operation.Polly.t
-  @spec list_lexicons(Map.t, opts :: Keyword.t) :: ExAws.Operation.Polly.t
-  def list_lexicons(params \\ %{}, opts \\ %{}) do
-    data =
-      [http_method: :get,
-       parser: Map.get(opts, :parser, &ExAws.Polly.Parsers.parse_list_lexicons/2),
-       resource: "lexicons",
-       params: params]
-    request(data, opts)
+  @spec list_lexicons() :: ExAws.Operation.JSON.t
+  @spec list_lexicons(opts :: list_lexicons_opts) :: ExAws.Operation.JSON.t
+  def list_lexicons(opts \\ []) do
+    request_opts =
+      %{http_method: :get,
+        path: "/v1/lexicons"}
+    request(:list_lexicons, camelize_keys(opts), request_opts)
   end
 
   @doc "Put lexicon"
-  @spec put_lexicon(String.t, Map.t) :: ExAws.Operation.Polly.t
-  @spec put_lexicon(String.t, Map.t, opts :: Keyword.t) :: ExAws.Operation.Polly.t
-  def put_lexicon(lexicon_name, params, opts \\ %{}) do
-    data =
-      [http_method: :put,
-       parser: Map.get(opts, :parser, &ExAws.Polly.Parsers.parse_put_lexicon/2),
-       resource: "lexicons",
-       lexicon_name: lexicon_name,
-       params: params]
-    request(data, opts)
+  @spec put_lexicon(lexicon_name :: binary, content :: binary) :: ExAws.Operation.JSON.t
+  def put_lexicon(lexicon_name, content) do
+    request_opts =
+      %{http_method: :put,
+        path: "/v1/lexicons/#{lexicon_name}"}
+    opts = %{"Content" => content}
+    request(:put_lexicon, opts, request_opts)
   end
 
   @doc "Delete lexicon"
-  @spec delete_lexicon(String.t) :: ExAws.Operation.Polly.t
-  @spec delete_lexicon(String.t, opts :: Keyword.t) :: ExAws.Operation.Polly.t
-  def delete_lexicon(lexicon_name, opts \\ %{}) do
-    data =
-      [http_method: :delete,
-       parser: Map.get(opts, :parser, &ExAws.Polly.Parsers.parse_delete_lexicon/2),
-       resource: "lexicons",
-       lexicon_name: lexicon_name,
-       params: %{}]
-    request(data, opts)
+  @spec delete_lexicon(lexicon_name :: binary) :: ExAws.Operation.JSON.t
+  def delete_lexicon(lexicon_name) do
+    request_opts =
+      %{http_method: :delete,
+        path: "/v1/lexicons/#{lexicon_name}"}
+    request(:delete_lexicon, %{}, request_opts)
   end
 
   ## Speech
   #############
 
   @doc "Synthesize speech"
-  @spec synthesize_speech(Map.t) :: ExAws.Operation.Polly.t
-  @spec synthesize_speech(Map.t, opts :: Keyword.t) :: ExAws.Operation.Polly.t
-  def synthesize_speech(params, opts \\ %{}) do
-    data =
-      [http_method: :post,
-       parser: Map.get(opts, :parser, &ExAws.Polly.Parsers.parse_synthesize_speech/2),
-       resource: "speech",
-       params: params]
-    request(data, opts)
+  @spec synthesize_speech(text :: binary, voice_id :: binary, output_format :: binary) :: ExAws.Operation.JSON.t
+  @spec synthesize_speech(text :: binary, voice_id :: binary, output_format :: binary, opts :: synthesize_speech_opts) :: ExAws.Operation.JSON.t
+  def synthesize_speech(text, voice_id, output_format, opts \\ []) do
+    request_opts =
+      %{http_method: :post,
+        path: "/v1/speech",
+        parser: &identity/2}
+    opts =
+      opts
+      |> camelize_keys()
+      |> Map.merge(%{
+           "Text" => text,
+           "VoiceId" => voice_id,
+           "OutputFormat" => output_format})
+    request(:synthesize_speech, opts, request_opts)
   end
 
-  defp request(data, opts) do
-    %ExAws.Operation.Polly{
-      http_method: data[:http_method] || nil,
-      parser: data[:parser] || nil,
-      body: data[:body] || "",
-      headers: data[:headers] || %{},
-      version: data[:version] || "v1",
-      resource: data[:resource] || "",
-      lexicon_name: data[:lexicon_name] || "",
-      params: data[:params] || %{}
-    } |> struct(opts)
+  defp request(action, data, opts \\ %{}) do
+    operation =
+      action
+      |> Atom.to_string
+      |> Macro.camelize
+    default_opts =
+      %{data: data,
+        headers: []}
+    ExAws.Operation.JSON.new(:polly, Map.merge(default_opts, opts))
   end
 end

@@ -1,4 +1,4 @@
-defmodule ExAws.PollyTest do
+defmodule ExAws.PollyIntegrationTest do
   use ExUnit.Case, async: true
 
   test "#describe_voices" do

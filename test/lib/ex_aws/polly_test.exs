@@ -24,102 +24,81 @@ defmodule ExAws.PollyTest do
 
   test "#describe_voices" do
     expected =
-      %Operation.Polly{body: "",
-                       headers: %{},
-                       http_method: :get,
-                       lexicon_name: "",
-                       params: %{},
-                       parser: &ExAws.Polly.Parsers.parse_describe_voices/2,
-                       path: "/",
-                       resource: "voices",
-                       service: :polly,
-                       stream_builder: nil,
-                       version: "v1"}
+      %Operation.JSON{stream_builder: nil,
+                      http_method: :get,
+                      parser: nil,
+                      path: "/v1/voices",
+                      data: %{},
+                      headers: [],
+                      service: :polly,
+                      before_request: nil}
     assert expected == Polly.describe_voices
   end
 
   test "#get_lexicon" do
     expected =
-      %Operation.Polly{body: "",
-                       headers: %{},
-                       http_method: :get,
-                       lexicon_name: "necronomicon",
-                       params: %{},
-                       parser: &ExAws.Polly.Parsers.parse_get_lexicon/2,
-                       path: "/",
-                       resource: "lexicons",
-                       service: :polly,
-                       stream_builder: nil,
-                       version: "v1"}
+      %Operation.JSON{stream_builder: nil,
+                      http_method: :get,
+                      parser: nil,
+                      path: "/v1/lexicons/necronomicon",
+                      data: %{},
+                      headers: [],
+                      service: :polly,
+                      before_request: nil}
     assert expected == Polly.get_lexicon("necronomicon")
   end
 
   test "#list_lexicons" do
     expected =
-      %Operation.Polly{body: "",
-                       headers: %{},
-                       http_method: :get,
-                       lexicon_name: "",
-                       params: %{},
-                       parser: &ExAws.Polly.Parsers.parse_list_lexicons/2,
-                       path: "/",
-                       resource: "lexicons",
-                       service: :polly,
-                       stream_builder: nil,
-                       version: "v1"}
+      %Operation.JSON{stream_builder: nil,
+                      http_method: :get,
+                      parser: nil,
+                      path: "/v1/lexicons",
+                      data: %{},
+                      headers: [],
+                      service: :polly,
+                      before_request: nil}
     assert expected == Polly.list_lexicons
   end
 
   test "#put_lexicon" do
-    params = %{Content: @lexicon_content}
     expected =
-      %Operation.Polly{body: "",
-                       headers: %{},
-                       http_method: :put,
-                       lexicon_name: "necronomicon",
-                       params: params,
-                       parser: &ExAws.Polly.Parsers.parse_put_lexicon/2,
-                       path: "/",
-                       resource: "lexicons",
-                       service: :polly,
-                       stream_builder: nil,
-                       version: "v1"}
-    assert expected == Polly.put_lexicon("necronomicon", params)
+      %Operation.JSON{stream_builder: nil,
+                      http_method: :put,
+                      parser: nil,
+                      path: "/v1/lexicons/necronomicon",
+                      data: %{"Content" => @lexicon_content},
+                      headers: [],
+                      service: :polly,
+                      before_request: nil}
+    assert expected == Polly.put_lexicon("necronomicon", @lexicon_content)
   end
 
   test "#delete_lexicon" do
     expected =
-      %Operation.Polly{body: "",
-                       headers: %{},
-                       http_method: :delete,
-                       lexicon_name: "necronomicon",
-                       params: %{},
-                       parser: &ExAws.Polly.Parsers.parse_delete_lexicon/2,
-                       path: "/",
-                       resource: "lexicons",
-                       service: :polly,
-                       stream_builder: nil,
-                       version: "v1"}
+      %Operation.JSON{stream_builder: nil,
+                      http_method: :delete,
+                      parser: nil,
+                      path: "/v1/lexicons/necronomicon",
+                      data: %{},
+                      headers: [],
+                      service: :polly,
+                      before_request: nil}
     assert expected == Polly.delete_lexicon("necronomicon")
   end
 
   test "#synthesize_speech" do
-    params =
-      %{Text: "Hello world.",
-        OutputFormat: "mp3",
-        VoiceId: "Joey"}
     expected =
-      %Operation.Polly{body: "",
-                       headers: %{},
-                       http_method: :post,
-                       lexicon_name: "",
-                       params: params,
-                       parser: &ExAws.Polly.Parsers.parse_synthesize_speech/2,
-                       path: "/",
-                       resource: "speech",
-                       service: :polly,
-                       stream_builder: nil,
-                       version: "v1"}
-    assert expected == Polly.synthesize_speech(params)
+      %Operation.JSON{stream_builder: nil,
+                      http_method: :post,
+                      parser: &ExAws.Utils.identity/2,
+                      path: "/v1/speech",
+                      data: %{"OutputFormat" => "mp3",
+                              "Text" => "this is my boomstick",
+                              "VoiceId" => "Joey"},
+                      headers: [],
+                      service: :polly,
+                      before_request: nil}
+    assert expected == Polly.synthesize_speech("this is my boomstick", "Joey", "mp3")
   end
 end
