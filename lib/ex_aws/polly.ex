@@ -80,10 +80,18 @@ defmodule ExAws.Polly do
   @spec synthesize_speech(text :: binary, voice_id :: binary, output_format :: binary) :: ExAws.Operation.JSON.t
   @spec synthesize_speech(text :: binary, voice_id :: binary, output_format :: binary, opts :: synthesize_speech_opts) :: ExAws.Operation.JSON.t
   def synthesize_speech(text, voice_id, output_format, opts \\ []) do
+    parser =
+      fn
+        {:error, _} = error, _ -> error
+        {:ok, %{body: body, headers: headers}}, config ->
+          %{"AudioStream" => body,
+            "ContentType" => List.keyfind(headers, "Content-Type", 0) |> elem(1),
+            "RequestCharacters" => List.keyfind(headers, "x-amzn-RequestCharacters", 0) |> elem(1)}
+      end
     request_opts =
       %{http_method: :post,
         path: "/v1/speech",
-        parser: &identity/2}
+        parser: parser}
     opts =
       opts
       |> camelize_keys()
