@@ -81,9 +81,9 @@ defmodule ExAws.S3 do
     | customer_encryption_opts
 
   @type presigned_url_opts :: [
-    expires_in: integer,
-    virtual_host: boolean,
-    query_params: [{:key, binary}]
+      {:expires_in, integer}
+    | {:virtual_host, boolean}
+    | {:query_params, [{binary, binary}]}
   ]
 
   @type amz_meta_opts :: [{atom, binary} | {binary, binary}, ...]
