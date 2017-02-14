@@ -22,6 +22,14 @@ defmodule ExAws.S3.UploadTest do
       assert_received :chunk_uploaded
       assert_received :completed_upload
     end
+
+    test "uploading a file with a name separated by spaces" do
+      %{status_code: status_code} =
+        ExAws.S3.put_object("sergey-test", "some file name.txt", "data")
+        |> ExAws.request!
+
+      assert status_code == 200
+    end
   end
 
   defp setup_multipart_upload_backend(bypass, test_pid, bucket_name, path) do
