@@ -9,6 +9,7 @@ defmodule ExAws.Operation.JSON do
   - DynamoDB
   - Kinesis
   - Lambda (Rest style)
+  - ElasticTranscoder
 
   JSON services are generally pretty simple. You just need to populate the `data`
   attribute with whatever request body parameters need converted to JSON, and set
@@ -23,6 +24,7 @@ defmodule ExAws.Operation.JSON do
     parser: nil,
     path: "/",
     data: %{},
+    params: %{},
     headers: [],
     service: nil,
     before_request: nil
