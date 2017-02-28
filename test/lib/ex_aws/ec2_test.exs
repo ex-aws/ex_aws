@@ -1609,6 +1609,41 @@ test "delete_key_pair with options" do
     assert expected == EC2.describe_tags [max_results: 10, next_token: "abc"]
   end
 
+  test "describe_tags with filters" do
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
+        params: %{
+          "Action"     => "DescribeTags",
+          "Version"    => @version,
+          "Filter.1.Name" => "key",
+          "Filter.1.Value.1" => "a-key",
+          "Filter.1.Value.2" => "b-key",
+          "Filter.2.Name" => "resource-id",
+          "Filter.2.Value" => "id",
+        },
+        path: "/",
+        http_method: :get
+      }
+
+    assert expected == EC2.describe_tags filters: [{:key, ["a-key", "b-key"]}, {:resource_id, "id"}]
+
+    expected =
+      %ExAws.Operation.RestQuery{service: :ec2,
+        params: %{
+          "Action"     => "DescribeTags",
+          "Version"    => @version,
+          "Filter.1.Name" => "resource-type",
+          "Filter.1.Value.1" => "customer-gateway",
+          "Filter.2.Name" => "resource-type",
+          "Filter.2.Value.1" => "customer-gateway",
+          "Filter.2.Value.2" => "instance",
+        },
+        path: "/",
+        http_method: :get
+      }
+      assert expected == EC2.describe_tags filters: [{:resource_type, [:customer_gateway]},{:resource_type, [:customer_gateway, :instance]}]
+  end
+
   test "create_tags no options" do
     expected =
       %ExAws.Operation.RestQuery{service: :ec2,

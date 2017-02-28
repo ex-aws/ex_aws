@@ -1442,7 +1442,7 @@ defmodule ExAws.EC2 do
   ### Tags Actions ###
   ####################
 
-  @type resource_types ::
+  @type resource_type ::
     :customer_gateway      |
     :dhcp_options          |
     :image                 |
@@ -1461,15 +1461,15 @@ defmodule ExAws.EC2 do
     :vpn_connection        |
     :vpn_gateway
 
-  @type describe_tags_filters ::
-    key           :: binary         |
-    resource_id   :: binary         |
-    resource_type :: resource_types |
-    value         :: binary
+  @type describe_tags_filter ::
+    {:key, (binary | [binary])}                            |
+    {:resource_type, (resource_type | [resource_type])}    |
+    {:resource_id, (binary | [binary])}                    |
+    {:value, (binary | [binary])}
 
   @type describe_tags_opts :: [
     {:dry_run, boolean}                       |
-    [{:filter_1, describe_tags_filters}, ...] |
+    {:filters, [describe_tags_filter]}        |
     {:max_results, integer}                   |
     {:next_token, binary}
   ]
@@ -1479,12 +1479,16 @@ defmodule ExAws.EC2 do
   @spec describe_tags() :: ExAws.Operation.RestQuery.t
   @spec describe_tags(opts :: describe_tags_opts) :: ExAws.Operation.RestQuery.t
   def describe_tags(opts \\ []) do
+    filters = Keyword.get(opts, :filters, [])
+
     query_params = opts
+    |> Keyword.delete(:filters)
     |> normalize_opts
     |> Map.merge(%{
       "Action"  => "DescribeTags",
       "Version" => @version
       })
+    |> Map.merge(filter_list_builder(filters, "Filter", 1, %{}))
 
     request(:get, "/", query_params)
   end
@@ -2105,4 +2109,33 @@ defmodule ExAws.EC2 do
 
     list_builder_key_val t, key, count + 1, Map.merge(state, new_map)
   end
+
+
+  defp filter_list_builder([], _param, _count, _state), do: %{}
+  defp filter_list_builder([{f, s} | []], param, count, state) do
+    new_map = Map.new
+    |> Map.put("#{param}.#{count}.Name", filter_atom_to_string(f))
+    |> put_values("#{param}.#{count}.Value", s)
+
+    Map.merge(state, new_map)
+  end
+
+  defp filter_list_builder([{f, s} | t], param, count, state) do
+    new_map = Map.new
+    |> Map.put("#{param}.#{count}.Name", filter_atom_to_string(f))
+    |> put_values("#{param}.#{count}.Value", s)
+
+    filter_list_builder t, param, count + 1, Map.merge(state, new_map)
+  end
+
+  defp filter_atom_to_string(v) when is_binary(v), do: v
+  defp filter_atom_to_string(v) when is_atom(v), do: Atom.to_string(v) |> String.replace("_","-")
+
+  defp put_values(map = %{}, prefix, v) when is_list(v) do
+    v
+    |> Enum.map(&filter_atom_to_string/1)
+    |> list_builder(prefix, 1, map)
+  end
+  defp put_values(map = %{}, prefix, v) when is_atom(v), do: Map.put(map, prefix, filter_atom_to_string(v))
+  defp put_values(map = %{}, prefix, v), do: Map.put(map, prefix, v)
 end
