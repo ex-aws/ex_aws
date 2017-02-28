@@ -30,7 +30,7 @@ defmodule ExAws.Auth do
     with {:ok, config} <- validate_config(config) do
       datetime = :calendar.universal_time
       headers = [
-        {"host", URI.parse(url).authority},
+        {"Host", URI.parse(url).authority},
         {"x-amz-date", amz_date(datetime)} |
         headers
       ]
