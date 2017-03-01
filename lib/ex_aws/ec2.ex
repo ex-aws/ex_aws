@@ -1479,16 +1479,12 @@ defmodule ExAws.EC2 do
   @spec describe_tags() :: ExAws.Operation.RestQuery.t
   @spec describe_tags(opts :: describe_tags_opts) :: ExAws.Operation.RestQuery.t
   def describe_tags(opts \\ []) do
-    filters = Keyword.get(opts, :filters, [])
-
     query_params = opts
-    |> Keyword.delete(:filters)
     |> normalize_opts
     |> Map.merge(%{
       "Action"  => "DescribeTags",
       "Version" => @version
       })
-    |> Map.merge(filter_list_builder(filters, "Filter", 1, %{}))
 
     request(:get, "/", query_params)
   end
@@ -2083,9 +2079,18 @@ defmodule ExAws.EC2 do
   defp normalize_opts(opts) do
     opts
     |> Enum.into(%{})
+    |> format_filters
     |> camelize_keys
   end
 
+  defp format_filters(map = %{filters: filters}) do
+    map
+    |> Map.merge(filter_list_builder(filters, "Filter", 1, %{}))
+    |> Map.delete(:filters)
+  end
+  defp format_filters(map = %{}), do: map
+
+  defp list_builder([], _key, _count, _state), do: %{}
   defp list_builder([h | []], key, count, state) do
     Map.put(state, "#{key}.#{count}", h)
   end
