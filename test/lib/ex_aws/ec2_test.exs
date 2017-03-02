@@ -1625,7 +1625,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_tags filters: [{:key, ["a-key", "b-key"]}, {:resource_id, "id"}]
+    assert expected == EC2.describe_tags filters: [key: ["a-key", "b-key"], resource_id: "id"]
 
     expected =
       %ExAws.Operation.RestQuery{service: :ec2,
@@ -1641,7 +1641,7 @@ test "delete_key_pair with options" do
         path: "/",
         http_method: :get
       }
-      assert expected == EC2.describe_tags filters: [{:resource_type, [:customer_gateway]},{:resource_type, [:customer_gateway, :instance]}]
+      assert expected == EC2.describe_tags filters: [resource_type: [:customer_gateway], resource_type: [:customer_gateway, :instance]]
   end
 
   test "create_tags no options" do
