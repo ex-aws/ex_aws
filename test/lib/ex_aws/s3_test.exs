@@ -31,6 +31,47 @@ defmodule ExAws.S3Test do
     )
   end
 
+  test "#put_bucket with non-us-east-1 region" do
+    region = "not-us-east-1"
+    bucket = "new.bucket"
+    expected = %Operation.S3{
+      body: """
+      <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+        <LocationConstraint>#{region}</LocationConstraint>
+      </CreateBucketConfiguration>
+      """,
+      bucket: bucket,
+      path: "/",
+      http_method: :put
+    }
+
+    assert expected == S3.put_bucket(bucket, region)
+  end
+
+  test "#put_bucket with us-east-1 region" do
+    bucket = "new.bucket"
+    expected = %Operation.S3{
+      body: "",
+      bucket: bucket,
+      path: "/",
+      http_method: :put
+    }
+
+    assert expected == S3.put_bucket(bucket, "us-east-1")
+  end
+
+  test "#put_bucket with empty region" do
+    bucket = "new.bucket"
+    expected = %Operation.S3{
+      body: "",
+      bucket: bucket,
+      path: "/",
+      http_method: :put
+    }
+
+    assert expected == S3.put_bucket(bucket, "")
+  end
+
   test "#put_object_copy" do
     expected = %Operation.S3{bucket: "dest-bucket",
       headers: %{"x-amz-acl" => "public-read",

@@ -271,21 +271,17 @@ defmodule ExAws.S3 do
     request(:get, bucket, "/", [resource: "uploads", params: params], %{parser: &Parsers.parse_list_multipart_uploads/1})
   end
 
-  @doc "Creates a bucket. Same as create_bucket/2"
+  @doc "Creates a bucket in the specified region"
   @spec put_bucket(bucket :: binary, region :: binary) :: ExAws.Operation.S3.t
-  def put_bucket(bucket, region, opts \\ []) do
+  def put_bucket(bucket, region, opts \\ [])
+  def put_bucket(bucket, "", opts), do: put_bucket(bucket, "us-east-1", opts)
+  def put_bucket(bucket, region, opts) do
     headers = opts
     |> Map.new
     |> format_acl_headers
 
-    # us-east-1 region needs to be an empty string, cause AWS S3 API sucks.
-    region = if region == "us-east-1", do: "", else: region
+    body = region |> put_bucket_body
 
-    body = """
-    <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-      <LocationConstraint>#{region}</LocationConstraint>
-    </CreateBucketConfiguration>
-    """
     request(:put, bucket, "/", body: body, headers: headers)
   end
 
@@ -883,6 +879,15 @@ defmodule ExAws.S3 do
         datetime = :calendar.universal_time
         ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in, query_params)
     end
+  end
+
+  defp put_bucket_body("us-east-1"), do: ""
+  defp put_bucket_body(region) do
+    """
+    <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+      <LocationConstraint>#{region}</LocationConstraint>
+    </CreateBucketConfiguration>
+    """
   end
 
   defp url_to_sign(bucket, object, config, virtual_host) do
