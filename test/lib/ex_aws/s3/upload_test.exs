@@ -25,7 +25,7 @@ defmodule ExAws.S3.UploadTest do
 
     test "uploading a file with a name separated by spaces" do
       %{status_code: status_code} =
-        ExAws.S3.put_object("sergey-test", "some file name.txt", "data")
+        ExAws.S3.put_object("my-bucket", "some file name.txt", "data")
         |> ExAws.request!
 
       assert status_code == 200
