@@ -1,7 +1,7 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
-  @version "1.1.0"
+  @version "1.1.1"
 
   def project do
     [app: :ex_aws,
@@ -36,7 +36,7 @@ defmodule ExAws.Mixfile do
       {:xml_builder, "~> 0.0.6", optional: true},
       {:sweet_xml, "~> 0.6", optional: true},
       {:ex_doc, "~> 0.14", only: :dev},
-      {:hackney, "~> 1.6.5", optional: true},
+      {:hackney, "1.6.3 or 1.6.5 or 1.7.1", optional: true},
       {:poison, ">= 1.2.0", optional: true},
       {:jsx, "~> 2.8", optional: true},
       {:dialyze, "~> 0.2.0", only: :dev},
