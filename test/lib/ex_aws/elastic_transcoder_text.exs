@@ -15,7 +15,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_pipelines()
+    assert expected == ElasticTranscoder.list_pipelines()
   end
 
   test "list_pipelines with token" do
@@ -27,7 +27,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_pipelines("1234")
+    assert expected == ElasticTranscoder.list_pipelines("1234")
   end
 
   test "create_pipeline" do
@@ -39,7 +39,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.create_pipeline(%{"Name" => "some-pipeline"})
+    assert expected == ElasticTranscoder.create_pipeline(%{"Name" => "some-pipeline"})
   end
 
   test "update_pipeline" do
@@ -51,7 +51,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.update_pipeline(1234, %{"Name" => "some-pipeline"})
+    assert expected == ElasticTranscoder.update_pipeline(1234, %{"Name" => "some-pipeline"})
   end
 
   test "update_pipeline_status" do
@@ -63,7 +63,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.update_pipeline_status(1234, "Paused")
+    assert expected == ElasticTranscoder.update_pipeline_status(1234, "Paused")
   end
 
   test "update_pipeline_notifications" do
@@ -75,7 +75,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.update_pipeline_notifications(1234, %{"Error" => "arn::fake"})
+    assert expected == ElasticTranscoder.update_pipeline_notifications(1234, %{"Error" => "arn::fake"})
   end
 
   test "delete_pipeline" do
@@ -87,7 +87,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.delete_pipeline("1234")
+    assert expected == ElasticTranscoder.delete_pipeline("1234")
   end
 
   #################
@@ -103,7 +103,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_jobs_by_pipeline("1234")
+    assert expected == ElasticTranscoder.list_jobs_by_pipeline("1234")
   end
 
   test "list_jobs_by_pipeline with token" do
@@ -115,7 +115,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_jobs_by_pipeline("1234", "abcd")
+    assert expected == ElasticTranscoder.list_jobs_by_pipeline("1234", "abcd")
   end
 
   test "list_jobs_by_status without token" do
@@ -127,7 +127,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_jobs_by_status("Submitted")
+    assert expected == ElasticTranscoder.list_jobs_by_status("Submitted")
   end
 
   test "list_jobs_by_status with token" do
@@ -139,7 +139,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_jobs_by_status("Submitted", "abcd")
+    assert expected == ElasticTranscoder.list_jobs_by_status("Submitted", "abcd")
   end
 
   test "read_job" do
@@ -151,7 +151,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.read_job("1234")
+    assert expected == ElasticTranscoder.read_job("1234")
   end
 
   test "create_job" do
@@ -163,7 +163,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.create_job(%{"Key" => "abcd.mp4"})
+    assert expected == ElasticTranscoder.create_job(%{"Key" => "abcd.mp4"})
   end
 
   test "cancel_job" do
@@ -175,7 +175,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.cancel_job("1234")
+    assert expected == ElasticTranscoder.cancel_job("1234")
   end
 
   ####################
@@ -191,7 +191,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_presets()
+    assert expected == ElasticTranscoder.list_presets()
   end
 
   test "list_presets with token" do
@@ -203,7 +203,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.list_presets("abcd")
+    assert expected == ElasticTranscoder.list_presets("abcd")
   end
 
   test "read_preset" do
@@ -215,7 +215,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.read_preset("1234")
+    assert expected == ElasticTranscoder.read_preset("1234")
   end
 
   test "create_preset" do
@@ -227,7 +227,7 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.create_preset(%{"Name" => "some-preset"})
+    assert expected == ElasticTranscoder.create_preset(%{"Name" => "some-preset"})
   end
 
   test "delete_preset" do
@@ -239,6 +239,6 @@ defmodule ExAws.ElasticTranscoderTest do
         service: :elastictranscoder,
       }
 
-      assert expected == ElasticTranscoder.delete_preset("1234")
+    assert expected == ElasticTranscoder.delete_preset("1234")
   end
 end
