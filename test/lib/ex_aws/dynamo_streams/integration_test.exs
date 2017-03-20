@@ -10,6 +10,8 @@ defmodule ExAws.DynamoStreamsIntegrationTest do
   # Dynamo
   #
 
+  @moduletag :dynamo
+
   setup_all do
     Dynamo.delete_table("StreamUser") |> ExAws.request
     Dynamo.create_table("StreamUser", [email: :hash, age: :range], [email: :string, age: :number], 1, 1) |> ExAws.request!
