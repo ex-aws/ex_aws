@@ -104,7 +104,7 @@ defmodule ExAws.SNS do
   end
 
   def build_message_attribute({%{name: name, data_type: data_type, value: {value_type, value}}, i}, params) do
-    param_root = "MessageAttribute.#{i}"
+    param_root = "MessageAttribute.entry.#{i + 1}"
     value_type = value_type |> to_string |> String.capitalize
 
     params

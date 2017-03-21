@@ -14,7 +14,25 @@ defmodule ExAws.InstanceMeta do
 
   def request(config, url) do
     case config.http_client.request(:get, url) do
-      {:ok, %{body: body}} -> body
+      {:ok, %{body: body}} ->
+        body
+      error ->
+        raise """
+        Instance Meta Error: #{inspect error}
+
+        You tried to access the AWS EC2 instance meta, but it could not be reached.
+        This happens most often when trying to access it from your local computer,
+        which happens when environment variables are not set correctly prompting
+        ExAws to fallback to the Instance Meta.
+
+        Please check your key config and make sure they're configured correctly:
+
+        For Example:
+        ```
+        ExAws.Config.new(:s3)
+        ExAws.Config.new(:dynamodb)
+        ```
+        """
     end
   end
 

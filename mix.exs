@@ -1,26 +1,26 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
-  @version "1.0.0"
+  @version "1.1.2"
 
   def project do
     [app: :ex_aws,
      version: @version,
-     elixir: "~> 1.0",
+     elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
-     description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
+     description: "AWS client. Currently supports Dynamo, DynamoStreams, EC2, Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS",
      name: "ExAws",
      source_url: "https://github.com/cargosense/ex_aws",
-     package: package,
+     package: package(),
      dialyzer: [flags: "--fullpath"],
-     deps: deps,
+     deps: deps(),
      docs: [main: "ExAws", source_ref: "v#{@version}",
        source_url: "https://github.com/cargosense/ex_aws"]
      ]
   end
 
   def application do
-    [applications: [:logger, :crypto, :gen_stage],
+    [applications: [:logger, :crypto],
      mod: {ExAws, []}]
   end
 
@@ -33,12 +33,12 @@ defmodule ExAws.Mixfile do
 
   defp deps(:test_dev) do
     [
-      {:sweet_xml, "~> 0.5", optional: true},
+      {:xml_builder, "~> 0.0.6", optional: true},
+      {:sweet_xml, "~> 0.6", optional: true},
       {:ex_doc, "~> 0.14", only: :dev},
-      {:hackney, "1.6.1", optional: true},
+      {:hackney, "1.6.3 or 1.6.5 or 1.7.1", optional: true},
       {:poison, ">= 1.2.0", optional: true},
       {:jsx, "~> 2.8", optional: true},
-      {:gen_stage, "~> 0.8.0"},
       {:dialyze, "~> 0.2.0", only: :dev},
       {:bypass, "~> 0.1", only: :test},
       {:configparser_ex, "~> 0.2.1", optional: true},
@@ -46,7 +46,7 @@ defmodule ExAws.Mixfile do
   end
 
   defp package do
-    [description: "AWS client. Currently supports Dynamo, EC2, Kinesis, Lambda, RDS, S3, SNS, SQS",
+    [description: "AWS client. Currently supports Dynamo, DynamoStreams, EC2, Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS",
      files: ["lib", "config", "mix.exs", "README*"],
      maintainers: ["Ben Wilson"],
      licenses: ["MIT"],

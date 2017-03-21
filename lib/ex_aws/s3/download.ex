@@ -62,22 +62,21 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
 
   alias ExAws.S3.Download
 
-  alias Experimental.Flow
-
   def perform(op, config) do
-    init_file = fn -> File.open!(op.dest, [:write, :raw, :delayed_write, :binary]) end
-
-    write_chunk = fn chunks, file ->
-      :ok = :file.pwrite(file, [chunks])
-      file
-    end
+    file = File.open!(op.dest, [:write, :delayed_write, :binary])
 
     op
     |> Download.build_chunk_stream(config)
-    |> Flow.from_enumerable(stages: op.opts[:max_concurrency] || 8, max_demand: 2)
-    |> Flow.map(&Download.get_chunk(op, &1, config))
-    |> Flow.reduce(init_file, write_chunk)
-    |> Flow.run
+    |> Task.async_stream(fn boundaries ->
+      chunk = Download.get_chunk(op, boundaries, config)
+      :ok = :file.pwrite(file, [chunk])
+    end,
+      max_concurrency: Keyword.get(op.opts, :max_concurrency, 8),
+      timeout: Keyword.get(op.opts, :timeout, 30_000),
+    )
+    |> Stream.run
+
+    File.close(file)
 
     {:ok, :done}
   end

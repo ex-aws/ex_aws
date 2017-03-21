@@ -25,27 +25,30 @@ defmodule ExAws.Request do
 
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
-    if config[:debug_requests] do
-      Logger.debug("Request URL: #{inspect url}")
-      Logger.debug("Request HEADERS: #{inspect full_headers}")
-      Logger.debug("Request BODY: #{inspect req_body}")
-    end
 
-    case config[:http_client].request(method, url, req_body, full_headers, Map.get(config, :http_opts, [])) do
-      {:ok, response = %{status_code: status}} when status in 200..299 ->
-        {:ok, response}
-      {:ok, %{status_code: status} = resp} when status in 400..499 ->
-        case client_error(resp, config[:json_codec]) do
-          {:retry, reason} ->
-            request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
-          {:error, reason} -> {:error, reason}
-        end
-      {:ok, %{status_code: status, body: body}} when status >= 500 ->
-        reason = {:http_error, status, body}
-        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
-      {:error, %{reason: reason}} ->
-        Logger.warn("ExAws: HTTP ERROR: #{inspect reason}")
-        request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
+    with {:ok, full_headers} <- full_headers do
+      if config[:debug_requests] do
+        Logger.debug("Request URL: #{inspect url}")
+        Logger.debug("Request HEADERS: #{inspect full_headers}")
+        Logger.debug("Request BODY: #{inspect req_body}")
+      end
+
+      case config[:http_client].request(method, url, req_body, full_headers, Map.get(config, :http_opts, [])) do
+        {:ok, response = %{status_code: status}} when status in 200..299 ->
+          {:ok, response}
+        {:ok, %{status_code: status} = resp} when status in 400..499 ->
+          case client_error(resp, config[:json_codec]) do
+            {:retry, reason} ->
+              request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
+            {:error, reason} -> {:error, reason}
+          end
+        {:ok, %{status_code: status, body: body}} when status >= 500 ->
+          reason = {:http_error, status, body}
+          request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
+        {:error, %{reason: reason}} ->
+          Logger.warn("ExAws: HTTP ERROR: #{inspect reason}")
+          request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
+      end
     end
   end
 

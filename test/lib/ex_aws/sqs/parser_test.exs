@@ -1,15 +1,8 @@
 defmodule ExAws.SQS.ParserTest do
   use ExUnit.Case, async: true
+  import Support.ParserHelpers
 
   alias ExAws.SQS.Parsers
-
-  def to_success(doc) do
-    {:ok, %{body: doc}}
-  end
-
-  def to_error(doc) do
-    {:error, {:http_error, 403, %{body: doc}}}
-  end
 
   test "#parsing a list queue response" do
     rsp = """
@@ -176,6 +169,14 @@ defmodule ExAws.SQS.ParserTest do
             <Name>MessageRetentionPeriod</Name>
             <Value>345600</Value>
           </Attribute>
+          <Attribute>
+            <Name>FifoQueue</Name>
+            <Value>true</Value>
+          </Attribute>
+          <Attribute>
+            <Name>ContentBasedDeduplication</Name>
+            <Value>false</Value>
+          </Attribute>
         </GetQueueAttributesResult>
         <ResponseMetadata>
           <RequestId>1ea71be5-b5a2-4f9d-b85a-945d8d08cd0b</RequestId>
@@ -189,6 +190,8 @@ defmodule ExAws.SQS.ParserTest do
     assert 2 == attributes[:receive_message_wait_time_seconds]
     assert "arn:aws:sqs:us-east-1:123456789012:qfoo" == attributes[:queue_arn]
     assert 30 == attributes[:visibility_timeout]
+    assert true == attributes[:fifo_queue]
+    assert false == attributes[:content_based_deduplication]
     assert "1ea71be5-b5a2-4f9d-b85a-945d8d08cd0b" == response[:request_id]
   end
 
@@ -541,28 +544,4 @@ defmodule ExAws.SQS.ParserTest do
 
     assert "e5cca473-4fc0-4198-a451-8abb94d02c75" == response[:request_id]
   end
-
-  test "it should handle parsing an error" do
-    rsp = """
-    <?xml version=\"1.0\"?>
-    <ErrorResponse xmlns=\"http://queue.amazonaws.com/doc/2012-11-05/\">
-      <Error>
-        <Type>Sender</Type>
-        <Code>ExpiredToken</Code>
-        <Message>The security token included in the request is expired</Message>
-        <Detail/>
-      </Error>
-      <RequestId>f7ac5905-2fb6-5529-a86d-09628dae67f4</RequestId>
-    </ErrorResponse>
-    """
-    |> to_error
-
-    {:error, {:http_error, 403, err}} = Parsers.parse(rsp, :set_queue_attributes)
-
-    assert "f7ac5905-2fb6-5529-a86d-09628dae67f4" == err[:request_id]
-    assert "Sender" == err[:type]
-    assert "ExpiredToken" == err[:code]
-    assert "The security token included in the request is expired" == err[:message]
-  end
-
 end

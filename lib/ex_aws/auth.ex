@@ -6,41 +6,65 @@ defmodule ExAws.Auth do
 
   @moduledoc false
 
-  def headers(http_method, url, service, config, headers, body) do
-    datetime = :calendar.universal_time
-    headers = [
-      {"host", URI.parse(url).authority},
-      {"x-amz-date", amz_date(datetime)} |
-      headers
-    ]
-    |> handle_temp_credentials(config)
+  def validate_config(config) do
+    with :ok <- get_key(config, :secret_access_key),
+    :ok <- get_key(config, :access_key_id) do
+      {:ok, config}
+    end
+  end
 
-    auth_header = auth_header(
+  defp get_key(config, key) do
+    case Map.fetch(config, key) do
+      :error ->
+        {:error, "Required key: #{inspect key} not found in config!"}
+      {:ok, nil} ->
+        {:error, "Required key: #{inspect key} is nil in config!"}
+      {:ok, val} when is_binary(val) ->
+        :ok
+      {:ok, val} ->
+        {:error, "Required key: #{inspect key} must be a string, but instead is #{inspect val}"}
+    end
+  end
+
+  def headers(http_method, url, service, config, headers, body) do
+    with {:ok, config} <- validate_config(config) do
+      datetime = :calendar.universal_time
+      headers = [
+        {"host", URI.parse(url).authority},
+        {"x-amz-date", amz_date(datetime)} |
+        headers
+      ]
+      |> handle_temp_credentials(config)
+
+      auth_header = auth_header(
       http_method,
       url,
       headers,
       body,
-      service |> service_name,
+      service |> service_override(config) |> service_name,
       datetime,
       config)
 
-    [{"Authorization", auth_header} | headers ]
+      {:ok, [{"Authorization", auth_header} | headers ]}
+    end
   end
 
   def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ []) do
-    service = service_name(service)
-    headers = presigned_url_headers(url)
+    with {:ok, config} <- validate_config(config) do
+      service = service_name(service)
+      headers = presigned_url_headers(url)
 
-    org_query_params = query_params |> Enum.map(fn({k, v}) -> {to_string(k), v} end)
-    amz_query_params = build_amz_query_params(service, datetime, config, expires)
-    [org_query, amz_query] = [org_query_params, amz_query_params] |> Enum.map(&canonical_query_params/1)
-    query_to_sign = org_query_params ++ amz_query_params |> canonical_query_params
-    query_for_url = if Enum.any?(org_query_params), do: org_query <> "&" <> amz_query, else: amz_query
+      org_query_params = query_params |> Enum.map(fn({k, v}) -> {to_string(k), v} end)
+      amz_query_params = build_amz_query_params(service, datetime, config, expires)
+      [org_query, amz_query] = [org_query_params, amz_query_params] |> Enum.map(&canonical_query_params/1)
+      query_to_sign = org_query_params ++ amz_query_params |> canonical_query_params
+      query_for_url = if Enum.any?(org_query_params), do: org_query <> "&" <> amz_query, else: amz_query
 
-    uri = URI.parse(url)
-    path = uri_encode(uri.path)
-    signature = signature(http_method, path, query_to_sign, headers, nil, service, datetime, config)
-    "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"
+      uri = URI.parse(url)
+      path = uri_encode(uri.path)
+      signature = signature(http_method, path, query_to_sign, headers, nil, service, datetime, config)
+      {:ok, "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"}
+    end
   end
 
   defp handle_temp_credentials(headers, %{security_token: token}) do
@@ -181,6 +205,14 @@ defmodule ExAws.Auth do
       [{"X-Amz-Security-Token", config[:security_token]}]
     else
       []
+    end
+  end
+
+  defp service_override(service, config) do
+    if config[:service_override] do
+      config[:service_override]
+    else
+      service
     end
   end
 end

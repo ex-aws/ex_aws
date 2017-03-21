@@ -30,16 +30,16 @@ defmodule ExAws.S3.Upload do
     service: :s3
   }
 
-  def complete!(parts, op, config) do
+  def complete(parts, op, config) do
     ExAws.S3.complete_multipart_upload(op.bucket, op.path, op.upload_id, Enum.sort_by(parts, &elem(&1, 0)))
-    |> ExAws.request!(config)
+    |> ExAws.request(config)
   end
 
-  def initialize!(op, config) do
-    %{body: %{upload_id: upload_id}} =
-      ExAws.S3.initiate_multipart_upload(op.bucket, op.path, op.opts)
-      |> ExAws.request!(config)
-    %{op | upload_id: upload_id}
+  def initialize(op, config) do
+    init_op = ExAws.S3.initiate_multipart_upload(op.bucket, op.path, op.opts)
+    with {:ok, %{body: %{upload_id: upload_id}}} <- ExAws.request(init_op, config) do
+      {:ok, %{op | upload_id: upload_id}}
+    end
   end
 
   @doc """
@@ -76,32 +76,22 @@ end
 
 defimpl ExAws.Operation, for: ExAws.S3.Upload do
 
-  alias Experimental.Flow
   alias ExAws.S3.Upload
 
   def perform(op, config) do
-    op = Upload.initialize!(op, config)
-
-    op.src
-    |> build_producer(op.opts)
-    |> Flow.map(&Upload.upload_chunk!(&1, op, config))
-    |> Enum.to_list
-    |> Upload.complete!(op, config)
-
-    {:ok, :done}
+    with {:ok, op} <- Upload.initialize(op, config) do
+      op.src
+      |> Stream.with_index(1)
+      |> Task.async_stream(&Upload.upload_chunk!(&1, op, config),
+        max_concurrency: Keyword.get(op.opts, :max_concurrency, 4),
+        timeout: Keyword.get(op.opts, :timeout, 30_000),
+      )
+      |> Enum.to_list
+      |> Enum.map(fn {:ok, val} -> val end)
+      |> Upload.complete(op, config)
+    end
   end
 
   def stream!(_, _), do: raise "not implemented"
 
-  defp build_producer(%Flow{} = flow, _opts) do
-    flow
-  end
-  defp build_producer(source, opts) do
-    source
-    |> Stream.with_index(1)
-    |> Flow.from_enumerable(
-          stages: Keyword.get(opts, :max_concurrency, 4),
-          max_demand: 2
-        )
-  end
 end

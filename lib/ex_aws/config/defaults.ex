@@ -20,30 +20,38 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: {"$region", "kinesis.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     firehose: %{
       scheme: "https://",
       host: {"$region", "firehose.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     dynamodb: %{
       scheme: "https://",
       host: {"$region", "dynamodb.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
+    },
+    dynamodb_streams: %{
+      scheme: "https://",
+      host: {"$region", "streams.dynamodb.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 443,
+      service_override: :dynamodb
     },
     lambda: %{
       host: {"$region", "lambda.$region.amazonaws.com"},
       scheme: "https://",
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     s3: %{
       scheme: "https://",
       host: %{
         "us-east-1" => "s3.amazonaws.com",
+        "us-east-2" => "s3-us-east-2.amazonaws.com",
         "us-west-1" => "s3-us-west-1.amazonaws.com",
         "us-west-2" => "s3-us-west-2.amazonaws.com",
         "eu-west-1" => "s3-eu-west-1.amazonaws.com",
@@ -63,38 +71,56 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: {"$region", "sqs.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     sns: %{
       host: {"$region", "sns.$region.amazonaws.com"},
       scheme: "https://",
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     ec2: %{
       scheme: "https://",
       host: {"$region", "ec2.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     rds: %{
       scheme: "https://",
       host: {"$region", "rds.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     kms: %{
       scheme: "https://",
       host: {"$region", "kms.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
+    },
+    sts: %{
+      host: {"$region", "sts.$region.amazonaws.com"},
+      scheme: "https://",
+      region: "us-east-1",
+      port: 443
+    },
+    route53: %{
+      scheme: "https://",
+      host: "route53.amazonaws.com",
+      region: "us-east-1",
+      port: 443
+    },
+    ses: %{
+      scheme: "https://",
+      host: {"$region", "email.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 443
     },
     ecs: %{
       scheme: "https://",
       host: {"$region", "ecs.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
-    },
+      port: 443
+    }
   }
 
   @doc """
