@@ -41,6 +41,27 @@ defmodule ExAws.ECS do
     request(:create_cluster)
   end
 
+  # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PlacementConstraint.html
+  @type placement_constraint_type :: [
+    :distinctInstance |
+    :memberOf
+  ]
+  @type placement_constraint :: [
+    {:expression, binary} |
+    {:type, placement_constraint_type}
+  ]
+
+  # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PlacementStrategy.html
+  @type placement_strategy_type :: [
+    :random |
+    :spread |
+    :binpack
+  ]
+  @type placement_strategy :: [
+    {:field, binary} |
+    {:type, placement_strategy_type }
+  ]
+
   # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LoadBalancer.html
   @type load_balancer :: [
     {:container_name, binary} |
@@ -54,59 +75,50 @@ defmodule ExAws.ECS do
     {:cluster, binary} |
     {:deployment_configuration, deployment_conf} |
     {:load_balancers, list(load_balancer)} |
+    {:placement_constraints, list(placement_constraint)} |
+    {:placement_strategy, list(placement_strategy)} |
     {:role, binary}
   ]
 
 
+
   @doc """
   Runs and maintains a desired number of tasks from a specified task definition.
+  If the number of tasks running in a service drops below `desiredCount`,
+  Amazon ECS spawns another copy of the task in the specified cluster.
+  To update an existing service, see `update_service/2`.
+  In addition to maintaining the desired count of tasks in your service, you can optionally
+  run your service behind a load balancer. The load balancer distributes traffic across the
+  tasks that are associated with the service.
+  For more information, see [Service Load Balancing](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-load-balancing.html)
+  in the _Amazon EC2 Container Service Developer Guide_. You can optionally specify a deployment configuration
+  for your service. During a deployment (which is triggered by changing the
+  task definition or the desired count of a service with an `update_service/2` operation),
+  the service scheduler uses the `minimumHealthyPercent` and `maximumPercent` parameters to determine the deployment strategy.
+  The `minimumHealthyPercent` represents a lower limit on the number of your service's tasks that must remain in the
+  `RUNNING` state during a deployment, as a percentage of the `desiredCount` (rounded up to the nearest integer).
+  This parameter enables you to deploy without using additional cluster capacity. For example, if `desiredCount` is
+  four tasks and the minimum is 50%, the scheduler can stop two existing tasks to free up cluster capacity before starting
+  two new tasks. Tasks for services that do not use a load balancer are considered healthy if they are in the `RUNNING` state.
+  Tasks for services that use a load balancer are considered healthy if they are in the `RUNNING` state and the container
+  instance they are hosted on is reported as healthy by the load balancer.
+  The default value is 50% in the console and 100% for the AWS CLI, the AWS SDKs, and the APIs. The `maximumPercent`
+  parameter represents an upper limit on the number of your service's tasks that are allowed in the `RUNNING` or `PENDING`
+  state during a deployment, as a percentage of the `desiredCount` (rounded down to the nearest integer).
+  This parameter enables you to define the deployment batch size. For example, if `desiredCount` is four tasks and the
+  maximum is 200%, the scheduler can start four new tasks before stopping the four older tasks
+  (provided that the cluster resources required to do this are available). The default value is 200%.
+  When the service scheduler launches new tasks, it determines task placement in your cluster using the following logic:
 
-  If the number of tasks running in a service drops below
-  `:desired_count`, Amazon ECS spawns another instantiation of the task in the
-  specified cluster. To update an existing service, see `update_service/2`.
-
-  In addition to maintaining the desired count of tasks in your service, you
-  can optionally run your service behind a load balancer. The load balancer
-  distributes traffic across the tasks that are associated with the service.
-
-  You can optionally specify a deployment configuration for your service.
-  During a deployment (which is triggered by changing the task definition of
-  a service with an `update_service` operation), the service scheduler uses
-  the `:minimum_healthy_percent` and `:maximum_percent` parameters to determine
-  the deployment strategy.
-
-  If the `:minimum_healthy_percent` is below 100%, the scheduler can ignore the
-  `:desired_count` temporarily during a deployment. For example, if your
-  service has a `:desired_count` of four tasks, a `:minimum_healthy_percent` of
-  50% allows the scheduler to stop two existing tasks before starting two new
-  tasks. Tasks for services that *do not* use a load balancer are considered
-  healthy if they are in the `RUNNING` state; tasks for services that *do*
-  use a load balancer are considered healthy if they are in the `RUNNING`
-  state and the container instance it is hosted on is reported as healthy by
-  the load balancer. The default value for `:minimum_healthy_percent` is 50% in
-  the console and 100% for the AWS CLI, the AWS SDKs, and the APIs.
-
-  The `:maximum_percent` parameter represents an upper limit on the number of
-  running tasks during a deployment, which enables you to define the
-  deployment batch size. For example, if your service has a `:desired_count` of
-  four tasks, a `:maximum_percent` value of 200% starts four new tasks before
-  stopping the four older tasks (provided that the cluster resources required
-  to do this are available). The default value for `:maximum_percent` is 200%.
-
-  When the service scheduler launches new tasks, it attempts to balance them
-  across the Availability Zones in your cluster with the following logic:
-
-  * Determine which of the container instances in your cluster can
-  support your service's task definition (for example, they have the required
-  CPU, memory, ports, and container instance attributes).
-  * Sort the valid container instances by the fewest number of
-  running tasks for this service in the same Availability Zone as the
-  instance. For example, if zone A has one running service task and zones B
-  and C each have zero, valid container instances in either zone B or C are
-  considered optimal for placement.
-  * Place the new service task on a valid container instance in an
-  optimal Availability Zone (based on the previous steps), favoring container
-  instances with the fewest number of running tasks for this service.
+  * Determine which of the container instances in your cluster can support your service's task definition
+  (for example, they have the required CPU, memory, ports, and container instance attributes).
+  * By default, the service scheduler attempts to balance tasks across Availability Zones in this manner
+  (although you can choose a different placement strategy):
+  * Sort the valid container instances by the fewest number of running tasks for this service in the same
+  Availability Zone as the instance. For example, if zone A has one running service task and zones B and C each have zero,
+  valid container instances in either zone B or C are considered optimal for placement.
+  * Place the new service task on a valid container instance in an optimal Availability Zone (based on the previous steps),
+  favoring container instances with the fewest number of running tasks for this service.
   """
   @spec create_service(service_name :: binary, task_definition :: binary, desired_count :: non_neg_integer) :: ExAws.Operation.JSON.t
   @spec create_service(service_name :: binary, task_definition :: binary, desired_count :: non_neg_integer, opts :: create_service_opts) :: ExAws.Operation.JSON.t
@@ -116,6 +128,34 @@ defmodule ExAws.ECS do
     |> Map.merge(%{"serviceName" => service_name, "taskDefinition" => task_definition, "desiredCount" => desired_count})
 
     request(:create_service, data)
+  end
+
+  @type attribute_target_type :: [
+    :"container-instance"
+  ]
+  @type attribute :: [
+    {:name, binary} |
+    {:target_id, binary} |
+    {:target_type, attribute_target_type} |
+    {:value, binary}
+  ]
+
+  @doc """
+  Deletes one or more custom attributes from an Amazon ECS resource in the `default` cluster.
+  """
+  @spec delete_attributes(attributes :: list(attribute)) :: ExAws.Operation.JSON.t
+  def delete_attributes(attributes) do
+    attr_data = attributes |> normalize_opts
+    request(:delete_attributes, %{"attributes" => attr_data})
+  end
+
+  @doc """
+  Deletes one or more custom attributes from an Amazon ECS resource.
+  """
+  @spec delete_attributes(attributes :: list(attribute), cluster :: binary) :: ExAws.Operation.JSON.t
+  def delete_attributes(attributes, cluster) do
+    attr_data = attributes |> normalize_opts
+    request(:delete_attributes, %{"attributes" => attr_data, "cluster" => cluster})
   end
 
   @doc """
@@ -212,6 +252,10 @@ defmodule ExAws.ECS do
   `INACTIVE` task definition (although there may be up to a 10 minute window
   following deregistration where these restrictions have not yet taken
   effect).
+
+  At this time, INACTIVE task definitions remain discoverable in your account indefinitely;
+  however, this behavior is subject to change in the future, so you should not rely on
+  INACTIVE task definitions persisting beyond the life cycle of any associated tasks and services.
   """
   @spec deregister_task_definition(task_definition :: binary) :: ExAws.Operation.JSON.t
   def deregister_task_definition(task_definition) do
@@ -323,7 +367,33 @@ defmodule ExAws.ECS do
   def discover_poll_endpoint(opts \\ []) do
     data = opts
     |> normalize_opts
+
     request(:discover_poll_endpoint_opts, data)
+  end
+
+  @type list_attribute_opts :: [
+    {:attribute_name, binary} |
+    {:attribute_value, binary} |
+    {:cluster, binary} |
+    {:max_results, 1..100} |
+    {:next_token, binary}
+  ]
+
+  @doc """
+  Lists the attributes for Amazon ECS resources within a specified target type and cluster.
+  When you specify a target type and cluster, `list_attributes` returns a list of attribute objects,
+  one for each attribute on each resource. You can filter the list of results to a single
+  attribute name to only return results that have that name.
+  You can also filter the results by attribute name and value, for example,
+  to see which container instances in a cluster are running a Linux AMI (`ecs.os-type=linux`).
+  """
+  @spec list_attributes(target_type :: attribute_target_type) :: ExAws.Operation.JSON.t
+  @spec list_attributes(target_type :: attribute_target_type, opts :: list_attribute_opts) :: ExAws.Operation.JSON.t
+  def list_attributes(target_type, opts \\ []) do
+    data = opts
+    |> normalize_opts
+    |> Map.merge(%{"targetType" => target_type})
+    request(:list_attributes, data)
   end
 
   @type list_clusters_opts :: [
@@ -342,14 +412,26 @@ defmodule ExAws.ECS do
     request(:list_clusters, data)
   end
 
+  @type container_instance_status :: [
+    :ACTIVE |
+    :DRAINING
+  ]
+
   @type list_container_instances_opts :: [
     {:cluster, binary} |
+    {:filter, binary} |
     {:max_results, 1..100} |
-    {:next_token, binary}
+    {:next_token, binary} |
+    {:status, container_instance_status}
   ]
 
   @doc """
   Returns a list of container instances in a specified cluster.
+  You can filter the results of a `list_container_instances` operation with
+  cluster query language statements inside the filter parameter.
+
+  For more information, see [Cluster Query Language](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-query-language.html)
+  in the Amazon EC2 Container Service Developer Guide.
   """
   @spec list_container_instances() :: ExAws.Operation.JSON.t
   @spec list_container_instances(opts :: list_container_instances_opts) :: ExAws.Operation.JSON.t
@@ -401,12 +483,21 @@ defmodule ExAws.ECS do
     request(:list_task_definition_families, data)
   end
 
+
+  @type sort_order :: [
+    :ASC |
+    :DESC
+  ]
+  @type task_definition_status :: [
+    :ACTIVE |
+    :INACTIVE
+  ]
   @type list_task_definitions_opts :: [
     {:family_prefix, binary} |
     {:max_results, 1..100} |
     {:next_token, binary} |
-    {:sort, binary} |
-    {:status, binary}
+    {:sort, sort_order} |
+    {:status, task_definition_status}
   ]
   @doc """
   Returns a list of task definitions that are registered to your account.
@@ -423,10 +514,15 @@ defmodule ExAws.ECS do
     request(:list_task_definitions, data)
   end
 
+  @type desired_task_status :: [
+    :RUNNING |
+    :PENDING |
+    :STOPPED
+  ]
   @type list_tasks_opts :: [
     {:cluster, binary} |
     {:container_instance, binary} |
-    {:desired_status, binary} |
+    {:desired_status, desired_task_status} |
     {:family, binary} |
     {:max_results, 1..100} |
     {:next_token, binary} |
@@ -451,6 +547,33 @@ defmodule ExAws.ECS do
     |> normalize_opts
     request(:list_tasks, data)
   end
+
+  @doc """
+  Create or update an attribute on an Amazon ECS resource in the `default` cluster.
+  See `put_attributes/2` for more info.
+  """
+  @spec put_attributes(attributes :: list(attribute)) :: ExAws.Operation.JSON.t
+  def put_attributes(attributes) do
+    data = attributes
+    |> normalize_opts
+    request(:put_attributes, %{"attributes" => data})
+  end
+
+  @doc """
+  Create or update an attribute on an Amazon ECS resource in the specified cluster.
+  If the attribute does not exist, it is created.
+  If the attribute exists, its value is replaced with the specified value.
+  To delete an attribute, use `delete_attributes/2`.
+
+  For more information, see [Attributes](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html#attributes) in the Amazon EC2 Container Service Developer Guide.
+  """
+  @spec put_attributes(attributes :: list(attribute), cluster :: binary) :: ExAws.Operation.JSON.t
+  def put_attributes(attributes, cluster) do
+    data = attributes
+    |> normalize_opts
+    request(:put_attributes, %{"attributes" => data, "cluster" => cluster})
+  end
+
 
   @doc """
   Registers an EC2 instance into the specified cluster.
@@ -575,6 +698,7 @@ defmodule ExAws.ECS do
 
   @type register_task_definition_opts :: [
     {:network_mode, network_modes} |
+    {:placement_constraints, list(placement_constraint)} |
     {:task_role_arn, binary} |
     {:volumes, list(volume)}
   ]
@@ -595,6 +719,9 @@ defmodule ExAws.ECS do
   For more information, see [IAM Roles for
   Tasks](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html)
   in the *Amazon EC2 Container Service Developer Guide*.
+
+  You can specify a Docker networking mode for the containers in your task definition with the `:network_mode` parameter.
+  The available network modes correspond to those described in [Network settings](https://docs.docker.com/engine/reference/run/#/network-settings) in the Docker run reference
   """
   @spec register_task_definition(container_definitions :: list(container_definition), family :: binary, opts :: register_task_definition_opts) :: ExAws.Operation.JSON.t
   def register_task_definition(container_definitions, family, opts \\ []) do
@@ -624,17 +751,19 @@ defmodule ExAws.ECS do
     {:cluster, binary} |
     {:count, 1..10} |
     {:overrides, task_override} |
+    {:placement_constraints, list(placement_constraint)} |
+    {:placement_strategy, list(placement_strategy)} |
     {:started_by, binary}
   ]
   @doc """
-  Start a task using random placement and the default Amazon ECS scheduler.
+  Starts a new task using the specified task definition.
 
-  To use your own scheduler or place a task on a specific container instance,
-  use `start_task/3` instead.
+  You can allow Amazon ECS to place tasks for you, or you can customize how Amazon ECS places tasks using placement constraints and placement strategies.
+  For more information, see [Scheduling Tasks](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/scheduling_tasks.html) in the Amazon EC2 Container Service Developer Guide.
 
-  <important> The `:count` parameter is limited to 10 tasks per call.
+  Alternatively, you can use `start_task/3` to use your own scheduler or place tasks manually on specific container instances.
 
-  </important>
+  _The `:count` parameter is limited to 10 tasks per call._
   """
   @spec run_task(task_definition :: binary) :: ExAws.Operation.JSON.t
   @spec run_task(task_definition :: binary, opts :: run_task_opts) :: ExAws.Operation.JSON.t
@@ -648,6 +777,7 @@ defmodule ExAws.ECS do
   # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_StartTask.html
   @type start_task_opts :: [
     {:cluster, binary} |
+    {:group, binary} |
     {:overrides, task_override} |
     {:started_by, binary}
   ]
@@ -656,13 +786,11 @@ defmodule ExAws.ECS do
   Starts a new task from the specified task definition on the specified
   container instance or instances.
 
-  To use the default Amazon ECS scheduler to
-  place your task, use `run_task/2` instead.
+  Alternatively, you can use `run_task/2` to place tasks for you. For more information,
+  see [Scheduling Tasks](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/scheduling_tasks.html) in the Amazon EC2 Container Service Developer Guide.
 
-  <important> The list of container instances to start tasks on is limited to
-  10.
-
-  </important>
+  _The list of container instances to start tasks on is limited to
+  10._
   """
   @spec start_task(task_definition :: binary, container_instances :: nonempty_list(binary)) :: ExAws.Operation.JSON.t
   @spec start_task(task_definition :: binary, container_instances :: nonempty_list(binary), opts :: start_task_opts) :: ExAws.Operation.JSON.t
@@ -755,6 +883,53 @@ defmodule ExAws.ECS do
     request(:update_container_agent, data)
   end
 
+  @doc """
+  Modifies the status of an Amazon ECS container instance in the `default` cluster.
+
+  See `update_container_instances_state/3` for more info.
+  """
+  @spec update_container_instances_state(container_instances :: list(binary), status :: container_instance_status) :: ExAws.Operation.JSON.t
+  def update_container_instances_state(container_instances, status) do
+    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => status})
+  end
+  @doc """
+  Modifies the status of an Amazon ECS container instance.
+
+  You can change the status of a container instance to `DRAINING` to manually remove an instance from a cluster,
+  for example to perform system updates, update the Docker daemon, or scale down the cluster size.
+
+  When you set a container instance to `DRAINING`, Amazon ECS prevents new tasks from being scheduled for
+  placement on the container instance and replacement service tasks are started on other container instances
+  in the cluster if the resources are available. Service tasks on the container instance that are in the
+  `PENDING` state are stopped immediately.
+
+  Service tasks on the container instance that are in the `RUNNING` state are stopped and replaced according the
+  service's deployment configuration parameters, `:minimum_healthy_percent` and `:maximum_percent`.
+  Note that you can change the deployment configuration of your service using `update_service/2`.
+
+  * If `:minimum_healthy_percent` is below 100%, the scheduler can ignore `:desired_count` temporarily during task replacement.
+  For example, `:desired_count` is four tasks, a minimum of 50% allows the scheduler to stop two existing tasks before
+  starting two new tasks. If the minimum is 100%, the service scheduler can't remove existing tasks until the
+  replacement tasks are considered healthy. Tasks for services that do not use a load balancer are considered
+  healthy if they are in the `RUNNING` state. Tasks for services that use a load balancer are considered healthy
+  if they are in the `RUNNING` state and the container instance they are hosted on is reported as healthy by the load balancer.
+
+  * The `:maximum_percent` parameter represents an upper limit on the number of running tasks during task replacement,
+  which enables you to define the replacement batch size. For example, if `:desired_count` of four tasks,
+  a maximum of 200% starts four new tasks before stopping the four tasks to be drained
+  (provided that the cluster resources required to do this are available). If the maximum is 100%,
+  then replacement tasks can't start until the draining tasks have stopped.
+  Any `PENDING` or `RUNNING` tasks that do not belong to a service are not affected; you must wait for them to finish or stop them manually.
+
+  A container instance has completed draining when it has no more `RUNNING` tasks. You can verify this using `list_tasks/1`.
+
+  When you set a container instance to `ACTIVE`, the Amazon ECS scheduler can begin scheduling tasks on the instance again.
+  """
+  @spec update_container_instances_state(container_instances :: list(binary), status :: container_instance_status, cluster :: binary) :: ExAws.Operation.JSON.t
+  def update_container_instances_state(container_instances, status, cluster) do
+    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => status, "cluster" => cluster})
+  end
+
   @type deployment_conf :: [
     {:maximum_percent, non_neg_integer} |
     {:minimum_healthy_percent, non_neg_integer}
@@ -810,17 +985,29 @@ defmodule ExAws.ECS do
   When the service scheduler launches new tasks, it attempts to balance them
   across the Availability Zones in your cluster with the following logic:
 
-  * Determine which of the container instances in your cluster can
-  support your service's task definition (for example, they have the required
-  CPU, memory, ports, and container instance attributes).
-  * Sort the valid container instances by the fewest number of
-  running tasks for this service in the same Availability Zone as the
-  instance. For example, if zone A has one running service task and zones B
-  and C each have zero, valid container instances in either zone B or C are
-  considered optimal for placement.
-  * Place the new service task on a valid container instance in an
-  optimal Availability Zone (based on the previous steps), favoring container
-  instances with the fewest number of running tasks for this service.
+  * Determine which of the container instances in your cluster can support your
+  service's task definition (for example, they have the required CPU, memory,
+  ports, and container instance attributes).
+  * By default, the service scheduler attempts to balance tasks across
+  Availability Zones in this manner (although you can choose a different placement strategy):
+    * Sort the valid container instances by the fewest number of running tasks for this service
+    in the same Availability Zone as the instance. For example, if zone A has one running service
+    task and zones B and C each have zero, valid container instances in either zone B or C are
+    considered optimal for placement.
+    * Place the new service task on a valid container instance in an optimal Availability Zone
+    (based on the previous steps), favoring container instances with the fewest
+    number of running tasks for this service.
+
+  When the service scheduler stops running tasks, it attempts to maintain balance across the
+  Availability Zones in your cluster using the following logic:
+
+  * Sort the container instances by the largest number of running tasks for this service in
+  the same Availability Zone as the instance. For example, if zone A has one running service
+  task and zones B and C each have two, container instances in either zone B or C are
+  considered optimal for termination.
+  * Stop the task on a container instance in an optimal Availability Zone
+  (based on the previous steps), favoring container instances with the largest
+  number of running tasks for this service.
   """
   @spec update_service(service :: binary, opts :: update_service_opts) :: ExAws.Operation.JSON.t
   def update_service(service, opts \\ []) do
