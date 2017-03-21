@@ -56,7 +56,7 @@ defmodule ExAws.S3 do
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
 
-  @type acl_opts :: [{:acl, canned_acl} | grant]
+  @type acl_opts :: {:acl, canned_acl} | grant
   @type grant :: {:grant_read, grantee}
     | {:grant_read_acp, grantee}
     | {:grant_write_acp, grantee}
@@ -286,7 +286,7 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket bucket access control"
-  @spec put_bucket_acl(bucket :: binary, opts :: acl_opts) :: ExAws.Operation.S3.t
+  @spec put_bucket_acl(bucket :: binary, opts :: [acl_opts]) :: ExAws.Operation.S3.t
   def put_bucket_acl(bucket, grants) do
     request(:put, bucket, "/", headers: format_acl_headers(grants))
   end
@@ -646,7 +646,7 @@ defmodule ExAws.S3 do
   end
 
   @doc "Create or update an object's access control FIXME"
-  @spec put_object_acl(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Operation.S3.t
+  @spec put_object_acl(bucket :: binary, object :: binary, acl :: [acl_opts]) :: ExAws.Operation.S3.t
   def put_object_acl(bucket, object, acl) do
     headers = acl |> Map.new |> format_acl_headers
     request(:put, bucket, object, headers: headers, resource: "acl")
