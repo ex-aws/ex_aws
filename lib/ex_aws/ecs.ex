@@ -73,9 +73,9 @@ defmodule ExAws.ECS do
     {:client_token, binary} |
     {:cluster, binary} |
     {:deployment_configuration, deployment_conf} |
-    {:load_balancers, list(load_balancer)} |
-    {:placement_constraints, list(placement_constraint)} |
-    {:placement_strategy, list(placement_strategy)} |
+    {:load_balancers, [load_balancer]} |
+    {:placement_constraints, [placement_constraint]} |
+    {:placement_strategy, [placement_strategy]} |
     {:role, binary}
   ]
 
@@ -142,7 +142,7 @@ defmodule ExAws.ECS do
   @doc """
   Deletes one or more custom attributes from an Amazon ECS resource in the `default` cluster.
   """
-  @spec delete_attributes(attributes :: list(attribute)) :: ExAws.Operation.JSON.t
+  @spec delete_attributes(attributes :: [attribute]) :: ExAws.Operation.JSON.t
   def delete_attributes(attributes) do
     attr_data = attributes
     |> Enum.map(&normalize_opts/1)
@@ -152,7 +152,7 @@ defmodule ExAws.ECS do
   @doc """
   Deletes one or more custom attributes from an Amazon ECS resource.
   """
-  @spec delete_attributes(attributes :: list(attribute), cluster :: binary) :: ExAws.Operation.JSON.t
+  @spec delete_attributes(attributes :: [attribute], cluster :: binary) :: ExAws.Operation.JSON.t
   def delete_attributes(attributes, cluster) do
     attr_data = attributes
     |> Enum.map(&normalize_opts/1)
@@ -277,7 +277,7 @@ defmodule ExAws.ECS do
   @doc """
   Describes one or more of your clusters.
   """
-  @spec describe_clusters(clusters :: list(binary)) :: ExAws.Operation.JSON.t
+  @spec describe_clusters(clusters :: [binary]) :: ExAws.Operation.JSON.t
   def describe_clusters(clusters) do
     request(:describe_clusters , %{"clusters" => clusters})
   end
@@ -287,7 +287,7 @@ defmodule ExAws.ECS do
 
   See also `describe_container_instances/2`.
   """
-  @spec describe_container_instances(container_instances :: list(binary)) :: ExAws.Operation.JSON.t
+  @spec describe_container_instances(container_instances :: [binary]) :: ExAws.Operation.JSON.t
   def describe_container_instances(container_instances) do
     request(:describe_container_instances, %{"containerInstances" => container_instances})
   end
@@ -297,7 +297,7 @@ defmodule ExAws.ECS do
   Returns metadata about registered and remaining resources on each container
   instance requested.
   """
-  @spec describe_container_instances(container_instances :: list(binary), cluster :: binary) :: ExAws.Operation.JSON.t
+  @spec describe_container_instances(container_instances :: [binary], cluster :: binary) :: ExAws.Operation.JSON.t
   def describe_container_instances(container_instances, cluster) do
     request(:describe_container_instances, %{"containerInstances" => container_instances, "cluster" => cluster})
   end
@@ -307,14 +307,14 @@ defmodule ExAws.ECS do
 
   See also `describe_services/2`
   """
-  @spec describe_services(services :: list(binary)) :: ExAws.Operation.JSON.t
+  @spec describe_services(services :: [binary]) :: ExAws.Operation.JSON.t
   def describe_services(services) do
     request(:describe_services, %{"services" => services})
   end
   @doc """
   Describes the specified services running in a cluster.
   """
-  @spec describe_services(services :: list(binary), cluster :: binary) :: ExAws.Operation.JSON.t
+  @spec describe_services(services :: [binary], cluster :: binary) :: ExAws.Operation.JSON.t
   def describe_services(services, cluster) do
     request(:describe_services, %{"services" => services, "cluster" => cluster})
   end
@@ -338,7 +338,7 @@ defmodule ExAws.ECS do
 
   See also `describe_tasks/2`
   """
-  @spec describe_tasks(tasks :: list(binary)) :: ExAws.Operation.JSON.t
+  @spec describe_tasks(tasks :: [binary]) :: ExAws.Operation.JSON.t
   def describe_tasks(tasks) do
     request(:describe_tasks, %{"tasks" => tasks})
   end
@@ -347,7 +347,7 @@ defmodule ExAws.ECS do
   Describes a specified task or tasks in a cluster.
   """
 
-  @spec describe_tasks(tasks :: list(binary), cluster :: binary) :: ExAws.Operation.JSON.t
+  @spec describe_tasks(tasks :: [binary], cluster :: binary) :: ExAws.Operation.JSON.t
   def describe_tasks(tasks, cluster) do
     request(:describe_tasks, %{"tasks" => tasks, "cluster" => cluster})
   end
@@ -553,7 +553,7 @@ defmodule ExAws.ECS do
   Create or update an attribute on an Amazon ECS resource in the `default` cluster.
   See `put_attributes/2` for more info.
   """
-  @spec put_attributes(attributes :: list(attribute)) :: ExAws.Operation.JSON.t
+  @spec put_attributes(attributes :: [attribute]) :: ExAws.Operation.JSON.t
   def put_attributes(attributes) do
     data = attributes
     |> Enum.map(&normalize_opts/1)
@@ -568,7 +568,7 @@ defmodule ExAws.ECS do
 
   For more information, see [Attributes](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html#attributes) in the Amazon EC2 Container Service Developer Guide.
   """
-  @spec put_attributes(attributes :: list(attribute), cluster :: binary) :: ExAws.Operation.JSON.t
+  @spec put_attributes(attributes :: [attribute], cluster :: binary) :: ExAws.Operation.JSON.t
   def put_attributes(attributes, cluster) do
     data = attributes
     |> Enum.map(&normalize_opts/1)
@@ -652,31 +652,31 @@ defmodule ExAws.ECS do
 
   # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html
   @type container_definition :: [
-    {:command, list(binary)} |
+    {:command, [binary]} |
     {:cpu, non_neg_integer} |
     {:disable_networking, boolean} |
-    {:dns_search_domains, list(binary)} |
-    {:dns_servers, list(binary)} |
+    {:dns_search_domains, [binary]} |
+    {:dns_servers, [binary]} |
     {:docker_labels, map} |
-    {:docker_security_options, list(binary)} |
-    {:entry_point, list(binary)} |
-    {:environment, list(key_value_pair)} |
+    {:docker_security_options, [binary]} |
+    {:entry_point, [binary]} |
+    {:environment, [key_value_pair]} |
     {:essential, boolean} |
-    {:extra_hosts, list(host_entry)} |
+    {:extra_hosts, [host_entry]} |
     {:hostname, binary} |
     {:image, binary} |
-    {:links, list(binary)} |
+    {:links, [binary]} |
     {:log_configuration, log_configuration} |
     {:memory, non_neg_integer} |
     {:memory_reservation, non_neg_integer} |
-    {:mount_points, list(mount_point)} |
+    {:mount_points, [mount_point]} |
     {:name, binary} |
-    {:port_mappings, list(port_mapping)} |
+    {:port_mappings, [port_mapping]} |
     {:privileged, boolean} |
     {:readonly_root_filesystem, boolean} |
-    {:ulimits, list(ulimit)} |
+    {:ulimits, [ulimit]} |
     {:user, binary} |
-    {:volumes_from, list(volume_from)} |
+    {:volumes_from, [volume_from]} |
     {:working_directory, binary}
   ]
 
@@ -699,9 +699,9 @@ defmodule ExAws.ECS do
 
   @type register_task_definition_opts :: [
     {:network_mode, network_modes} |
-    {:placement_constraints, list(placement_constraint)} |
+    {:placement_constraints, [placement_constraint]} |
     {:task_role_arn, binary} |
-    {:volumes, list(volume)}
+    {:volumes, [volume]}
   ]
   @doc """
   Registers a new task definition from the supplied `:family` and
@@ -724,7 +724,7 @@ defmodule ExAws.ECS do
   You can specify a Docker networking mode for the containers in your task definition with the `:network_mode` parameter.
   The available network modes correspond to those described in [Network settings](https://docs.docker.com/engine/reference/run/#/network-settings) in the Docker run reference
   """
-  @spec register_task_definition(container_definitions :: list(container_definition), family :: binary, opts :: register_task_definition_opts) :: ExAws.Operation.JSON.t
+  @spec register_task_definition(container_definitions :: [container_definition], family :: binary, opts :: register_task_definition_opts) :: ExAws.Operation.JSON.t
   def register_task_definition(container_definitions, family, opts \\ []) do
     required = %{
       "containerDefinitions" => pascalize_keys(container_definitions),
@@ -738,13 +738,13 @@ defmodule ExAws.ECS do
 
   # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerOverride.html
   @type container_override :: [
-    {:command, list(binary)} |
-    {:environment, list(key_value_pair)} |
+    {:command, [binary]} |
+    {:environment, [key_value_pair]} |
     {:name, binary}
   ]
   #http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_TaskOverride.html
   @type task_override :: [
-    {:container_overrides, list(container_override)} |
+    {:container_overrides, [container_override]} |
     {:task_role_arn, binary}
   ]
   # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RunTask.html
@@ -752,8 +752,8 @@ defmodule ExAws.ECS do
     {:cluster, binary} |
     {:count, 1..10} |
     {:overrides, task_override} |
-    {:placement_constraints, list(placement_constraint)} |
-    {:placement_strategy, list(placement_strategy)} |
+    {:placement_constraints, [placement_constraint]} |
+    {:placement_strategy, [placement_strategy]} |
     {:started_by, binary}
   ]
   @doc """
@@ -889,7 +889,7 @@ defmodule ExAws.ECS do
 
   See `update_container_instances_state/3` for more info.
   """
-  @spec update_container_instances_state(container_instances :: list(binary), status :: container_instance_status) :: ExAws.Operation.JSON.t
+  @spec update_container_instances_state(container_instances :: [binary], status :: container_instance_status) :: ExAws.Operation.JSON.t
   def update_container_instances_state(container_instances, status) do
     request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => to_string(status)})
   end
@@ -926,7 +926,7 @@ defmodule ExAws.ECS do
 
   When you set a container instance to `ACTIVE`, the Amazon ECS scheduler can begin scheduling tasks on the instance again.
   """
-  @spec update_container_instances_state(container_instances :: list(binary), status :: container_instance_status, cluster :: binary) :: ExAws.Operation.JSON.t
+  @spec update_container_instances_state(container_instances :: [binary], status :: container_instance_status, cluster :: binary) :: ExAws.Operation.JSON.t
   def update_container_instances_state(container_instances, status, cluster) do
     request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => to_string(status), "cluster" => cluster})
   end
