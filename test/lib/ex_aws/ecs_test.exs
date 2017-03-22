@@ -38,7 +38,7 @@ defmodule ExAws.ECSTest do
       "serviceName" => "sname",
       "taskDefinition" => "task_def"
     }
-    opts = %{
+    opts = [
       deployment_configuration: %{maximum_percent: 150, minimum_healthy_percent: 50},
       load_balancers: [
         %{
@@ -60,7 +60,7 @@ defmodule ExAws.ECSTest do
           type: :binpack
         }
       ]
-    }
+    ]
     assert expected_data == ECS.create_service("sname", "task_def", 4, opts).data
   end
   test "#delete_attributes" do
@@ -100,10 +100,10 @@ defmodule ExAws.ECSTest do
       "containerInstance" => "arn",
       "force" => true
     }
-    opts = %{
+    opts = [
       cluster: "my_cluster",
       force: true
-    }
+    ]
     assert expected_data == ECS.deregister_container_instance("arn", opts).data
   end
   test "#deregister_task_definition" do
@@ -151,10 +151,10 @@ defmodule ExAws.ECSTest do
       "attributeValue" => "b",
       "targetType" => "container-instance"
     }
-    opts = %{
+    opts = [
       attribute_name: "a",
       attribute_value: "b"
-    }
+    ]
     assert expected_data == ECS.list_attributes(:"container-instance", opts).data
   end
   test "#list_clusters" do
@@ -162,10 +162,10 @@ defmodule ExAws.ECSTest do
       "maxResults" => 100,
       "nextToken" => "token"
     }
-    opts = %{
+    opts = [
       max_results: 100,
       next_token: "token"
-    }
+    ]
     assert expected_data == ECS.list_clusters(opts).data
   end
   test "#list_container_instances" do
@@ -173,10 +173,10 @@ defmodule ExAws.ECSTest do
       "maxResults" => 1,
       "status" => "DRAINING"
     }
-    opts = %{
+    opts = [
       max_results: 1,
       status: :DRAINING
-    }
+    ]
     assert expected_data == ECS.list_container_instances(opts).data
   end
   test "#list_services" do
@@ -187,9 +187,9 @@ defmodule ExAws.ECSTest do
     expected_data = %{
       "status" => "INACTIVE"
     }
-    opts = %{
+    opts = [
       status: :INACTIVE
-    }
+    ]
     assert expected_data == ECS.list_task_definitions(opts).data
   end
   test "#list_task_definitions" do
@@ -203,7 +203,7 @@ defmodule ExAws.ECSTest do
      "serviceName" => "service_1",
      "startedBy" => "me"
     }
-    opts = %{
+    opts = [
       cluster: "my_cluster",
       container_instance: "i-123",
       desired_status: :ACTIVE,
@@ -212,16 +212,16 @@ defmodule ExAws.ECSTest do
       next_token: "next",
       service_name: "service_1",
       started_by: "me"
-    }
+    ]
     assert expected_data == ECS.list_tasks(opts).data
   end
   test "#list_tasks" do
     expected_data = %{
       "desiredStatus" => "STOPPED",
     }
-    opts = %{
+    opts = [
       desired_status: :STOPPED
-    }
+    ]
     assert expected_data == ECS.list_tasks(opts).data
   end
   test "#put_attributes" do
@@ -334,7 +334,7 @@ defmodule ExAws.ECSTest do
       %{expression: "complex query", type: :memberOf},
       %{expression: "simple query", type: :distinctInstance}
     ]
-    opts = %{volumes: volumes, placement_constraints: placement_constraints}
+    opts = [volumes: volumes, placement_constraints: placement_constraints]
 
     assert expected_data == ECS.register_task_definition(container_definitions, "fooTask", opts).data
   end
@@ -368,7 +368,7 @@ defmodule ExAws.ECSTest do
         }
       ]
     }
-    opts = %{
+    opts = [
       overrides: %{
         container_overrides: [
           %{
@@ -392,7 +392,7 @@ defmodule ExAws.ECSTest do
           type: :random
         }
       ]
-    }
+    ]
     assert expected_data == ECS.run_task("task_def", opts).data
   end
   test "#start_task" do
@@ -408,10 +408,10 @@ defmodule ExAws.ECSTest do
       "reason" => "terminator",
       "task" => "my_task"
     }
-    opts = %{
+    opts = [
       cluster: "my_cluster",
       reason: "terminator"
-    }
+    ]
     assert expected_data == ECS.stop_task("my_task", opts).data
   end
   test "#update_container_agent" do
