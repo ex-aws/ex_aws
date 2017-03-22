@@ -1,5 +1,4 @@
 defmodule ExAws.ECS do
-  require Logger
 
   @namespace "AmazonEC2ContainerServiceV20141113"
 
@@ -145,7 +144,8 @@ defmodule ExAws.ECS do
   """
   @spec delete_attributes(attributes :: list(attribute)) :: ExAws.Operation.JSON.t
   def delete_attributes(attributes) do
-    attr_data = attributes |> normalize_opts
+    attr_data = attributes
+    |> Enum.map(&normalize_opts/1)
     request(:delete_attributes, %{"attributes" => attr_data})
   end
 
@@ -154,7 +154,8 @@ defmodule ExAws.ECS do
   """
   @spec delete_attributes(attributes :: list(attribute), cluster :: binary) :: ExAws.Operation.JSON.t
   def delete_attributes(attributes, cluster) do
-    attr_data = attributes |> normalize_opts
+    attr_data = attributes
+    |> Enum.map(&normalize_opts/1)
     request(:delete_attributes, %{"attributes" => attr_data, "cluster" => cluster})
   end
 
@@ -392,7 +393,7 @@ defmodule ExAws.ECS do
   def list_attributes(target_type, opts \\ []) do
     data = opts
     |> normalize_opts
-    |> Map.merge(%{"targetType" => target_type})
+    |> Map.merge(%{"targetType" => to_string(target_type)})
     request(:list_attributes, data)
   end
 
@@ -555,7 +556,7 @@ defmodule ExAws.ECS do
   @spec put_attributes(attributes :: list(attribute)) :: ExAws.Operation.JSON.t
   def put_attributes(attributes) do
     data = attributes
-    |> normalize_opts
+    |> Enum.map(&normalize_opts/1)
     request(:put_attributes, %{"attributes" => data})
   end
 
@@ -570,7 +571,7 @@ defmodule ExAws.ECS do
   @spec put_attributes(attributes :: list(attribute), cluster :: binary) :: ExAws.Operation.JSON.t
   def put_attributes(attributes, cluster) do
     data = attributes
-    |> normalize_opts
+    |> Enum.map(&normalize_opts/1)
     request(:put_attributes, %{"attributes" => data, "cluster" => cluster})
   end
 
@@ -890,7 +891,7 @@ defmodule ExAws.ECS do
   """
   @spec update_container_instances_state(container_instances :: list(binary), status :: container_instance_status) :: ExAws.Operation.JSON.t
   def update_container_instances_state(container_instances, status) do
-    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => status})
+    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => to_string(status)})
   end
   @doc """
   Modifies the status of an Amazon ECS container instance.
@@ -927,7 +928,7 @@ defmodule ExAws.ECS do
   """
   @spec update_container_instances_state(container_instances :: list(binary), status :: container_instance_status, cluster :: binary) :: ExAws.Operation.JSON.t
   def update_container_instances_state(container_instances, status, cluster) do
-    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => status, "cluster" => cluster})
+    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => to_string(status), "cluster" => cluster})
   end
 
   @type deployment_conf :: [
@@ -1024,7 +1025,7 @@ defmodule ExAws.ECS do
 
   defp pascalize_keys(opts) when is_map(opts) do
     opts
-    |> Enum.map(&pascalize_single_key/1)
+    |> Enum.map(&pascalize_keys/1)
     |> Enum.into(%{})
   end
   defp pascalize_keys([]), do: []
@@ -1033,17 +1034,17 @@ defmodule ExAws.ECS do
   end
   defp pascalize_keys(bool) when is_boolean(bool), do: bool
   defp pascalize_keys(atom) when is_atom(atom), do: Atom.to_string(atom)
-  defp pascalize_keys(other), do: other
 
-  defp pascalize_single_key({k, v}) when is_binary(k) do
+  defp pascalize_keys({k, v}) when is_binary(k) do
     value = pascalize_keys(v)
     {k, value}
   end
-  defp pascalize_single_key({k, v}) when is_atom(k) do
+  defp pascalize_keys({k, v}) when is_atom(k) do
     key = k |> Atom.to_string |> pascalize_word
     value = pascalize_keys(v)
     {key, value}
   end
+  defp pascalize_keys(other), do: other
 
   # Many thanks to https://github.com/nurugger07/inflex
   # https://github.com/nurugger07/inflex/blob/v1.4.1/lib/inflex/camelize.ex

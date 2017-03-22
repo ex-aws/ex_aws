@@ -10,4 +10,8 @@ defmodule ExAws.ECSIntegrationTest do
     assert {:ok, %{"clusterArns" => _ }} = ExAws.ECS.list_clusters |> ExAws.request
   end
 
+  test "#list_task_definitions" do
+    assert {:ok, %{"taskDefinitionArns" => _ }} = ExAws.ECS.list_task_definitions(status: :INACTIVE) |> ExAws.request
+  end
+
 end
