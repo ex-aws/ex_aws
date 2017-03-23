@@ -19,18 +19,23 @@ Running the test suite for ex_aws requires a few things:
 {
   "Version": "2012-10-17",
   "Statement": [
-      {
-          "Effect": "Allow",
-          "Action": [
-              "kinesis:ListStreams",
-              "lambda:ListFunctions",
-              "s3:ListAllMyBuckets",
-              "sns:ListTopics",
-              "sqs:ListQueues",
-              "ec2:DescribeInstances"
-          ],
-          "Resource": "*"
-      }
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:ListStreams",
+        "route53:ListHostedZones",
+        "kinesis:ListStreams",
+        "lambda:ListFunctions",
+        "s3:ListAllMyBuckets",
+        "sns:ListTopics",
+        "sqs:ListQueues",
+        "ec2:DescribeInstances",
+        "firehose:ListDeliveryStreams",
+        "ses:VerifyEmailIdentity",
+        "elastictranscoder:ListPipelines"
+      ],
+      "Resource": "*"
+    }
   ]
 }
 ```

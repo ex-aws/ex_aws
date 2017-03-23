@@ -7,6 +7,7 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.Dynamo`
 - `ExAws.DynamoStreams`
 - `ExAws.EC2`
+- `ExAws.ElasticTranscoder`
 - `ExAws.Firehose`
 - `ExAws.Kinesis`
 - `ExAws.KMS`
