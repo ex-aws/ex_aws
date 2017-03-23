@@ -51,7 +51,7 @@ defmodule ExAws.ECSTest do
       placement_constraints: [
         %{
           expression: "query",
-          type: :memberOf
+          type: :member_of
         }
       ],
       placement_strategy: [
@@ -69,7 +69,7 @@ defmodule ExAws.ECSTest do
         %{
           "name" => "a",
           "targetId" => "b",
-          "targetType" => "c",
+          "targetType" => "container-instance",
           "value" => "d"
         }
       ],
@@ -78,7 +78,7 @@ defmodule ExAws.ECSTest do
     attribute = %{
       name: "a",
       target_id: "b",
-      target_type: "c",
+      target_type: :container_instance,
       value: "d"
     }
     assert expected_data == ECS.delete_attributes([attribute], "my_cluster").data
@@ -155,7 +155,7 @@ defmodule ExAws.ECSTest do
       attribute_name: "a",
       attribute_value: "b"
     ]
-    assert expected_data == ECS.list_attributes(:"container-instance", opts).data
+    assert expected_data == ECS.list_attributes(:container_instance, opts).data
   end
   test "#list_clusters" do
     expected_data = %{
@@ -175,7 +175,7 @@ defmodule ExAws.ECSTest do
     }
     opts = [
       max_results: 1,
-      status: :DRAINING
+      status: :draining
     ]
     assert expected_data == ECS.list_container_instances(opts).data
   end
@@ -188,25 +188,42 @@ defmodule ExAws.ECSTest do
       "status" => "INACTIVE"
     }
     opts = [
-      status: :INACTIVE
+      status: :inactive
     ]
-    assert expected_data == ECS.list_task_definitions(opts).data
+    assert expected_data == ECS.list_task_definition_families(opts).data
   end
   test "#list_task_definitions" do
     expected_data = %{
-     "cluster" => "my_cluster",
-     "containerInstance" => "i-123",
-     "desiredStatus" => "ACTIVE",
-     "family" => "taskFamily",
-     "maxResults" => 4,
-     "nextToken" => "next",
-     "serviceName" => "service_1",
-     "startedBy" => "me"
+       "familyPrefix" => "my_family",
+       "maxResults" => 3,
+       "nextToken" => "next",
+       "sort" => "DESC",
+       "status" => "ACTIVE"
+    }
+    opts = [
+      family_prefix: "my_family",
+      max_results: 3,
+      next_token: "next",
+      sort: :desc,
+      status: :active
+    ]
+    assert expected_data == ECS.list_task_definitions(opts).data
+  end
+  test "#list_tasks" do
+    expected_data = %{
+      "cluster" => "my_cluster",
+      "containerInstance" => "i-123",
+      "desiredStatus" => "ACTIVE",
+      "family" => "taskFamily",
+      "maxResults" => 4,
+      "nextToken" => "next",
+      "serviceName" => "service_1",
+      "startedBy" => "me"
     }
     opts = [
       cluster: "my_cluster",
       container_instance: "i-123",
-      desired_status: :ACTIVE,
+      desired_status: :active,
       family: "taskFamily",
       max_results: 4,
       next_token: "next",
@@ -215,25 +232,18 @@ defmodule ExAws.ECSTest do
     ]
     assert expected_data == ECS.list_tasks(opts).data
   end
-  test "#list_tasks" do
-    expected_data = %{
-      "desiredStatus" => "STOPPED",
-    }
-    opts = [
-      desired_status: :STOPPED
-    ]
-    assert expected_data == ECS.list_tasks(opts).data
-  end
   test "#put_attributes" do
     expected_data = %{
       "attributes" => [
         %{
            "name" => "attr-name",
+           "targetType" => "container-instance"
         }
       ]
     }
     attribute = %{
-      name: "attr-name"
+      name: "attr-name",
+      target_type: :container_instance
     }
     assert expected_data == ECS.put_attributes([attribute]).data
   end
@@ -304,7 +314,7 @@ defmodule ExAws.ECSTest do
           %{name: "DATABASE", value: "postgres://hello:world@bigdb.foo.com" }
         ],
         log_configuration: %{
-          log_driver: :"json-file",
+          log_driver: :json_file,
           options: %{"fishy-location" => "/foo.json"},
         },
         mount_points: [
@@ -331,8 +341,8 @@ defmodule ExAws.ECSTest do
       }
     ]
     placement_constraints = [
-      %{expression: "complex query", type: :memberOf},
-      %{expression: "simple query", type: :distinctInstance}
+      %{expression: "complex query", type: :member_of},
+      %{expression: "simple query", type: :distinct_instance}
     ]
     opts = [volumes: volumes, placement_constraints: placement_constraints]
 
@@ -384,7 +394,7 @@ defmodule ExAws.ECSTest do
       placement_constraints: [
         %{
           expression: "foo",
-          type: :distinctInstance
+          type: :distinct_instance
         }
       ],
       placement_strategy: [
@@ -426,7 +436,7 @@ defmodule ExAws.ECSTest do
       "containerInstances" => ["1", "2"],
       "status" => "DRAINING"
     }
-    assert expected_data == ECS.update_container_instances_state(["1","2"], :DRAINING).data
+    assert expected_data == ECS.update_container_instances_state(["1","2"], :draining).data
   end
   test "#update_service" do
     expected_data = %{

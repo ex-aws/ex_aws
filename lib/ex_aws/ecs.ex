@@ -42,8 +42,8 @@ defmodule ExAws.ECS do
 
   # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PlacementConstraint.html
   @type placement_constraint_type :: [
-    :distinctInstance |
-    :memberOf
+    :distinct_instance |
+    :member_of
   ]
   @type placement_constraint :: [
     {:expression, binary} |
@@ -123,6 +123,7 @@ defmodule ExAws.ECS do
   @spec create_service(service_name :: binary, task_definition :: binary, desired_count :: non_neg_integer, opts :: create_service_opts) :: ExAws.Operation.JSON.t
   def create_service(service_name, task_definition, desired_count, opts \\ []) do
     data = opts
+    |> transform_list(:placement_constraints, :type, &pascalize_key/1)
     |> normalize_opts
     |> Map.merge(%{"serviceName" => service_name, "taskDefinition" => task_definition, "desiredCount" => desired_count})
 
@@ -130,7 +131,7 @@ defmodule ExAws.ECS do
   end
 
   @type attribute_target_type :: [
-    :"container-instance"
+    :container_instance
   ]
   @type attribute :: [
     {:name, binary} |
@@ -145,6 +146,7 @@ defmodule ExAws.ECS do
   @spec delete_attributes(attributes :: [attribute]) :: ExAws.Operation.JSON.t
   def delete_attributes(attributes) do
     attr_data = attributes
+    |> transform_list(:target_type, &replace_underscore_with_dash/1)
     |> Enum.map(&normalize_opts/1)
     request(:delete_attributes, %{"attributes" => attr_data})
   end
@@ -155,6 +157,7 @@ defmodule ExAws.ECS do
   @spec delete_attributes(attributes :: [attribute], cluster :: binary) :: ExAws.Operation.JSON.t
   def delete_attributes(attributes, cluster) do
     attr_data = attributes
+    |> transform_list(:target_type, &replace_underscore_with_dash/1)
     |> Enum.map(&normalize_opts/1)
     request(:delete_attributes, %{"attributes" => attr_data, "cluster" => cluster})
   end
@@ -191,12 +194,12 @@ defmodule ExAws.ECS do
   see `update_service/2`.
 
   When you delete a service, if there are still running tasks that
-  require cleanup, the service status moves from `ACTIVE` to `DRAINING`, and
+  require cleanup, the service status moves from `active` to `draining`, and
   the service is no longer visible in the console or in `ListServices` API
   operations. After the tasks have stopped, then the service status moves
-  from `DRAINING` to `INACTIVE`. Services in the `DRAINING` or `INACTIVE`
+  from `draining` to `inactive`. Services in the `draining` or `inactive`
   status can still be viewed with `DescribeServices` API operations; however,
-  in the future, `INACTIVE` services may be cleaned up and purged from Amazon
+  in the future, `inactive` services may be cleaned up and purged from Amazon
   ECS record keeping, and `DescribeServices` API operations on those services
   will return a `ServiceNotFoundException` error.
   """
@@ -242,21 +245,21 @@ defmodule ExAws.ECS do
   @doc """
   Deregisters the specified task definition by family and revision.
 
-  Upon deregistration, the task definition is marked as `INACTIVE`. Existing tasks
-  and services that reference an `INACTIVE` task definition continue to run
-  without disruption. Existing services that reference an `INACTIVE` task
+  Upon deregistration, the task definition is marked as `inactive`. Existing tasks
+  and services that reference an `inactive` task definition continue to run
+  without disruption. Existing services that reference an `inactive` task
   definition can still scale up or down by modifying the service's desired
   count.
 
-  You cannot use an `INACTIVE` task definition to run new tasks or create new
+  You cannot use an `inactive` task definition to run new tasks or create new
   services, and you cannot update an existing service to reference an
-  `INACTIVE` task definition (although there may be up to a 10 minute window
+  `inactive` task definition (although there may be up to a 10 minute window
   following deregistration where these restrictions have not yet taken
   effect).
 
-  At this time, INACTIVE task definitions remain discoverable in your account indefinitely;
+  At this time, inactive task definitions remain discoverable in your account indefinitely;
   however, this behavior is subject to change in the future, so you should not rely on
-  INACTIVE task definitions persisting beyond the life cycle of any associated tasks and services.
+  inactive task definitions persisting beyond the life cycle of any associated tasks and services.
   """
   @spec deregister_task_definition(task_definition :: binary) :: ExAws.Operation.JSON.t
   def deregister_task_definition(task_definition) do
@@ -323,9 +326,9 @@ defmodule ExAws.ECS do
   @doc """
   Describes a task definition. You can specify a `family` and `revision` to
   find information about a specific task definition, or you can simply
-  specify the family to find the latest `ACTIVE` revision in that family.
+  specify the family to find the latest `active` revision in that family.
 
-  You can only describe `INACTIVE` task definitions while an active
+  You can only describe `inactive` task definitions while an active
   task or service references them.
   """
   @spec describe_task_definition(task_definition :: binary) :: ExAws.Operation.JSON.t
@@ -393,7 +396,7 @@ defmodule ExAws.ECS do
   def list_attributes(target_type, opts \\ []) do
     data = opts
     |> normalize_opts
-    |> Map.merge(%{"targetType" => to_string(target_type)})
+    |> Map.merge(%{"targetType" => replace_underscore_with_dash(target_type)})
     request(:list_attributes, data)
   end
 
@@ -414,8 +417,8 @@ defmodule ExAws.ECS do
   end
 
   @type container_instance_status :: [
-    :ACTIVE |
-    :DRAINING
+    :active |
+    :draining
   ]
 
   @type list_container_instances_opts :: [
@@ -438,6 +441,7 @@ defmodule ExAws.ECS do
   @spec list_container_instances(opts :: list_container_instances_opts) :: ExAws.Operation.JSON.t
   def list_container_instances(opts \\ []) do
     data = opts
+    |> transform_value(:status, &ExAws.Utils.upcase/1)
     |> normalize_opts
     request(:list_container_instances, data)
   end
@@ -458,40 +462,46 @@ defmodule ExAws.ECS do
     request(:list_services, data)
   end
 
+  @type definition_family_status :: [
+    :active |
+    :inactive |
+    :all
+  ]
   @type list_task_definition_families_opts :: [
     {:family_prefix, binary} |
     {:max_results, 1..100} |
     {:next_token, binary} |
-    {:status, binary}
+    {:status, definition_family_status}
   ]
   @doc """
   Returns a list of task definition families that are registered to your
   account
 
   (May include task definition families that no longer have any
-  `ACTIVE` task definition revisions).
+  `active` task definition revisions).
 
   You can filter out task definition families that do not contain any
-  `ACTIVE` task definition revisions by setting the `:status` parameter to
-  `ACTIVE`. You can also filter the results with the `:family_prefix`
+  `active` task definition revisions by setting the `:status` parameter to
+  `active`. You can also filter the results with the `:family_prefix`
   parameter.
   """
   @spec list_task_definition_families() :: ExAws.Operation.JSON.t
   @spec list_task_definition_families(opts :: list_task_definition_families_opts) :: ExAws.Operation.JSON.t
   def list_task_definition_families(opts \\ []) do
     data = opts
+    |> transform_value(:status, &ExAws.Utils.upcase/1)
     |> normalize_opts
     request(:list_task_definition_families, data)
   end
 
 
   @type sort_order :: [
-    :ASC |
-    :DESC
+    :asc |
+    :desc
   ]
   @type task_definition_status :: [
-    :ACTIVE |
-    :INACTIVE
+    :active |
+    :inactive
   ]
   @type list_task_definitions_opts :: [
     {:family_prefix, binary} |
@@ -511,14 +521,16 @@ defmodule ExAws.ECS do
   @spec list_task_definitions(opts :: list_task_definitions_opts) :: ExAws.Operation.JSON.t
   def list_task_definitions(opts \\ []) do
     data = opts
+    |> transform_value(:status, &ExAws.Utils.upcase/1)
+    |> transform_value(:sort, &ExAws.Utils.upcase/1)
     |> normalize_opts
     request(:list_task_definitions, data)
   end
 
   @type desired_task_status :: [
-    :RUNNING |
-    :PENDING |
-    :STOPPED
+    :running |
+    :pending |
+    :stopped
   ]
   @type list_tasks_opts :: [
     {:cluster, binary} |
@@ -545,6 +557,7 @@ defmodule ExAws.ECS do
   @spec list_tasks(opts :: list_tasks_opts) :: ExAws.Operation.JSON.t
   def list_tasks(opts \\ []) do
     data = opts
+    |> transform_value(:desired_status, &ExAws.Utils.upcase/1)
     |> normalize_opts
     request(:list_tasks, data)
   end
@@ -556,6 +569,7 @@ defmodule ExAws.ECS do
   @spec put_attributes(attributes :: [attribute]) :: ExAws.Operation.JSON.t
   def put_attributes(attributes) do
     data = attributes
+    |> transform_list(:target_type, &replace_underscore_with_dash/1)
     |> Enum.map(&normalize_opts/1)
     request(:put_attributes, %{"attributes" => data})
   end
@@ -571,6 +585,7 @@ defmodule ExAws.ECS do
   @spec put_attributes(attributes :: [attribute], cluster :: binary) :: ExAws.Operation.JSON.t
   def put_attributes(attributes, cluster) do
     data = attributes
+    |> transform_list(:target_type, &replace_underscore_with_dash/1)
     |> Enum.map(&normalize_opts/1)
     request(:put_attributes, %{"attributes" => data, "cluster" => cluster})
   end
@@ -606,7 +621,7 @@ defmodule ExAws.ECS do
   ]
   # http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RegisterTaskDefinition.html
   @type log_drivers :: [
-    :"json-file" |
+    :json_file |
     :syslog |
     :journald |
     :gelf |
@@ -726,10 +741,20 @@ defmodule ExAws.ECS do
   """
   @spec register_task_definition(container_definitions :: [container_definition], family :: binary, opts :: register_task_definition_opts) :: ExAws.Operation.JSON.t
   def register_task_definition(container_definitions, family, opts \\ []) do
+    container_defs = container_definitions
+    |> Enum.map(fn(cdef) ->
+        log_config = cdef
+        |> Map.get(:log_configuration, %{})
+        |> transform_value(:log_driver, &replace_underscore_with_dash/1)
+        Map.put(cdef, :log_configuration, log_config)
+      end)
+    |> pascalize_keys
+
     required = %{
-      "containerDefinitions" => pascalize_keys(container_definitions),
+      "containerDefinitions" => container_defs,
       "family" => family}
     data = opts
+    |> transform_list(:placement_constraints, :type, &pascalize_key/1)
     |> normalize_opts
     |> Map.merge(required)
 
@@ -770,6 +795,7 @@ defmodule ExAws.ECS do
   @spec run_task(task_definition :: binary, opts :: run_task_opts) :: ExAws.Operation.JSON.t
   def run_task(task_definition, opts \\ []) do
     data = opts
+    |> transform_list(:placement_constraints, :type, &pascalize_key/1)
     |> normalize_opts
     |> Map.merge(%{"taskDefinition" => task_definition})
     request(:run_task, data)
@@ -891,15 +917,16 @@ defmodule ExAws.ECS do
   """
   @spec update_container_instances_state(container_instances :: [binary], status :: container_instance_status) :: ExAws.Operation.JSON.t
   def update_container_instances_state(container_instances, status) do
-    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => to_string(status)})
+    upcase_status = ExAws.Utils.upcase(status)
+    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => upcase_status})
   end
   @doc """
   Modifies the status of an Amazon ECS container instance.
 
-  You can change the status of a container instance to `DRAINING` to manually remove an instance from a cluster,
+  You can change the status of a container instance to `draining` to manually remove an instance from a cluster,
   for example to perform system updates, update the Docker daemon, or scale down the cluster size.
 
-  When you set a container instance to `DRAINING`, Amazon ECS prevents new tasks from being scheduled for
+  When you set a container instance to `draining`, Amazon ECS prevents new tasks from being scheduled for
   placement on the container instance and replacement service tasks are started on other container instances
   in the cluster if the resources are available. Service tasks on the container instance that are in the
   `PENDING` state are stopped immediately.
@@ -924,11 +951,12 @@ defmodule ExAws.ECS do
 
   A container instance has completed draining when it has no more `RUNNING` tasks. You can verify this using `list_tasks/1`.
 
-  When you set a container instance to `ACTIVE`, the Amazon ECS scheduler can begin scheduling tasks on the instance again.
+  When you set a container instance to `active`, the Amazon ECS scheduler can begin scheduling tasks on the instance again.
   """
   @spec update_container_instances_state(container_instances :: [binary], status :: container_instance_status, cluster :: binary) :: ExAws.Operation.JSON.t
   def update_container_instances_state(container_instances, status, cluster) do
-    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => to_string(status), "cluster" => cluster})
+    upcase_status = ExAws.Utils.upcase(status)
+    request(:update_container_instances_state, %{"containerInstances" => container_instances, "status" => upcase_status, "cluster" => cluster})
   end
 
   @type deployment_conf :: [
@@ -1020,6 +1048,43 @@ defmodule ExAws.ECS do
 
 
   ## Private parts
+
+  defp transform_list(opts, list_key, value_key, fn_transform) do
+    transformed = opts
+    |> Keyword.get(list_key, [])
+    |> transform_list(value_key, fn_transform)
+
+    Keyword.put(opts, list_key, transformed)
+  end
+  defp transform_list(list, value_key, fn_transform) do
+    list
+    |> Enum.map(&(transform_value(&1, value_key, fn_transform)))
+  end
+
+  defp transform_value(map, key, fn_transform) when is_map(map) do
+    map
+    |> Keyword.new
+    |> transform_value(key, fn_transform)
+    |> Map.new
+  end
+  defp transform_value(opts, key, fn_transform) do
+    opts
+    |> Keyword.get_and_update(key, fn(value) ->
+        new_val = fn_transform.(value)
+        {value, new_val}
+      end)
+    |> update_only_if_existed(opts)
+  end
+
+  defp update_only_if_existed({nil, _}, original), do: original
+  defp update_only_if_existed({_, transformed}, _), do: transformed
+
+  defp replace_underscore_with_dash(value) when is_atom(value) do
+    value
+    |> Atom.to_string
+    |> replace_underscore_with_dash
+  end
+  defp replace_underscore_with_dash(value) when is_binary(value), do: String.replace(value, "_", "-")
 
   defp pascalize_keys(opts) when is_map(opts) do
     Map.new(opts, &pascalize_keys/1)
