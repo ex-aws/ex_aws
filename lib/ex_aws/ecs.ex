@@ -1021,16 +1021,11 @@ defmodule ExAws.ECS do
 
   ## Private parts
 
-  # Pascalize has room for improvements.. but it seems to work
-
   defp pascalize_keys(opts) when is_map(opts) do
-    opts
-    |> Enum.map(&pascalize_keys/1)
-    |> Enum.into(%{})
+    Map.new(opts, &pascalize_keys/1)
   end
-  defp pascalize_keys([]), do: []
-  defp pascalize_keys([head | tail]) do
-    [pascalize_keys(head)] ++ pascalize_keys(tail)
+  defp pascalize_keys(list) when is_list(list) do
+    list |> Enum.map(&pascalize_keys/1)
   end
   defp pascalize_keys(bool) when is_boolean(bool), do: bool
   defp pascalize_keys(atom) when is_atom(atom), do: Atom.to_string(atom)
@@ -1040,35 +1035,24 @@ defmodule ExAws.ECS do
     {k, value}
   end
   defp pascalize_keys({k, v}) when is_atom(k) do
-    key = k |> Atom.to_string |> pascalize_word
+    key = pascalize_key(k)
     value = pascalize_keys(v)
     {key, value}
   end
   defp pascalize_keys(other), do: other
 
-  # Many thanks to https://github.com/nurugger07/inflex
-  # https://github.com/nurugger07/inflex/blob/v1.4.1/lib/inflex/camelize.ex
-  defp pascalize_word(word) do
-    case Regex.split(~r/(?:^|[-_])|(?=[A-Z])/, to_string(word)) do
-      words -> words |> pascalize_list(:lower)
-                     |> Enum.join
-    end
-  end
+  defp pascalize_key(key) do
+    {first, rest} =
+    key
+    |> to_string
+    |> Macro.camelize
+    |> String.split_at(1)
 
-  defp pascalize_list([], :upper), do: []
-  defp pascalize_list([h|tail], :lower) do
-    [lowercase(h)] ++ pascalize_list(tail, :upper)
+    String.downcase(first) <> rest
   end
-  defp pascalize_list([h|tail], :upper) do
-    [capitalize(h)] ++ pascalize_list(tail, :upper)
-  end
-
-  defp capitalize(word), do: String.capitalize(word)
-  defp lowercase(word), do: String.downcase(word)
 
   defp normalize_opts(opts) do
-    opts
-    |> Enum.into(%{})
+    Map.new(opts)
     |> pascalize_keys
   end
 
