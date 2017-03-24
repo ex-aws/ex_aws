@@ -92,6 +92,7 @@ else
     def parse_initiate_multipart_upload(val), do: val
     def parse_upload_part_copy(val), do: val
     def parse_complete_multipart_upload(val), do: val
+    def parse_list_multipart_uploads(val), do: val
     def parse_list_parts(val), do: val
   end
 
