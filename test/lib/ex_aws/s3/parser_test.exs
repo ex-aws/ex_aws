@@ -1,6 +1,26 @@
 defmodule ExAws.S3.ParserTest do
   use ExUnit.Case, async: true
 
+  test "#parse_upload parses CompleteMultipartUploadResult" do
+    upload_response = """
+    <CompleteMultipartUploadResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/\">
+      <Location>https://google.com</Location>
+      <Bucket>name_of_my_bucket</Bucket>
+      <Key>name_of_my_key.ext</Key>
+      <ETag>&quot;89asdfasdf0asdfasdfasd&quot;</ETag>
+    </CompleteMultipartUploadResult>
+    """
+
+    result = ExAws.S3.Parsers.parse_upload({:ok, %{body: upload_response}})
+    {:ok, %{body: parsed_body}} = result
+    assert parsed_body == %{
+      location: "https://google.com",
+      bucket: "name_of_my_bucket",
+      key: "name_of_my_key",
+      eTag: "\"89asdfasdf0asdfasdfasd\""
+    }
+  end
+
   test "#parse_list_objects parses CommonPrefixes" do
     list_objects_response = """
     <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
