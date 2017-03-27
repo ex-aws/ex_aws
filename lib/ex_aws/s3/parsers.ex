@@ -4,7 +4,7 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse_upload({:ok, resp = %{body: xml}}) do
       parsed_body = xml
-      |> SweetXML.xpath(~x"//CompleteMultipartUploadResult",
+      |> SweetXml.xpath(~x"//CompleteMultipartUploadResult",
         location: ~x"./Location/text()"s,
         bucket: ~x"./Bucket/text()"s,
         key: ~x"./Key/text()"s,
