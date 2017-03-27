@@ -2,7 +2,7 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.S3.Parsers do
     import SweetXml, only: [sigil_x: 2]
 
-    def upload({:ok, resp = %{body: xml}}) do
+    def parse_upload({:ok, resp = %{body: xml}}) do
       parsed_body = xml
       |> SweetXML.xpath(~x"//CompleteMultipartUploadResult",
         location: ~x"./Location/text()"s,
