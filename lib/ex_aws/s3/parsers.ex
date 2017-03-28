@@ -2,6 +2,18 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.S3.Parsers do
     import SweetXml, only: [sigil_x: 2]
 
+    def parse_upload({:ok, resp = %{body: xml}}) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//CompleteMultipartUploadResult",
+        location: ~x"./Location/text()"s,
+        bucket: ~x"./Bucket/text()"s,
+        key: ~x"./Key/text()"s,
+        eTag: ~x"./ETag/text()"s
+      )
+
+      {:ok, %{resp | body: parsed_body}}
+    end
+
     def parse_list_objects({:ok, resp = %{body: xml}}) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListBucketResult",
@@ -87,6 +99,7 @@ if Code.ensure_loaded?(SweetXml) do
   end
 else
   defmodule ExAws.S3.Parsers do
+    def upload(val), do: val
     def parse_list_objects(val), do: val
     def parse_all_my_buckets_result(val), do: val
     def parse_initiate_multipart_upload(val), do: val
