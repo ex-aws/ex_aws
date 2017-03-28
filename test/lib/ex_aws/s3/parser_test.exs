@@ -16,7 +16,7 @@ defmodule ExAws.S3.ParserTest do
     assert parsed_body == %{
       location: "https://google.com",
       bucket: "name_of_my_bucket",
-      key: "name_of_my_key",
+      key: "name_of_my_key.ext",
       eTag: "\"89asdfasdf0asdfasdfasd\""
     }
   end
