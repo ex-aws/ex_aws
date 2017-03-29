@@ -148,6 +148,22 @@ defmodule ExAws.SES.ParserTest do
     assert parsed_doc == %{request_id: "3d3f811a-1484-11e7-b9b1-db4762b6c4db"}
   end
 
+  test "#parse a set_identity_feedback_forwarding_enabled response" do
+    rsp = """
+      <SetIdentityFeedbackForwardingEnabledResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+        <SetIdentityFeedbackForwardingEnabledResult/>
+        <ResponseMetadata>
+          <RequestId>f1cc8133-149a-11e7-91a5-ed1259cbd185</RequestId>
+        </ResponseMetadata>
+      </SetIdentityFeedbackForwardingEnabledResponse>
+    """
+    |> to_success
+
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :set_identity_feedback_forwarding_enabled)
+    assert parsed_doc == %{request_id: "f1cc8133-149a-11e7-91a5-ed1259cbd185"}
+  end
+
   test "#parse error" do
     rsp = """
       <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">

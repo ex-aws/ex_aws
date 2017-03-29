@@ -105,4 +105,13 @@ defmodule ExAws.SESTest do
       assert expected == SES.set_identity_notification_topic(ctx.email, :bounce, sns_topic: sns_topic_arn).params
     end
   end
+
+  test "#set_identity_feedback_forwarding_enabled", ctx do
+    enabled = true
+    expected = %{
+      "Action" => "SetIdentityFeedbackForwardingEnabled", "ForwardingEnabled" => enabled, "Identity" => ctx.email
+    }
+
+    assert expected == SES.set_identity_feedback_forwarding_enabled(enabled, ctx.email).params
+  end
 end
