@@ -116,9 +116,25 @@ defmodule ExAws.SES.ParserTest do
     }
   end
 
+  test "#parse a delete_identity response" do
+    rsp = """
+      <DeleteIdentityResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+        <DeleteIdentityResult/>
+        <ResponseMetadata>
+          <RequestId>88c79dfb-1472-11e7-94c4-4d1ecf50b91f</RequestId>
+        </ResponseMetadata>
+      </DeleteIdentityResponse>
+    """
+    |> to_success
+
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_identity)
+    assert parsed_doc == %{request_id: "88c79dfb-1472-11e7-94c4-4d1ecf50b91f"}
+  end
+
   test "#parse error" do
     rsp = """
-      <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/\">
+      <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
         <Error>
           <Type>Sender</Type>
           <Code>MalformedInput</Code>

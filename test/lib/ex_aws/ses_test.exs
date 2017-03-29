@@ -77,4 +77,9 @@ defmodule ExAws.SESTest do
       ).params
     end
   end
+
+  test "#delete_identity", ctx do
+    expected = %{"Action" => "DeleteIdentity", "Identity" => ctx.email}
+    assert expected == SES.delete_identity(ctx.email).params
+  end
 end

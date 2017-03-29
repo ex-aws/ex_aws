@@ -50,6 +50,12 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :delete_identity) do
+      parsed_body = SweetXml.xpath(xml, ~x"//DeleteIdentityResponse", request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ErrorResponse",

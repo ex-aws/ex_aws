@@ -96,6 +96,12 @@ defmodule ExAws.SES do
     request(:send_raw_email, params)
   end
 
+  @doc "Deletes the specified identity (an email address or a domain) from the list of verified identities."
+  @spec delete_identity(binary) :: ExAws.Operation.Query.t
+  def delete_identity(identity) do
+    request(:delete_identity, %{"Identity" => identity})
+  end
+
   @doc "Build message object"
   @spec build_message(binary, binary, binary, binary) :: message
   def build_message(html, txt, subject, charset \\ "UTF-8") do
