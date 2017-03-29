@@ -1,4 +1,3 @@
-
 defmodule ExAws.SES do
   import ExAws.Utils, only: [camelize_key: 1, camelize_keys: 1]
 
@@ -7,6 +6,8 @@ defmodule ExAws.SES do
 
   http://docs.aws.amazon.com/ses/latest/APIReference/Welcome.html
   """
+
+  @notification_types [:bounce, :complaint, :delivery]
 
   @doc "Verifies an email address"
   @spec verify_email_identity(email :: binary) :: ExAws.Operation.Query.t
@@ -100,6 +101,28 @@ defmodule ExAws.SES do
   @spec delete_identity(binary) :: ExAws.Operation.Query.t
   def delete_identity(identity) do
     request(:delete_identity, %{"Identity" => identity})
+  end
+
+  @type set_identity_notification_topic_opt :: {:sns_topic, binary}
+  @type notification_type :: :bounce | :complaint | :delivery
+  @doc """
+  Sets the Amazon Simple Notification Service (Amazon SNS) topic to which Amazon SES will publish  delivery
+  notifications for emails sent with given identity.
+  Absent `sns_topic` options cleans SnsTopic and disables publishing.
+
+  Notification type can be on of the :bounce, :complaint or :delivery.
+  Requests are throttled to one per second.
+  """
+
+  # @spec set_identity_notification_topic(binary, notification_type, set_identity_notification_topic_opt) :: ExAws.Operation.Query.t
+  def set_identity_notification_topic(identity, type, opts \\ []) when type in @notification_types do
+    notification_type = Atom.to_string(type) |> String.capitalize()
+    params =
+      opts
+      |> build_opts([:sns_topic])
+      |> Map.merge(%{"Identity" => identity, "NotificationType" => notification_type})
+
+    request(:set_identity_notification_topic, params)
   end
 
   @doc "Build message object"
