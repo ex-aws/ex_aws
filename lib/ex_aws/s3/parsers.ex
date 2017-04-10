@@ -99,14 +99,15 @@ if Code.ensure_loaded?(SweetXml) do
   end
 else
   defmodule ExAws.S3.Parsers do
-    def upload(val), do: val
-    def parse_list_objects(val), do: val
-    def parse_all_my_buckets_result(val), do: val
-    def parse_initiate_multipart_upload(val), do: val
-    def parse_upload_part_copy(val), do: val
-    def parse_complete_multipart_upload(val), do: val
-    def parse_list_multipart_uploads(val), do: val
-    def parse_list_parts(val), do: val
+    def missing_xml_parser(), do: raise ExAws.Error, message: "Missing XML parser. Please see docs"
+    def upload(_val), do: missing_xml_parser()
+    def parse_list_objects(_val), do: missing_xml_parser()
+    def parse_all_my_buckets_result(_val), do: missing_xml_parser()
+    def parse_initiate_multipart_upload(_val), do: missing_xml_parser()
+    def parse_upload_part_copy(_val), do: missing_xml_parser()
+    def parse_complete_multipart_upload(_val), do: missing_xml_parser()
+    def parse_list_multipart_uploads(_val), do: missing_xml_parser()
+    def parse_list_parts(_val), do: missing_xml_parser()
   end
 
 end
