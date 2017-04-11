@@ -99,7 +99,7 @@ if Code.ensure_loaded?(SweetXml) do
   end
 else
   defmodule ExAws.S3.Parsers do
-    def missing_xml_parser(), do: raise ExAws.Error, message: "Missing XML parser. Please see docs"
+    defp missing_xml_parser(), do: raise ExAws.Error, "Missing XML parser. Please see docs"
     def upload(_val), do: missing_xml_parser()
     def parse_list_objects(_val), do: missing_xml_parser()
     def parse_all_my_buckets_result(_val), do: missing_xml_parser()
