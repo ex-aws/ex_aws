@@ -3,7 +3,7 @@ defmodule ExAws.RDS do
   Operations on AWS RDS
   """
 
-  import ExAws.Utils, only: [camelize_keys: 1]
+  import ExAws.Utils, only: [normalize_opts: 1]
 
   @version "2014-10-31"
 
@@ -284,11 +284,5 @@ defmodule ExAws.RDS do
       params: data,
       service: :rds
     }
-  end
-
-  defp normalize_opts(opts) do
-    opts
-    |> Enum.into(%{})
-    |> camelize_keys
   end
 end

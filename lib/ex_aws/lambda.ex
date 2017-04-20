@@ -3,7 +3,7 @@ defmodule ExAws.Lambda do
   Operations on ExAws Lambda
   """
 
-  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
+  import ExAws.Utils, only: [normalize_opts: 1, upcase: 1]
   require Logger
 
   @actions %{
@@ -255,12 +255,6 @@ defmodule ExAws.Lambda do
   def update_function_configuration(function_name, configuration) do
     data = configuration |> normalize_opts
     request(:update_function_configuration, data, "/2015-03-31/functions/#{function_name}/versions/HEAD/configuration")
-  end
-
-  defp normalize_opts(opts) do
-    opts
-    |> Map.new
-    |> camelize_keys
   end
 
   defp request(action, data, path, params \\ [], headers \\ [], before_request \\ nil) do
