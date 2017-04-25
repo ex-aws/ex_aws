@@ -128,6 +128,12 @@ defmodule ExAws.Config.Defaults do
       host: {"$region", "email.$region.amazonaws.com"},
       region: "us-east-1",
       port: 443
+    },
+    ecs: %{
+      scheme: "https://",
+      host: {"$region", "ecs.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 443
     }
   }
 
