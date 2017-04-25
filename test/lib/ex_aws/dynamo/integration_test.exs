@@ -9,6 +9,8 @@ defmodule ExAws.DynamoIntegrationTest do
   # Dynamo
   #
 
+  @moduletag :dynamo
+
   setup_all do
     Dynamo.delete_table("Users") |> ExAws.request
     Dynamo.delete_table(Test.User) |> ExAws.request

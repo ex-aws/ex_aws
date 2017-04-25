@@ -56,7 +56,7 @@ defmodule ExAws.S3 do
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
 
-  @type acl_opts :: [{:acl, canned_acl} | grant]
+  @type acl_opts :: {:acl, canned_acl} | grant
   @type grant :: {:grant_read, grantee}
     | {:grant_read_acp, grantee}
     | {:grant_write_acp, grantee}
@@ -81,9 +81,9 @@ defmodule ExAws.S3 do
     | customer_encryption_opts
 
   @type presigned_url_opts :: [
-    expires_in: integer,
-    virtual_host: boolean,
-    query_params: [{:key, binary}]
+      {:expires_in, integer}
+    | {:virtual_host, boolean}
+    | {:query_params, [{binary, binary}]}
   ]
 
   @type amz_meta_opts :: [{atom, binary} | {binary, binary}, ...]
@@ -271,26 +271,22 @@ defmodule ExAws.S3 do
     request(:get, bucket, "/", [resource: "uploads", params: params], %{parser: &Parsers.parse_list_multipart_uploads/1})
   end
 
-  @doc "Creates a bucket. Same as create_bucket/2"
+  @doc "Creates a bucket in the specified region"
   @spec put_bucket(bucket :: binary, region :: binary) :: ExAws.Operation.S3.t
-  def put_bucket(bucket, region, opts \\ []) do
+  def put_bucket(bucket, region, opts \\ [])
+  def put_bucket(bucket, "", opts), do: put_bucket(bucket, "us-east-1", opts)
+  def put_bucket(bucket, region, opts) do
     headers = opts
     |> Map.new
     |> format_acl_headers
 
-    # us-east-1 region needs to be an empty string, cause AWS S3 API sucks.
-    region = if region == "us-east-1", do: "", else: region
+    body = region |> put_bucket_body
 
-    body = """
-    <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-      <LocationConstraint>#{region}</LocationConstraint>
-    </CreateBucketConfiguration>
-    """
     request(:put, bucket, "/", body: body, headers: headers)
   end
 
   @doc "Update or create a bucket bucket access control"
-  @spec put_bucket_acl(bucket :: binary, opts :: acl_opts) :: ExAws.Operation.S3.t
+  @spec put_bucket_acl(bucket :: binary, opts :: [acl_opts]) :: ExAws.Operation.S3.t
   def put_bucket_acl(bucket, grants) do
     request(:put, bucket, "/", headers: format_acl_headers(grants))
   end
@@ -650,7 +646,7 @@ defmodule ExAws.S3 do
   end
 
   @doc "Create or update an object's access control FIXME"
-  @spec put_object_acl(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Operation.S3.t
+  @spec put_object_acl(bucket :: binary, object :: binary, acl :: [acl_opts]) :: ExAws.Operation.S3.t
   def put_object_acl(bucket, object, acl) do
     headers = acl |> Map.new |> format_acl_headers
     request(:put, bucket, object, headers: headers, resource: "acl")
@@ -883,6 +879,15 @@ defmodule ExAws.S3 do
         datetime = :calendar.universal_time
         ExAws.Auth.presigned_url(http_method, url, :s3, datetime, config, expires_in, query_params)
     end
+  end
+
+  defp put_bucket_body("us-east-1"), do: ""
+  defp put_bucket_body(region) do
+    """
+    <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+      <LocationConstraint>#{region}</LocationConstraint>
+    </CreateBucketConfiguration>
+    """
   end
 
   defp url_to_sign(bucket, object, config, virtual_host) do

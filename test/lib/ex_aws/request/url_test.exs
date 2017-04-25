@@ -24,6 +24,11 @@ defmodule ExAws.Request.UrlTest do
     assert Url.build(query, config) == "https://example.com:4430/path?foo=bar"
   end
 
+  test "it converts the port to an integer if it is a string", %{query: query, config: config} do
+    config = config |> Map.put(:port, "4430")
+    assert Url.build(query, config) == "https://example.com:4430/path?foo=bar"
+  end
+
   test "it allows passing scheme with trailing ://", %{query: query, config: config} do
     config = config |> Map.put(:scheme, "https://")
     assert Url.build(query, config) == "https://example.com/path?foo=bar"

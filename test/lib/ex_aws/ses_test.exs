@@ -77,4 +77,41 @@ defmodule ExAws.SESTest do
       ).params
     end
   end
+
+  test "#delete_identity", ctx do
+    expected = %{"Action" => "DeleteIdentity", "Identity" => ctx.email}
+    assert expected == SES.delete_identity(ctx.email).params
+  end
+
+  describe "#set_identity_notification_topic" do
+    test "accepts correct notification types", ctx do
+      Enum.each([:bounce, :complaint, :delivery], fn type ->
+        notification_type = Atom.to_string(type) |> String.capitalize()
+        expected = %{
+          "Action" => "SetIdentityNotificationTopic", "Identity" => ctx.email, "NotificationType" => notification_type
+        }
+
+        assert expected == SES.set_identity_notification_topic(ctx.email, type).params
+      end)
+    end
+
+    test "optional params", ctx do
+      sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:my_corporate_topic:02034b43-fefa-4e07-a5eb-3be56f8c54ce"
+      expected = %{
+        "Action" => "SetIdentityNotificationTopic", "Identity" => ctx.email, "NotificationType" => "Bounce",
+        "SnsTopic" => sns_topic_arn
+      }
+
+      assert expected == SES.set_identity_notification_topic(ctx.email, :bounce, sns_topic: sns_topic_arn).params
+    end
+  end
+
+  test "#set_identity_feedback_forwarding_enabled", ctx do
+    enabled = true
+    expected = %{
+      "Action" => "SetIdentityFeedbackForwardingEnabled", "ForwardingEnabled" => enabled, "Identity" => ctx.email
+    }
+
+    assert expected == SES.set_identity_feedback_forwarding_enabled(enabled, ctx.email).params
+  end
 end

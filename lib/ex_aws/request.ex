@@ -26,6 +26,8 @@ defmodule ExAws.Request do
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
 
+    url = replace_spaces(url)
+
     with {:ok, full_headers} <- full_headers do
       if config[:debug_requests] do
         Logger.debug("Request URL: #{inspect url}")
@@ -95,5 +97,9 @@ defmodule ExAws.Request do
     |> trunc
     |> :rand.uniform
     |> :timer.sleep
+  end
+
+  defp replace_spaces(url) do
+    String.replace(url, " ", "%20")
   end
 end

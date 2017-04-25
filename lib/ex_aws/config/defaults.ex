@@ -41,6 +41,20 @@ defmodule ExAws.Config.Defaults do
       port: 443,
       service_override: :dynamodb
     },
+    elastictranscoder: %{
+      scheme: "https://",
+      host: %{
+        "us-east-1" => "elastictranscoder.us-east-1.amazonaws.com",
+        "us-west-1" => "elastictranscoder.us-west-1.amazonaws.com",
+        "us-west-2" => "elastictranscoder.us-west-2.amazonaws.com",
+        "ap-south-1" => "elastictranscoder.ap-south-1.amazonaws.com",
+        "ap-southeast-1" => "elastictranscoder.ap-southeast-1.amazonaws.com",
+        "ap-southeast-2" => "elastictranscoder.ap-southeast-2.amazonaws.com",
+        "ap-northeast-1" => "elastictranscoder.ap-northeast-1.amazonaws.com",
+        "eu-west-1" => "elastictranscoder.eu-west-1.amazonaws.com",
+      },
+      region: "us-east-1"
+    },
     lambda: %{
       host: {"$region", "lambda.$region.amazonaws.com"},
       scheme: "https://",
@@ -51,6 +65,7 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: %{
         "us-east-1" => "s3.amazonaws.com",
+        "us-east-2" => "s3-us-east-2.amazonaws.com",
         "us-west-1" => "s3-us-west-1.amazonaws.com",
         "us-west-2" => "s3-us-west-2.amazonaws.com",
         "eu-west-1" => "s3-eu-west-1.amazonaws.com",
@@ -129,4 +144,5 @@ defmodule ExAws.Config.Defaults do
     config = Map.merge(config, @common)
     def get(unquote(service)), do: unquote(Macro.escape(config))
   end
+  def get(_), do: %{}
 end
