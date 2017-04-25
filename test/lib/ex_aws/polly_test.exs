@@ -99,8 +99,6 @@ defmodule ExAws.PollyTest do
                       headers: [],
                       service: :polly,
                       before_request: nil}
-    actual = Polly.synthesize_speech("this is my boomstick", "Joey", "mp3")
-      |> Map.put(:parser, &ExAws.Utils.identity/2)
-    assert expected == actual
+    assert expected == Polly.synthesize_speech("this is my boomstick", "Joey", "mp3")
   end
 end
