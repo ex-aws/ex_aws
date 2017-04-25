@@ -128,12 +128,6 @@ defmodule ExAws.Config.Defaults do
       host: {"$region", "email.$region.amazonaws.com"},
       region: "us-east-1",
       port: 443
-    },
-    polly: %{
-      host: {"$region", "polly.$region.amazonaws.com"},
-      scheme: "https://",
-      region: "us-east-1",
-      port: 443
     }
   }
 
