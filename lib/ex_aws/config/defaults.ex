@@ -138,4 +138,5 @@ defmodule ExAws.Config.Defaults do
     config = Map.merge(config, @common)
     def get(unquote(service)), do: unquote(Macro.escape(config))
   end
+  def get(_), do: %{}
 end
