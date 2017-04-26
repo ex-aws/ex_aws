@@ -819,8 +819,8 @@ defmodule ExAws.ECS do
   _The list of container instances to start tasks on is limited to
   10._
   """
-  @spec start_task(task_definition :: binary, container_instances :: nonempty_list(binary)) :: ExAws.Operation.JSON.t
-  @spec start_task(task_definition :: binary, container_instances :: nonempty_list(binary), opts :: start_task_opts) :: ExAws.Operation.JSON.t
+  @spec start_task(task_definition :: binary, container_instances :: [binary, ...]) :: ExAws.Operation.JSON.t
+  @spec start_task(task_definition :: binary, container_instances :: [binary, ...], opts :: start_task_opts) :: ExAws.Operation.JSON.t
   def start_task(task_definition, container_instances, opts \\ []) do
     data = opts
     |> normalize_opts
