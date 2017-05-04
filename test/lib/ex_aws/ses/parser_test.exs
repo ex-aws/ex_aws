@@ -164,6 +164,22 @@ defmodule ExAws.SES.ParserTest do
     assert parsed_doc == %{request_id: "f1cc8133-149a-11e7-91a5-ed1259cbd185"}
   end
 
+  test "#parse a set_identity_headers_in_notifications_enabled response" do
+    rsp = """
+      <SetIdentityHeadersInNotificationsEnabledResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+        <SetIdentityHeadersInNotificationsEnabledResult/>
+        <ResponseMetadata>
+          <RequestId>01b49b78-30ca-11e7-948a-399bafb173a2</RequestId>
+        </ResponseMetadata>
+      </SetIdentityHeadersInNotificationsEnabledResponse>"
+    """
+    |> to_success
+
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :set_identity_headers_in_notifications_enabled)
+    assert parsed_doc == %{request_id: "01b49b78-30ca-11e7-948a-399bafb173a2"}
+  end
+
   test "#parse error" do
     rsp = """
       <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">

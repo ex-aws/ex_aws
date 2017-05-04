@@ -114,4 +114,15 @@ defmodule ExAws.SESTest do
 
     assert expected == SES.set_identity_feedback_forwarding_enabled(enabled, ctx.email).params
   end
+
+  test "#set_identity_headers_in_notifications_enabled", ctx do
+    enabled = true
+    expected = %{
+      "Action" => "SetIdentityHeadersInNotificationsEnabled", "Identity" => ctx.email, "Enabled" => enabled,
+      "NotificationType" =>"Delivery"
+    }
+
+    assert expected == SES.set_identity_headers_in_notifications_enabled(ctx.email, :delivery, enabled).params
+  end
+
 end
