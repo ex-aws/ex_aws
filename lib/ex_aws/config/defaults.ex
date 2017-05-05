@@ -140,6 +140,12 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       region: "us-east-1",
       port: 443
+    },
+    monitoring: %{
+      host: {"$region", "monitoring.$region.amazonaws.com"},
+      scheme: "https://",
+      region: "us-east-1",
+      port: 443
     }
   }
 
