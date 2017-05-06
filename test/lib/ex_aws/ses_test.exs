@@ -30,6 +30,14 @@ defmodule ExAws.SESTest do
     assert expected == SES.list_configuration_sets(max_items: 1, next_token: "QUFBQUF").params
   end
 
+  test "#list_identities" do
+    expected = %{"Action" => "ListIdentities", "MaxItems" => 1, "NextToken" => "QUFBQUF", "IdentityType" => "Domain"}
+    assert expected == SES.list_identities(max_items: 1, next_token: "QUFBQUF", identity_type: "Domain").params
+
+    expected = %{"Action" => "ListIdentities", "MaxItems" => 1, "NextToken" => "QUFBQUF"}
+    assert expected == SES.list_identities(max_items: 1, next_token: "QUFBQUF").params
+  end
+
   describe "#send_email" do
     test "with required params only" do
       dst =  %{to:  ["success@simulator.amazonses.com"]}

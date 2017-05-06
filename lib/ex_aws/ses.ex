@@ -15,6 +15,17 @@ defmodule ExAws.SES do
     request(:verify_email_identity, %{"EmailAddress" => email})
   end
 
+  @type list_identities_opt :: {:max_items, pos_integer}
+    | {:next_token, String.t}
+    | {:identity_type, String.t}
+
+  @doc "List identities associated with the AWS account"
+  @spec list_identities(opts :: [] | [list_identities_opt]) :: ExAws.Operation.Query.t
+  def list_identities(opts \\ []) do
+    params = build_opts(opts, [:max_items, :next_token, :identity_type])
+    request(:list_identities, params)
+  end
+
   @doc "Fetch identities verification status and token (for domains)"
   @spec get_identity_verification_attributes([binary]) :: ExAws.Operation.Query.t
   def get_identity_verification_attributes(identities) when is_list(identities) do
