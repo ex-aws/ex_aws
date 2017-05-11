@@ -633,4 +633,41 @@ defmodule ExAws.SNS.ParserTest do
     {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_endpoint)
     assert parsed_doc[:request_id] == "c1d2b191-353c-5a5f-8969-fbdd3900afa8"
   end
+
+  test "#parsing a list_phone_numbers_opted_out response" do
+    rsp = """
+      <ListPhoneNumbersOptedOutResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ListPhoneNumbersOptedOutResult>
+          <nextToken>AAHewfYBWTBhfb4//E2ANouP</nextToken>
+            <phoneNumbers>
+              <member>+15005550006</member>
+            </phoneNumbers>
+          </ListPhoneNumbersOptedOutResult>
+        <ResponseMetadata>
+          <RequestId>db6d6256-6b98-5656-8798-33d0de3d3b47</RequestId>
+        </ResponseMetadata>
+      </ListPhoneNumbersOptedOutResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :list_phone_numbers_opted_out)
+    assert parsed_doc[:request_id] == "db6d6256-6b98-5656-8798-33d0de3d3b47"
+    assert parsed_doc[:phone_numbers] == ["+15005550006"]
+    assert parsed_doc[:next_token] == "AAHewfYBWTBhfb4//E2ANouP"
+  end
+
+  test "#parsing a opt_in_phone_number response" do
+    rsp = """
+      <OptInPhoneNumberResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <OptInPhoneNumberResult/>
+        <ResponseMetadata>
+          <RequestId>5839a693-c333-5df8-b06f-f71576ff9bc1</RequestId>
+        </ResponseMetadata>
+      </OptInPhoneNumberResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :opt_in_phone_number)
+    assert parsed_doc[:request_id] == "5839a693-c333-5df8-b06f-f71576ff9bc1"
+  end
 end
