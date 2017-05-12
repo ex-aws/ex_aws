@@ -211,6 +211,10 @@ defmodule ExAws.Cloudformation.ParserTest do
                 <OutputKey>StartPage</OutputKey>
                 <OutputValue>http://my-load-balancer.amazonaws.com:80/index.html</OutputValue>
               </member>
+              <member>
+                <OutputKey>Prop2</OutputKey>
+                <OutputValue>PropVal2</OutputValue>
+              </member>
             </Outputs>
           </member>
         </Stacks>
@@ -233,10 +237,9 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert first_stack[:status] == :create_complete
     assert first_stack[:disable_rollback] == "false"
 
-    assert first_stack[:outputs] |> length == 1
-    first_stack_first_output = first_stack[:outputs] |> hd
-    assert first_stack_first_output[:key] == "StartPage"
-    assert first_stack_first_output[:value] == "http://my-load-balancer.amazonaws.com:80/index.html"
+    assert first_stack[:outputs] |> Map.keys |> length == 2
+    assert first_stack[:outputs]["StartPage"] == "http://my-load-balancer.amazonaws.com:80/index.html"
+    assert first_stack[:outputs]["Prop2"] == "PropVal2"
   end
 
   def to_error(doc) do

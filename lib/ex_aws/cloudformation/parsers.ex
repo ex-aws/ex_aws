@@ -100,11 +100,18 @@ if Code.ensure_loaded?(SweetXml) do
                             ~x"./Outputs/member"lo,
                             key: ~x"./OutputKey/text()"s,
                             value: ~x"./OutputValue/text()"s
-                          ]
+                          ] 
                         ],
                         request_id: request_id_xpath())
 
-      {:ok, Map.put(resp, :body, parsed_body)}
+      processStack = fn stack ->
+        Map.update!( stack, :outputs, &Map.new( &1, fn kv -> {kv[:key], kv[:value]} end ) )
+      end
+      
+      #Convert the list of outputs to a map
+      processed_body = Map.update!( parsed_body, :stacks, &Enum.map( &1, fn stack -> processStack.( stack ) end ) )
+
+      {:ok, Map.put(resp, :body, processed_body)}
     end
     
     def parse({:error, {type, http_status_code, %{body: xml}}}, _, _) do
