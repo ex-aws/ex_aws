@@ -62,7 +62,8 @@ defmodule ExAws.Operation.S3DeleteAllObjects do
   defstruct [
     bucket: nil,
     objects: [],
-    opts: []
+    opts: [],
+    service: :s3
   ]
 
   @type t :: %__MODULE__{}
