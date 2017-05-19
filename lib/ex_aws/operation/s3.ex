@@ -69,13 +69,13 @@ defmodule ExAws.Operation.S3DeleteAllObjects do
 
   defimpl ExAws.Operation do
 
-    def perform(%{bucket: bucket, files: files, opts: opts}, config) do
-      request_fun = fn objects ->
+    def perform(%{bucket: bucket, objects: objects, opts: opts}, config) do
+      request_fun = fn objects_in_batch ->
         bucket
-        |> ExAws.S3.delete_multiple_objects(objects, opts)
+        |> ExAws.S3.delete_multiple_objects(objects_in_batch, opts)
         |> ExAws.request(config)
       end
-      delete_all_objects(request_fun, files, opts, [])
+      delete_all_objects(request_fun, objects, opts, [])
     end
 
     defp delete_all_objects(_request_fun, [], _opts, acc) do
@@ -88,12 +88,12 @@ defmodule ExAws.Operation.S3DeleteAllObjects do
       end
     end
 
-    def stream!(%{bucket: bucket, files: files, opts: opts}, config) do
-      files
+    def stream!(%{bucket: bucket, objects: objects, opts: opts}, config) do
+      objects
       |> Stream.chunk(1000, 1000, [])
-      |> Stream.flat_map(fn objects ->
+      |> Stream.flat_map(fn objects_in_batch ->
         bucket
-        |> ExAws.S3.delete_multiple_objects(objects, opts)
+        |> ExAws.S3.delete_multiple_objects(objects_in_batch, opts)
         |> ExAws.request!(config)
       end)
     end
