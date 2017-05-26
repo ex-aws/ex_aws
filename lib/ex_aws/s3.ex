@@ -401,8 +401,8 @@ defmodule ExAws.S3 do
 
     body = [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
-      quiet,
       "<Delete>",
+      quiet,
       objects_xml,
       "</Delete>"
     ]

@@ -16,6 +16,12 @@ defmodule ExAws.Config.Defaults do
   }
 
   @defaults %{
+    cloudformation: %{
+      scheme: "https://",
+      host: {"$region", "cloudformation.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 80
+    },
     kinesis: %{
       scheme: "https://",
       host: {"$region", "kinesis.$region.amazonaws.com"},
@@ -126,6 +132,12 @@ defmodule ExAws.Config.Defaults do
     ses: %{
       scheme: "https://",
       host: {"$region", "email.$region.amazonaws.com"},
+      region: "us-east-1",
+      port: 443
+    },
+    monitoring: %{
+      host: {"$region", "monitoring.$region.amazonaws.com"},
+      scheme: "https://",
       region: "us-east-1",
       port: 443
     }
