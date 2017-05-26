@@ -1,3 +1,12 @@
+ExAws v1.1.2
+
+- New Service: Cloudwatch (initial)
+- New Service: ElasticTranscoder
+
+- Various bug fixes.
+
+Thanks to our many contributors!
+
 ExAws v1.1.0
 
 This update has quite a few changes, many thanks to those who contributed code
