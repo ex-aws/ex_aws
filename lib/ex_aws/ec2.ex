@@ -21,7 +21,7 @@ defmodule ExAws.EC2 do
   ExAws.EC2.describe_instances(filters: [image_id: "ami-1ecae776"])
   ExAws.EC2.describe_instances(filters: ["network-interface.availability-zone": "us-east-1a"])
   ExAws.EC2.describe_instances(filters: ["tag:elasticbeanstalk:environment-name": "demo"])
-  ExAws.EC2.describe_instance_status(instances: ["i-e5974f4c"])
+  ExAws.EC2.describe_instance_status(instance_id: ["i-e5974f4c"])
   ```
   """
 
@@ -179,7 +179,7 @@ defmodule ExAws.EC2 do
   @type describe_instances_opts :: [
     {:dry_run, boolean}                        |
     {:filters, [filter]}                       |
-    {:instances, [binary]}                     |
+    {:instance_id, [binary]}                     |
     {:max_results, integer}                    |
     {:next_token, binary}
   ]
@@ -189,7 +189,6 @@ defmodule ExAws.EC2 do
   @spec describe_instances() :: ExAws.Operation.RestQuery.t
   @spec describe_instances(opts :: describe_instances_opts) :: ExAws.Operation.RestQuery.t
   def describe_instances(opts \\ []) do
-
     query_params = opts
     |> normalize_opts
     |> Map.merge(%{
@@ -207,7 +206,7 @@ defmodule ExAws.EC2 do
   @type describe_instance_status_opts :: [
     {:dry_run, boolean}                                  |
     {:filters, [filter]}                                 |
-    {:instances, [binary]}                               |
+    {:instance_id, [binary]}                               |
     {:include_all_instances, boolean}                    |
     {:max_results, integer}                              |
     {:next_token, binary}
@@ -219,22 +218,19 @@ defmodule ExAws.EC2 do
   @spec describe_instance_status() :: ExAws.Operation.RestQuery.t
   @spec describe_instance_status(opts :: describe_instance_status_opts) :: ExAws.Operation.RestQuery.t
   def describe_instance_status(opts \\ []) do
-    instance_ids = Keyword.get(opts, :instances, [])
     query_params = opts
-    |> Keyword.delete(:instances)
     |> normalize_opts
     |> Map.merge(%{
       "Action"  => "DescribeInstanceStatus",
       "Version" => @version
       })
-    |> Map.merge(list_builder(instance_ids, "InstanceId", 1, %{}))
 
     request(:get, "/", query_params)
   end
 
   @type run_instances_opts :: [
     {:additional_info, binary}                                                |
-    [{:block_device_mapping_1, block_device_mapping_list}, ...]               |
+    {:block_device_mapping, block_device_mapping_list}                        |
     {:client_token, binary}                                                   |
     {:disable_api_termination, boolean}                                       |
     {:dry_run, boolean}                                                       |
@@ -245,12 +241,12 @@ defmodule ExAws.EC2 do
     {:kernel_id, binary}                                                      |
     {:key_name, binary}                                                       |
     {:monitoring, run_instances_monitoring_enabled}                           |
-    [{:network_interface_1, [instance_network_interface_specification]}, ...] |
+    {:network_interface, [instance_network_interface_specification]}          |
     {:placement, placement}                                                   |
     {:private_ip_address, binary}                                             |
     {:ram_disk_id, binary}                                                    |
-    [{:security_group_id_1, [binary]}, ...]                                   |
-    [{:security_group_1, [binary]}, ...]                                      |
+    {:security_group_id, [binary]}                                            |
+    {:security_group, [binary]}                                               |
     {:user_data, binary}
   ]
   @doc """
@@ -362,7 +358,7 @@ defmodule ExAws.EC2 do
     {:description, binary}               |
     {:dry_run, boolean}                  |
     {:end_time, datetime}                |
-    [{:reason_code_1, reason_code}, ...] |
+    {:reason_code, reason_code}          |
     {:start_time, datetime}              |
     {:status, :ok | :impaired}
   ]
@@ -451,11 +447,11 @@ defmodule ExAws.EC2 do
 
   @type modify_instance_attribute_opts :: [
     {:attribute, attributes}                                                        |
-    [{:block_device_mapping_1, [instance_block_device_mapping_specification]}, ...] |
+    {:block_device_mapping, [instance_block_device_mapping_specification]}          |
     {:disable_api_termination, attribute_boolean_value}                             |
     {:dry_run, boolean}                                                             |
     {:ebs_optimized, attribute_boolean_value}                                       |
-    [{:group_id_1, [binary]}, ...]                                                  |
+    {:group_id, [binary]}                                                           |
     {:instance_initiated_shutdown_behavior, attribute_value}                        |
     {:kernel, attribute_value}                                                      |
     {:ramdisk, attribute_value}                                                     |
@@ -555,7 +551,7 @@ defmodule ExAws.EC2 do
   @type describe_availability_zones_opts :: [
     {:dry_run, boolean}           |
     {:filters, [filter]}          |
-    [{:zone_name_1, [binary]}, ...]
+    {:zone_name, [binary]}
   ]
   @doc """
   Describes one or more of the Availability Zones that are available to you.
@@ -577,7 +573,7 @@ defmodule ExAws.EC2 do
   @type describe_regions_opts :: [
     {:dry_run, boolean}           |
     {:filters, [filter]}          |
-    [{:region_name_1, [binary]}, ...]
+    {:region_name, [binary]}
   ]
   @doc """
   Describes one or more regions that are currently available to you.
@@ -600,7 +596,7 @@ defmodule ExAws.EC2 do
   ###################
 
   @type create_image_opts :: [
-    [{:block_device_mapping_1, block_device_mapping_list}, ...] |
+    {:block_device_mapping, block_device_mapping_list}          |
     {:description, binary}                                      |
     {:dry_run, boolean}                                         |
     {:no_reboot, boolean}
@@ -653,11 +649,11 @@ defmodule ExAws.EC2 do
   end
 
   @type describe_images_opts :: [
-    {:dry_run, boolean}                         |
-    [{:executable_by_1, [binary]}, ...]         |
-    {:filters, [filter]}                        |
-    [{:image_id_1, [binary]}, ...]              |
-    [{:owner_1, [binary]}, ...]
+    {:dry_run, boolean}                |
+    {:executable_by, [binary]}         |
+    {:filters, [filter]}               |
+    {:image_id, [binary]}              |
+    {:owner, [binary]}
   ]
   @doc """
   Describes one or more of the images (AMIs, AKIs, and ARIs) available to you.
@@ -703,8 +699,8 @@ defmodule ExAws.EC2 do
     {:dry_run, boolean}                                   |
     {:launch_permission, launch_permission_modifications} |
     {:operation_type, :add | :remove}                     |
-    [{:product_code_1, :add | :remove}, ...]              |
-    [{:user_group_1, [binary]}, ...]                      |
+    {:product_code, :add | :remove}                       |
+    {:user_group, [binary]}                               |
     {:value, binary}
   ]
   @doc """
@@ -748,7 +744,7 @@ defmodule ExAws.EC2 do
 
   @type register_image_opts :: [
     {:architecture, :i386 | :x86_64}                            |
-    [{:block_device_mapping_1, block_device_mapping_list}, ...] |
+    {:block_device_mapping, block_device_mapping_list}          |
     {:description, binary}                                      |
     {:dry_run, boolean}                                         |
     {:image_location, binary}                                   |
@@ -804,7 +800,7 @@ defmodule ExAws.EC2 do
   @type describe_key_pairs_opts :: [
     {:dry_run, boolean}           |
     {:filters, [filter]}          |
-    [{:key_name_1, [binary]}, ...]
+    {:key_name, [binary]}
   ]
   @doc """
   Describes one or more of your key pairs.
@@ -931,10 +927,10 @@ defmodule ExAws.EC2 do
   ###############################
 
   @type describe_security_groups_opts :: [
-    {:dry_run, boolean}                |
-    {:filters, [filter]}               |
-    [{:group_id_1, [binary]}, ...]     |
-    [{:group_name_1, [binary]}, ...]
+    {:dry_run, boolean}           |
+    {:filters, [filter]}          |
+    {:group_id, [binary]}         |
+    {:group_name, [binary]}
   ]
   @doc """
   Describes one or more of your security groups.
@@ -980,7 +976,7 @@ defmodule ExAws.EC2 do
     {:from_port, integer}                       |
     {:group_id, binary}                         |
     {:group_name, binary}                       |
-    [{:ip_permissions_1, [ip_permission]}, ...] |
+    {:ip_permissions, [ip_permission]}          |
     {:ip_protocol, binary}                      |
     {:source_security_group_name, binary}       |
     {:source_security_group_owner_id, binary}   |
@@ -1007,7 +1003,7 @@ defmodule ExAws.EC2 do
     {:dry_run, boolean}                         |
     {:from_port, integer}                       |
     {:group_name, binary}                       |
-    [{:ip_permissions_1, [ip_permission]}, ...] |
+    {:ip_permissions, [ip_permission]}          |
     {:ip_protocol, binary}                      |
     {:source_security_group_name, binary}       |
     {:source_security_group_owner_id, binary}   |
@@ -1036,7 +1032,7 @@ defmodule ExAws.EC2 do
     {:from_port, integer}                       |
     {:group_id, binary}                         |
     {:group_name, binary}                       |
-    [{:ip_permissions_1, [ip_permission]}, ...] |
+    {:ip_permissions, [ip_permission]}          |
     {:ip_protocol, binary}                      |
     {:source_security_group_name, binary}       |
     {:source_security_group_owner_id, binary}   |
@@ -1065,7 +1061,7 @@ defmodule ExAws.EC2 do
     {:dry_run, boolean}                         |
     {:from_port, integer}                       |
     {:group_name, binary}                       |
-    [{:ip_permissions_1, [ip_permission]}, ...] |
+    {:ip_permissions, [ip_permission]}          |
     {:ip_protocol, binary}                      |
     {:source_security_group_name, binary}       |
     {:source_security_group_owner_id, binary}   |
@@ -1095,7 +1091,7 @@ defmodule ExAws.EC2 do
   @type describe_vpcs_opts :: [
     {:dry_run, boolean}           |
     {:filters, [filter]}          |
-    [{:vpc_id_1, [binary]}, ...]
+    {:vpc_id, [binary]}
   ]
   @doc """
   Describes one or more of your VPCs.
@@ -1203,7 +1199,7 @@ defmodule ExAws.EC2 do
   @type describe_subnets_opts :: [
     {:dry_run, boolean}                        |
     {:filters, [filter]}                       |
-    [{:subnet_id_1, [binary]}, ...]
+    {:subnet_id, [binary]}
   ]
   @doc """
   Describes one or more of your subnets.
@@ -1359,7 +1355,7 @@ defmodule ExAws.EC2 do
 
   @type delete_tags_opts :: [
     {:dry_run, boolean} |
-    {:tags, [{:tag_1, tag}, ...]}
+    {:tag, [{:tag, tag}, ...]}
   ]
   @doc """
   Deletes the specified set of tags from the specified set of resources.
@@ -1387,7 +1383,7 @@ defmodule ExAws.EC2 do
     {:filters, [filter]}                         |
     {:max_results, integer}                      |
     {:next_token, binary}                        |
-    [{:volume_id_1, [binary]}, ...]
+    {:volume_id, [binary]}
   ]
   @doc """
   Describes the specified EBS volumes.
@@ -1569,7 +1565,7 @@ defmodule ExAws.EC2 do
     {:filters, [filter]}                       |
     {:max_results, integer}                    |
     {:next_token, binary}                      |
-    [{:volume_id_1, [binary]}, ...]
+    {:volume_id, [binary]}
   ]
   @doc """
   Describes the status of the specified volumes.
@@ -1592,9 +1588,9 @@ defmodule ExAws.EC2 do
     {:filters, [filter]}                           |
     {:max_results, integer}                        |
     {:next_token, binary}                          |
-    [{:owner_1, [binary]}, ...]                    |
-    [{:restorable_by_1, [binary]}, ...]            |
-    [{:snapshot_id_1, [binary]}, ...]
+    {:owner, [binary]}                             |
+    {:restorable_by, [binary]}                     |
+    {:snapshot_id, [binary]}
   ]
   @doc """
   Describes one or more of the EBS snapshots available to you.
@@ -1710,9 +1706,9 @@ defmodule ExAws.EC2 do
     {:attribute, :product_codes | :create_volume_permission}            |
     {:create_volume_permission, create_volume_permission_modifications} |
     {:dry_run, boolean}                                                 |
-    [{:user_group_1, [binary]}, ...]                                    |
+    {:user_group, [binary]}                                             |
     {:operation_type, :add | :remove}                                   |
-    [{:user_id_1, [binary]}, ...]
+    {:user_id, [binary]}
   ]
   @doc """
   Adds or removes permission settings for the specified snapshot.
@@ -1757,7 +1753,7 @@ defmodule ExAws.EC2 do
   ##################################
 
   @type describe_account_attributes_opts :: [
-    [{:attributes_name_1, [(:supported_platforms | :default_vpc)]}, ...] |
+    {:attribute_name, [(:supported_platforms | :default_vpc)]}   |
     {:dry_run, boolean}
   ]
   @doc """
@@ -1830,7 +1826,7 @@ defmodule ExAws.EC2 do
   @type bundle_instance_states :: :pending | :waiting_for_shutdown | :bundling | :storing | :cancelling | :complete | :failed
 
   @type describe_bundle_tasks_opts :: [
-    [{:bundle_id_1, [binary]}, ...] |
+    {:bundle_id, [binary]}          |
     {:dry_run, boolean}             |
     {:filters, [filter]}
   ]
@@ -1865,17 +1861,13 @@ defmodule ExAws.EC2 do
 
   defp normalize_opts(opts) do
     opts
-    |> Enum.into(%{})
-    |> format_filters
+    |> Enum.reduce(%{}, &reduce_list_params/2)
     |> camelize_keys
   end
 
-  defp format_filters(map = %{filters: filters}) do
-    map
-    |> Map.merge(filter_list_builder(filters, "Filter", 1, %{}))
-    |> Map.delete(:filters)
-  end
-  defp format_filters(map = %{}), do: map
+  defp reduce_list_params({:filters, filters}, acc), do: Map.merge(acc, filter_list_builder(filters, "Filter", 1, %{}))
+  defp reduce_list_params({key, val}, acc) when is_list(val), do: Map.merge(acc, list_builder(val, key, 1, %{}))
+  defp reduce_list_params({key, val}, acc), do: Map.put(acc, key, val)
 
   defp list_builder([], _key, _count, _state), do: %{}
   defp list_builder([h | []], key, count, state) do

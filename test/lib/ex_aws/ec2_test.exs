@@ -42,13 +42,13 @@ defmodule ExAws.EC2Test do
           "Action"     => "DescribeInstances",
           "Version"    => @version,
           "NextToken"  => "token",
-          "Instance.1" => "instance_1"
+          "InstanceId.1" => "instance_1"
         },
         path: "/",
         http_method: :get
       }
 
-    assert expected == EC2.describe_instances([next_token: "token", "Instance.1": "instance_1"])
+    assert expected == EC2.describe_instances([next_token: "token", instance_id: ["instance_1"]])
   end
 
   test "describe_instance_status no options" do
@@ -120,9 +120,9 @@ defmodule ExAws.EC2Test do
       10,
       5,
       [
-        "BlockDeviceMapping.1": "some bdm",
-        "KernelId": "kernel_id",
-        "Placement": "some_placement"
+        block_device_mapping: ["some bdm"],
+        kernel_id: "kernel_id",
+        placement: "some_placement"
       ]
     )
   end
@@ -314,7 +314,7 @@ defmodule ExAws.EC2Test do
       EC2.report_instance_status(
         ["instance_1", "instance_2"],
         "status",
-        [description: "description", "ReasonCode.1": "code"]
+        [description: "description", reason_code: ["code"]]
       )
   end
 
@@ -450,7 +450,7 @@ defmodule ExAws.EC2Test do
     assert expected ==
       EC2.modify_instance_attribute(
         "instance_1",
-        [attribute: "attr", value: "value", "GroupId.1": "group"]
+        [attribute: "attr", value: "value", group_id: ["group"]]
       )
   end
 
@@ -646,7 +646,7 @@ defmodule ExAws.EC2Test do
         http_method: :post
       }
 
-    assert expected == EC2.create_image "instance", "name", [description: "description", "BlockDeviceMapping.1": "bdm"]
+    assert expected == EC2.create_image "instance", "name", [description: "description", block_device_mapping: ["bdm"]]
   end
 
   test "copy_image no options" do
@@ -712,7 +712,7 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_images([dry_run: true, "ImageId.1": "image_1"])
+    assert expected == EC2.describe_images([dry_run: true, image_id: ["image_1"]])
   end
 
   test "describe_image_attribute no options" do
@@ -907,7 +907,7 @@ defmodule ExAws.EC2Test do
         http_method: :get
       }
 
-    assert expected == EC2.describe_key_pairs [dry_run: true, "KeyName.1": "some_key"]
+    assert expected == EC2.describe_key_pairs [dry_run: true, key_name: ["some_key"]]
   end
 
   test "create_key_pair no options" do
@@ -1086,7 +1086,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_security_groups [dry_run: true, "GroupId.1": "group1", "GroupName.1": "name"]
+    assert expected == EC2.describe_security_groups [dry_run: true, group_id: ["group1"], group_name: ["name"]]
   end
 
   test "create_security_group no options" do
@@ -1316,7 +1316,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_vpcs [dry_run: true, "VpcId.1": "id1", "VpcId.2": "id2"]
+    assert expected == EC2.describe_vpcs [dry_run: true, vpc_id: ["id1", "id2"]]
   end
 
   test "create_vpc no options" do
@@ -1477,7 +1477,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_subnets [dry_run: true, "SubnetId.1": "subnet"]
+    assert expected == EC2.describe_subnets [dry_run: true, subnet_id: ["subnet"]]
   end
 
   test "create_subnet no options" do
@@ -1748,7 +1748,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_volumes [dry_run: true, max_results: 10, "VolumeId.1": "volume"]
+    assert expected == EC2.describe_volumes [dry_run: true, max_results: 10, volume_id: ["volume"]]
   end
 
   test "create_volume no options" do
@@ -2014,7 +2014,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_volume_status ["VolumeId.1": "abc", "VolumeId.2": "def"]
+    assert expected == EC2.describe_volume_status [volume_id: ["abc", "def"]]
   end
 
   test "describe_snapshots no options" do
@@ -2045,7 +2045,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_snapshots [dry_run: true, max_results: 10, "Owner.1": "owner"]
+    assert expected == EC2.describe_snapshots [dry_run: true, max_results: 10, owner: ["owner"]]
   end
 
   test "create_snapshot no options" do
@@ -2274,7 +2274,7 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_account_attributes [dry_run: true, "AttributeName.1": "name"]
+    assert expected == EC2.describe_account_attributes [dry_run: true, attribute_name: ["name"]]
   end
 
   ##########################
@@ -2381,6 +2381,6 @@ test "delete_key_pair with options" do
         http_method: :get
       }
 
-    assert expected == EC2.describe_bundle_tasks [dry_run: true, "BundleId.1": "id1", "BundleId.2": "id2"]
+    assert expected == EC2.describe_bundle_tasks [dry_run: true, bundle_id: ["id1", "id2"]]
   end
 end
