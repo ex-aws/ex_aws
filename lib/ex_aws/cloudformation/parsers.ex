@@ -35,7 +35,7 @@ if Code.ensure_loaded?(SweetXml) do
              ~x"./DescribeStackResourceResult/StackResourceDetail",
              last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s,
              metadata: ~x"./Metadata/text()"so |> transform_by(&(parse_metadata_json(&1, config)))
-           ] ++ resource_description_fields ++ stack_fields
+           ] ++ resource_description_fields() ++ stack_fields()
          )
 
         {:ok, Map.put(resp, :body, parsed_body)}
@@ -48,7 +48,7 @@ if Code.ensure_loaded?(SweetXml) do
            resources: [
              ~x"./DescribeStackResourcesResult/StackResources/member"l,
              timestamp: ~x"./Timestamp/text()"s,
-           ] ++ resource_description_fields ++ stack_fields
+           ] ++ resource_description_fields() ++ stack_fields()
          )
 
         {:ok, Map.put(resp, :body, parsed_body)}
@@ -80,7 +80,7 @@ if Code.ensure_loaded?(SweetXml) do
           request_id: request_id_xpath(),
           resources: [ ~x"./ListStackResourcesResult/StackResourceSummaries/member"l,
                        last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s
-                     ] ++ resource_description_fields
+                     ] ++ resource_description_fields()
          )
 
       {:ok, Map.put(resp, :body, parsed_body)}
@@ -121,7 +121,7 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     defp const_to_atom(string) do
-      _load_status_atoms
+      _load_status_atoms()
       string |> String.downcase |> String.to_existing_atom
     end
 
