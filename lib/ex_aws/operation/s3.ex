@@ -28,7 +28,7 @@ defmodule ExAws.Operation.S3 do
       url = operation
       |> add_bucket_to_path
       |> add_resource_to_params
-      |> ExAws.Request.Url.build(config)
+      |> ExAws.Request.Url.build(add_bucket_to_host(config, operation))
 
       hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
 
@@ -46,13 +46,18 @@ defmodule ExAws.Operation.S3 do
     end
 
     def add_bucket_to_path(operation) do
-      path = "/#{operation.bucket}/#{operation.path}" |> String.trim_leading("//")
+      path = "/#{operation.path}" |> String.trim_leading("//")
       operation |> Map.put(:path, path)
     end
 
     def add_resource_to_params( operation) do
       params = operation.params |> Map.new |> Map.put(operation.resource, 1)
       operation |> Map.put(:params, params)
+    end
+
+    def add_bucket_to_host(config, operation) do
+      config
+      |> Map.put(:host, "#{operation.bucket}.#{config.host}")
     end
   end
 end
