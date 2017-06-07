@@ -7,13 +7,15 @@ defmodule ExAws.Cloudformation do
 
   @version "2010-05-15"
 
-  @type capability :: [
-    :capability_iam | :capability_named_iam
-  ]
+  @type accepted_capability_vals ::
+    :capability_iam |
+    :capability_named_iam
 
-  @type on_failure :: [
-    :do_nothing | :rollback | :delete
-  ]
+
+  @type on_failure_vals ::
+    :do_nothing |
+    :rollback |
+    :delete
 
   @type parameter :: [
     parameter_key: binary,
@@ -21,13 +23,13 @@ defmodule ExAws.Cloudformation do
     use_previous_value: boolean
   ]
 
-  @type tag :: {key :: binary, value :: binary}
+  @type tag :: {key :: atom, value :: binary}
 
   @type create_stack_opts :: [
-    capabilities: [capability, ...],
+    capabilities: [accepted_capability_vals, ...],
     disable_rollback: boolean,
     notification_arns: [binary, ...],
-    on_failure: on_failure,
+    on_failure: on_failure_vals,
     parameters: [parameter, ...],
     resource_types: [binary, ...],
     role_arn: binary,
@@ -125,12 +127,7 @@ defmodule ExAws.Cloudformation do
         resource_types -> resource_types_params(resource_types)
       end
     )
-    |> Map.merge(
-      case opts[:template_url] do
-                nil -> %{}
-       template_url -> template_url_param(template_url)
-     end
-    )
+    |> Map.merge(%{"TemplateURL" => opts[:template_url]})
     |> Map.merge(%{"StackName" => stack_name})
 
     request(:create_stack, query_params)
@@ -138,7 +135,18 @@ defmodule ExAws.Cloudformation do
 
   @spec delete_stack(stack_name :: binary, opts :: delete_stack_opts) :: ExAws.Operation.Query.t
   def delete_stack(stack_name, opts \\ []) do
+    delete_params = %{
+      "StackName" => stack_name,
+      "RoleARN" => opts[:role_arn]
+    }
+    |> Map.merge(
+      case opts[:retain_resources] do
+                     nil -> %{}
+        retain_resources -> retain_resources_params(retain_resources)
+      end
+    )
 
+    request(:delete_stack, delete_params)
   end
 
   @spec describe_stack_resource(stack_name :: binary, logical_resource_id :: binary) :: ExAws.Operation.Query.t
@@ -240,10 +248,6 @@ defmodule ExAws.Cloudformation do
     |> Enum.into(%{})
   end
 
-  def template_url_param(template_url) do
-    %{"TemplateURL" => template_url}
-  end
-
   def notification_arns_params(notification_arns) do
     notification_arns
     |> Enum.with_index(1)
@@ -264,6 +268,13 @@ defmodule ExAws.Cloudformation do
     resource_types
     |> Enum.with_index(1)
     |> Enum.flat_map(fn {resource_type, i} -> %{"ResourceTypes.member.#{i}" => resource_type} end)
+    |> Enum.into(%{})
+  end
+
+  def retain_resources_params(retain_resources) do
+    retain_resources
+    |> Enum.with_index(1)
+    |> Enum.flat_map(fn {retain_resource, i} -> %{"RetainResources.member.#{i}" => retain_resource} end)
     |> Enum.into(%{})
   end
 end

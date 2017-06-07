@@ -27,6 +27,22 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :create_stack, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//CreateStackResponse",
+        request_id: request_id_xpath(),
+        stack_id: ~x"./CreateStackResult/StackId/text()"s
+      )
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :delete_stack, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DeleteStackResponse", request_id: request_id_xpath())
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :describe_stack_resource, config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//DescribeStackResourceResponse",
