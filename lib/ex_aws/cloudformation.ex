@@ -93,6 +93,7 @@ defmodule ExAws.Cloudformation do
     |> Keyword.delete(:notification_arns)
     |> Keyword.delete(:tags)
     |> Keyword.delete(:resource_types)
+    |> Keyword.delete(:template_url)
     |> normalize_opts
     |> Map.merge(
       case opts[:capabilities] do
@@ -123,6 +124,12 @@ defmodule ExAws.Cloudformation do
                    nil -> %{}
         resource_types -> resource_types_params(resource_types)
       end
+    )
+    |> Map.merge(
+      case opts[:template_url] do
+                nil -> %{}
+       template_url -> template_url_param(template_url)
+     end
     )
     |> Map.merge(%{"StackName" => stack_name})
 
@@ -231,6 +238,10 @@ defmodule ExAws.Cloudformation do
       "Parameters.member.#{i}.UsePreviousValue" => use_previous_value}
     end)
     |> Enum.into(%{})
+  end
+
+  def template_url_param(template_url) do
+    %{"TemplateURL" => template_url}
   end
 
   def notification_arns_params(notification_arns) do
