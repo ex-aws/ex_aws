@@ -34,17 +34,78 @@ defmodule ExAws.CloudformationTest do
                                                   [role_arn: "arn:my:thing"])
   end
 
-  test "describe_stack_resource" do
+  test "create_stack no options" do
+    expected = query(:create_stack, %{"StackName" => "test_stack"})
+    assert expected == Cloudformation.create_stack("test_stack")
+  end
+
+  test "create_stack with template url" do
+    expected = query(:create_stack,
+    %{"StackName" => "test_stack",
+      "TemplateURL" => "https://s3.amazonaws.com/sample.json"
+    })
+
+    assert expected == Cloudformation.create_stack("test_stack", [template_url: "https://s3.amazonaws.com/sample.json"])
+  end
+
+  test "create_stack with multiple parameters" do
+    expected = query(:create_stack,
+    %{"StackName" => "test_stack",
+      "Parameters.member.1.ParameterKey" => "AvailabilityZone",
+      "Parameters.member.1.ParameterValue" => "us-east-1a",
+      "Parameters.member.2.ParameterKey" => "InstanceType",
+      "Parameters.member.2.ParameterValue" => "m1.micro"
+      })
+
+    assert expected == Cloudformation.create_stack("test_stack",
+      [parameters:
+        [
+          [parameter_key: "AvailabilityZone", parameter_value: "us-east-1a"],
+          [parameter_key: "InstanceType", parameter_value: "m1.micro"]
+        ]
+      ]
+    )
+  end
+
+
+  test "delete_stack no options" do
+    expected = query(:delete_stack, %{"StackName" => "test_stack"})
+    assert expected = Cloudformation.delete_stack("test_stack")
+  end
+
+  test "delete_stack with role arn" do
+    expected = query(:delete_stack,
+    %{"StackName" => "test_stack",
+      "RoleARN" => "arn:aws:iam::1234567:role/god"})
+    assert expected =
+      Cloudformation.delete_stack("test_stack",
+        [role_arn: "arn:aws:iam::1234567:role/god"])
+  end
+
+  test "delete_stack with with retain resources" do
+    expected = query(:delete_staack,
+      %{"StackName" => "test_stack",
+        "RetainResources.member.1" => "test_resource_1",
+        "RetainResources.member.2" => "test_resource_2",
+        "RetainResources.member.2" => "test_resource_3"})
+
+    assert expected =
+      Cloudformation.delete_stack("test_stack",
+        [retain_resources: ["test_resource_1", "test_resource_2", "test_resource_3"]])
+  end
+
+  test "describe_stack_resource with logical resource Id" do
     expected = query(:describe_stack_resource,
-      %{ "LogicalResourceId" => "MyTestInstance",
-         "StackName" => "test_stack" })
+      %{"LogicalResourceId" => "MyTestInstance",
+         "StackName" => "test_stack"})
 
     assert expected == Cloudformation.describe_stack_resource("test_stack", "MyTestInstance")
   end
 
-  test "describe_stack_resources" do
+  test "describe_stack_resources with physical resource Id" do
     expected = query(:describe_stack_resources,
-      %{ "StackName" => "test_stack", "PhysicalResourceId" => "MyTestResource" })
+      %{"StackName" => "test_stack",
+        "PhysicalResourceId" => "MyTestResource"})
 
     assert expected == Cloudformation.describe_stack_resources("test_stack",
                                           [physical_resource_id: "MyTestResource"])
@@ -56,8 +117,9 @@ defmodule ExAws.CloudformationTest do
   end
 
   test "list_stacks with status filters" do
-    expected = query(:list_stacks, %{"StackStatusFilter.member.1" => "ROLLBACK_IN_PROGRESS",
-                                     "StackStatusFilter.member.2" => "ROLLBACK_COMPLETE"})
+    expected = query(:list_stacks,
+      %{"StackStatusFilter.member.1" => "ROLLBACK_IN_PROGRESS",
+        "StackStatusFilter.member.2" => "ROLLBACK_COMPLETE"})
     assert expected == Cloudformation.list_stacks(status_filter: [:rollback_in_progress, :rollback_complete])
   end
 
@@ -67,8 +129,9 @@ defmodule ExAws.CloudformationTest do
   end
 
   test "list_stack_resources with next_token" do
-    expected = query(:list_stack_resources, %{"StackName" => "test_stack",
-                                              "NextToken" => "Next"})
+    expected = query(:list_stack_resources,
+      %{"StackName" => "test_stack",
+        "NextToken" => "Next"})
     assert expected == Cloudformation.list_stack_resources("test_stack", next_token: "Next")
   end
 

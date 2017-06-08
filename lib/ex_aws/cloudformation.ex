@@ -127,7 +127,12 @@ defmodule ExAws.Cloudformation do
         resource_types -> resource_types_params(resource_types)
       end
     )
-    |> Map.merge(%{"TemplateURL" => opts[:template_url]})
+    |> Map.merge(
+      case opts[:template_url] do
+                 nil -> %{}
+        template_url -> %{"TemplateURL" => template_url}
+      end
+    )
     |> Map.merge(%{"StackName" => stack_name})
 
     request(:create_stack, query_params)
@@ -240,11 +245,12 @@ defmodule ExAws.Cloudformation do
   def parameters_params(parameters) do
     parameters
     |> Enum.with_index(1)
-    |> Enum.flat_map(fn {{parameter_key, parameter_value, use_previous_value}, i} ->
-      %{"Parameters.member.#{i}.ParameterKey" => Atom.to_string(parameter_key),
-      "Parameters.member.#{i}.ParameterValue" => parameter_value,
-      "Parameters.member.#{i}.UsePreviousValue" => use_previous_value}
+    |> Enum.flat_map(fn {parameter, i} ->
+      %{"Parameters.member.#{i}.ParameterKey" => parameter[:parameter_key],
+      "Parameters.member.#{i}.ParameterValue" => parameter[:parameter_value],
+      "Parameters.member.#{i}.UsePreviousValue" => parameter[:use_previous_value]}
     end)
+    |> Enum.filter(fn {_key, value} -> value != nil end)
     |> Enum.into(%{})
   end
 

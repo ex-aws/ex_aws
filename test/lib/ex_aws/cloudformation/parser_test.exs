@@ -33,6 +33,36 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
   end
 
+  test "parsing a create_stack_response" do
+    rsp = """
+    <CreateStackResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <CreateStackResult>
+        <StackId>arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83</StackId>
+      </CreateStackResult>
+      <ResponseMetadata>
+        <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+      </ResponseMetadata>
+    </CreateStackResponse>
+    """
+    |> to_success
+    {ok, %{body: parsed_doc}} = Parsers.parse(rsp, :create_stack, nil)
+    assert parsed_doc[:stack_id] == "arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83"
+    assert parsed_doc[:request_id] == "b9b4b068-3a41-11e5-94eb-example"
+  end
+
+  test "parsing a delete_stack_response" do
+    rsp = """
+    <DeleteStackResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <ResponseMetadata>
+        <RequestId>5ccc7dcd-744c-11e5-be70-example</RequestId>
+      </ResponseMetadata>
+    </DeleteStackResponse>
+    """
+    |> to_success
+    {ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_stack, nil)
+    assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
+  end
+
   test "parsing a describe_stack_resource response" do
     rsp = """
     <DescribeStackResourceResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
