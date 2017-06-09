@@ -17,21 +17,34 @@ defmodule ExAws.CloudformationTest do
 
   test "continue_update_rollback with skip resources" do
     expected = query(:continue_update_rollback, %{
-      "ResourcesToSkip.member.1" => "TestResource",
-      "ResourcesToSkip.member.2" => "TestResource2",
+      "ResourcesToSkip.member.1" => "test_resource_1",
+      "ResourcesToSkip.member.2" => "test_resource_2",
       "StackName" => "test_stack"
     })
     assert expected == Cloudformation.continue_update_rollback("test_stack",
-                         [skip_resources: ["TestResource", "TestResource2"]])
+                         [skip_resources: ["test_resource_1", "test_resource_2"]])
   end
 
   test "continue_update_rollback with role arn" do
     expected = query(:continue_update_rollback, %{
-      "RoleArn" => "arn:my:thing",
+      "RoleARN" => "arn:my:thing",
       "StackName" => "test_stack"
     })
     assert expected == Cloudformation.continue_update_rollback("test_stack",
                                                   [role_arn: "arn:my:thing"])
+  end
+
+  test "continue_update_rollback with skip_resources and role arn" do
+    expected = query(:continue_update_rollback, %{
+      "ResourcesToSkip.member.1" => "test_resource_1",
+      "ResourcesToSkip.member.2" => "test_resource_2",
+      "RoleARN" => "arn:my:thing",
+      "StackName" => "test_stack"
+      })
+
+    assert expected =
+      Cloudformation.continue_update_rollback("test_stack",
+      [role_arn: "arn:my:thing", skip_resources: ["test_resource_1", "test_resource_2"]])
   end
 
   test "create_stack no options" do
@@ -127,18 +140,23 @@ defmodule ExAws.CloudformationTest do
   test "describe_stack_resource with logical resource Id" do
     expected = query(:describe_stack_resource,
       %{"LogicalResourceId" => "MyTestInstance",
-         "StackName" => "test_stack"})
+        "StackName" => "test_stack"})
 
     assert expected == Cloudformation.describe_stack_resource("test_stack", "MyTestInstance")
   end
 
   test "describe_stack_resources with physical resource Id" do
     expected = query(:describe_stack_resources,
-      %{"StackName" => "test_stack",
-        "PhysicalResourceId" => "MyTestResource"})
+      %{"PhysicalResourceId" => "MyTestResource"})
 
-    assert expected == Cloudformation.describe_stack_resources("test_stack",
-                                          [physical_resource_id: "MyTestResource"])
+    assert expected == Cloudformation.describe_stack_resources([physical_resource_id: "MyTestResource"])
+  end
+
+  test "describe_stack_resources with stack name" do
+    expected = query(:describe_stack_resources,
+    %{"StackName" => "MyTestResource"})
+
+    assert expected == Cloudformation.describe_stack_resources([stack_name: "MyTestResource"])
   end
 
   test "list_stacks no options" do
@@ -150,7 +168,7 @@ defmodule ExAws.CloudformationTest do
     expected = query(:list_stacks,
       %{"StackStatusFilter.member.1" => "ROLLBACK_IN_PROGRESS",
         "StackStatusFilter.member.2" => "ROLLBACK_COMPLETE"})
-    assert expected == Cloudformation.list_stacks(status_filter: [:rollback_in_progress, :rollback_complete])
+    assert expected == Cloudformation.list_stacks(stack_status_filters: [:rollback_in_progress, :rollback_complete])
   end
 
   test "list_stack_resources no options" do
