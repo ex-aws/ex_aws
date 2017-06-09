@@ -67,29 +67,59 @@ defmodule ExAws.CloudformationTest do
     )
   end
 
+  test "create_stack with tags" do
+    expected = query(:create_stack,
+    %{"StackName" => "test_stack",
+      "Tags.member.1.Key" => "key",
+      "Tags.member.1.Value" => "value"})
 
-  test "delete_stack no options" do
+    assert expected == Cloudformation.create_stack("test_stack",
+    [tags: [key: "value"]])
+  end
+
+  test "create_stack with capabilities" do
+    expected = query(:create_stack,
+      %{"StackName" => "test_stack",
+      "Capabilities.member.1" => "CAPABILITY_IAM"
+      })
+
+    assert expected == Cloudformation.create_stack("test_stack",
+    [capabilities: [:capability_iam]])
+  end
+
+  test "create_stack with resource_types" do
+    expected = query(:create_stack,
+      %{"StackName" => "test_stack",
+        "ResourceTypes.member.1" => "AWS::EC2::Instance",
+        "ResourceTypes.member.2" => "AWS::EC2::Volume"
+      })
+
+    assert expected == Cloudformation.create_stack("test_stack",
+      [resource_types: ["AWS::EC2::Instance", "AWS::EC2::Volume"]])
+  end
+
+  test "delete_stack" do
     expected = query(:delete_stack, %{"StackName" => "test_stack"})
-    assert expected = Cloudformation.delete_stack("test_stack")
+    assert expected == Cloudformation.delete_stack("test_stack")
   end
 
   test "delete_stack with role arn" do
     expected = query(:delete_stack,
     %{"StackName" => "test_stack",
       "RoleARN" => "arn:aws:iam::1234567:role/god"})
-    assert expected =
+    assert expected ==
       Cloudformation.delete_stack("test_stack",
         [role_arn: "arn:aws:iam::1234567:role/god"])
   end
 
   test "delete_stack with with retain resources" do
-    expected = query(:delete_staack,
+    expected = query(:delete_stack,
       %{"StackName" => "test_stack",
         "RetainResources.member.1" => "test_resource_1",
         "RetainResources.member.2" => "test_resource_2",
-        "RetainResources.member.2" => "test_resource_3"})
+        "RetainResources.member.3" => "test_resource_3"})
 
-    assert expected =
+    assert expected ==
       Cloudformation.delete_stack("test_stack",
         [retain_resources: ["test_resource_1", "test_resource_2", "test_resource_3"]])
   end

@@ -74,7 +74,7 @@ defmodule ExAws.Cloudformation do
   @spec continue_update_rollback(stack_name :: binary, opts :: list_stacks_opts) :: ExAws.Operation.Query.t
   def continue_update_rollback(stack_name, opts \\ []) do
     query_params = opts
-    |> Enum.reject(&match?({:skip_resources, _}, &1))
+    |> Keyword.delete(:skip_resources)
     |> normalize_opts
     |> Map.merge(
       case opts[:skip_resources] do
@@ -87,53 +87,40 @@ defmodule ExAws.Cloudformation do
     request(:continue_update_rollback, query_params)
   end
 
+  # key :: atom
+  @create_stack_params_to_delete [
+    :capabilities, :parameters,
+    :notification_arns, :tags,
+    :resource_types, :template_url
+  ]
+
+  # {key :: atom, transform_function_name :: atom}
+  @create_stack_params_to_transform [
+    {:capabilities, :transform_capabilities},
+    {:parameters, :transform_parameters},
+    {:notification_arns, :transform_notification_arns},
+    {:tags, :transform_tags},
+    {:resource_types, :transform_resource_types}
+  ]
+
   @spec create_stack(stack_name :: binary, opts :: create_stack_opts) :: ExAws.Operation.Query.t
   def create_stack(stack_name, opts \\ []) do
-    query_params = opts
-    |> Keyword.delete(:capabilities)
-    |> Keyword.delete(:parameters)
-    |> Keyword.delete(:notification_arns)
-    |> Keyword.delete(:tags)
-    |> Keyword.delete(:resource_types)
-    |> Keyword.delete(:template_url)
+    normal_params = opts
+    |> Enum.reject(fn {key, _} -> key in @params_to_delete end)
     |> normalize_opts
-    |> Map.merge(
-      case opts[:capabilities] do
-                 nil -> %{}
-        capabilities -> capabilities_params(capabilities)
-      end
-    )
-    |> Map.merge(
-      case opts[:parameters] do
-                nil -> %{}
-         parameters -> parameters_params(parameters)
-      end
-    )
-    |> Map.merge(
-      case opts[:notification_arns] do
-                        nil -> %{}
-          notification_arns -> notification_arns_params(notification_arns)
-      end
-    )
-    |> Map.merge(
-      case opts[:tags] do
-           nil -> %{}
-          tags -> tags_params(tags)
-      end
-    )
-    |> Map.merge(
-      case opts[:resource_types] do
-                   nil -> %{}
-        resource_types -> resource_types_params(resource_types)
-      end
-    )
-    |> Map.merge(
-      case opts[:template_url] do
-                 nil -> %{}
-        template_url -> %{"TemplateURL" => template_url}
-      end
-    )
-    |> Map.merge(%{"StackName" => stack_name})
+
+    transformed_params = @params_to_transform
+    |> Enum.flat_map(fn {key, transform_func} ->
+      maybe_transform(function_name, opts[key])
+    end)
+
+    other_params =
+      [{"StackName": stack_name}, {"TemplateURL", opts[:template_url] }]
+      |> Enum.reject(fn {key, _value} -> value == nil end)
+
+    query_params =
+      Enum.concat([normal_params, transformed_params, other_params])
+      |> Enum.into(%{})
 
     request(:create_stack, query_params)
   end
@@ -142,12 +129,17 @@ defmodule ExAws.Cloudformation do
   def delete_stack(stack_name, opts \\ []) do
     delete_params = %{
       "StackName" => stack_name,
-      "RoleARN" => opts[:role_arn]
     }
+    |> Map.merge(
+      case opts[:role_arn] do
+              nil -> %{}
+         role_arn -> %{"RoleARN" => role_arn}
+      end
+    )
     |> Map.merge(
       case opts[:retain_resources] do
                      nil -> %{}
-        retain_resources -> retain_resources_params(retain_resources)
+        retain_resources -> transform_retain_resources(retain_resources)
       end
     )
 
@@ -176,7 +168,7 @@ defmodule ExAws.Cloudformation do
   @spec list_stacks(opts :: list_stacks_opts) :: ExAws.Operation.Query.t
   def list_stacks(opts \\ []) do
     query_params = opts
-    |> Enum.reject(&match?({:status_filter, _}, &1))
+    |> Keyword.delete(:status_filter)
     |> normalize_opts
     |> Map.merge(
        case opts[:status_filter] do
@@ -219,68 +211,86 @@ defmodule ExAws.Cloudformation do
     |> camelize_keys
   end
 
-  def resources_to_skip_params(resources) do
-    resources
+  defp build_request_param(prefix, index, suffix \\ nil, value) do
+    dot_suffix =
+      if suffix != nil do ".#{suffix}" else "" end
+
+    {"#{prefix}.member.#{index}#{dot_suffix}", value}
+  end
+
+  defp build_request_params(request_param, values) do
+    values
     |> Enum.with_index(1)
-    |> Enum.flat_map(fn {resource, i} -> %{"ResourcesToSkip.member.#{i}" => resource} end)
+    |> Enum.map(fn {value, index} -> build_request_param(request_param, index, value) end)
     |> Enum.into(%{})
   end
 
+  def resources_to_skip_params(resources) do
+    build_request_params("ResourcesToSkip", resources)
+  end
+
   def stack_filter_params(filters) do
-    filters
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {filter, i} -> %{"StackStatusFilter.member.#{i}" => to_arg(filter)} end)
-    |> Enum.into(%{})
+    filters_strings =
+      filters
+        |> Enum.map(fn filter -> to_arg(filter) end)
+
+    build_request_params("StackStatusFilter", filters_strings)
   end
 
   defp to_arg(result), do: result |> Atom.to_string |> String.upcase
 
-  def capabilities_params(capabilities) do
-    capabilities
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {capability, i} -> %{"Capabilities.member.#{i}" => to_arg(capability)} end)
-    |> Enum.into(%{})
+  def transform_capabilities(capabilities) do
+    capabilities_strings =
+      capabilities
+        |> Enum.map(fn capability -> to_arg(capability) end)
+
+    build_request_params("Capabilities", capabilities_strings)
   end
 
-  def parameters_params(parameters) do
+  def transform_parameters(parameters) do
     parameters
     |> Enum.with_index(1)
     |> Enum.flat_map(fn {parameter, i} ->
-      %{"Parameters.member.#{i}.ParameterKey" => parameter[:parameter_key],
-      "Parameters.member.#{i}.ParameterValue" => parameter[:parameter_value],
-      "Parameters.member.#{i}.UsePreviousValue" => parameter[:use_previous_value]}
+      [
+       build_request_param("Parameters", i, "ParameterKey", parameter[:parameter_key]),
+       build_request_param("Parameters", i, "ParameterValue", parameter[:parameter_value]),
+       build_request_param("Parameters", i, "UsePreviousValue", parameter[:use_previous_value])
+      ]
     end)
     |> Enum.filter(fn {_key, value} -> value != nil end)
     |> Enum.into(%{})
   end
 
-  def notification_arns_params(notification_arns) do
-    notification_arns
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {notification_arn, i} -> %{"NotificationARNs.member.#{i}" => notification_arn} end)
-    |> Enum.into(%{})
+  def transform_notification_arns(notification_arns) do
+    build_request_params("NotificationARN", notification_arns)
   end
 
-  def tags_params(tags) do
+
+  def transform_tags(tags) do
     tags
     |> Enum.with_index(1)
     |> Enum.flat_map(fn {{key, value}, i} ->
-      %{"Tags.member.#{i}.Key" => Atom.to_string(key), "Tags.member.#{i}.Value" => value}
+      [
+       build_request_param("Tags", i, "Key", Atom.to_string(key)),
+       build_request_param("Tags", i, "Value", value)
+      ]
     end)
+    |> Enum.filter(fn {_key, value} -> value != nil end)
     |> Enum.into(%{})
   end
 
-  def resource_types_params(resource_types) do
-    resource_types
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {resource_type, i} -> %{"ResourceTypes.member.#{i}" => resource_type} end)
-    |> Enum.into(%{})
+  def transform_resource_types(resource_types) do
+    build_request_params("ResourceTypes", resource_types)
   end
 
-  def retain_resources_params(retain_resources) do
-    retain_resources
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {retain_resource, i} -> %{"RetainResources.member.#{i}" => retain_resource} end)
-    |> Enum.into(%{})
+  def transform_retain_resources(retain_resources) do
+    build_request_params("RetainResources", retain_resources)
+  end
+
+  defp maybe_transform(func, value) when is_atom(func) do
+    case value do
+        nil -> %{}
+      value -> apply(ExAws.Cloudformation, func, [value])
+    end
   end
 end
