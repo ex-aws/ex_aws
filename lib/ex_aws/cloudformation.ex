@@ -334,20 +334,6 @@ defmodule ExAws.Cloudformation do
     |> camelize_keys
   end
 
-  defp build_request_param(prefix, index, suffix \\ nil, value) do
-    dot_suffix =
-      if suffix != nil do ".#{suffix}" else "" end
-
-    {"#{prefix}.member.#{index}#{dot_suffix}", value}
-  end
-
-  defp build_request_params(request_param, values) do
-    values
-    |> Enum.with_index(1)
-    |> Enum.map(fn {value, index} -> build_request_param(request_param, index, value) end)
-    |> Enum.into(%{})
-  end
-
   def transform_skip_resources(resources) do
     build_request_params("ResourcesToSkip", resources)
   end
