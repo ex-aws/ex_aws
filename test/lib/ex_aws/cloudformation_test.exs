@@ -42,7 +42,7 @@ defmodule ExAws.CloudformationTest do
       "StackName" => "test_stack"
       })
 
-    assert expected =
+    assert expected ==
       Cloudformation.continue_update_rollback("test_stack",
       [role_arn: "arn:my:thing", skip_resources: ["test_resource_1", "test_resource_2"]])
   end
