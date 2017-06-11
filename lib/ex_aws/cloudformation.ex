@@ -306,6 +306,7 @@ defmodule ExAws.Cloudformation do
     request(:list_stack_resources, query_params)
   end
 
+
   ########################
   ### Helper Functions ###
   ########################
@@ -341,17 +342,15 @@ defmodule ExAws.Cloudformation do
   def transform_stack_status_filters(filters) do
     filters_strings =
       filters
-        |> Enum.map(fn filter -> add_upcase(filter) end)
+        |> Enum.map(fn filter -> upcase(filter) end)
 
     build_request_params("StackStatusFilter", filters_strings)
   end
 
-  defp add_upcase(result), do: result |> Atom.to_string |> String.upcase
-
   def transform_capabilities(capabilities) do
     capabilities_strings =
       capabilities
-        |> Enum.map(fn capability -> add_upcase(capability) end)
+        |> Enum.map(fn capability -> upcase(capability) end)
 
     build_request_params("Capabilities", capabilities_strings)
   end
