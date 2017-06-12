@@ -70,6 +70,16 @@ if Code.ensure_loaded?(SweetXml) do
         {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+
+    def parse({:ok, %{body: xml} = resp}, :get_template, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//GetTemplateResponse",
+          template_body: ~x"./GetTemplateResult/TemplateBody/text()"s,
+          request_id: request_id_xpath()
+       )
+     {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :list_stacks, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListStacksResponse",
@@ -94,9 +104,10 @@ if Code.ensure_loaded?(SweetXml) do
       |> SweetXml.xpath(~x"//ListStackResourcesResponse",
           next_token: ~x"./ListStackResourcesResult/NextToken/text()"s,
           request_id: request_id_xpath(),
-          resources: [ ~x"./ListStackResourcesResult/StackResourceSummaries/member"l,
-                       last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s
-                     ] ++ resource_description_fields()
+          resources: [
+            ~x"./ListStackResourcesResult/StackResourceSummaries/member"l,
+            last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s
+           ] ++ resource_description_fields()
          )
 
       {:ok, Map.put(resp, :body, parsed_body)}

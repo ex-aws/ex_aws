@@ -233,13 +233,13 @@ defmodule ExAws.Cloudformation do
 
   Example:
   ```
-  #Describe resources by stack name
+  # Describe resources by stack name
   Cloudformation.describe_stack_resources([stack_name: "Test"])
 
-  #Describe resources with a logical resource ID
+  # Describe resources with a logical resource ID
   Cloudformation.describe_stack_resources([stack_name: "Test", logical_resource_id: "test_resource_id"])
 
-  #Describe resources with a physical resource ID
+  # Describe resources with a physical resource ID
   Cloudformation.describe_stack_resources([physical_resource_id: "test_resource_id"])
   ```
   """
@@ -255,6 +255,34 @@ defmodule ExAws.Cloudformation do
 
 
   @doc """
+  Returns a template body for a specified stack. Can get a template for
+  running or deleted stacks.
+
+  Please read: http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_GetTemplate.html
+
+  Example:
+  ```
+  # Get a template with stack name and template stage param
+  Cloudformation.get_template([stack_name: "Test", template_stage: :processed])
+  ```
+  """
+  @type get_template_opts :: [
+    change_set_name: binary,
+    stack_name: binary,
+    template_stage: [:original | :processed]
+  ]
+
+  @spec get_template(opts :: get_template_opts) :: ExAws.Operation.Query.t
+  def get_template(opts \\ []) do
+    query_params =
+      %{"ChangeSetName" => opts[:change_set_name],
+        "StackName" => opts[:stack_name],
+        "TemplateStage" => upcase(opts[:template_stage])}
+
+    request(:get_template, query_params)
+  end
+
+  @doc """
   Gets the summary information for stacks. If no :stack_status_filters are passed in,
   then all stacks are returned (existing and stacks have have been deleted in the last 90 days)
 
@@ -265,7 +293,7 @@ defmodule ExAws.Cloudformation do
   # List all stacks
   Cloudformation.list_stacks
 
-  #List stacks with some stack status filters
+  # List stacks with some stack status filters
   Cloudformation.list_stacks([stack_status_filters: [:delete_complete]])
   ```
   """
