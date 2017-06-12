@@ -159,6 +159,37 @@ defmodule ExAws.CloudformationTest do
     assert expected == Cloudformation.describe_stack_resources([stack_name: "MyTestResource"])
   end
 
+  test "get_template with stack_name" do
+    expected = query(:get_template, %{"StackName" => "Test"})
+
+    assert expected == Cloudformation.get_template([stack_name: "Test"])
+  end
+
+  test "get_template with stack_name, template_stage, and change_set_name" do
+    expected = query(:get_template, %{"StackName" => "Test",
+                                      "ChangeSetName" => "test_changeset",
+                                      "TemplateStage" => "Original"})
+    assert expected == Cloudformation.get_template([stack_name: "Test", change_set_name: "test_changeset", template_stage: :original])
+  end
+
+  test "get_template_summary with stack_name" do
+    expected = query(:get_template_summary, %{"StackName" => "Test"})
+
+    assert expected == Cloudformation.get_template_summary([stack_name: "Test"])
+  end
+
+  test "get_template_summary with template_url" do
+    expected = query(:get_template_summary, %{"TemplateURL" => "TestUrl"})
+
+    assert expected == Cloudformation.get_template_summary([template_url: "TestUrl"])
+  end
+
+  test "get_template_summary with template_body" do
+    expected = query(:get_template_summary, %{"TemplateBody" => "TestTemplateBody"})
+
+    assert expected == Cloudformation.get_template_summary([template_body: "TestTemplateBody"])
+  end
+
   test "list_stacks no options" do
     expected = query(:list_stacks)
     assert expected == Cloudformation.list_stacks

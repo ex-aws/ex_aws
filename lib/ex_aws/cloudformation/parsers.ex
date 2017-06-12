@@ -80,6 +80,25 @@ if Code.ensure_loaded?(SweetXml) do
      {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+
+    def parse({:ok, %{body: xml} = resp}, :get_template_summary, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//GetTemplateSummaryResponse",
+        description: ~x"./GetTemplateSummaryResult/Description/text()"s,
+        parameters: [
+          ~x"./GetTemplateSummaryResult/Parameters/member"l,
+          no_echo: ~x"./NoEcho/text()"s,
+          parameter_key: ~x"./ParameterKey/text()"s,
+          description: ~x"./Description/text()"s,
+          parameter_type: ~x"./ParameterType/text()"s,
+        ],
+        metadata: ~x"./GetTemplateSummaryResult/Metadata/text()"s,
+        version: ~x"./GetTemplateSummaryResult/Version/text()"s,
+        request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :list_stacks, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListStacksResponse",

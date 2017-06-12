@@ -161,7 +161,9 @@ defmodule ExAws.Cloudformation do
       maybe_transform(transform_func, opts[key])
     end)
 
-    other_params = [{"StackName", stack_name}, {"TemplateURL", opts[:template_url]}, {"RoleARN", opts[:role_arn]}]
+    other_params = [{"StackName", stack_name},
+                    {"TemplateURL", opts[:template_url]},
+                    {"RoleARN", opts[:role_arn]}]
 
     query_params =
       Enum.concat([normal_params, transformed_params, other_params])
@@ -255,7 +257,7 @@ defmodule ExAws.Cloudformation do
 
 
   @doc """
-  Returns a template body for a specified stack. Can get a template for
+  Gets the template body for a specified stack. Can get a template for
   running or deleted stacks.
 
   Please read: http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_GetTemplate.html
@@ -271,15 +273,47 @@ defmodule ExAws.Cloudformation do
     stack_name: binary,
     template_stage: [:original | :processed]
   ]
-
   @spec get_template(opts :: get_template_opts) :: ExAws.Operation.Query.t
   def get_template(opts \\ []) do
+    normal_params = opts
+      |> Keyword.delete(:template_stage)
+      |> normalize_opts
+
+    template_stage_param = maybe_transform(:transform_template_stage, opts[:template_stage])
     query_params =
-      %{"ChangeSetName" => opts[:change_set_name],
-        "StackName" => opts[:stack_name],
-        "TemplateStage" => upcase(opts[:template_stage])}
+      Enum.concat([template_stage_param, normal_params])
+      |> Enum.into(%{})
 
     request(:get_template, query_params)
+  end
+
+
+  @doc """
+  Gets information about a new or existing template. Useful for viewing
+  parameter information, such as default parameter values and parameter
+  types
+
+  Please read: http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_GetTemplateSummary.html
+
+  Example
+  # Get template summary with stack name
+  Cloudformation.get_template_summary([stack_name: "Test"])
+
+  """
+  @type get_template_summary_opts :: [
+    stack_name: binary,
+    template_body: binary,
+    template_url: binary
+  ]
+  @spec get_template_summary(opts :: get_template_summary_opts) :: ExAws.Operation.Query.t
+  def get_template_summary(opts \\ []) do
+    query_params =
+      [{"StackName", opts[:stack_name]},
+       {"TemplateBody", opts[:template_body]},
+       {"TemplateURL", opts[:template_url]}]
+       |> filter_nil_params
+
+    request(:get_template_summary, query_params)
   end
 
   @doc """
@@ -393,8 +427,7 @@ defmodule ExAws.Cloudformation do
        build_request_param("Parameters", i, "UsePreviousValue", parameter[:use_previous_value])
       ]
     end)
-    |> Enum.filter(fn {_key, value} -> value != nil end)
-    |> Enum.into(%{})
+    |> filter_nil_params
   end
 
   def transform_notification_arns(notification_arns) do
@@ -411,8 +444,7 @@ defmodule ExAws.Cloudformation do
        build_request_param("Tags", i, "Value", value)
       ]
     end)
-    |> Enum.filter(fn {_key, value} -> value != nil end)
-    |> Enum.into(%{})
+    |> filter_nil_params
   end
 
   def transform_resource_types(resource_types) do
@@ -421,6 +453,10 @@ defmodule ExAws.Cloudformation do
 
   def transform_retain_resources(retain_resources) do
     build_request_params("RetainResources", retain_resources)
+  end
+
+  def transform_template_stage(template_stage) do
+    [{"TemplateStage", camelize_key(template_stage)}]
   end
 
   defp maybe_transform(func, value) when is_atom(func) do
