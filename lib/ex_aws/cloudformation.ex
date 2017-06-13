@@ -398,7 +398,7 @@ defmodule ExAws.Cloudformation do
   end
 
   def transform_skip_resources(resources) do
-    build_request_params("ResourcesToSkip", resources)
+    build_indexed_params("ResourcesToSkip.member.{i}", resources)
   end
 
   def transform_stack_status_filters(filters) do
@@ -406,7 +406,7 @@ defmodule ExAws.Cloudformation do
       filters
         |> Enum.map(fn filter -> upcase(filter) end)
 
-    build_request_params("StackStatusFilter", filters_strings)
+    build_indexed_params("StackStatusFilter.member.{i}", filters_strings)
   end
 
   def transform_capabilities(capabilities) do
@@ -414,45 +414,42 @@ defmodule ExAws.Cloudformation do
       capabilities
         |> Enum.map(fn capability -> upcase(capability) end)
 
-    build_request_params("Capabilities", capabilities_strings)
+    build_indexed_params("Capabilities.member.{i}", capabilities_strings)
   end
 
   def transform_parameters(parameters) do
-    parameters
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {parameter, i} ->
-      [
-       build_request_param("Parameters", i, "ParameterKey", parameter[:parameter_key]),
-       build_request_param("Parameters", i, "ParameterValue", parameter[:parameter_value]),
-       build_request_param("Parameters", i, "UsePreviousValue", parameter[:use_previous_value])
-      ]
-    end)
+    parameter_keys     = for param <- parameters, do: param[:parameter_key]
+    parameter_value    = for param <- parameters, do: param[:parameter_value]
+    use_previous_value = for param <- parameters, do: param[:use_previous_value]
+
+    build_indexed_params([
+      {"Parameters.member.{i}.ParameterKey", parameter_keys},
+      {"Parameters.member.{i}.ParameterValue", parameter_value},
+      {"Parameters.member.{i}.UsePreviousValue", use_previous_value}]) 
     |> filter_nil_params
   end
 
   def transform_notification_arns(notification_arns) do
-    build_request_params("NotificationARN", notification_arns)
+    build_indexed_params("NotificationARN.member.{i}", notification_arns)
   end
 
 
   def transform_tags(tags) do
-    tags
-    |> Enum.with_index(1)
-    |> Enum.flat_map(fn {{key, value}, i} ->
-      [
-       build_request_param("Tags", i, "Key", Atom.to_string(key)),
-       build_request_param("Tags", i, "Value", value)
-      ]
-    end)
+    keys   = for {key, _}   <- tags, do: Atom.to_string(key)
+    values = for {_, value} <- tags, do: value
+    
+    build_indexed_params([
+      {"Tags.member.{i}.Key", keys},
+      {"Tags.member.{i}.Value", values}]) 
     |> filter_nil_params
   end
 
   def transform_resource_types(resource_types) do
-    build_request_params("ResourceTypes", resource_types)
+    build_indexed_params("ResourceTypes.member.{i}", resource_types)
   end
 
   def transform_retain_resources(retain_resources) do
-    build_request_params("RetainResources", retain_resources)
+    build_indexed_params("RetainResources.member.{i}", retain_resources)
   end
 
   def transform_template_stage(template_stage) do

@@ -78,15 +78,14 @@ defmodule ExAws.Utils do
 
   @seconds_0_to_1970 :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
 
-  def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">>) do
-    <<year::binary-4, "-", mon::binary-2, "-", day::binary-2>> = date
-    <<hour::binary-2, ":", min::binary-2, ":", sec::binary-2>> = time
-    year = year |> String.to_integer
-    mon  = mon  |> String.to_integer
-    day  = day  |> String.to_integer
-    hour = hour |> String.to_integer
-    min  = min  |> String.to_integer
-    sec  = sec  |> String.to_integer
+  def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">> <> _) do
+    [year, mon, day] = date
+      |> String.split("-") 
+      |> Enum.map(&String.to_integer/1)
+
+    [hour, min, sec] = time
+      |> String.split(":") 
+      |> Enum.map(&String.to_integer/1)
 
     # Seriously? Gregorian seconds but not epoch seconds?
     greg_secs = :calendar.datetime_to_gregorian_seconds({{year, mon, day}, {hour, min, sec}})
@@ -110,17 +109,23 @@ defmodule ExAws.Utils do
     end)
   end
 
-  def build_request_param(prefix, index, suffix \\ nil, value) do
-    dot_suffix =
-      if suffix != nil do ".#{suffix}" else "" end
+  def build_indexed_params(param_key, values) when is_list(values) do
+    case String.split(param_key, "{i}") do
+      [prefix, suffix] -> 
+        values
+        |> Enum.with_index(1)
+        |> Enum.map(fn {value, i} -> {prefix <> "#{i}" <> suffix, value} end)
 
-    {"#{prefix}.member.#{index}#{dot_suffix}", value}
+      _ -> raise ArgumentError, "The Argument param_key is invalid. 
+      Expected a string with exactly one location for an index, got: \"#{param_key}\"
+      Example valid param_key: \"Tags.member.{i}.Key\""
+    end
   end
 
-  def build_request_params(request_param, values) do
-    values
-    |> Enum.with_index(1)
-    |> Enum.map(fn {value, index} -> build_request_param(request_param, index, value) end)
-    |> Enum.into(%{})
+  def build_indexed_params(param_key, value), do: build_indexed_params(param_key, [value])
+
+  def build_indexed_params(key_value_pairs) when is_list(key_value_pairs) do
+    Enum.flat_map(key_value_pairs, fn {key, values} -> build_indexed_params(key, values) end)
   end
+
 end
