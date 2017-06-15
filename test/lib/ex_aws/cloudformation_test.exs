@@ -214,6 +214,21 @@ defmodule ExAws.CloudformationTest do
     assert expected == Cloudformation.list_stack_resources("test_stack", next_token: "Next")
   end
 
+  test "describe_stacks with stack name" do
+    expected = query(:describe_stacks, %{"StackName" => "test_stack"})
+    assert expected == Cloudformation.describe_stacks("test_stack")
+  end
+
+  test "describe_stacks with blank name" do
+    expected = query(:describe_stacks, %{})
+    assert expected == Cloudformation.describe_stacks("")
+  end
+
+  test "describe_stacks with no name" do
+    expected = query(:describe_stacks, %{})
+    assert expected == Cloudformation.describe_stacks()
+  end
+
   defp query(action, params \\ %{}) do
     action_param = action |> Atom.to_string |> Macro.camelize
     %Query{

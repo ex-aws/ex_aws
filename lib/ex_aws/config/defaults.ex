@@ -20,7 +20,7 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: {"$region", "cloudformation.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     kinesis: %{
       scheme: "https://",

@@ -293,6 +293,53 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert first_resource[:physical_resource_id] == "gmarcteststack-dbsecuritygroup-1s5m0ez5lkk6w"
   end
 
+  test "parsing a describe_stacks response" do
+    rsp = """
+    <DescribeStacksResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <DescribeStacksResult>
+        <Stacks>
+          <member>
+            <StackName>MyStack</StackName>
+            <StackId>arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83</StackId>
+            <CreationTime>2010-07-27T22:28:28Z</CreationTime>
+            <StackStatus>CREATE_COMPLETE</StackStatus>
+            <DisableRollback>false</DisableRollback>
+            <Outputs>
+              <member>
+                <OutputKey>StartPage</OutputKey>
+                <OutputValue>http://my-load-balancer.amazonaws.com:80/index.html</OutputValue>
+              </member>
+              <member>
+                <OutputKey>Prop2</OutputKey>
+                <OutputValue>PropVal2</OutputValue>
+              </member>
+            </Outputs>
+          </member>
+        </Stacks>
+      </DescribeStacksResult>
+      <ResponseMetadata>
+        <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+      </ResponseMetadata>
+    </DescribeStacksResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :describe_stacks, config())
+    assert parsed_doc[:request_id] == "b9b4b068-3a41-11e5-94eb-example"
+    assert parsed_doc[:stacks] |> length == 1
+
+    first_stack = parsed_doc[:stacks] |> hd
+    assert first_stack[:id] == "arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83"
+    assert first_stack[:name] == "MyStack"
+    assert first_stack[:creation_time] == "2010-07-27T22:28:28Z"
+    assert first_stack[:status] == :create_complete
+    assert first_stack[:disable_rollback] == "false"
+
+    assert first_stack[:outputs] |> Map.keys |> length == 2
+    assert first_stack[:outputs]["StartPage"] == "http://my-load-balancer.amazonaws.com:80/index.html"
+    assert first_stack[:outputs]["Prop2"] == "PropVal2"
+  end
+
   def to_error(doc) do
     {:error, {:http_error, 403, %{body: doc}}}
   end

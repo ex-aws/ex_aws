@@ -132,6 +132,34 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :describe_stacks, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DescribeStacksResponse",
+                        stacks: [
+                          ~x"./DescribeStacksResult/Stacks/member"lo,
+                          name: ~x"./StackName/text()"s,
+                          id: ~x"./StackId/text()"s,
+                          creation_time: ~x"./CreationTime/text()"s,
+                          status: ~x"./StackStatus/text()"s |> transform_by(&const_to_atom/1),
+                          disable_rollback: ~x"./DisableRollback/text()"s,
+                          outputs: [
+                            ~x"./Outputs/member"lo,
+                            key: ~x"./OutputKey/text()"s,
+                            value: ~x"./OutputValue/text()"s
+                          ] 
+                        ],
+                        request_id: request_id_xpath())
+
+      processStack = fn stack ->
+        Map.update!( stack, :outputs, &Map.new( &1, fn kv -> {kv[:key], kv[:value]} end ) )
+      end
+      
+      #Convert the list of outputs to a map
+      processed_body = Map.update!( parsed_body, :stacks, &Enum.map( &1, fn stack -> processStack.( stack ) end ) )
+
+      {:ok, Map.put(resp, :body, processed_body)}
+    end
+    
     def parse({:error, {type, http_status_code, %{body: xml}}}, _, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ErrorResponse",

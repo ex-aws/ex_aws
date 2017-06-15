@@ -368,6 +368,22 @@ defmodule ExAws.Cloudformation do
     request(:list_stack_resources, query_params)
   end
 
+  @doc "Returns the description for the specified stack; if no stack name was specified, then it returns the description for all the stacks created."
+  @spec describe_stacks(stack_name :: binary) :: ExAws.Operation.Query.t
+  def describe_stacks(stack_name \\ nil, opts \\ []) do
+    normalized_params = opts
+    |> normalize_opts
+    
+    query_params =
+    if is_nil(stack_name) || stack_name == "" do
+      normalized_params
+    else
+      normalized_params
+      |> Map.merge(%{ "StackName" => stack_name })
+    end
+
+    request(:describe_stacks, query_params)
+  end
 
   ########################
   ### Helper Functions ###
