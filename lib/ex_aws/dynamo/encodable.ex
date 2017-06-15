@@ -102,12 +102,21 @@ defimpl ExAws.Dynamo.Encodable, for: List do
 
   @doc """
   Dynamodb offers typed sets and L, a generic list of typed attributes.
+  If all elements in a list are number, the list is encoded to NS type.
   """
   def encode(list, _) do
-    typed_values = for value <- list do
-      Encodable.encode(value, [])
+    if Enum.all?(list, fn(x) -> is_integer(x) || is_float(x) end) do
+      %{"NS" => Enum.map(list, fn(x) ->
+        cond do
+          is_integer(x) -> Integer.to_string(x)
+          is_float(x) -> Float.to_string(x)
+        end
+      end)}
+    else
+      typed_values = for value <- list do
+        Encodable.encode(value, [])
+      end
+      %{"L"  => typed_values}
     end
-
-    %{"L"  => typed_values}
   end
 end
