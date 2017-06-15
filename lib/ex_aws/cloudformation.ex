@@ -85,7 +85,7 @@ defmodule ExAws.Cloudformation do
 
   @spec continue_update_rollback(stack_name :: binary, opts :: continue_update_rollback_opts) :: ExAws.Operation.Query.t
   def continue_update_rollback(stack_name, opts \\ []) do
-    skip_resources = maybe_transform(:transform_skip_resources, opts[:skip_resources])
+    skip_resources = maybe_transform(:skip_resources, opts[:skip_resources])
 
     query_params =
       Enum.concat([skip_resources,
@@ -111,11 +111,11 @@ defmodule ExAws.Cloudformation do
 
   # {key :: atom, transform_function_name :: atom}
   @params_to_transform [
-    {:capabilities, :transform_capabilities},
-    {:parameters, :transform_parameters},
-    {:notification_arns, :transform_notification_arns},
-    {:tags, :transform_tags},
-    {:resource_types, :transform_resource_types}
+    :capabilities,
+    :parameters,
+    :notification_arns,
+    :tags,
+    :resource_types,
   ]
 
   @doc """
@@ -157,8 +157,8 @@ defmodule ExAws.Cloudformation do
     |> normalize_opts
 
     transformed_params = @params_to_transform
-    |> Enum.flat_map(fn {key, transform_func} ->
-      maybe_transform(transform_func, opts[key])
+    |> Enum.flat_map(fn key ->
+      maybe_transform(key, opts[key])
     end)
 
     other_params = [{"StackName", stack_name},
@@ -197,7 +197,7 @@ defmodule ExAws.Cloudformation do
   ]
   @spec delete_stack(stack_name :: binary, opts :: delete_stack_opts) :: ExAws.Operation.Query.t
   def delete_stack(stack_name, opts \\ []) do
-    transformed_retain_resources = maybe_transform(:transform_retain_resources, opts[:retain_resources])
+    transformed_retain_resources = maybe_transform(:retain_resources, opts[:retain_resources])
 
     query_params = Enum.concat([transformed_retain_resources, [{"StackName", stack_name}, {"RoleARN", opts[:role_arn]}]])
     |> filter_nil_params
@@ -279,7 +279,7 @@ defmodule ExAws.Cloudformation do
       |> Keyword.delete(:template_stage)
       |> normalize_opts
 
-    template_stage_param = maybe_transform(:transform_template_stage, opts[:template_stage])
+    template_stage_param = maybe_transform(:template_stage, opts[:template_stage])
     query_params =
       Enum.concat([template_stage_param, normal_params])
       |> Enum.into(%{})
@@ -337,7 +337,7 @@ defmodule ExAws.Cloudformation do
   ]
   @spec list_stacks(opts :: list_stacks_opts) :: ExAws.Operation.Query.t
   def list_stacks(opts \\ []) do
-    transformed_stack_status_filters = maybe_transform(:transform_stack_status_filters, opts[:stack_status_filters])
+    transformed_stack_status_filters = maybe_transform(:stack_status_filters, opts[:stack_status_filters])
 
     query_params =
       Enum.concat([transformed_stack_status_filters,
@@ -413,11 +413,15 @@ defmodule ExAws.Cloudformation do
     |> camelize_keys
   end
 
-  def transform_skip_resources(resources) do
+  ############################
+  ### Transform Functions ###
+  ##########################
+
+  defp transform(:skip_resources, resources) do
     build_indexed_params("ResourcesToSkip.member.{i}", resources)
   end
 
-  def transform_stack_status_filters(filters) do
+  defp transform(:stack_status_filters, filters) do
     filters_strings =
       filters
         |> Enum.map(fn filter -> upcase(filter) end)
@@ -425,7 +429,7 @@ defmodule ExAws.Cloudformation do
     build_indexed_params("StackStatusFilter.member.{i}", filters_strings)
   end
 
-  def transform_capabilities(capabilities) do
+  defp transform(:capabilities, capabilities) do
     capabilities_strings =
       capabilities
         |> Enum.map(fn capability -> upcase(capability) end)
@@ -433,7 +437,7 @@ defmodule ExAws.Cloudformation do
     build_indexed_params("Capabilities.member.{i}", capabilities_strings)
   end
 
-  def transform_parameters(parameters) do
+  defp transform(:parameters, parameters) do
     parameter_keys     = for param <- parameters, do: param[:parameter_key]
     parameter_value    = for param <- parameters, do: param[:parameter_value]
     use_previous_value = for param <- parameters, do: param[:use_previous_value]
@@ -445,12 +449,12 @@ defmodule ExAws.Cloudformation do
     |> filter_nil_params
   end
 
-  def transform_notification_arns(notification_arns) do
+  defp transform(:notification_arns, notification_arns) do
     build_indexed_params("NotificationARN.member.{i}", notification_arns)
   end
 
 
-  def transform_tags(tags) do
+  defp transform(:tags, tags) do
     keys   = for {key, _}   <- tags, do: Atom.to_string(key)
     values = for {_, value} <- tags, do: value
     
@@ -460,22 +464,22 @@ defmodule ExAws.Cloudformation do
     |> filter_nil_params
   end
 
-  def transform_resource_types(resource_types) do
+  defp transform(:resource_types, resource_types) do
     build_indexed_params("ResourceTypes.member.{i}", resource_types)
   end
 
-  def transform_retain_resources(retain_resources) do
+  defp transform(:retain_resources, retain_resources) do
     build_indexed_params("RetainResources.member.{i}", retain_resources)
   end
 
-  def transform_template_stage(template_stage) do
+  defp transform(:template_stage, template_stage) do
     [{"TemplateStage", camelize_key(template_stage)}]
   end
 
-  defp maybe_transform(func, value) when is_atom(func) do
+  defp maybe_transform(transformation_type, value) when is_atom(transformation_type) do
     case value do
         nil -> %{}
-      value -> apply(ExAws.Cloudformation, func, [value])
+      value -> transform(transformation_type, value)
     end
   end
 end

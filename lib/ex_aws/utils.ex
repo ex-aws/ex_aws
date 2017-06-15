@@ -109,23 +109,23 @@ defmodule ExAws.Utils do
     end)
   end
 
-  def build_indexed_params(param_key, values) when is_list(values) do
-    case String.split(param_key, "{i}") do
+  def build_indexed_params(key_template, values) when is_list(values) do
+    case String.split(key_template, "{i}") do
       [prefix, suffix] -> 
         values
         |> Enum.with_index(1)
         |> Enum.map(fn {value, i} -> {prefix <> "#{i}" <> suffix, value} end)
 
-      _ -> raise ArgumentError, "The Argument param_key is invalid. 
-      Expected a string with exactly one location for an index, got: \"#{param_key}\"
-      Example valid param_key: \"Tags.member.{i}.Key\""
+      _ -> raise ArgumentError, "The Argument key_template is invalid. 
+      Expected a string with exactly one location for an index, got: \"#{key_template}\"
+      Example valid key_template: \"Tags.member.{i}.Key\""
     end
   end
 
-  def build_indexed_params(param_key, value), do: build_indexed_params(param_key, [value])
+  def build_indexed_params(key_template, value), do: build_indexed_params(key_template, [value])
 
-  def build_indexed_params(key_value_pairs) when is_list(key_value_pairs) do
-    Enum.flat_map(key_value_pairs, fn {key, values} -> build_indexed_params(key, values) end)
+  def build_indexed_params(key_templates) when is_list(key_templates) do
+    Enum.flat_map(key_templates, fn {key_template, values} -> build_indexed_params(key_template, values) end)
   end
 
 end
