@@ -25,11 +25,32 @@ defmodule ExAws.UtilsTest do
     |> camelize_keys(deep: true)
   end
 
-  test "iso_z_to_secs/1" do
-    assert iso_z_to_secs("2015-07-05T22:16:18Z") == 1436134578
+  test "iso_z_to_secs converts iso string to epoch seconds" do
+    assert 1436134578 == iso_z_to_secs("2015-07-05T22:16:18Z")
   end
 
   test "rename_keys renames keys in a list of keywords" do
     assert [d: 1, b: 2, e: 3] == [a: 1, b: 2, c: 3] |> rename_keys(a: :d, c: :e)
+  end
+
+  test "build_indexed_params creates key value pairs from key_template and list" do
+    assert [{"key.1", 1}, {"key.2", 2}] == build_indexed_params("key.{i}", [1,2])
+  end
+
+  test "build_indexed_params creates key value pair from key_template and single element" do
+    assert [{"key.1", 1}] == build_indexed_params("key.{i}", 1)
+  end
+
+  test "build_indexed_params creates key value pairs from list of key_templates" do
+    expected_return = [
+        {"foo.1", 1}, {"foo.2", 2}, 
+        {"bar.1", 3}, {"bar.2", 4},
+      ]
+    index_params = build_indexed_params([ 
+        {"foo.{i}", [1,2]}, 
+        {"bar.{i}", [3,4]},
+      ])
+
+    assert expected_return == index_params
   end
 end
