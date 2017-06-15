@@ -4,6 +4,7 @@ ExAws
 
 A flexible easy to use set of AWS APIs.
 
+- `ExAws.Cloudwatch`
 - `ExAws.Dynamo`
 - `ExAws.DynamoStreams`
 - `ExAws.EC2`
@@ -12,7 +13,6 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.Kinesis`
 - `ExAws.KMS`
 - `ExAws.Lambda`
-- `ExAws.Polly`
 - `ExAws.RDS`
 - `ExAws.Route53`
 - `ExAws.S3`

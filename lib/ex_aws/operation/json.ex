@@ -9,7 +9,6 @@ defmodule ExAws.Operation.JSON do
   - DynamoDB
   - Kinesis
   - Lambda (Rest style)
-  - Polly (Rest style)
   - ElasticTranscoder
 
   JSON services are generally pretty simple. You just need to populate the `data`
@@ -34,7 +33,7 @@ defmodule ExAws.Operation.JSON do
   @type t :: %__MODULE__{}
 
   def new(service, opts) do
-    struct(%__MODULE__{service: service}, opts)
+    struct(%__MODULE__{service: service, parser: &(&1)}, opts)
   end
 end
 
@@ -48,11 +47,8 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
       {"x-amz-content-sha256", ""} | operation.headers
     ]
 
-    resp = ExAws.Request.request(operation.http_method, url, operation.data, headers, config, operation.service)
-    case operation.parser do
-      nil -> parse(resp, config)
-      parser -> parser.(resp, config)
-    end
+    ExAws.Request.request(operation.http_method, url, operation.data, headers, config, operation.service)
+    |> parse(config)
   end
 
   def stream!(%ExAws.Operation.JSON{stream_builder: nil}, _) do

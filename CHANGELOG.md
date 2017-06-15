@@ -1,18 +1,13 @@
-## v1.2.0
-  - Breaking Change: S3 operations with associated parsing functions will raise by
-    default now if the XML dependency is not included. If you do not want this behaviour,
-    override the parse function on the operation like so:
-    ```
-    S3.list_objects() |> Map.put(:parser, &(&1)) |> ExAws.request
-    ```
-  - Breaking Change: DyanmoDB will now encode `nil` as the now supported `{"NULL":"true"}`
-  - Enhancements:
-      - Additional functions on SES
-      -
+ExAws v1.1.2
 
-  - Bug fix: URLs with spaces and S3.
+- New Service: Cloudwatch (initial)
+- New Service: ElasticTranscoder
 
-## v1.1.0
+- Various bug fixes.
+
+Thanks to our many contributors!
+
+ExAws v1.1.0
 
 This update has quite a few changes, many thanks to those who contributed code
 this release!
