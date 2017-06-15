@@ -33,6 +33,37 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
   end
 
+  test "parsing a create_stack_response" do
+    rsp = """
+    <CreateStackResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <CreateStackResult>
+        <StackId>arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83</StackId>
+      </CreateStackResult>
+      <ResponseMetadata>
+        <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+      </ResponseMetadata>
+    </CreateStackResponse>
+    """
+    |> to_success
+
+    {ok, %{body: parsed_doc}} = Parsers.parse(rsp, :create_stack, nil)
+    assert parsed_doc[:stack_id] == "arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83"
+    assert parsed_doc[:request_id] == "b9b4b068-3a41-11e5-94eb-example"
+  end
+
+  test "parsing a delete_stack_response" do
+    rsp = """
+    <DeleteStackResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+      <ResponseMetadata>
+        <RequestId>5ccc7dcd-744c-11e5-be70-example</RequestId>
+      </ResponseMetadata>
+    </DeleteStackResponse>
+    """
+    |> to_success
+    {ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_stack, nil)
+    assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
+  end
+
   test "parsing a describe_stack_resource response" do
     rsp = """
     <DescribeStackResourceResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
@@ -108,6 +139,73 @@ defmodule ExAws.Cloudformation.ParserTest do
     assert first_resource[:physical_resource_id] == "MyStack_DB1"
     assert first_resource[:stack_id] == "arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83"
     assert first_resource[:stack_name] == "MyStack"
+  end
+
+
+  test "parsing a get_template response" do
+    rsp = """
+      <GetTemplateResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+        <GetTemplateResult>
+          <TemplateBody>
+          {
+            "AWSTemplateFormatVersion" : "2010-09-09",
+            "Description" : "Simple example",
+            "Resources" : {
+              "MySQS" : {
+                "Type" : "AWS::SQS::Queue",
+                "Properties" : {
+                }
+              }
+            }
+          }
+          </TemplateBody>
+        </GetTemplateResult>
+        <ResponseMetadata>
+          <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+        </ResponseMetadata>
+      </GetTemplateResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :get_template, nil)
+    assert String.contains?(parsed_doc[:template_body], "AWSTemplateFormatVersion") == true
+  end
+
+
+  test "parsing a get_template_summary response" do
+    rsp = """
+      <GetTemplateSummaryResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/">
+        <GetTemplateSummaryResult>
+          <Description>A sample template description.</Description>
+          <Parameters>
+            <member>
+              <NoEcho>false</NoEcho>
+              <ParameterKey>KeyName</ParameterKey>
+              <Description>Name of an existing EC2 KeyPair to enable SSH access to the instance</Description>
+              <ParameterType>AWS::EC2::KeyPair::KeyName</ParameterType>
+            </member>
+          </Parameters>
+          <Metadata>{"Instances":{"SampleDescription":"Information about the instances"}}</Metadata>
+          <Version>2010-09-09</Version>
+        </GetTemplateSummaryResult>
+        <ResponseMetadata>
+          <RequestId>b9b4b068-3a41-11e5-94eb-example</RequestId>
+        </ResponseMetadata>
+      </GetTemplateSummaryResponse>
+      """
+      |> to_success
+
+      {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :get_template_summary, nil)
+      assert parsed_doc[:description] == "A sample template description."
+
+      parameters = parsed_doc[:parameters]
+      assert parameters |> length == 1
+
+      parameter = List.first(parameters)
+      assert parameter[:no_echo] == false
+      assert parameter[:parameter_key] == "KeyName"
+      assert parameter[:description] == "Name of an existing EC2 KeyPair to enable SSH access to the instance"
+      assert parameter[:parameter_type] == "AWS::EC2::KeyPair::KeyName"
   end
 
   test "parsing a list_stacks response" do
