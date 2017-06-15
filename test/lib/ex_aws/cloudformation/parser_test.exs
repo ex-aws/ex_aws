@@ -46,7 +46,7 @@ defmodule ExAws.Cloudformation.ParserTest do
     """
     |> to_success
 
-    {ok, %{body: parsed_doc}} = Parsers.parse(rsp, :create_stack, nil)
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :create_stack, nil)
     assert parsed_doc[:stack_id] == "arn:aws:cloudformation:us-east-1:123456789:stack/MyStack/aaf549a0-a413-11df-adb3-5081b3858e83"
     assert parsed_doc[:request_id] == "b9b4b068-3a41-11e5-94eb-example"
   end
@@ -60,7 +60,7 @@ defmodule ExAws.Cloudformation.ParserTest do
     </DeleteStackResponse>
     """
     |> to_success
-    {ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_stack, nil)
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_stack, nil)
     assert parsed_doc[:request_id] == "5ccc7dcd-744c-11e5-be70-example"
   end
 
@@ -202,7 +202,7 @@ defmodule ExAws.Cloudformation.ParserTest do
       assert parameters |> length == 1
 
       parameter = List.first(parameters)
-      assert parameter[:no_echo] == false
+      assert parameter[:no_echo] == "false"
       assert parameter[:parameter_key] == "KeyName"
       assert parameter[:description] == "Name of an existing EC2 KeyPair to enable SSH access to the instance"
       assert parameter[:parameter_type] == "AWS::EC2::KeyPair::KeyName"
