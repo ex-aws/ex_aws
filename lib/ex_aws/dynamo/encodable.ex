@@ -98,7 +98,7 @@ end
 
 defimpl ExAws.Dynamo.Encodable, for: List do
   alias ExAws.Dynamo.Encodable
-  def encode([], _), do: %{"L" => []}
+  def encode([], _), do: %{"L"  => []}
 
   @doc """
   Dynamodb offers typed sets and L, a generic list of typed attributes.
