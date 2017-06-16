@@ -98,7 +98,7 @@ end
 
 defimpl ExAws.Dynamo.Encodable, for: List do
   alias ExAws.Dynamo.Encodable
-  def encode([], _), do: %{"L"  => []}
+  def encode([], _), do: %{"L" => []}
 
   @doc """
   Dynamodb offers typed sets and L, a generic list of typed attributes.
@@ -109,5 +109,31 @@ defimpl ExAws.Dynamo.Encodable, for: List do
     end
 
     %{"L"  => typed_values}
+  end
+end
+
+defimpl ExAws.Dynamo.Encodable, for: MapSet do
+  alias ExAws.Dynamo.Encodable
+
+  def encode(mapset, _) do
+    cond do
+      MapSet.size(mapset) == 0 ->
+        raise "Cannot determine a proper data type for an empty MapSet"
+      Enum.all?(mapset, &is_number/1) ->
+        %{"NS" => number_set_to_list(mapset)}
+      Enum.all?(mapset, &is_binary/1) ->
+        %{"SS" => MapSet.to_list(mapset)}
+      true ->
+        raise "All elements in a MapSet must be only numbers or only strings"
+    end
+  end
+
+  defp number_set_to_list(number_mapset) do
+    number_mapset
+    |> MapSet.to_list
+    |> Enum.map(fn
+      (n) when is_integer(n) -> Integer.to_string(n)
+      (n) when is_float(n)   -> Float.to_string(n)
+    end)
   end
 end
