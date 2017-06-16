@@ -27,8 +27,7 @@ defmodule ExAws.Dynamo.EncoderTest do
 
   test "encoder handles lists properly" do
     assert ["foo", "bar"] |> Encoder.encode == %{"L" => [%{"S" => "foo"}, %{"S" => "bar"}]}
-    assert [1, 2] |> Encoder.encode == %{"NS" => ["1", "2"]}
-    assert [1.2, 2.3] |> Encoder.encode == %{"NS" => ["1.2", "2.3"]}
+    assert [1, 2] |> Encoder.encode == %{"L" => [%{"N" => "1"}, %{"N" => "2"}]}
     assert ["foo", 1] |> Encoder.encode == %{"L" => [%{"S" => "foo"}, %{"N" => "1"}]}
   end
 
