@@ -116,9 +116,73 @@ defmodule ExAws.SES.ParserTest do
     }
   end
 
+  test "#parse a delete_identity response" do
+    rsp = """
+      <DeleteIdentityResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+        <DeleteIdentityResult/>
+        <ResponseMetadata>
+          <RequestId>88c79dfb-1472-11e7-94c4-4d1ecf50b91f</RequestId>
+        </ResponseMetadata>
+      </DeleteIdentityResponse>
+    """
+    |> to_success
+
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :delete_identity)
+    assert parsed_doc == %{request_id: "88c79dfb-1472-11e7-94c4-4d1ecf50b91f"}
+  end
+
+  test "#parse a set_identity_notification_topic response" do
+    rsp = """
+      <SetIdentityNotificationTopicResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+        <SetIdentityNotificationTopicResult/>
+        <ResponseMetadata>
+          <RequestId>3d3f811a-1484-11e7-b9b1-db4762b6c4db</RequestId>
+        </ResponseMetadata>
+      </SetIdentityNotificationTopicResponse>
+    """
+    |> to_success
+
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :set_identity_notification_topic)
+    assert parsed_doc == %{request_id: "3d3f811a-1484-11e7-b9b1-db4762b6c4db"}
+  end
+
+  test "#parse a set_identity_feedback_forwarding_enabled response" do
+    rsp = """
+      <SetIdentityFeedbackForwardingEnabledResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+        <SetIdentityFeedbackForwardingEnabledResult/>
+        <ResponseMetadata>
+          <RequestId>f1cc8133-149a-11e7-91a5-ed1259cbd185</RequestId>
+        </ResponseMetadata>
+      </SetIdentityFeedbackForwardingEnabledResponse>
+    """
+    |> to_success
+
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :set_identity_feedback_forwarding_enabled)
+    assert parsed_doc == %{request_id: "f1cc8133-149a-11e7-91a5-ed1259cbd185"}
+  end
+
+  test "#parse a set_identity_headers_in_notifications_enabled response" do
+    rsp = """
+      <SetIdentityHeadersInNotificationsEnabledResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+        <SetIdentityHeadersInNotificationsEnabledResult/>
+        <ResponseMetadata>
+          <RequestId>01b49b78-30ca-11e7-948a-399bafb173a2</RequestId>
+        </ResponseMetadata>
+      </SetIdentityHeadersInNotificationsEnabledResponse>"
+    """
+    |> to_success
+
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :set_identity_headers_in_notifications_enabled)
+    assert parsed_doc == %{request_id: "01b49b78-30ca-11e7-948a-399bafb173a2"}
+  end
+
   test "#parse error" do
     rsp = """
-      <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/\">
+      <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
         <Error>
           <Type>Sender</Type>
           <Code>MalformedInput</Code>

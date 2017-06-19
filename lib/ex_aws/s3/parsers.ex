@@ -2,6 +2,18 @@ if Code.ensure_loaded?(SweetXml) do
   defmodule ExAws.S3.Parsers do
     import SweetXml, only: [sigil_x: 2]
 
+    def parse_upload({:ok, resp = %{body: xml}}) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//CompleteMultipartUploadResult",
+        location: ~x"./Location/text()"s,
+        bucket: ~x"./Bucket/text()"s,
+        key: ~x"./Key/text()"s,
+        eTag: ~x"./ETag/text()"s
+      )
+
+      {:ok, %{resp | body: parsed_body}}
+    end
+
     def parse_list_objects({:ok, resp = %{body: xml}}) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListBucketResult",
@@ -87,13 +99,15 @@ if Code.ensure_loaded?(SweetXml) do
   end
 else
   defmodule ExAws.S3.Parsers do
-    def parse_list_objects(val), do: val
-    def parse_all_my_buckets_result(val), do: val
-    def parse_initiate_multipart_upload(val), do: val
-    def parse_upload_part_copy(val), do: val
-    def parse_complete_multipart_upload(val), do: val
-    def parse_list_multipart_uploads(val), do: val
-    def parse_list_parts(val), do: val
+    defp missing_xml_parser(), do: raise ExAws.Error, "Missing XML parser. Please see docs"
+    def upload(_val), do: missing_xml_parser()
+    def parse_list_objects(_val), do: missing_xml_parser()
+    def parse_all_my_buckets_result(_val), do: missing_xml_parser()
+    def parse_initiate_multipart_upload(_val), do: missing_xml_parser()
+    def parse_upload_part_copy(_val), do: missing_xml_parser()
+    def parse_complete_multipart_upload(_val), do: missing_xml_parser()
+    def parse_list_multipart_uploads(_val), do: missing_xml_parser()
+    def parse_list_parts(_val), do: missing_xml_parser()
   end
 
 end

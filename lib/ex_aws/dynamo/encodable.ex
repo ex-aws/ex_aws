@@ -9,6 +9,7 @@ end
 defimpl ExAws.Dynamo.Encodable, for: Atom do
   def encode(true, _),  do: %{"BOOL" => "true"}
   def encode(false, _), do: %{"BOOL" => "false"}
+  def encode(nil, _), do: %{"NULL" => "true"}
   def encode(value, _), do: %{"S" => value |> Atom.to_string}
 end
 
@@ -77,7 +78,6 @@ defimpl ExAws.Dynamo.Encodable, for: Map do
   def do_encode(map, _), do: do_encode(map)
   def do_encode(map) do
     Enum.reduce(map, %{}, fn
-      ({_, nil}, map) -> map
       ({_, []}, map)  -> map
       ({_, ""}, map)  -> map
 
@@ -98,7 +98,7 @@ end
 
 defimpl ExAws.Dynamo.Encodable, for: List do
   alias ExAws.Dynamo.Encodable
-  def encode([], _), do: []
+  def encode([], _), do: %{"L"  => []}
 
   @doc """
   Dynamodb offers typed sets and L, a generic list of typed attributes.

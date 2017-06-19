@@ -41,4 +41,9 @@ defmodule ExAws.Dynamo.EncoderTest do
     expected = %{"items" => %{"L" => [%{"M" => %{"items" => %{"L" => [%{"S" => "asdf"}]}}}]}}
     assert nested_structs == expected
   end
+
+  test "encoder nil works" do
+    assert Encoder.encode(nil) == %{"NULL" => "true"}
+    assert Encoder.encode(%{"key" => nil}) == %{"M" => %{"key" => %{"NULL" => "true"}}}
+  end
 end

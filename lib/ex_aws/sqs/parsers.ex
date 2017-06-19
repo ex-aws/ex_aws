@@ -145,6 +145,7 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     def parse({:ok, %{body: xml}=resp}, :send_message_batch) do
+      # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessageBatch.html#API_SendMessageBatch_ResponseElements
       parsed_body = xml
       |> SweetXml.xpath(~x"//SendMessageBatchResponse",
                         request_id: request_id_xpath(),
@@ -154,6 +155,14 @@ if Code.ensure_loaded?(SweetXml) do
                           message_id: ~x"./MessageId/text()"s,
                           md5_of_message_body: ~x"./MD5OfMessageBody/text()"s,
                           md5_of_message_attributes: ~x"./MD5OfMessageAttributes/text()"s
+                        ],
+                        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_BatchResultErrorEntry.html
+                        failures: [
+                          ~x"./SendMessageBatchResult/BatchResultErrorEntry"l,
+                          code: ~x"./Code/text()"s,
+                          id: ~x"./Id/text()"s,
+                          message: ~x"./Message/text()"s,
+                          sender_fault: ~x"./SenderFault/text()"s, # FIXME Cast to boolean
                         ])
       {:ok, Map.put(resp, :body, parsed_body)}
 
@@ -261,6 +270,7 @@ if Code.ensure_loaded?(SweetXml) do
   end
 else
   defmodule ExAws.SQS.Parsers do
-    def parse(val, _), do: val
+    def parse(val, _), do: raise ExAws.Error, "Missing XML parser. Please see docs"
+
   end
 end

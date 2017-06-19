@@ -4,7 +4,7 @@ defmodule ExAws.SNS do
   @moduledoc """
   Operations on AWS SNS
 
-  http://docs.aws.amazon.com/sns/latest/APIReference/API_Operations.html
+  http://docs.aws.amazon.com/sns/latest/api/API_Operations.html
   """
 
   ## Topics
@@ -247,6 +247,23 @@ defmodule ExAws.SNS do
       "AttributeValue" => attribute_value,
       "SubscriptionArn" => subscription_arn
     })
+  end
+
+  @doc "List phone numbers opted out"
+  @spec list_phone_numbers_opted_out() :: ExAws.Operation.Query.t
+  def list_phone_numbers_opted_out() do
+    request(:list_phone_numbers_opted_out, %{})
+  end
+
+  @spec list_phone_numbers_opted_out(next_token :: binary) :: ExAws.Operation.Query.t
+  def list_phone_numbers_opted_out(next_token) do
+    request(:list_phone_numbers_opted_out, %{"NextToken" => next_token})
+  end
+
+  @doc "Opt in phone number"
+  @spec opt_in_phone_number(phone_number :: binary) :: ExAws.Operation.Query.t
+  def opt_in_phone_number(phone_number) do
+    request(:opt_in_phone_number, %{"PhoneNumber" => phone_number})
   end
 
   ## Endpoints

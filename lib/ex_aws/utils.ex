@@ -78,15 +78,14 @@ defmodule ExAws.Utils do
 
   @seconds_0_to_1970 :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
 
-  def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">>) do
-    <<year::binary-4, "-", mon::binary-2, "-", day::binary-2>> = date
-    <<hour::binary-2, ":", min::binary-2, ":", sec::binary-2>> = time
-    year = year |> String.to_integer
-    mon  = mon  |> String.to_integer
-    day  = day  |> String.to_integer
-    hour = hour |> String.to_integer
-    min  = min  |> String.to_integer
-    sec  = sec  |> String.to_integer
+  def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">> <> _) do
+    [year, mon, day] = date
+      |> String.split("-") 
+      |> Enum.map(&String.to_integer/1)
+
+    [hour, min, sec] = time
+      |> String.split(":") 
+      |> Enum.map(&String.to_integer/1)
 
     # Seriously? Gregorian seconds but not epoch seconds?
     greg_secs = :calendar.datetime_to_gregorian_seconds({{year, mon, day}, {hour, min, sec}})
@@ -109,4 +108,24 @@ defmodule ExAws.Utils do
       {Map.get(mapping, k, k), v}
     end)
   end
+
+  def build_indexed_params(key_template, values) when is_list(values) do
+    case String.split(key_template, "{i}") do
+      [prefix, suffix] -> 
+        values
+        |> Enum.with_index(1)
+        |> Enum.map(fn {value, i} -> {prefix <> "#{i}" <> suffix, value} end)
+
+      _ -> raise ArgumentError, "The Argument key_template is invalid. 
+      Expected a string with exactly one location for an index, got: \"#{key_template}\"
+      Example valid key_template: \"Tags.member.{i}.Key\""
+    end
+  end
+
+  def build_indexed_params(key_template, value), do: build_indexed_params(key_template, [value])
+
+  def build_indexed_params(key_templates) when is_list(key_templates) do
+    Enum.flat_map(key_templates, fn {key_template, values} -> build_indexed_params(key_template, values) end)
+  end
+
 end

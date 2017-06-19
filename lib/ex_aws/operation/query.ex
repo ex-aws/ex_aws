@@ -30,8 +30,16 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
       {"content-type", "application/x-www-form-urlencoded"},
     ]
 
-    ExAws.Request.request(:post, url, data, headers, config, operation.service)
-    |> operation.parser.(operation.action)
+    result = ExAws.Request.request(:post, url, data, headers, config, operation.service)
+    parser = operation.parser
+    cond do
+      is_function(parser, 2) ->
+        parser.(result, operation.action)
+      is_function(parser, 3) ->
+        parser.(result, operation.action, config)
+      true ->
+        result
+    end
   end
 
   def stream!(_, _), do: nil
