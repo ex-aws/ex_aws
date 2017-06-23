@@ -419,44 +419,44 @@ defmodule ExAws.Cloudformation do
   ### Format Functions ###
   ########################
 
-  defp format_request(:skip_resources, resources) do
-    build_indexed_params("ResourcesToSkip.member", resources)
+  defp format_param(:skip_resources, resources) do
+    flatten_params("ResourcesToSkip.member", resources)
   end
 
-  defp format_request(:stack_status_filters, filters) do
-    build_indexed_params("StackStatusFilter.member", filters |> Enum.map(&upcase/1))
+  defp format_param(:stack_status_filters, filters) do
+    flatten_params("StackStatusFilter.member", filters |> Enum.map(&upcase/1))
   end
 
-  defp format_request(:capabilities, capabilities) do
-    build_indexed_params("Capabilities.member", capabilities |> Enum.map(&upcase/1))
+  defp format_param(:capabilities, capabilities) do
+    flatten_params("Capabilities.member", capabilities |> Enum.map(&upcase/1))
   end
 
-  defp format_request(:parameters, parameters) do
-    build_indexed_params("Parameters.member", parameters)
+  defp format_param(:parameters, parameters) do
+    flatten_params("Parameters.member", parameters)
     |> filter_nil_params
   end
 
-  defp format_request(:notification_arns, notification_arns) do
-    build_indexed_params("NotificationARN.member", notification_arns)
+  defp format_param(:notification_arns, notification_arns) do
+    flatten_params("NotificationARN.member", notification_arns)
   end
 
 
-  defp format_request(:tags, tags) do
+  defp format_param(:tags, tags) do
     tags = for {key, value} <- tags, do: [key: Atom.to_string(key), value: value]
 
-    build_indexed_params("Tags.member", tags)
+    flatten_params("Tags.member", tags)
     |> filter_nil_params
   end
 
-  defp format_request(:resource_types, resource_types) do
-    build_indexed_params("ResourceTypes.member", resource_types)
+  defp format_param(:resource_types, resource_types) do
+    flatten_params("ResourceTypes.member", resource_types)
   end
 
-  defp format_request(:retain_resources, retain_resources) do
-    build_indexed_params("RetainResources.member", retain_resources)
+  defp format_param(:retain_resources, retain_resources) do
+    flatten_params("RetainResources.member", retain_resources)
   end
 
-  defp format_request(:template_stage, template_stage) do
+  defp format_param(:template_stage, template_stage) do
     [{"TemplateStage", camelize_key(template_stage)}]
   end
 
