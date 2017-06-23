@@ -161,12 +161,12 @@ defmodule ExAws.Utils do
     end)
   end
 
-
-  def normalize_opts(opts) do
-    opts
-    |> Enum.into(%{})
-    |> camelize_keys
-  end
+  # TODO: make a generic normalize_opts
+  # def normalize_opts(opts) do
+  #   opts
+  #   |> Enum.into(%{})
+  #   |> camelize_keys
+  # end
 
   def filter_nil_params(opts) do
     opts
