@@ -216,17 +216,12 @@ defmodule ExAws.CloudformationTest do
 
   test "describe_stacks with stack name" do
     expected = query(:describe_stacks, %{"StackName" => "test_stack"})
-    assert expected == Cloudformation.describe_stacks("test_stack")
-  end
-
-  test "describe_stacks with blank name" do
-    expected = query(:describe_stacks, %{})
-    assert expected == Cloudformation.describe_stacks("")
+    assert expected == Cloudformation.describe_stacks([stack_name: "test_stack"])
   end
 
   test "describe_stacks with no name" do
     expected = query(:describe_stacks, %{})
-    assert expected == Cloudformation.describe_stacks()
+    assert expected == Cloudformation.describe_stacks
   end
 
   defp query(action, params \\ %{}) do
