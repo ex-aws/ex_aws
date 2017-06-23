@@ -1,6 +1,13 @@
 defmodule ExAws.Utils do
   @moduledoc false
 
+  defmacro __using__(_) do
+    quote do
+      import ExAws.Utils
+      require ExAws.Utils
+    end
+  end
+
   def identity(x), do: x
 
   def identity(x, _), do: x
@@ -80,11 +87,11 @@ defmodule ExAws.Utils do
 
   def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">> <> _) do
     [year, mon, day] = date
-      |> String.split("-") 
+      |> String.split("-")
       |> Enum.map(&String.to_integer/1)
 
     [hour, min, sec] = time
-      |> String.split(":") 
+      |> String.split(":")
       |> Enum.map(&String.to_integer/1)
 
     # Seriously? Gregorian seconds but not epoch seconds?
@@ -109,33 +116,75 @@ defmodule ExAws.Utils do
     end)
   end
 
-  def build_indexed_params(key_template, values) when is_list(values) do
-    case String.split(key_template, "{i}") do
-      [prefix, suffix] -> 
-        values
-        |> Enum.with_index(1)
-        |> Enum.map(fn {value, i} -> {prefix <> "#{i}" <> suffix, value} end)
-
-      _ -> raise ArgumentError, "The Argument key_template is invalid. 
-      Expected a string with exactly one location for an index, got: \"#{key_template}\"
-      Example valid key_template: \"Tags.member.{i}.Key\""
-    end
+  # a build_indexed_params util, Adds prefix to nested indexed params 
+  defp add_prefix(prefix, kv_pairs) do
+    kv_pairs
+    |> Enum.map(fn {key, value} -> 
+      {prefix <> "." <> maybe_camelize(key), value} 
+    end)
   end
 
-  def build_indexed_params(key_template, value), do: build_indexed_params(key_template, [value])
 
-  def build_indexed_params(key_templates) when is_list(key_templates) do
-    Enum.flat_map(key_templates, fn {key_template, values} -> build_indexed_params(key_template, values) end)
+  # NOTE: build_indexed_params is not tail call optimized 
+  # but it is unlikely that any AWS params will ever
+  # be nested enough for this to  cause a stack overflow
+
+  def build_indexed_params(key, values) when is_list(values) do
+    key = maybe_camelize(key)
+
+    values
+    |> Stream.with_index(1)
+    |> Stream.map(fn {value, i} -> 
+      {"#{key}.#{i}", value} end)
+    |> Stream.flat_map(fn
+      # if there are nested key value pairs, recuse over nested kv_pairs by calling build_indexed_params again
+      {key, kv_pairs} when is_list(kv_pairs) -> 
+        add_prefix(key, kv_pairs) |> build_indexed_params
+        
+      {key, value} ->
+        [{key, value}]
+    end)
+    |> Enum.to_list
   end
 
-  # A simple macro for calling private format functions if param isn't nul
-  defmacro maybe_format(params, key) do
+  # When only one key_template and value is passed  
+  def build_indexed_params(key, value) when is_atom(key), 
+  do: [{camelize_key(key), value}]
+  def build_indexed_params(key, value) when is_bitstring(key), 
+  do: [{key, value}]
+
+  # When multiple key_templates and values pairs are passed
+  def build_indexed_params(kv_pairs) do
+    kv_pairs
+    |> Enum.flat_map(fn {key, values} -> 
+      build_indexed_params(key, values)
+    end)
+  end
+
+
+  def normalize_opts(opts) do
+    opts
+    |> Enum.into(%{})
+    |> camelize_keys
+  end
+
+  def filter_nil_params(opts) do
+    opts
+    |> Enum.reject(fn {_key, value} -> value == nil end)
+    |> Enum.into(%{})
+  end
+
+  def maybe_camelize(elem)  when is_atom(elem),     do: camelize_key(elem)
+  def maybe_camelize(elem)  when is_bitstring(elem),do: elem
+  def maybe_stringify(elem) when is_atom(elem),     do: Atom.to_string(elem)
+  def maybe_stringify(elem) when is_bitstring(elem),do: elem
+
+  defmacro maybe_format(argument, format_name) do
     quote do
-      case unquote(params)[unquote(key)] do
+      case unquote(argument)[unquote(format_name)] do
         nil -> []
-        value -> format_param(unquote(key), value)
+        value -> format_request(unquote(format_name), value)
       end
     end
   end
-
 end
