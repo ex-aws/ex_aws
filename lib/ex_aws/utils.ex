@@ -128,12 +128,12 @@ defmodule ExAws.Utils do
     Enum.flat_map(key_templates, fn {key_template, values} -> build_indexed_params(key_template, values) end)
   end
 
-  # a simple macro for calling private format functions if param isn't nul
-  defmacro maybe_format(map, format_name) do
+  # A simple macro for calling private format functions if param isn't nul
+  defmacro maybe_format(params, key) do
     quote do
-      case unquote(argument)[unquote(format_name)] do
+      case unquote(params)[unquote(key)] do
         nil -> []
-        value -> format_request(unquote(format_name), value)
+        value -> format_param(unquote(key), value)
       end
     end
   end
