@@ -460,7 +460,7 @@ defmodule ExAws.Cloudformation do
     [{"TemplateStage", camelize_key(template_stage)}]
   end
 
-  # normalize_opts should be refactored to be in Utils
+  # normalize_opts should be refactored into Utils
   defp normalize_opts(opts) do
     opts
     |> Enum.into(%{})
