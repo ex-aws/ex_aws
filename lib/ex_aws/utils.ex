@@ -1,87 +1,65 @@
 defmodule ExAws.Utils do
   @moduledoc false
 
-  defmacro __using__(_) do
-    quote do
-      import ExAws.Utils
-      require ExAws.Utils
-    end
-  end
-
   def identity(x), do: x
 
   def identity(x, _), do: x
 
-  def camelize_keys(opts) do
-    camelize_keys(opts, deep: false)
-  end
-
   # This isn't tail recursive. However, given that the structures
   # being worked upon are relatively shallow, this is ok.
-  def camelize_keys(opts = %{}, deep: deep) do
-    opts |> Enum.reduce(%{}, fn({k ,v}, map) ->
+  def camelize_keys(opts, kwargs \\ []) do
+    deep = kwargs[:deep] || false
+    spec = kwargs[:spec] || %{}
+    do_cmlz_keys(opts, deep: deep, spec: spec)
+  end 
+
+  defp do_cmlz_keys([%{} | _] = opts, deep: deep, spec: spec) do
+    Enum.map(opts, &do_cmlz_keys(&1, deep: deep, spec: spec))
+  end
+
+  defp do_cmlz_keys(opts = %{}, deep: deep, spec: spec) do
+    opts |> Enum.reduce(%{}, fn {k ,v}, map ->
       if deep do
-        Map.put(map, camelize_key(k), camelize_keys(v, deep: true))
+        Map.put(map, camelize_key(k, spec: spec), do_cmlz_keys(v, deep: true, spec: spec))
       else
-        Map.put(map, camelize_key(k), v)
+        Map.put(map, camelize_key(k, spec: spec), v)
       end
     end)
   end
 
-  def camelize_keys([%{} | _] = opts, deep: deep) do
-    Enum.map(opts, &camelize_keys(&1, deep: deep))
-  end
-
-  def camelize_keys(opts, depth) do
+  defp do_cmlz_keys(opts, kwargs) do
     try do
-      opts
-      |> Map.new
-      |> camelize_keys(depth)
+      opts |> Map.new |> do_cmlz_keys(kwargs)
     rescue
       [Protocol.UndefinedError, ArgumentError, FunctionClauseError] -> opts
     end
   end
 
-  def camelize_key(key) when is_atom(key) do
-    key
-    |> Atom.to_string
-    |> camelize
+  def camelize_key(key, [spec: spec] \\ [spec: %{}]) do
+    spec[key] || (key |> maybe_stringify |> camelize)
   end
 
-  def camelize_key(key) when is_binary(key) do
-    key |> camelize
+  def camelize(string) do
+    string
+    |> to_charlist 
+    |> Enum.reduce({true, ''}, fn 
+      ?_ , {_, acc} -> {true, acc}
+      ?/ , {_, acc} -> {false, [?. | acc]}
+      char, {false, acc} -> {false, [char | acc]}
+      char, {true, acc}  -> {false, [upcase(char) | acc]}
+    end) 
+    |> elem(1) # charlist
+    |> Enum.reverse # unreverses charlist after reducing 
+    |> to_string 
   end
 
-  def camelize(string)
-  def camelize(""), do: ""
-  def camelize(<<?_, t :: binary>>), do: camelize(t)
-  def camelize(<<h, t :: binary>>),  do: <<to_upper_char(h)>> <> do_camelize(t)
+  def upcase(value) when is_atom(value),
+    do: value |> Atom.to_string |> String.upcase
+  def upcase(value) when is_binary(value), 
+    do: String.upcase(value)
+  def upcase(char), 
+    do: :string.to_upper(char)
 
-  defp do_camelize(<<?_, ?_, t :: binary>>),
-    do: do_camelize(<< ?_, t :: binary >>)
-  defp do_camelize(<<?_, h, t :: binary>>) when h in ?a..?z,
-    do: <<to_upper_char(h)>> <> do_camelize(t)
-  defp do_camelize(<<?_>>),
-    do: <<>>
-  defp do_camelize(<<?/, t :: binary>>),
-    do: <<?.>> <> camelize(t)
-  defp do_camelize(<<h, t :: binary>>),
-    do: <<h>> <> do_camelize(t)
-  defp do_camelize(<<>>),
-    do: <<>>
-
-  defp to_upper_char(char) when char in ?a..?z, do: char - 32
-  defp to_upper_char(char), do: char
-
-  def upcase(value) when is_atom(value) do
-    value
-    |> Atom.to_string
-    |> String.upcase
-  end
-
-  def upcase(value) when is_binary(value) do
-    String.upcase(value)
-  end
 
   @seconds_0_to_1970 :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
 
@@ -114,42 +92,55 @@ defmodule ExAws.Utils do
     Enum.map(params, fn {k, v} ->
       {Map.get(mapping, k, k), v}
     end)
+  end 
+
+  def format(params, kwargs \\ []) do
+    prefix = kwargs[:prefix] || ""
+    spec = kwargs[:spec] || %{}
+    case kwargs[:type] || :xml do
+      :xml -> xml_format(params, prefix: prefix, spec: spec)
+      # :json -> json_format(params, prefix: prefix, spec: spec)
+    end
   end
 
-
-  # NOTE: flatten_params is not tail call optimized 
+  # NOTE: xml_format is not tail call optimized 
   # but it is unlikely that any AWS params will ever
   # be nested enough for this to  cause a stack overflow
-  def flatten_params(key, values) when is_list(values) do
-    values
-    |> Stream.with_index(1)
-    |> Stream.map(fn {value, i} -> {"#{maybe_camelize(key)}.#{i}", value} end)
-    |> Stream.flat_map(fn
-      {key, kv_pairs} when is_list(kv_pairs) -> 
-        add_prefix(key, kv_pairs) |> flatten_params
-        
-      {key, value} -> 
-        [{key, value}]
+  defp xml_format([ nested | _ ] = params, prefix: pre, spec: spec) when is_list(nested) do
+    # IO.inspect("nested")
+    params
+    |>Stream.with_index(1)
+    |> Stream.map(fn {params, i} -> {params, Integer.to_string(i)} end)
+    |> Stream.flat_map(fn {params, i} -> 
+      xml_format(params, prefix: pre <> dot?(pre) <> i, spec: spec) 
     end)
     |> Enum.to_list
   end
-  # When only one key_template and value is passed  
-  def flatten_params(key, value), 
-  do: [{maybe_camelize(key), value}]
-  # When multiple key_templates and values pairs are passed
-  def flatten_params(kv_pairs),
-  do: Enum.flat_map(kv_pairs, fn {key, value} -> flatten_params(key, value) end)
- # A flatten_params util, Adds prefix to when flattening nested params 
-  defp add_prefix(prefix, kv_pairs), 
-  do: Enum.map(kv_pairs, fn {key, value} -> {"#{prefix}.#{maybe_camelize(key)}", value} end)
 
+  defp xml_format([ param | _ ] = params, prefix: pre, spec: spec) when is_tuple(param) do
+    # IO.inspect("prefixed")
+    params
+    |> Stream.map(fn {key, values} -> {maybe_camelize(key, spec: spec), values} end)
+    |> Stream.flat_map(fn {key, values} -> 
+      xml_format(values, prefix: pre <> dot?(pre) <> key, spec: spec) 
+    end)
+    |> Enum.to_list
+  end
 
-  # TODO: make a generic normalize_opts
-  # def normalize_opts(opts) do
-  #   opts
-  #   |> Enum.into(%{})
-  #   |> camelize_keys
-  # end
+  defp xml_format(params, kwargs) when is_list(params) do
+    # IO.inspect("values")
+    pre = kwargs[:prefix]
+    params
+    |> Stream.with_index(1)
+    |> Stream.map(fn {value, i} -> {value, Integer.to_string(i)} end)
+    |> Stream.map(fn {value, i} -> {pre <> dot?(pre) <> i, value} end)
+    |> Enum.to_list
+  end
+
+  defp xml_format(value, kwargs), do: [{kwargs[:prefix], value}]
+  
+  defp dot?(""), do: ""
+  defp dot?(_), do: "."
 
   def filter_nil_params(opts) do
     opts
@@ -157,17 +148,30 @@ defmodule ExAws.Utils do
     |> Enum.into(%{})
   end
 
-  def maybe_camelize(elem)  when is_atom(elem),     do: camelize_key(elem)
-  def maybe_camelize(elem)  when is_bitstring(elem),do: elem
-  def maybe_stringify(elem) when is_atom(elem),     do: Atom.to_string(elem)
-  def maybe_stringify(elem) when is_bitstring(elem),do: elem
+  def maybe_camelize(elem, kwargs \\ [spec: %{}])
+  def maybe_camelize(elem, kwargs) when is_atom(elem), do: camelize_key(elem, kwargs)
+  def maybe_camelize(elem, _) when is_bitstring(elem), do: elem
 
-  defmacro maybe_format(argument, format_name) do
+  def maybe_stringify(elem) when is_atom(elem),      do: Atom.to_string(elem)
+  def maybe_stringify(elem) when is_bitstring(elem), do: elem
+
+  defmacro __using__(non_standard_keys: non_standard_keys) do
     quote do
-      case unquote(argument)[unquote(format_name)] do
-        nil -> []
-        value -> format_param(unquote(format_name), value)
-      end
+      import ExAws.Utils, except: [
+        flatten_params: 2, flatten_params: 1,  
+        camelize_keys: 2, camelize_keys: 1, 
+        camelize_key: 2, camelize_key: 1,
+        maybe_camelize: 2, maybe_camelize: 1 
+      ]
+
+      def flatten_params(params, kwargs \\ [prefix: ""]), 
+        do: ExAws.Utils.flatten_params(params, [{:spec, unquote(non_standard_keys)} | kwargs])
+      def camelize_keys(opts, kwargs \\ [deep: false]), 
+        do: ExAws.Utils.camelize_keys(opts, [{:spec, unquote(non_standard_keys)} | kwargs])
+      def camelize_key(opts, kwargs \\ []), 
+        do: ExAws.Utils.camelize_key(opts, [{:spec, unquote(non_standard_keys)} | kwargs])
+      def maybe_camelize(opts, kwargs \\ []), 
+        do: ExAws.Utils.maybe_camelize(opts, [{:spec, unquote(non_standard_keys)} | kwargs])
     end
   end
 end
