@@ -53,12 +53,9 @@ defmodule ExAws.Utils do
     |> to_string 
   end
 
-  def upcase(value) when is_atom(value),
-    do: value |> Atom.to_string |> String.upcase
-  def upcase(value) when is_binary(value), 
-    do: String.upcase(value)
-  def upcase(char), 
-    do: :string.to_upper(char)
+  def upcase(value) when is_atom(value), do: value |> Atom.to_string |> String.upcase
+  def upcase(value) when is_binary(value), do: String.upcase(value)
+  def upcase(char), do: :string.to_upper(char)
 
 
   @seconds_0_to_1970 :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
@@ -106,10 +103,17 @@ defmodule ExAws.Utils do
   # NOTE: xml_format is not tail call optimized 
   # but it is unlikely that any AWS params will ever
   # be nested enough for this to  cause a stack overflow
+  
+  # Indexed formats
+
+  defp xml_format([ nested | _ ] = params, kwargs) when is_map(nested) do
+    params |> Enum.map(&Map.to_list/1) |> xml_format(kwargs)
+  end
+
   defp xml_format([ nested | _ ] = params, prefix: pre, spec: spec) when is_list(nested) do
     # IO.inspect("nested")
     params
-    |>Stream.with_index(1)
+    |> Stream.with_index(1)
     |> Stream.map(fn {params, i} -> {params, Integer.to_string(i)} end)
     |> Stream.flat_map(fn {params, i} -> 
       xml_format(params, prefix: pre <> dot?(pre) <> i, spec: spec) 
@@ -127,6 +131,7 @@ defmodule ExAws.Utils do
     |> Enum.to_list
   end
 
+  # Non-indexed formats
   defp xml_format(params, kwargs) when is_list(params) do
     # IO.inspect("values")
     pre = kwargs[:prefix]
@@ -135,6 +140,10 @@ defmodule ExAws.Utils do
     |> Stream.map(fn {value, i} -> {value, Integer.to_string(i)} end)
     |> Stream.map(fn {value, i} -> {pre <> dot?(pre) <> i, value} end)
     |> Enum.to_list
+  end
+
+  defp xml_format(params, kwargs) when is_map(params) do
+    xml_format(Map.to_list(params), kwargs)
   end
 
   defp xml_format(value, kwargs), do: [{kwargs[:prefix], value}]
@@ -152,15 +161,17 @@ defmodule ExAws.Utils do
   def maybe_camelize(elem, kwargs) when is_atom(elem), do: camelize_key(elem, kwargs)
   def maybe_camelize(elem, _) when is_bitstring(elem), do: elem
 
-  def maybe_stringify(elem) when is_atom(elem),      do: Atom.to_string(elem)
+  def maybe_stringify(elem) when is_atom(elem), do: Atom.to_string(elem)
   def maybe_stringify(elem) when is_bitstring(elem), do: elem
 
   defmacro __using__(kwargs) do
-    inject = 
-      quote do 
-        [ type: unquote(kwargs[:format_type] || :xml), 
-          spec: unquote(kwargs[:non_standard_keys] || %{}) ] 
-        ++ [kwargs] 
+    camelize_inject = quote do 
+        [  spec: unquote(kwargs[:non_standard_keys] || %{}) ] 
+        ++ kwargs 
+      end
+    format_inject = quote do 
+        [ type: unquote(kwargs[:format_type] || :xml)]
+        ++ unquote(camelize_inject) 
       end
 
     quote do
@@ -171,14 +182,10 @@ defmodule ExAws.Utils do
         maybe_camelize: 2, maybe_camelize: 1 
       ]
 
-      def format(params, kwargs \\ [prefix: ""]), 
-        do: ExAws.Utils.format(params, unquote(inject))
-      def camelize_keys(opts, kwargs \\ [deep: false]), 
-        do: ExAws.Utils.camelize_keys(opts, unquote(inject))
-      def camelize_key(opts, kwargs \\ []), 
-        do: ExAws.Utils.camelize_key(opts, unquote(inject))
-      def maybe_camelize(opts, kwargs \\ []), 
-        do: ExAws.Utils.maybe_camelize(opts, unquote(inject))
+      def format(params, kwargs \\ []), do: ExAws.Utils.format(params, unquote(format_inject))
+      def camelize_keys(opts, kwargs \\ []), do: ExAws.Utils.camelize_keys(opts, unquote(camelize_inject))
+      def camelize_key(opts, kwargs \\ []), do: ExAws.Utils.camelize_key(opts, unquote(camelize_inject))
+      def maybe_camelize(opts, kwargs \\ []), do: ExAws.Utils.maybe_camelize(opts, unquote(camelize_inject))
     end
   end
 end
