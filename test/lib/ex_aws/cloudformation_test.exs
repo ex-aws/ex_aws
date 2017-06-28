@@ -21,8 +21,9 @@ defmodule ExAws.CloudformationTest do
       "ResourcesToSkip.member.2" => "test_resource_2",
       "StackName" => "test_stack"
     })
-    assert expected == Cloudformation.continue_update_rollback("test_stack",
-                         [skip_resources: ["test_resource_1", "test_resource_2"]])
+    assert expected == Cloudformation.continue_update_rollback(
+      "test_stack", [skip_resources: ["test_resource_1", "test_resource_2"]]
+    )
   end
 
   test "continue_update_rollback with role arn" do
@@ -69,15 +70,15 @@ defmodule ExAws.CloudformationTest do
       "Parameters.member.2.ParameterKey" => "InstanceType",
       "Parameters.member.2.ParameterValue" => "m1.micro"
       })
-
-    assert expected == Cloudformation.create_stack("test_stack",
+    
+    result = Cloudformation.create_stack(
+      "test_stack", 
       [parameters:
-        [
-          [parameter_key: "AvailabilityZone", parameter_value: "us-east-1a"],
-          [parameter_key: "InstanceType", parameter_value: "m1.micro"]
-        ]
-      ]
-    )
+        [ %{parameter_key: "AvailabilityZone", parameter_value: "us-east-1a"},
+          %{parameter_key: "InstanceType", parameter_value: "m1.micro"} ]
+      ])
+      
+    assert expected == result
   end
 
   test "create_stack with tags" do
