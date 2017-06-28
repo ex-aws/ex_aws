@@ -155,7 +155,14 @@ defmodule ExAws.Utils do
   def maybe_stringify(elem) when is_atom(elem),      do: Atom.to_string(elem)
   def maybe_stringify(elem) when is_bitstring(elem), do: elem
 
-  defmacro __using__(non_standard_keys: non_standard_keys) do
+  defmacro __using__(kwargs) do
+    inject = 
+      quote do 
+        [ type: unquote(kwargs[:format_type] || :xml), 
+          spec: unquote(kwargs[:non_standard_keys] || %{}) ] 
+        ++ [kwargs] 
+      end
+
     quote do
       import ExAws.Utils, except: [
         flatten_params: 2, flatten_params: 1,  
@@ -165,13 +172,13 @@ defmodule ExAws.Utils do
       ]
 
       def flatten_params(params, kwargs \\ [prefix: ""]), 
-        do: ExAws.Utils.flatten_params(params, [{:spec, unquote(non_standard_keys)} | kwargs])
+        do: ExAws.Utils.flatten_params(params, unquote(inject))
       def camelize_keys(opts, kwargs \\ [deep: false]), 
-        do: ExAws.Utils.camelize_keys(opts, [{:spec, unquote(non_standard_keys)} | kwargs])
+        do: ExAws.Utils.camelize_keys(opts, unquote(inject))
       def camelize_key(opts, kwargs \\ []), 
-        do: ExAws.Utils.camelize_key(opts, [{:spec, unquote(non_standard_keys)} | kwargs])
+        do: ExAws.Utils.camelize_key(opts, unquote(inject))
       def maybe_camelize(opts, kwargs \\ []), 
-        do: ExAws.Utils.maybe_camelize(opts, [{:spec, unquote(non_standard_keys)} | kwargs])
+        do: ExAws.Utils.maybe_camelize(opts, unquote(inject))
     end
   end
 end
