@@ -171,8 +171,8 @@ defmodule ExAws.Utils do
         maybe_camelize: 2, maybe_camelize: 1 
       ]
 
-      def flatten_params(params, kwargs \\ [prefix: ""]), 
-        do: ExAws.Utils.flatten_params(params, unquote(inject))
+      def format(params, kwargs \\ [prefix: ""]), 
+        do: ExAws.Utils.format(params, unquote(inject))
       def camelize_keys(opts, kwargs \\ [deep: false]), 
         do: ExAws.Utils.camelize_keys(opts, unquote(inject))
       def camelize_key(opts, kwargs \\ []), 
