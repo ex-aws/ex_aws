@@ -38,31 +38,32 @@ defmodule ExAws.UtilsTest do
     assert [d: 1, b: 2, e: 3] == [a: 1, b: 2, c: 3] |> rename_keys(a: :d, c: :e)
   end
 
-  test "flatten_params creates single key value pair" do
-    assert [{"Key", 1}] == flatten_params(key: 1)
+  test "format (:xml) creates single key value pair" do
+    assert [{"Key", 1}] == format([key: 1], type: :xml)
   end
 
-  test "build_indexed_params creates key value pairs from key_template and list" do
-    assert [{"Key.1", 1}, {"Key.2", 2}] == flatten_params(key: [1,2])
+  test "format (:xml) creates key value pairs from key_template and list" do
+    assert [{"Key.1", 1}, {"Key.2", 2}] == format([key: [1,2]], type: :xml)
   end
 
-  test "build_indexed_params spec works for non-standard keys" do
-    assert [{"non-standard.1", 1}, {"non-standard.2", 2}] == flatten_params([foo_bar: [1,2]], spec: %{foo_bar: "non-standard"} )
+  test "format (:xml) spec works for non-standard keys" do
+    assert [{"non-standard.1", 1}, {"non-standard.2", 2}] == format(
+      [foo_bar: [1,2]], spec: %{foo_bar: "non-standard"}, type: :xml)
   end
 
-  test "flatten_params creates key value pairs from list of key_templates" do
+  test "format (:xml) creates key value pairs from list of key_templates" do
     expected_return = [
       {"Tag.1.Key", "keyA"}, {"Tag.1.Value", "ValueA"},
       {"Tag.2.Key", "keyB"}, {"Tag.2.Value", "keyB"},
       {"Member", "member!"}
     ]
     
-    assert expected_return == flatten_params([
+    assert expected_return == format([
       tag: [ 
         [key: "keyA", value: "ValueA"], 
         [key: "keyB", value: "keyB"],
       ],
       member: "member!"
-    ])
+    ], type: :xml)
   end
 end

@@ -165,7 +165,7 @@ defmodule ExAws.Utils do
 
     quote do
       import ExAws.Utils, except: [
-        flatten_params: 2, flatten_params: 1,  
+        format: 2, format: 1,  
         camelize_keys: 2, camelize_keys: 1, 
         camelize_key: 2, camelize_key: 1,
         maybe_camelize: 2, maybe_camelize: 1 
