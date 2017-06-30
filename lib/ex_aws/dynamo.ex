@@ -325,7 +325,7 @@ defmodule ExAws.Dynamo do
     |> build_opts
     |> Map.merge(%{"TableName" => name})
 
-    request(:query, data)
+    request(:query, data, %{stream_builder: &ExAws.Dynamo.Lazy.stream_query(name, opts, &1)})
   end
 
   @doc """
