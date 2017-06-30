@@ -1,3 +1,10 @@
+ExAws v1.1.3
+
+- Significant refactoring of EC2
+- Expansion of CloudFormation functionality
+
+- DynamoDB: Permit empty lists, add stream_query.
+
 ExAws v1.1.2
 
 - New Service: Cloudwatch (initial)

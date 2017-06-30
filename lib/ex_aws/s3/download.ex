@@ -8,7 +8,6 @@ defmodule ExAws.S3.Download do
     :bucket,
     :path,
     :dest,
-    chunk_size: 1024 * 1024,
     opts: [],
     service: :s3,
   ]
@@ -27,7 +26,7 @@ defmodule ExAws.S3.Download do
   def build_chunk_stream(op, config) do
     op.bucket
     |> get_file_size(op.path, config)
-    |> chunk_stream(op.chunk_size)
+    |> chunk_stream(op.opts[:chunk_size] || 1024 * 1024)
   end
 
   def chunk_stream(file_size, chunk_size) do
