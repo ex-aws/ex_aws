@@ -89,6 +89,8 @@ defmodule ExAws.CloudformationTest do
 
     assert expected == Cloudformation.create_stack("test_stack",
     [tags: [key: "value"]])
+    assert expected == Cloudformation.create_stack("test_stack",
+    [tags: [ {"key", "value"} ]])
   end
 
   test "create_stack with capabilities" do

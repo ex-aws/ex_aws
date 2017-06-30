@@ -56,7 +56,8 @@ defmodule ExAws.Cloudformation do
     use_previous_value: boolean
   ]
 
-  @type tag :: {key :: atom, value :: binary}
+  @type tag :: 
+    {key :: atom | binary, value :: binary}
 
   @doc """
   Cancels an update on the specified stack.
@@ -359,6 +360,17 @@ defmodule ExAws.Cloudformation do
     |> format(prefix: "StackStatusFilter.member")
   end
 
+  # TODO !deprecated! Remove in 1.2
+  defp format_param({:status_filter, filters}) do
+    IO.warn(
+      "(ExAws.Cloudformation) The :status_filter param is DEPRECATED! Please use :stack_status_filters instead
+        For example: list_stacks(status_filter: [...]) should be changed to list_stacks(stack_status_filters: [...])"
+    )
+    format_param({:stack_status_filters, filters})
+  end
+  # TODO !deprecated! Remove in 1.2
+
+
   defp format_param({:capabilities, capabilities}) do
     capabilities
     |> Enum.map(&upcase/1)
@@ -367,7 +379,7 @@ defmodule ExAws.Cloudformation do
 
   defp format_param({:tags, tags}) do
     tags
-    |> Enum.map(fn {key, value} -> [key: Atom.to_string(key), value: value] end)
+    |> Enum.map(fn {key, value} -> [key: maybe_stringify(key), value: value] end)
     |> format(prefix: "Tags.member")
   end
 
