@@ -10,6 +10,30 @@ defmodule ExAws.STS do
     binary => :all
   }
 
+  @type assume_role_opt ::
+    {:duration, pos_integer} |
+    {:serial_number, binary} |
+    {:token_code, binary}    |
+    {:external_id, binary}   |
+    {:policy, policy}
+
+  @doc "Assume Role"
+  @spec assume_role(role_arn :: String.t, role_session_name :: String.t, [assume_role_opt]) :: ExAws.Operation.Query.t
+  def assume_role(role_arn, role_name, opts \\ []) do
+    params = parse_opts(opts)
+    |> Map.put("RoleArn", role_arn)
+    |> Map.put("RoleSessionName", role_name)
+
+    request(:assume_role, params)
+  end
+
+  @doc "Decode Authorization Message"
+  @spec decode_authorization_message(message :: String.t) :: ExAws.Operation.Query.t
+  def decode_authorization_message(message) do
+    request(:decode_authorization_message, %{"EncodedMessage" => message})
+  end
+
+  @doc "Get Caller Identity"
   def get_caller_identity() do
     request(:get_caller_identity, %{})
   end
@@ -18,16 +42,26 @@ defmodule ExAws.STS do
 
   @doc "Get Federation Token"
   @spec get_federation_token(name :: String.t, [get_federation_token_opt]) :: ExAws.Operation.Query.t
-  def get_federation_token(name, opts) do
-    params =
-      %{
-        "Name" => name,
-      }
-      |> maybe_add_duration(opts)
-      |> maybe_add_policy(opts)
+  def get_federation_token(name, opts \\ []) do
+    params = parse_opts(opts)
+    |> Map.put("Name", name)
 
     request(:get_federation_token, params)
   end
+
+  @type get_session_token_opt ::
+    {:duration, pos_integer} |
+    {:serial_number, binary} |
+    {:token_code, binary}
+
+  @doc "Get Session Token"
+  @spec get_session_token([get_session_token_opt]) :: ExAws.Operation.Query.t
+  def get_session_token(opts \\ []) do
+    params = parse_opts(opts)
+
+    request(:get_session_token, params)
+  end
+
 
   ## Request
   ######################
@@ -49,21 +83,12 @@ defmodule ExAws.STS do
     }
   end
 
-  defp maybe_add_duration(params, opts) do
-    if Keyword.has_key?(opts, :duration) do
-      Map.merge(params, %{"DurationSeconds" => opts[:duration]})
-    else
-      params
-    end
+  defp parse_opts(opts) do
+    Enum.reduce(opts, %{}, fn item, acc -> parse_opt(acc, item) end)
   end
 
-  defp maybe_add_policy(params, opts) do
-    if Keyword.has_key?(opts, :policy) do
-      encoded_policy = Poison.encode!(opts[:policy])
-
-      Map.merge(params, %{"Policy" => encoded_policy})
-    else
-      params
-    end
-  end
+  defp parse_opt(opts, {:duration, val}), do: Map.put(opts, "DurationSeconds", val)
+  defp parse_opt(opts, {:token_code, val}), do: Map.put(opts, "TokenCode", val)
+  defp parse_opt(opts, {:serial_number, val}), do: Map.put(opts, "SerialNumber", val)
+  defp parse_opt(opts, {:policy, val}), do: Map.put(opts, "Policy", Poison.encode!(val))
 end
