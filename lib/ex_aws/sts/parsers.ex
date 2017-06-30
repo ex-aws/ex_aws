@@ -16,16 +16,6 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
-    def parse({:ok, %{body: xml}=resp}, :decode_authorization_message) do
-      parsed_body = xml
-      |> SweetXml.xpath(~x"//DecodeAuthorizationMessageResponse",
-                        decoded_message: ~x"./DecodeAuthorizationMessageResult/DecodedMessage/text()"s,
-                        request_id: request_id_xpath())
-      |> Map.update!(:decoded_message, &Poison.decode!/1)
-
-      {:ok, Map.put(resp, :body, parsed_body)}
-    end
-
     def parse({:ok, %{body: xml} = resp}, :get_caller_identity) do
       parsed_body = SweetXml.xpath(xml, ~x"//GetCallerIdentityResponse", [
         arn: ~x"./GetCallerIdentityResult/Arn/text()"s,
@@ -75,6 +65,16 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse(val, _), do: val
 
+    def parse({:ok, %{body: xml}=resp}, :decode_authorization_message, config) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DecodeAuthorizationMessageResponse",
+                        decoded_message: ~x"./DecodeAuthorizationMessageResult/DecodedMessage/text()"s,
+                        request_id: request_id_xpath())
+      |> Map.update!(:decoded_message, fn msg -> config[:json_codec].decode!(msg) end)
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     defp request_id_xpath do
       ~x"./ResponseMetadata/RequestId/text()"s
     end
@@ -82,5 +82,6 @@ if Code.ensure_loaded?(SweetXml) do
 else
   defmodule ExAws.STS.Parsers do
     def parse(val, _), do: val
+    def parse(val, _, _), do: val
   end
 end

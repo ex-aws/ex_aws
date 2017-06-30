@@ -30,7 +30,7 @@ defmodule ExAws.STS do
   @doc "Decode Authorization Message"
   @spec decode_authorization_message(message :: String.t) :: ExAws.Operation.Query.t
   def decode_authorization_message(message) do
-    request(:decode_authorization_message, %{"EncodedMessage" => message})
+    request(:decode_authorization_message, %{"EncodedMessage" => message}, %{parser: &ExAws.STS.Parsers.parse/3})
   end
 
   @doc "Get Caller Identity"
@@ -66,7 +66,7 @@ defmodule ExAws.STS do
   ## Request
   ######################
 
-  defp request(action, params) do
+  defp request(action, params, overrides \\ %{}) do
     action_string = action |> Atom.to_string |> Macro.camelize
 
     params = Map.merge(params, %{
@@ -80,7 +80,7 @@ defmodule ExAws.STS do
       service: :sts,
       action: action,
       parser: &ExAws.STS.Parsers.parse/2
-    }
+    } |> struct(overrides)
   end
 
   defp parse_opts(opts) do
