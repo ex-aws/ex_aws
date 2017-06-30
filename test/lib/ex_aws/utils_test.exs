@@ -25,6 +25,11 @@ defmodule ExAws.UtilsTest do
     |> camelize_keys(deep: true)
   end
 
+  test "camelize_keys spec works for non-standard keys" do
+    assert %{"non-standard" => ["foo", "bar"]} == [foo_bar: ["foo", "bar"]]
+    |> camelize_keys(spec: %{foo_bar: "non-standard"})
+  end
+
   test "iso_z_to_secs converts iso string to epoch seconds" do
     assert 1436134578 == iso_z_to_secs("2015-07-05T22:16:18Z")
   end
@@ -33,24 +38,32 @@ defmodule ExAws.UtilsTest do
     assert [d: 1, b: 2, e: 3] == [a: 1, b: 2, c: 3] |> rename_keys(a: :d, c: :e)
   end
 
-  test "build_indexed_params creates key value pairs from key_template and list" do
-    assert [{"key.1", 1}, {"key.2", 2}] == build_indexed_params("key.{i}", [1,2])
+  test "format (:xml) creates single key value pair" do
+    assert [{"Key", 1}] == format([key: 1], type: :xml)
   end
 
-  test "build_indexed_params creates key value pair from key_template and single element" do
-    assert [{"key.1", 1}] == build_indexed_params("key.{i}", 1)
+  test "format (:xml) creates key value pairs from key_template and list" do
+    assert [{"Key.1", 1}, {"Key.2", 2}] == format([key: [1,2]], type: :xml)
   end
 
-  test "build_indexed_params creates key value pairs from list of key_templates" do
+  test "format (:xml) spec works for non-standard keys" do
+    assert [{"non-standard.1", 1}, {"non-standard.2", 2}] == format(
+      [foo_bar: [1,2]], spec: %{foo_bar: "non-standard"}, type: :xml)
+  end
+
+  test "format (:xml) creates key value pairs from list of key_templates" do
     expected_return = [
-        {"foo.1", 1}, {"foo.2", 2}, 
-        {"bar.1", 3}, {"bar.2", 4},
-      ]
-    index_params = build_indexed_params([ 
-        {"foo.{i}", [1,2]}, 
-        {"bar.{i}", [3,4]},
-      ])
-
-    assert expected_return == index_params
+      {"Tag.1.Key", "keyA"}, {"Tag.1.Value", "ValueA"},
+      {"Tag.2.Key", "keyB"}, {"Tag.2.Value", "keyB"},
+      {"Member", "member!"}
+    ]
+    
+    assert expected_return == format([
+      tag: [ 
+        [key: "keyA", value: "ValueA"], 
+        [key: "keyB", value: "keyB"],
+      ],
+      member: "member!"
+    ], type: :xml)
   end
 end

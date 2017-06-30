@@ -24,7 +24,19 @@ defmodule ExAws.Cloudformation do
   http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_Operations.html
   """
 
-  import ExAws.Utils
+  use ExAws.Utils, 
+  format_type: :xml, 
+  non_standard_keys: %{
+    stack_name: "StackName",
+    role_arn: "RoleARN",
+    template_url: "TemplateURL",
+    next_token: "NextToken",
+    parameters: "Parameters.member",
+    resource_types: "ResourceTypes.member",
+    retain_resources: "RetainResources.member",
+    notification_arns: "NotificationARN.member",
+    skip_resources: "ResourcesToSkip.member"
+  }
 
   @version "2010-05-15"
 
@@ -46,7 +58,6 @@ defmodule ExAws.Cloudformation do
 
   @type tag :: {key :: atom, value :: binary}
 
-
   @doc """
   Cancels an update on the specified stack.
 
@@ -57,11 +68,11 @@ defmodule ExAws.Cloudformation do
   Cloudformation.cancel_update_stack("Test")
   ```
   """
+
   @spec cancel_update_stack(stack_name :: binary) :: ExAws.Operation.Query.t
   def cancel_update_stack(stack_name) do
-    request(:cancel_update_stack, %{"StackName" => stack_name})
+    request([{"StackName", stack_name}], :cancel_update_stack)
   end
-
 
   @doc """
   Rollbacks a stack in UPDATE_ROLLBACK_FAILED state until the state changes to
@@ -85,38 +96,10 @@ defmodule ExAws.Cloudformation do
 
   @spec continue_update_rollback(stack_name :: binary, opts :: continue_update_rollback_opts) :: ExAws.Operation.Query.t
   def continue_update_rollback(stack_name, opts \\ []) do
-    skip_resources = maybe_transform(:skip_resources, opts[:skip_resources])
-
-    query_params =
-      Enum.concat([skip_resources,
-      [{"RoleARN", opts[:role_arn]}, {"StackName", stack_name}]])
-      |> filter_nil_params
-
-    request(:continue_update_rollback, query_params)
+    [{"StackName", stack_name} | opts] 
+    |> Enum.flat_map(&format_param/1)
+    |> request(:continue_update_rollback)
   end
-
-  # key :: atom
-  # These parameters either has a list that needs transformed to the kind of
-  # parameters AWS is using or simply camelizing them does not work.
-  @params_to_delete [
-    :capabilities,
-    :parameters,
-    :notification_arns,
-    :tags,
-    :resource_types,
-    :template_url,
-    :role_arn,
-    :status_filter
-  ]
-
-  # {key :: atom, transform_function_name :: atom}
-  @params_to_transform [
-    :capabilities,
-    :parameters,
-    :notification_arns,
-    :tags,
-    :resource_types,
-  ]
 
   @doc """
   Creates a stack as specified in a template.
@@ -152,24 +135,9 @@ defmodule ExAws.Cloudformation do
 
   @spec create_stack(stack_name :: binary, opts :: create_stack_opts) :: ExAws.Operation.Query.t
   def create_stack(stack_name, opts \\ []) do
-    normal_params = opts
-    |> Enum.reject(fn {key, _} -> key in @params_to_delete end)
-    |> normalize_opts
-
-    transformed_params = @params_to_transform
-    |> Enum.flat_map(fn key ->
-      maybe_transform(key, opts[key])
-    end)
-
-    other_params = [{"StackName", stack_name},
-                    {"TemplateURL", opts[:template_url]},
-                    {"RoleARN", opts[:role_arn]}]
-
-    query_params =
-      Enum.concat([normal_params, transformed_params, other_params])
-      |> filter_nil_params
-
-    request(:create_stack, query_params)
+    [{"StackName", stack_name} | opts] 
+    |> Enum.flat_map(&format_param/1)
+    |> request(:create_stack)
   end
 
 
@@ -197,12 +165,33 @@ defmodule ExAws.Cloudformation do
   ]
   @spec delete_stack(stack_name :: binary, opts :: delete_stack_opts) :: ExAws.Operation.Query.t
   def delete_stack(stack_name, opts \\ []) do
-    transformed_retain_resources = maybe_transform(:retain_resources, opts[:retain_resources])
+    [{"StackName", stack_name} | opts] 
+    |> Enum.flat_map(&format_param/1) 
+    |> request(:delete_stack)
+  end
 
-    query_params = Enum.concat([transformed_retain_resources, [{"StackName", stack_name}, {"RoleARN", opts[:role_arn]}]])
-    |> filter_nil_params
+  @doc """
+  Returns the description for the specified stack; if no stack name was specified,
+  then it returns the description for all the stacks created.
 
-    request(:delete_stack, query_params)
+  Please read: http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_DescribeStacks.html
+
+  Examples:
+  ```
+  # Get all stacks
+  Cloudformation.describe_stacks
+
+  # Get a stack called "Test"
+  Cloudformation.describe_stacks([stack_name: "Test"])
+  ```
+  """
+  @type describe_stacks_opts :: [
+    stack_name: binary,
+    next_token: binary
+  ]
+  @spec describe_stacks(opts :: describe_stacks_opts) :: ExAws.Operation.Query.t
+  def describe_stacks(opts \\ []) do
+    opts |> format |> request(:describe_stacks)
   end
 
   @doc """
@@ -218,12 +207,8 @@ defmodule ExAws.Cloudformation do
   """
   @spec describe_stack_resource(stack_name :: binary, logical_resource_id :: binary) :: ExAws.Operation.Query.t
   def describe_stack_resource(stack_name, logical_resource_id) do
-    query_params = %{
-      "StackName" => stack_name,
-      "LogicalResourceId" => logical_resource_id
-    }
-
-    request(:describe_stack_resource, query_params)
+    [{"StackName", stack_name}, {"LogicalResourceId", logical_resource_id}]
+    |> request(:describe_stack_resource)
   end
 
 
@@ -252,9 +237,8 @@ defmodule ExAws.Cloudformation do
   ]
   @spec describe_stack_resources(opts :: describe_stack_resources_opts) :: ExAws.Operation.Query.t
   def describe_stack_resources(opts \\ []) do
-    request(:describe_stack_resources, normalize_opts(opts))
+    opts |> format |> request(:describe_stack_resources)
   end
-
 
   @doc """
   Gets the template body for a specified stack. Can get a template for
@@ -275,18 +259,10 @@ defmodule ExAws.Cloudformation do
   ]
   @spec get_template(opts :: get_template_opts) :: ExAws.Operation.Query.t
   def get_template(opts \\ []) do
-    normal_params = opts
-      |> Keyword.delete(:template_stage)
-      |> normalize_opts
-
-    template_stage_param = maybe_transform(:template_stage, opts[:template_stage])
-    query_params =
-      Enum.concat([template_stage_param, normal_params])
-      |> Enum.into(%{})
-
-    request(:get_template, query_params)
+    opts 
+    |> Enum.flat_map(&format_param/1)
+    |> request(:get_template)
   end
-
 
   @doc """
   Gets information about a new or existing template. Useful for viewing
@@ -307,13 +283,9 @@ defmodule ExAws.Cloudformation do
   ]
   @spec get_template_summary(opts :: get_template_summary_opts) :: ExAws.Operation.Query.t
   def get_template_summary(opts \\ []) do
-    query_params =
-      [{"StackName", opts[:stack_name]},
-       {"TemplateBody", opts[:template_body]},
-       {"TemplateURL", opts[:template_url]}]
-       |> filter_nil_params
-
-    request(:get_template_summary, query_params)
+    opts 
+    |> Enum.flat_map(&format_param/1)    
+    |> request(:get_template_summary)
   end
 
   @doc """
@@ -337,14 +309,9 @@ defmodule ExAws.Cloudformation do
   ]
   @spec list_stacks(opts :: list_stacks_opts) :: ExAws.Operation.Query.t
   def list_stacks(opts \\ []) do
-    transformed_stack_status_filters = maybe_transform(:stack_status_filters, opts[:stack_status_filters])
-
-    query_params =
-      Enum.concat([transformed_stack_status_filters,
-      [{"Next_Token", opts[:next_token]}]])
-      |> filter_nil_params
-
-    request(:list_stacks, query_params)
+    opts 
+    |> Enum.flat_map(&format_param/1)    
+    |> request(:list_stacks)
   end
 
   @doc """
@@ -361,125 +328,55 @@ defmodule ExAws.Cloudformation do
   """
   @spec list_stack_resources(stack_name :: binary, opts :: [next_token: binary]) :: ExAws.Operation.Query.t
   def list_stack_resources(stack_name, opts \\ []) do
-    query_params = opts
-    |> normalize_opts
-    |> Map.merge(%{"StackName" => stack_name})
-
-    request(:list_stack_resources, query_params)
-  end
-
-  @doc "Returns the description for the specified stack; if no stack name was specified, then it returns the description for all the stacks created."
-  @spec describe_stacks(stack_name :: binary) :: ExAws.Operation.Query.t
-  def describe_stacks(stack_name \\ nil, opts \\ []) do
-    normalized_params = opts
-    |> normalize_opts
-    
-    query_params =
-    if is_nil(stack_name) || stack_name == "" do
-      normalized_params
-    else
-      normalized_params
-      |> Map.merge(%{ "StackName" => stack_name })
-    end
-
-    request(:describe_stacks, query_params)
+    [{"StackName", stack_name} | opts] 
+    |> Enum.flat_map(&format_param/1)
+    |> request(:list_stack_resources)
   end
 
   ########################
   ### Helper Functions ###
   ########################
 
-  defp request(action, params) do
+  defp request(params, action) do
     action_string = action |> Atom.to_string |> Macro.camelize
 
     %ExAws.Operation.Query{
       path: "/",
-      params: params |> Map.put("Action", action_string) |> Map.put("Version", @version),
+      params: params |> filter_nil_params |> Map.put("Action", action_string) |> Map.put("Version", @version),
       service: :cloudformation,
       action: action,
       parser: &ExAws.Cloudformation.Parsers.parse/3
     }
   end
 
-  defp filter_nil_params(opts) do
-    opts
-    |> Enum.reject(fn {_key, value} -> value == nil end)
-    |> Enum.into(%{})
+  ########################
+  ### Format Functions ###
+  ########################
+
+  defp format_param({:stack_status_filters, filters}) do
+    filters 
+    |> Enum.map(&upcase/1)
+    |> format(prefix: "StackStatusFilter.member")
   end
 
-  defp normalize_opts(opts) do
-    opts
-    |> Enum.into(%{})
-    |> camelize_keys
+  defp format_param({:capabilities, capabilities}) do
+    capabilities
+    |> Enum.map(&upcase/1)
+    |> format(prefix: "Capabilities.member")
   end
 
-  ############################
-  ### Transform Functions ###
-  ##########################
-
-  defp transform(:skip_resources, resources) do
-    build_indexed_params("ResourcesToSkip.member.{i}", resources)
+  defp format_param({:tags, tags}) do
+    tags
+    |> Enum.map(fn {key, value} -> [key: Atom.to_string(key), value: value] end)
+    |> format(prefix: "Tags.member")
   end
 
-  defp transform(:stack_status_filters, filters) do
-    filters_strings =
-      filters
-        |> Enum.map(fn filter -> upcase(filter) end)
-
-    build_indexed_params("StackStatusFilter.member.{i}", filters_strings)
-  end
-
-  defp transform(:capabilities, capabilities) do
-    capabilities_strings =
-      capabilities
-        |> Enum.map(fn capability -> upcase(capability) end)
-
-    build_indexed_params("Capabilities.member.{i}", capabilities_strings)
-  end
-
-  defp transform(:parameters, parameters) do
-    parameter_keys     = for param <- parameters, do: param[:parameter_key]
-    parameter_value    = for param <- parameters, do: param[:parameter_value]
-    use_previous_value = for param <- parameters, do: param[:use_previous_value]
-
-    build_indexed_params([
-      {"Parameters.member.{i}.ParameterKey", parameter_keys},
-      {"Parameters.member.{i}.ParameterValue", parameter_value},
-      {"Parameters.member.{i}.UsePreviousValue", use_previous_value}]) 
-    |> filter_nil_params
-  end
-
-  defp transform(:notification_arns, notification_arns) do
-    build_indexed_params("NotificationARN.member.{i}", notification_arns)
-  end
-
-
-  defp transform(:tags, tags) do
-    keys   = for {key, _}   <- tags, do: Atom.to_string(key)
-    values = for {_, value} <- tags, do: value
-    
-    build_indexed_params([
-      {"Tags.member.{i}.Key", keys},
-      {"Tags.member.{i}.Value", values}]) 
-    |> filter_nil_params
-  end
-
-  defp transform(:resource_types, resource_types) do
-    build_indexed_params("ResourceTypes.member.{i}", resource_types)
-  end
-
-  defp transform(:retain_resources, retain_resources) do
-    build_indexed_params("RetainResources.member.{i}", retain_resources)
-  end
-
-  defp transform(:template_stage, template_stage) do
+  defp format_param({:template_stage, template_stage}) do
     [{"TemplateStage", camelize_key(template_stage)}]
   end
 
-  defp maybe_transform(transformation_type, value) when is_atom(transformation_type) do
-    case value do
-        nil -> %{}
-      value -> transform(transformation_type, value)
-    end
+  defp format_param({key, parameters}) do
+    format([{key, parameters}])
   end
+
 end
