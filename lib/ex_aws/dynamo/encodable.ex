@@ -112,8 +112,6 @@ defimpl ExAws.Dynamo.Encodable, for: List do
 end
 
 defimpl ExAws.Dynamo.Encodable, for: MapSet do
-  alias ExAws.Dynamo.Encodable
-
   def encode(mapset, _) do
     cond do
       MapSet.size(mapset) == 0 ->
