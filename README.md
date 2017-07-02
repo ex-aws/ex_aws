@@ -19,7 +19,6 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.SNS`
 - `ExAws.SQS`
 - `ExAws.STS`
-
 - `ExAws.Cloudformation (BETA)`
 - `ExAws.EC2 (BETA)`
 - `ExAws.ECS (COMING SOON)`
