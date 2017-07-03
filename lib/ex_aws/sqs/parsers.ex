@@ -270,7 +270,7 @@ if Code.ensure_loaded?(SweetXml) do
   end
 else
   defmodule ExAws.SQS.Parsers do
-    def parse(val, _), do: raise ExAws.Error, "Missing XML parser. Please see docs"
+    def parse(_val, _), do: raise ExAws.Error, "Missing XML parser. Please see docs"
 
   end
 end
