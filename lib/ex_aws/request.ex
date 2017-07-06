@@ -12,10 +12,11 @@ defmodule ExAws.Request do
   @type response_t :: success_t | error_t
 
   def request(http_method, url, data, headers, config, service) do
-    body = case data do
-      []  -> "{}"
-      d when is_binary(d) -> d
-      _   -> config[:json_codec].encode!(data)
+    body = cond do
+      data == [] -> "{}"
+      is_binary(data) -> data
+      config[:no_encode] == true -> data
+      true -> config[:json_codec].encode!(data)
     end
 
     request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})

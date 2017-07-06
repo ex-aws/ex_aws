@@ -31,6 +31,30 @@ defmodule ExAws.S3Test do
     )
   end
 
+  test "#put_object with iodata" do
+    expected = %Operation.S3{
+      body: [1, 2, 3, 4, 5], bucket: "bucket",
+      headers: %{
+        "content-encoding" => "application/json",
+        "x-amz-acl" => "public-read",
+        "x-amz-server-side-encryption" => "AES256",
+        "x-amz-storage-class" => "spicy",
+        "content-md5" => "asdf",
+        "x-amz-meta-foo" => "sqiggles"},
+      path: "object.json",
+      http_method: :put
+    }
+
+    assert expected == S3.put_object("bucket", "object.json", [1, 2, 3, 4, 5],
+      content_encoding: "application/json",
+      storage_class: "spicy",
+      content_md5: "asdf",
+      acl: :public_read,
+      encryption: "AES256",
+      meta: [foo: "sqiggles"]
+    )
+  end
+
   test "#put_bucket with non-us-east-1 region" do
     region = "not-us-east-1"
     bucket = "new.bucket"
