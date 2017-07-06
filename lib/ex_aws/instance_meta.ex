@@ -14,8 +14,14 @@ defmodule ExAws.InstanceMeta do
 
   def request(config, url) do
     case config.http_client.request(:get, url) do
-      {:ok, %{body: body}} ->
+      {:ok, %{status_code: 200, body: body}} ->
         body
+      {:ok, %{status_code: status_code}} ->
+        raise """
+        Instance Meta Error: HTTP response status code #{inspect status_code}
+
+        Please check AWS EC2 IAM role.
+        """
       error ->
         raise """
         Instance Meta Error: #{inspect error}
