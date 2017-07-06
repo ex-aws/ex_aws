@@ -5,13 +5,18 @@ defmodule ExAws.EC2 do
   A selection of the most common operations from the EC2 API are implemented here.
   http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_Operations.html
 
-  ### Filters
 
-  Many of the `Describe` endpoints allow you to filter based on a number of attributes.
-  Refer to the AWS documentation for the specified method for the acceptable filter values.
+  Examples of how to use this:
+  ```elixir
+  alias ExAws.EC2
 
-  When supplying atoms, underscores will be converted to a dash for compatibility
-  with the API parameters.
+  EC2.terminate_instances(["i-123456", "i-987654"], [dry_run: true])
+  EC2.register_image("Test", [block_device_mappings: [
+    [device_name: "/dev/sda1", ebs: [snapshot_id: "snap-1234567890abcdef0"]],
+    [device_name: "/dev/sdb",  ebs: [snapshot_id: "snap-1234567890abcdef1"]],
+    [device_name: "/dev/sdc",  ebs: [volume_size: 100]]
+  ]])
+  ```
   """
   use ExAws.Utils,
   format_type: :xml,
@@ -65,6 +70,43 @@ defmodule ExAws.EC2 do
     tags :: [tag, ...]
   }
 
+  @type ipv6_address :: [
+    ipv6_address: binary
+  ]
+  @type private_ip_address_spec :: [
+    primary: boolean,
+    private_ip_address: binary
+  ]
+  @type network_interface_spec :: [
+    associate_public_ip_address: boolean,
+    delete_on_termination: boolean,
+    description: binary,
+    device_index: integer,
+    ipv6_address_count: integer,
+    ipv6_addresses: [ipv6_address, ...],
+    network_interface_id: binary,
+    private_ip_address: binary,
+    private_ip_addresses: [private_ip_address_spec, ...],
+    secondary_ip_address_count: integer,
+    groups: [binary, ...],
+    subnet_id: binary
+  ]
+  @type iam_instance_profile_spec :: [
+    arn: binary,
+    name: binary
+  ]
+  @type monitoring_enabled :: [
+    enabled: boolean
+  ]
+  @type placement :: [
+    affinity: binary,
+    availability_zone: binary,
+    group_name: binary,
+    host_id: binary,
+    spread_domain: binary,
+    tenancy: binary
+  ]
+
   #######################
   # Instance Operations #
   #######################
@@ -78,22 +120,22 @@ defmodule ExAws.EC2 do
 
   ## Examples:
 
-    iex> ExAws.EC2.describe_instances
-    %ExAws.Operation.Query{action: :describe_instances,
-    params: %{
-      "Action" => "DescribeInstances",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.describe_instances
+      %ExAws.Operation.Query{action: :describe_instances,
+      params: %{
+        "Action" => "DescribeInstances",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
-    iex> ExAws.EC2.describe_instances([filters: ["instance-type": ["m1.small", "m3.medium"]]])
-    %ExAws.Operation.Query{action: :describe_instances,
-    params: %{
-      "Action" => "DescribeInstances",
-      "Filter.1.Name" => "instance-type",
-      "Filter.1.Value.1" => "m1.small",
-      "Filter.1.Value.2" => "m3.medium",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.describe_instances([filters: ["instance-type": ["m1.small", "m3.medium"]]])
+      %ExAws.Operation.Query{action: :describe_instances,
+      params: %{
+        "Action" => "DescribeInstances",
+        "Filter.1.Name" => "instance-type",
+        "Filter.1.Value.1" => "m1.small",
+        "Filter.1.Value.2" => "m3.medium",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type describe_instances_opts :: [
@@ -119,21 +161,21 @@ defmodule ExAws.EC2 do
 
   ## Examples:
 
-    iex> ExAws.EC2.describe_instance_status
-    %ExAws.Operation.Query{action: :describe_instance_status,
-    params: %{
-      "Action" => "DescribeInstanceStatus",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.describe_instance_status
+      %ExAws.Operation.Query{action: :describe_instance_status,
+      params: %{
+        "Action" => "DescribeInstanceStatus",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
-    iex> ExAws.EC2.describe_instance_status([instance_ids: ["i-123456", "i-1a2b3c"]])
-    %ExAws.Operation.Query{action: :describe_instance_status,
-    params: %{
-      "Action" => "DescribeInstanceStatus",
-      "InstanceId.1" => "i-123456",
-      "InstanceId.2" => "i-1a2b3c",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.describe_instance_status([instance_ids: ["i-123456", "i-1a2b3c"]])
+      %ExAws.Operation.Query{action: :describe_instance_status,
+      params: %{
+        "Action" => "DescribeInstanceStatus",
+        "InstanceId.1" => "i-123456",
+        "InstanceId.2" => "i-1a2b3c",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type describe_instance_status_opts :: [
@@ -224,13 +266,13 @@ defmodule ExAws.EC2 do
 
   ## Examples:
 
-    iex> ExAws.EC2.start_instances(["i-123456"])
-    %ExAws.Operation.Query{action: :start_instances,
-    params: %{
-      "Action" => "StartInstances",
-      "InstanceId.1" => "i-123456",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.start_instances(["i-123456"])
+      %ExAws.Operation.Query{action: :start_instances,
+      params: %{
+        "Action" => "StartInstances",
+        "InstanceId.1" => "i-123456",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type start_instances_opts :: [
@@ -251,14 +293,14 @@ defmodule ExAws.EC2 do
 
   ## Examples:
 
-    iex> ExAws.EC2.stop_instances(["i-123456"], [force: true])
-    %ExAws.Operation.Query{action: :stop_instances,
-    params: %{
-      "Action" => "StopInstances",
-      "InstanceId.1" => "i-123456",
-      "Force" => true,
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.stop_instances(["i-123456"], [force: true])
+      %ExAws.Operation.Query{action: :stop_instances,
+      params: %{
+        "Action" => "StopInstances",
+        "InstanceId.1" => "i-123456",
+        "Force" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type stop_instances_opts :: [
@@ -272,43 +314,36 @@ defmodule ExAws.EC2 do
       |> build_request(:stop_instances)
   end
 
+  @doc """
+  Launches the specified number of instances using an AMI for which you have permissions.
 
-  @type ipv6_address :: [
-    ipv6_address: binary
-  ]
-  @type private_ip_address_spec :: [
-    primary: boolean,
-    private_ip_address: binary
-  ]
-  @type network_interface_spec :: [
-    associate_public_ip_address: boolean,
-    delete_on_termination: boolean,
-    description: binary,
-    device_index: integer,
-    ipv6_address_count: integer,
-    ipv6_addresses: [ipv6_address, ...],
-    network_interface_id: binary,
-    private_ip_address: binary,
-    private_ip_addresses: [private_ip_address_spec, ...],
-    secondary_ip_address_count: integer,
-    groups: [binary, ...],
-    subnet_id: binary
-  ]
-  @type iam_instance_profile_spec :: [
-    arn: binary,
-    name: binary
-  ]
-  @type monitoring_enabled :: [
-    enabled: boolean
-  ]
-  @type placement :: [
-    affinity: binary,
-    availability_zone: binary,
-    group_name: binary,
-    host_id: binary,
-    spread_domain: binary,
-    tenancy: binary
-  ]
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html
+
+  ## Examples:
+
+      iex> ExAws.EC2.run_instances("ami-123456", 3, 3,
+      ...> [block_device_mappings: [
+      ...>  [device_name: "/dev/sdc", virtual_name: "ephemeral10"],
+      ...>  [device_name: "/dev/sdd", virtual_name: "ephemeral11"],
+      ...>  [device_name: "/dev/sdf", ebs: [delete_on_termination: true, volume_size: 100]]
+      ...> ]])
+      %ExAws.Operation.Query{action: :run_instances,
+      params: %{
+        "Action" => "RunInstances",
+        "ImageId" => "ami-123456",
+        "MinCount" => 3,
+        "MaxCount" => 3,
+        "BlockDeviceMapping.1.DeviceName" => "/dev/sdc",
+        "BlockDeviceMapping.1.VirtualName" => "ephemeral10",
+        "BlockDeviceMapping.2.DeviceName" => "/dev/sdd",
+        "BlockDeviceMapping.2.VirtualName" => "ephemeral11",
+        "BlockDeviceMapping.3.DeviceName" => "/dev/sdf",
+        "BlockDeviceMapping.3.Ebs.DeleteOnTermination" => true,
+        "BlockDeviceMapping.3.Ebs.VolumeSize" => 100,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+  """
   @type run_instances_opts :: [
     additional_info: binary,
     block_device_mappings: [block_device_mapping, ...],
@@ -416,13 +451,13 @@ defmodule ExAws.EC2 do
 
   ## Examples:
 
-    iex> ExAws.EC2.unmonitor_instances(["i-a1b2c3"])
-    %ExAws.Operation.Query{action: :unmonitor_instances,
-    params: %{
-      "Action" => "UnmonitorInstances",
-      "InstanceId.1" => "i-a1b2c3",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.unmonitor_instances(["i-a1b2c3"])
+      %ExAws.Operation.Query{action: :unmonitor_instances,
+      params: %{
+        "Action" => "UnmonitorInstances",
+        "InstanceId.1" => "i-a1b2c3",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type unmonitor_instances_opts :: [
@@ -444,14 +479,14 @@ defmodule ExAws.EC2 do
 
   ## Examples:
 
-    iex> ExAws.EC2.describe_instance_attribute("i-123456", "description")
-    %ExAws.Operation.Query{action: :describe_instance_attribute,
-    params: %{
-      "Action" => "DescribeInstanceAttribute",
-      "InstanceId" => "i-123456",
-      "Attribute" => "description",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.describe_instance_attribute("i-123456", "description")
+      %ExAws.Operation.Query{action: :describe_instance_attribute,
+      params: %{
+        "Action" => "DescribeInstanceAttribute",
+        "InstanceId" => "i-123456",
+        "Attribute" => "description",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type describe_instance_attribute_opts :: [
@@ -574,15 +609,15 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_GetPasswordData.html
 
-  ## Example:
+  ## Examples:
 
-    iex> ExAws.EC2.get_password_data("i-123456")
-    %ExAws.Operation.Query{action: :get_password_data,
-    params: %{
-      "Action" => "GetPasswordData",
-      "InstanceId" => "i-123456",
-      "Version" => "2016-11-15"
-    }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.get_password_data("i-123456")
+      %ExAws.Operation.Query{action: :get_password_data,
+      params: %{
+        "Action" => "GetPasswordData",
+        "InstanceId" => "i-123456",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type get_password_data_opts :: [
@@ -605,7 +640,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateImage.html
 
-  ## Example:
+  ## Examples:
 
       iex> ExAws.EC2.create_image("i-123456", "Test")
       %ExAws.Operation.Query{action: :create_image,
@@ -639,7 +674,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CopyImage.html
 
-  ## Example:
+  ## Examples:
 
       iex> ExAws.EC2.copy_image("Test", "ami-123456", "us-east-1")
       %ExAws.Operation.Query{action: :copy_image,
@@ -742,7 +777,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifyImageAttribute.html
 
-  ## Example:
+  ## Examples:
 
       iex> ExAws.EC2.modify_image_attribute("ami-123456", [attribute: "description"])
       %ExAws.Operation.Query{action: :modify_image_attribute,
@@ -780,7 +815,7 @@ defmodule ExAws.EC2 do
   NOTE: You can currently only reset the launchPermission attribute. Please refer to the
   doc in case something has changed.
 
-  ## Example:
+  ## Examples:
 
       iex> ExAws.EC2.reset_image_attribute("ami-1234567", "launchPermission")
       %ExAws.Operation.Query{action: :reset_image_attribute,
@@ -866,15 +901,15 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeregisterImage.html
 
-    ## Example:
+  ## Examples:
 
-        iex> ExAws.EC2.deregister_image("ami-123456")
-        %ExAws.Operation.Query{action: :deregister_image,
-        params: %{
-          "Action" => "DeregisterImage",
-          "ImageId" => "ami-123456",
-          "Version" => "2016-11-15"
-        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+      iex> ExAws.EC2.deregister_image("ami-123456")
+      %ExAws.Operation.Query{action: :deregister_image,
+      params: %{
+        "Action" => "DeregisterImage",
+        "ImageId" => "ami-123456",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type deregister_image_opts :: [
@@ -897,7 +932,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AttachVolume.html
 
-  ## Examples
+  ## Examples:
 
       iex> ExAws.EC2.attach_volume("i-123456", "vol-123456", "/dev/sdh")
       %ExAws.Operation.Query{action: :attach_volume,
@@ -926,7 +961,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DetachVolume.html
 
-  ## Examples
+  ## Examples:
 
       iex> ExAws.EC2.detach_volume("vol-123456")
       %ExAws.Operation.Query{action: :detach_volume,
@@ -1055,7 +1090,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_EnableVolumeIO.html
 
-  ## Example:
+  ## Examples:
 
         iex> ExAws.EC2.enable_volume_io("vol-123456")
         %ExAws.Operation.Query{action: :enable_volume_i_o,
@@ -1555,7 +1590,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CancelBundleTask.html
 
-  ## Examples
+  ## Examples:
 
         iex> ExAws.EC2.cancel_bundle_task("TestBundleId")
         %ExAws.Operation.Query{action: :cancel_bundle_task,
@@ -1591,7 +1626,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeBundleTasks.html
 
-  ## Examples
+  ## Examples:
 
         iex> ExAws.EC2.describe_bundle_tasks
         %ExAws.Operation.Query{action: :describe_bundle_tasks,
@@ -2315,7 +2350,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeSecurityGroups.html
 
-  ## Examples
+  ## Examples:
 
         iex> ExAws.EC2.describe_security_groups
         %ExAws.Operation.Query{action: :describe_security_groups,
@@ -2354,7 +2389,7 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateSecurityGroup.html
 
-  ## Examples
+  ## Examples:
 
       iex> ExAws.EC2.create_security_group("websrv", "Web Servers")
       %ExAws.Operation.Query{action: :create_security_group,
