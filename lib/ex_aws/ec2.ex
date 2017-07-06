@@ -1091,6 +1091,19 @@ defmodule ExAws.EC2 do
           "Version" => "2016-11-15"
         }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
+        iex> ExAws.EC2.describe_volumes([max_results: 10, next_token: "TestToken",
+        ...>  volume_ids: ["vol-123456", "vol-987654"]
+        ...> ])
+        %ExAws.Operation.Query{action: :describe_volumes,
+        params: %{
+          "Action" => "DescribeVolumes",
+          "MaxResults" => 10,
+          "NextToken" => "TestToken",
+          "VolumeId.1" => "vol-123456",
+          "VolumeId.2" => "vol-987654",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type describe_volumes_opts :: [
     dry_run: boolean,
@@ -1116,6 +1129,27 @@ defmodule ExAws.EC2 do
         %ExAws.Operation.Query{action: :describe_volume_status,
         params: %{
           "Action" => "DescribeVolumeStatus",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+        iex> ExAws.EC2.describe_volume_status(
+        ...> [
+        ...>  filters: [
+        ...>    "availability-zone": ["us-east-1d"],
+        ...>    "volume-status.details-name": ["io-enabled", "test"],
+        ...>    "status.details-status": ["failed"]
+        ...>  ]
+        ...> ])
+        %ExAws.Operation.Query{action: :describe_volume_status,
+        params: %{
+          "Action" => "DescribeVolumeStatus",
+          "Filter.1.Name" => "availability-zone",
+          "Filter.1.Value.1" => "us-east-1d",
+          "Filter.2.Name" => "volume-status.details-name",
+          "Filter.2.Value.1" => "io-enabled",
+          "Filter.2.Value.2" => "test",
+          "Filter.3.Name" => "status.details-status",
+          "Filter.3.Value.1" => "failed",
           "Version" => "2016-11-15"
         }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
@@ -1716,10 +1750,14 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeAvailabilityZones.html
 
-  TODO
   ## Examples:
 
-  EC2.describe_availability_zones
+        iex> ExAws.EC2.describe_availability_zones
+        %ExAws.Operation.Query{action: :describe_availability_zones,
+        params: %{
+          "Action" => "DescribeAvailabilityZones",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type describe_availability_zones_opts :: [
@@ -1739,11 +1777,24 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeRegions.html
 
-  TODO:
   ## Examples:
-  ```
-  EC2.describe_regions
-  EC2.describe_regions([region_names: ["us-east-1", "eu-west-1"]])
+
+        iex> ExAws.EC2.describe_regions
+        %ExAws.Operation.Query{action: :describe_regions,
+        params: %{
+          "Action" => "DescribeRegions",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+        iex> ExAws.EC2.describe_regions([region_names: ["us-east-1", "eu-west-1"]])
+        %ExAws.Operation.Query{action: :describe_regions,
+        params: %{
+          "Action" => "DescribeRegions",
+          "RegionName.1" => "us-east-1",
+          "RegionName.2" => "eu-west-1",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type describe_regions_opts :: [
     dry_run: boolean,
@@ -1765,10 +1816,24 @@ defmodule ExAws.EC2 do
   for example, to view which resource types are enabled for longer IDs.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeIdFormat.html
-  ## Examples: TODO
-  ```
 
-  ```
+  ## Examples:
+
+      iex> ExAws.EC2.describe_id_format
+      %ExAws.Operation.Query{action: :describe_id_format,
+      params: %{
+        "Action" => "DescribeIdFormat",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+      iex> ExAws.EC2.describe_id_format([resource: "instance"])
+      %ExAws.Operation.Query{action: :describe_id_format,
+      params: %{
+        "Action" => "DescribeIdFormat",
+        "Resource" => "instance",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type describe_id_format_opts :: [
     resource: binary
@@ -1783,15 +1848,22 @@ defmodule ExAws.EC2 do
   Modifies the ID format for the specified resource on a per-region basis.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifyIdFormat.html
-  Examples:
-  ```
-  EC2.modify_id_format(:instance, true)
-  ```
-  TODO: write parser
+  ## Examples:
+
+      iex> ExAws.EC2.modify_id_format("instance", true)
+      %ExAws.Operation.Query{action: :modify_id_format,
+      params: %{
+        "Action" => "ModifyIdFormat",
+        "Resource" => "instance",
+        "UseLongIds" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @spec modify_id_format(resource :: binary, use_long_ids :: boolean) :: ExAws.Operation.Query.t
   def modify_id_format(resource, use_long_ids) do
-    [ {"Resource", resource}, {"UseLongIds", use_long_ids} ]
+    [ {"Resource", resource},
+      {"UseLongIds", use_long_ids} ]
     |> build_request(:modify_id_format)
   end
 
@@ -1803,10 +1875,25 @@ defmodule ExAws.EC2 do
   Describes attributes of your AWS account.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeAccountAttributes.html
-  Examples: TODO:
-  ```
-  ```
-  TODO: write parser
+  ## Examples:
+
+      iex> ExAws.EC2.describe_account_attributes
+      %ExAws.Operation.Query{action: :describe_account_attributes,
+      params: %{
+        "Action" => "DescribeAccountAttributes",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+      iex> ExAws.EC2.describe_account_attributes([attribute_names: ["supported-platforms", "default-vpc"], dry_run: true])
+      %ExAws.Operation.Query{action: :describe_account_attributes,
+      params: %{
+        "Action" => "DescribeAccountAttributes",
+        "AttributeName.1" => "supported-platforms",
+        "AttributeName.2" => "default-vpc",
+        "DryRun" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type describe_account_attributes_opts :: [
     attribute_names: [binary, ...],
@@ -1825,9 +1912,25 @@ defmodule ExAws.EC2 do
   @doc """
   Describes one or more of your VPCs.
 
-  Doc: TODO
-  Examples: TODO
-  TODO parser
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeVpcs.html
+  ## Examples:
+
+      iex> ExAws.EC2.describe_vpcs
+      %ExAws.Operation.Query{action: :describe_vpcs,
+      params: %{
+        "Action" => "DescribeVpcs",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+      iex> ExAws.EC2.describe_vpcs(vpc_ids: ["vpc-1a2b3c4d", "vpc-5e6f7g8h"])
+      %ExAws.Operation.Query{action: :describe_vpcs,
+      params: %{
+        "Action" => "DescribeVpcs",
+        "VpcId.1" => "vpc-1a2b3c4d",
+        "VpcId.2" => "vpc-5e6f7g8h",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type describe_vpcs_opts :: [
     dry_run: boolean,
@@ -1844,7 +1947,17 @@ defmodule ExAws.EC2 do
   Creates a VPC with the specified CIDR block.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVpc.html
-  TODO: Write parser and write examples
+  ## Examples:
+
+        iex> ExAws.EC2.create_vpc("10.32.0.0/16", [instance_tenancy: "dedicated"])
+        %ExAws.Operation.Query{action: :create_vpc,
+        params: %{
+          "Action" => "CreateVpc",
+          "CidrBlock" => "10.32.0.0/16",
+          "InstanceTenancy" => "dedicated",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type create_vpc_opts :: [
     dry_run: boolean,
@@ -1863,8 +1976,17 @@ defmodule ExAws.EC2 do
   Deletes the specified VPC.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteVpc.html
-  ## Examples: TODO
-  TODO: write parser
+  ## Examples:
+
+      iex> ExAws.EC2.delete_vpc("vpc-123456", [dry_run: true])
+      %ExAws.Operation.Query{action: :delete_vpc,
+      params: %{
+        "Action" => "DeleteVpc",
+        "VpcId" => "vpc-123456",
+        "DryRun" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type delete_vpc_opts :: [
     dry_run: boolean
@@ -1881,7 +2003,18 @@ defmodule ExAws.EC2 do
   Describes the specified attribute of the specified VPC. You can specify only one attribute at a time.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeVpcAttribute.html
-  ## Examples: TODO
+  ## Examples:
+
+      iex> ExAws.EC2.describe_vpc_attribute("vpc-123456", "enableDnsSupport", [dry_run: true])
+      %ExAws.Operation.Query{action: :describe_vpc_attribute,
+      params: %{
+        "Action" => "DescribeVpcAttribute",
+        "Attribute" => "enableDnsSupport",
+        "VpcId" => "vpc-123456",
+        "DryRun" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type describe_vpc_attribute_opts :: [
     dry_run: boolean
@@ -1889,7 +2022,8 @@ defmodule ExAws.EC2 do
   @spec describe_vpc_attribute(vpc_id :: binary, attribute :: binary) :: ExAws.Operation.Query.t
   @spec describe_vpc_attribute(vpc_id :: binary, attribute :: binary, opts :: describe_vpc_attribute_opts) :: ExAws.Operation.Query.t
   def describe_vpc_attribute(vpc_id, attribute, opts \\ []) do
-    [ {"VpcId", vpc_id}, {"Attribute", attribute}| opts ]
+    [ {"VpcId", vpc_id},
+      {"Attribute", attribute}| opts ]
     |> build_request(:describe_vpc_attribute)
   end
 
@@ -1898,8 +2032,17 @@ defmodule ExAws.EC2 do
   Modifies the specified attribute of the specified VPC.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifyVpcAttribute.html
-  Example: TODO
-  TODO: Write parser
+  ## Examples:
+
+        iex> ExAws.EC2.modify_vpc_attribute("vpc-123456", ["enable_dns_support": true])
+        %ExAws.Operation.Query{action: :modify_vpc_attribute,
+        params: %{
+          "Action" => "ModifyVpcAttribute",
+          "VpcId" => "vpc-123456",
+          "EnableDnsSupport.Value" => true,
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type modify_vpc_attribute_opts :: [
     enable_dns_hostnames: boolean,
@@ -1920,8 +2063,29 @@ defmodule ExAws.EC2 do
   Describes one or more of your subnets.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeSubnets.html
-  Examples: TODO
-  TODO Parser
+  ## Examples:
+
+        iex> ExAws.EC2.describe_subnets([subnet_ids: ["subnet-9d4a7b6c", "subnet-6e7f829e"]])
+        %ExAws.Operation.Query{action: :describe_subnets,
+        params: %{
+          "Action" => "DescribeSubnets",
+          "SubnetId.1" => "subnet-9d4a7b6c",
+          "SubnetId.2" => "subnet-6e7f829e",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+        iex> ExAws.EC2.describe_subnets(filters: ["vpc-id": ["vpc-1a2b3c4d", "vpc-6e7f8a92"], "state": ["available"]])
+        %ExAws.Operation.Query{action: :describe_subnets,
+        params: %{
+          "Action" => "DescribeSubnets",
+          "Filter.1.Name" => "vpc-id",
+          "Filter.1.Value.1" => "vpc-1a2b3c4d",
+          "Filter.1.Value.2" => "vpc-6e7f8a92",
+          "Filter.2.Name" => "state",
+          "Filter.2.Value.1" => "available",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type describe_subnets_opts :: [
     dry_run: boolean,
@@ -1938,8 +2102,19 @@ defmodule ExAws.EC2 do
   Creates a subnet in an existing VPC.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateSubnet.html
-  Examples: TODO
-  TODO Parser
+
+  ## Examples:
+
+        iex> ExAws.EC2.create_subnet("vpc-1a2b3c4d", "10.0.1.0/24", [ipv6_cidr_block: "2001:db8:1234:1a00::/64"])
+        %ExAws.Operation.Query{action: :create_subnet,
+        params: %{
+          "Action" => "CreateSubnet",
+          "VpcId" => "vpc-1a2b3c4d",
+          "CidrBlock" => "10.0.1.0/24",
+          "Ipv6CidrBlock" => "2001:db8:1234:1a00::/64",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type create_subnet_opts :: [
     availability_zone: binary,
@@ -1949,7 +2124,8 @@ defmodule ExAws.EC2 do
   @spec create_subnet(vpc_id :: binary, cidr_block :: binary) :: ExAws.Operation.Query.t
   @spec create_subnet(vpc_id :: binary, cidr_block :: binary, opts :: create_subnet_opts) :: ExAws.Operation.Query.t
   def create_subnet(vpc_id, cidr_block, opts \\ []) do
-    [ {"VpcId", vpc_id}, {"CidrBlock", cidr_block} | opts ]
+    [ {"VpcId", vpc_id},
+      {"CidrBlock", cidr_block} | opts ]
     |> build_request(:create_subnet)
   end
 
@@ -1957,8 +2133,17 @@ defmodule ExAws.EC2 do
   Deletes the specified subnet.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteSubnet.html
-  Examples: TODO
-  TODO: Parser
+  ## Examples:
+
+      iex> ExAws.EC2.delete_subnet("subnet-9d4a7b6c", [dry_run: true])
+      %ExAws.Operation.Query{action: :delete_subnet,
+      params: %{
+        "Action" => "DeleteSubnet",
+        "SubnetId" => "subnet-9d4a7b6c",
+        "DryRun" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type delete_subnet_opts :: [
     dry_run: boolean
@@ -1974,7 +2159,17 @@ defmodule ExAws.EC2 do
   Modifies a subnet attribute.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ModifySubnetAttribute.html
-  ## Examples: TODO
+  ## Examples:
+
+      iex> ExAws.EC2.modify_subnet_attribute("subnet-9d4a7b6c", [dry_run: true])
+      %ExAws.Operation.Query{action: :modify_subnet_attribute,
+      params: %{
+        "Action" => "ModifySubnetAttribute",
+        "SubnetId" => "subnet-9d4a7b6c",
+        "DryRun" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type modify_subnet_attribute_opts :: [
     map_public_ip_on_launch: boolean,
@@ -1995,8 +2190,25 @@ defmodule ExAws.EC2 do
   Describes one or more of your key pairs.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeKeyPairs.html
-  Examples: TODO
-  Parsers TODO
+  ## Examples:
+
+      iex> ExAws.EC2.describe_key_pairs
+      %ExAws.Operation.Query{action: :describe_key_pairs,
+      params: %{
+        "Action" => "DescribeKeyPairs",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+      iex> ExAws.EC2.describe_key_pairs([key_names: ["my-key-pair", "test-key-pair"]])
+      %ExAws.Operation.Query{action: :describe_key_pairs,
+      params: %{
+        "Action" => "DescribeKeyPairs",
+        "KeyName.1" => "my-key-pair",
+        "KeyName.2" => "test-key-pair",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+
   """
   @type describe_key_pairs_opts :: [
     dry_run: boolean,
@@ -2016,7 +2228,17 @@ defmodule ExAws.EC2 do
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateKeyPair.html
 
-  ## Examples: TODO
+  ## Examples:
+
+      iex> ExAws.EC2.create_key_pair("my-key-pair", [dry_run: true])
+      %ExAws.Operation.Query{action: :create_key_pair,
+      params: %{
+        "Action" => "CreateKeyPair",
+        "KeyName" => "my-key-pair",
+        "DryRun" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type create_key_pair_opts :: [
     dry_run: boolean
@@ -2032,8 +2254,17 @@ defmodule ExAws.EC2 do
   Deletes the specified key pair, by removing the public key from Amazon EC2.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DeleteKeyPair.html
-  Examples: TODO
-  Parsers: TODO
+  ## Examples:
+
+      iex> ExAws.EC2.create_key_pair("my-key-pair", [dry_run: true])
+      %ExAws.Operation.Query{action: :create_key_pair,
+      params: %{
+        "Action" => "CreateKeyPair",
+        "KeyName" => "my-key-pair",
+        "DryRun" => true,
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type delete_key_pair_opts :: [
     dry_run: boolean
@@ -2049,10 +2280,19 @@ defmodule ExAws.EC2 do
   Imports the public key from an RSA key pair that you created with a
   third-party tool.
 
-  NOTE: public_key_material is base64-encoded binary data object. The base64
-  encoding is performed.
+  NOTE: public_key_material is base64-encoded binary data object.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ImportKeyPair.html
+  ## Examples:
+
+      iex> ExAws.EC2.import_key_pair("my-key-pair", "Base64PublicKeyMaterial")
+      %ExAws.Operation.Query{action: :import_key_pair,
+      params: %{
+        "Action" => "ImportKeyPair",
+        "KeyName" => "my-key-pair",
+        "PublicKeyMaterial" => "Base64PublicKeyMaterial",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
 
   """
   @type import_key_pair_opts :: [
@@ -2061,7 +2301,8 @@ defmodule ExAws.EC2 do
   @spec import_key_pair(key_name :: binary, public_key_material :: binary) :: ExAws.Operation.Query.t
   @spec import_key_pair(key_name :: binary, public_key_material :: binary, opts :: import_key_pair_opts) :: ExAws.Operation.Query.t
   def import_key_pair(key_name, public_key_material, opts \\ []) do
-    [ {"KeyName", key_name}, {"PublicKeyMaterial", public_key_material} | opts]
+    [ {"KeyName", key_name},
+      {"PublicKeyMaterial", public_key_material} | opts]
     |> build_request(:import_key_pair)
   end
 
@@ -2069,17 +2310,39 @@ defmodule ExAws.EC2 do
   # Security Groups Operations #
   ##############################
 
+  @doc """
+  Describes one or more of your security groups.
+
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeSecurityGroups.html
+
+  ## Examples
+
+        iex> ExAws.EC2.describe_security_groups
+        %ExAws.Operation.Query{action: :describe_security_groups,
+        params: %{
+          "Action" => "DescribeSecurityGroups",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+        iex> ExAws.EC2.describe_security_groups([filters: ["ip.permission.protocol": ["tcp"], "ip-permission.group_name": ["app_server_group", "database_group"]]])
+        %ExAws.Operation.Query{action: :describe_security_groups,
+        params: %{
+          "Action" => "DescribeSecurityGroups",
+          "Filter.1.Name" => "ip.permission.protocol",
+          "Filter.1.Value.1" => "tcp",
+          "Filter.2.Name" => "ip-permission.group_name",
+          "Filter.2.Value.1" => "app_server_group",
+          "Filter.2.Value.2" => "database_group",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+  """
   @type describe_security_groups_opts :: [
     dry_run: boolean,
     filters: [filter, ...],
     group_ids: [binary, ...],
     group_names: [binary, ...]
   ]
-  @doc """
-  Describes one or more of your security groups.
-
-  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeSecurityGroups.html
-  """
   @spec describe_security_groups() :: ExAws.Operation.Query.t
   @spec describe_security_groups(opts :: describe_security_groups_opts) :: ExAws.Operation.Query.t
   def describe_security_groups(opts \\ []) do
@@ -2090,6 +2353,18 @@ defmodule ExAws.EC2 do
   Creates a security group.
 
   Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateSecurityGroup.html
+
+  ## Examples
+
+      iex> ExAws.EC2.create_security_group("websrv", "Web Servers")
+      %ExAws.Operation.Query{action: :create_security_group,
+      params: %{
+        "Action" => "CreateSecurityGroup",
+        "GroupName" => "websrv",
+        "GroupDescription" => "Web Servers",
+        "Version" => "2016-11-15"
+      }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type create_security_group_opts :: [
     dry_run: boolean,
@@ -2098,13 +2373,37 @@ defmodule ExAws.EC2 do
   @spec create_security_group(group_name :: binary, group_description :: binary) :: ExAws.Operation.Query.t
   @spec create_security_group(group_name :: binary, group_description :: binary, opts :: create_security_group_opts) :: ExAws.Operation.Query.t
   def create_security_group(group_name, group_description, opts \\ []) do
-      [ {"GroupName", group_name}, {"GroupDescription", group_description} | opts ]
+      [ {"GroupName", group_name},
+        {"GroupDescription", group_description} | opts ]
       |> build_request(:create_security_group)
   end
 
 
   @doc """
   Adds one or more ingress rules to a security group.
+
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupIngress.html
+
+  ## Examples:
+
+        iex> ExAws.EC2.authorize_security_group_ingress([group_id: "sg-1a2b3c4d",
+        ...>  ip_permissions: [
+        ...>    [ip_protocol: "tcp", from_port: 22, to_port: 22, ipv6_ranges: [
+        ...>      [cidr_ipv6: "2001:db8:1234:1a00::/64"]
+        ...>    ]]
+        ...>  ]
+        ...> ])
+        %ExAws.Operation.Query{action: :authorize_security_group_ingress,
+        params: %{
+          "Action" => "AuthorizeSecurityGroupIngress",
+          "GroupId" => "sg-1a2b3c4d",
+          "IpPermissions.1.IpProtocol" => "tcp",
+          "IpPermissions.1.FromPort" => 22,
+          "IpPermissions.1.ToPort" => 22,
+          "IpPermissions.1.Ipv6Ranges.1.CidrIpv6" => "2001:db8:1234:1a00::/64",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
   """
   @type user_id_group_pair :: [
     group_id: binary,
@@ -2151,31 +2450,79 @@ defmodule ExAws.EC2 do
   end
 
 
-@doc """
-Adds one or more egress rules to a security group for use with a VPC.
+  @doc """
+  Adds one or more egress rules to a security group for use with a VPC.
 
-Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupEgress.html
-TODO: DocTests
-TODO: Add Tests
-"""
- @type authorize_security_group_egress_opts :: [
-   cidr_ip: binary,
-   dry_run: boolean,
-   from_port: integer,
-   ip_permissions: [ip_permission, ...],
-   ip_protocol: binary,
-   source_security_group_name: binary,
-   source_security_group_owner_id: binary,
-   to_port: integer
- ]
- @spec authorize_security_group_egress(group_id :: binary) :: ExAws.Operation.Query.t
- @spec authorize_security_group_egress(group_id :: binary, opts :: authorize_security_group_egress_opts) :: ExAws.Operation.Query.t
- def authorize_security_group_egress(group_id, opts \\ []) do
-   [ {"GroupId", group_id} | opts ]
-   |> build_request(:authorize_security_group_egress)
- end
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupEgress.html
 
- @type revoke_security_group_ingress_opts :: [
+  ## Examples:
+
+        iex> ExAws.EC2.authorize_security_group_egress("sg-1a2b3c4d", [group_name: "websrv",
+        ...> ip_permissions: [
+        ...>  [ip_protocol: "tcp", from_port: 1433, to_port: 1433, user_id_group_pairs: [
+        ...>    [group_id: "sg-9a8d7f5c", group_name: "test"],
+        ...>    [group_name: "blah"]
+        ...>  ]],
+        ...>  [ip_protocol: "udp", from_port: 1234]
+        ...> ]])
+        %ExAws.Operation.Query{action: :authorize_security_group_egress,
+        params: %{
+          "Action" => "AuthorizeSecurityGroupEgress",
+          "GroupId" => "sg-1a2b3c4d",
+          "GroupName" => "websrv",
+          "IpPermissions.1.IpProtocol" => "tcp",
+          "IpPermissions.1.FromPort" => 1433,
+          "IpPermissions.1.ToPort" => 1433,
+          "IpPermissions.1.UserIdGroupPairs.1.GroupId" => "sg-9a8d7f5c",
+          "IpPermissions.1.UserIdGroupPairs.1.GroupName" => "test",
+          "IpPermissions.1.UserIdGroupPairs.2.GroupName" => "blah",
+          "IpPermissions.2.IpProtocol" => "udp",
+          "IpPermissions.2.FromPort" => 1234,
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+  """
+  @type authorize_security_group_egress_opts :: [
+    cidr_ip: binary,
+    dry_run: boolean,
+    from_port: integer,
+    ip_permissions: [ip_permission, ...],
+    ip_protocol: binary,
+    source_security_group_name: binary,
+    source_security_group_owner_id: binary,
+    to_port: integer
+  ]
+  @spec authorize_security_group_egress(group_id :: binary) :: ExAws.Operation.Query.t
+  @spec authorize_security_group_egress(group_id :: binary, opts :: authorize_security_group_egress_opts) :: ExAws.Operation.Query.t
+  def authorize_security_group_egress(group_id, opts \\ []) do
+    [ {"GroupId", group_id} | opts ]
+    |> build_request(:authorize_security_group_egress)
+  end
+
+
+  @doc """
+  Removes one or more ingress rules from a security group. The values that
+  you specify in the revoke request (for example, ports) must match
+  the existing rule's values for the rule to be removed.
+
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RevokeSecurityGroupIngress.html
+
+  ## Examples:
+
+        iex> ExAws.EC2.revoke_security_group_ingress([ip_protocol: "tcp",
+        ...> source_security_group_name: "websrv", source_security_group_owner_id: "test_id"])
+        %ExAws.Operation.Query{action: :revoke_security_group_ingress,
+        params: %{
+          "Action" => "RevokeSecurityGroupIngress",
+          "IpProtocol" => "tcp",
+          "SourceSecurityGroupName" => "websrv",
+          "SourceSecurityGroupOwnerId" => "test_id",
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+
+  """
+  @type revoke_security_group_ingress_opts :: [
    cidr_ip: binary,
    dry_run: boolean,
    from_port: integer,
@@ -2186,17 +2533,34 @@ TODO: Add Tests
    source_security_group_name: binary,
    source_security_group_owner_id: binary,
    to_port: integer
- ]
- @doc """
- Removes one or more ingress rules from a security group. The values that
- you specify in the revoke request (for example, ports) must match
- the existing rule's values for the rule to be removed.
- """
+  ]
  @spec revoke_security_group_ingress() :: ExAws.Operation.Query.t
  @spec revoke_security_group_ingress(opts :: revoke_security_group_ingress_opts) :: ExAws.Operation.Query.t
  def revoke_security_group_ingress(opts \\ []) do
     opts |> build_request(:revoke_security_group_ingress)
  end
+
+ @doc """
+ Removes one or more egress rules from a security group for EC2-VPC.
+
+ Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RevokeSecurityGroupEgress.html
+
+ ## Examples:
+
+        iex> ExAws.EC2.revoke_security_group_egress("sg-123456", [
+        ...>  cidr_ip: "10.0.0.2", dry_run: true, from_port: 22, to_port: 22
+        ...> ])
+        %ExAws.Operation.Query{action: :revoke_security_group_egress,
+        params: %{
+          "Action" => "RevokeSecurityGroupEgress",
+          "GroupId" => "sg-123456",
+          "CidrIp" => "10.0.0.2",
+          "DryRun" => true,
+          "FromPort" => 22,
+          "ToPort" => 22,
+          "Version" => "2016-11-15"
+        }, parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+ """
 
  @type revoke_security_group_egress_opts :: [
    cidr_ip: binary,
@@ -2208,9 +2572,6 @@ TODO: Add Tests
    source_security_group_owner_id: binary,
    to_port: integer
  ]
- @doc """
- Removes one or more egress rules from a security group for EC2-VPC.
- """
  @spec revoke_security_group_egress(group_id :: binary) :: ExAws.Operation.Query.t
  @spec revoke_security_group_egress(group_id :: binary, opts :: revoke_security_group_egress_opts) :: ExAws.Operation.Query.t
  def revoke_security_group_egress(group_id, opts \\ []) do
@@ -2350,7 +2711,7 @@ TODO: Add Tests
   defp format_param({:tag_specifications, tag_specifications}) do
     format_tag =
       fn {key, value} ->
-        [key: maybe_stringify(key), value: value]
+        [ key: maybe_stringify(key), value: value ]
       end
 
     # FYI, the reason why it is "tag" and not "tags" is the prefix would end up being
@@ -2395,6 +2756,6 @@ TODO: Add Tests
   end
 
   defp format_param({key, parameters}) do
-    format([{key, parameters}])
+    format([ {key, parameters} ])
   end
 end

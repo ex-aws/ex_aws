@@ -2002,6 +2002,18 @@ defmodule ExAws.EC2Test do
       Base.url_encode64("test"))
   end
 
+  test "import_key_pair with dry_run" do
+    expected = build_query(:import_key_pair, %{
+      "KeyName" => "test-key-pair",
+      "PublicKeyMaterial" => Base.url_encode64("test"),
+      "DryRun" => true
+      })
+
+    assert expected == EC2.import_key_pair(
+      "test-key-pair", Base.url_encode64("test"),
+      [dry_run: true])
+  end
+
   #########################
   # Security Groups Tests #
   #########################
@@ -2073,5 +2085,74 @@ defmodule ExAws.EC2Test do
 
     assert expected == EC2.create_security_group("Test", "Test Description",
       [vpc_id: "vpc-3325caf2"])
+  end
+
+  test "authorize_security_group_ingress with ip_permissions and group_name" do
+    expected = build_query(:authorize_security_group_ingress, %{
+      "GroupName" => "websrv",
+      "IpPermissions.1.IpProtocol" => "tcp",
+      "IpPermissions.1.FromPort" => 22,
+      "IpPermissions.1.ToPort" => 22,
+      "IpPermissions.1.IpRanges.1.CidrIp" => "192.0.2.0/24",
+      "IpPermissions.1.IpRanges.2.CidrIp" => "198.51.100.0/24"
+    })
+
+    assert expected == EC2.authorize_security_group_ingress([group_name: "websrv",
+    ip_permissions: [
+      [ip_protocol: "tcp", from_port: 22, to_port: 22, ip_ranges: [
+        [cidr_ip: "192.0.2.0/24"], [cidr_ip: "198.51.100.0/24"]
+      ]]
+    ]])
+  end
+
+  test "authorize_security_group_egress with ip_permissions" do
+    expected = build_query(:authorize_security_group_egress, %{
+      "GroupId" => "sg-9a8d7f5c",
+      "IpPermissions.1.IpProtocol" => "udp",
+      "IpPermissions.1.FromPort" => 22,
+      "IpPermissions.1.ToPort" => 22,
+      "IpPermissions.1.Ipv6Ranges.1.CidrIpv6" => "2001:db8:1234:1a00::/64",
+      "IpPermissions.1.UserIdGroupPairs.1.GroupId" => "sg-987654",
+      "IpPermissions.1.UserIdGroupPairs.1.GroupName" => "test"
+      })
+
+    assert expected == EC2.authorize_security_group_egress("sg-9a8d7f5c", [
+      ip_permissions: [
+        [ip_protocol: "udp", from_port: 22, to_port: 22, ipv6_ranges: [[cidr_ipv6: "2001:db8:1234:1a00::/64"]],
+          user_id_group_pairs: [
+              [group_id: "sg-987654", group_name: "test"]
+          ]
+        ]
+      ]
+    ])
+  end
+
+  test "revoke_security_group_ingress with ip_permissions and group_name" do
+    expected = build_query(:revoke_security_group_ingress, %{
+      "GroupName" => "websrv",
+      "IpPermissions.1.IpProtocol" => "tcp",
+      "IpPermissions.1.FromPort" => 80,
+      "IpPermissions.1.ToPort" => 80,
+      "IpPermissions.1.Ipv6Ranges.1.CidrIpv6" => "2001:db8:1234:1a00::/64",
+      "IpPermissions.1.Ipv6Ranges.2.CidrIpv6" => "2001:db9:1234:1a00::/64"
+    })
+
+    assert expected == EC2.revoke_security_group_ingress([group_name: "websrv",
+        ip_permissions: [
+            [ip_protocol: "tcp", from_port: 80, to_port: 80, ipv6_ranges: [
+              [cidr_ipv6: "2001:db8:1234:1a00::/64"],
+              [cidr_ipv6: "2001:db9:1234:1a00::/64"]
+            ]]
+        ]
+      ])
+  end
+
+  test "revoke_security_group_egress with cidr_ip" do
+    expected = build_query(:revoke_security_group_egress, %{
+      "GroupId" => "websrv",
+      "CidrIp" => "TestCidrIp"
+    })
+
+    assert expected == EC2.revoke_security_group_egress("websrv", [cidr_ip: "TestCidrIp"])
   end
 end
