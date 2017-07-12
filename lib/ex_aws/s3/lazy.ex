@@ -13,11 +13,17 @@ defmodule ExAws.S3.Lazy do
 
       {fun, args} -> case fun.(args) do
 
-        results = %{contents: contents, is_truncated: "true"} ->
+	      results = %{contents: contents = [_|_], is_truncated: "true"} ->
           {contents, {fun, [marker: next_marker(results)]}}
 
-        %{contents: contents} ->
+	      %{contents: contents = [_|_]} ->
           {contents, :quit}
+
+        results = %{common_prefixes: common_prefixes = [_|_], is_truncated: "true"} ->
+          {common_prefixes, {fun, [marker: next_marker(results)]}}
+
+        %{common_prefixes: common_prefixes} ->
+          {common_prefixes, :quit}
       end
     end, &(&1))
   end
