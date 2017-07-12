@@ -9,22 +9,20 @@ defmodule ExAws.S3.Lazy do
     end
 
     Stream.resource(fn -> {request_fun, []} end, fn
-      :quit -> {:halt, nil}
+      :quit ->
+        {:halt, nil}
 
-      {fun, args} -> case fun.(args) do
+      {fun, args} ->
+        results = fun.(args)
+        contents = Map.get(results, :contents, [])
+        common_prefixes = Map.get(results, :common_prefixes, [])
 
-	      results = %{contents: contents = [_|_], is_truncated: "true"} ->
-          {contents, {fun, [marker: next_marker(results)]}}
-
-	      %{contents: contents = [_|_]} ->
-          {contents, :quit}
-
-        results = %{common_prefixes: common_prefixes = [_|_], is_truncated: "true"} ->
-          {common_prefixes, {fun, [marker: next_marker(results)]}}
-
-        %{common_prefixes: common_prefixes} ->
-          {common_prefixes, :quit}
-      end
+        case results do
+          %{is_truncated: "true"} ->
+            {contents ++ common_prefixes, {fun, [marker: next_marker(results)]}} 
+          _ ->
+            {contents ++ common_prefixes, :quit}
+        end
     end, &(&1))
   end
 
