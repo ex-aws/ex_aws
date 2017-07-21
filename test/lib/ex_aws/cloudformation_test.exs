@@ -70,14 +70,14 @@ defmodule ExAws.CloudformationTest do
       "Parameters.member.2.ParameterKey" => "InstanceType",
       "Parameters.member.2.ParameterValue" => "m1.micro"
       })
-    
+
     result = Cloudformation.create_stack(
-      "test_stack", 
+      "test_stack",
       [parameters:
         [ %{parameter_key: "AvailabilityZone", parameter_value: "us-east-1a"},
           %{parameter_key: "InstanceType", parameter_value: "m1.micro"} ]
       ])
-      
+
     assert expected == result
   end
 
@@ -100,7 +100,7 @@ defmodule ExAws.CloudformationTest do
       })
 
     assert expected == Cloudformation.create_stack("test_stack",
-    [capabilities: [:capability_iam]])
+    [capabilities: ["CAPABILITY_IAM"]])
   end
 
   test "create_stack with resource_types" do

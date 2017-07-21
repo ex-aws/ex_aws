@@ -24,8 +24,8 @@ defmodule ExAws.Cloudformation do
   http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_Operations.html
   """
 
-  use ExAws.Utils, 
-  format_type: :xml, 
+  use ExAws.Utils,
+  format_type: :xml,
   non_standard_keys: %{
     stack_name: "StackName",
     role_arn: "RoleARN",
@@ -40,23 +40,13 @@ defmodule ExAws.Cloudformation do
 
   @version "2010-05-15"
 
-  @type accepted_capability_vals ::
-    :capability_iam |
-    :capability_named_iam
-
-
-  @type on_failure_vals ::
-    :do_nothing |
-    :rollback |
-    :delete
-
   @type parameter :: [
     parameter_key: binary,
     parameter_value: binary,
     use_previous_value: boolean
   ]
 
-  @type tag :: 
+  @type tag ::
     {key :: atom | binary, value :: binary}
 
   @doc """
@@ -97,7 +87,7 @@ defmodule ExAws.Cloudformation do
 
   @spec continue_update_rollback(stack_name :: binary, opts :: continue_update_rollback_opts) :: ExAws.Operation.Query.t
   def continue_update_rollback(stack_name, opts \\ []) do
-    [{"StackName", stack_name} | opts] 
+    [{"StackName", stack_name} | opts]
     |> Enum.flat_map(&format_param/1)
     |> request(:continue_update_rollback)
   end
@@ -119,10 +109,10 @@ defmodule ExAws.Cloudformation do
   ```
   """
   @type create_stack_opts :: [
-    capabilities: [accepted_capability_vals, ...],
+    capabilities: [binary, ...],
     disable_rollback: boolean,
     notification_arns: [binary, ...],
-    on_failure: on_failure_vals,
+    on_failure: binary,
     parameters: [parameter, ...],
     resource_types: [binary, ...],
     role_arn: binary,
@@ -136,7 +126,7 @@ defmodule ExAws.Cloudformation do
 
   @spec create_stack(stack_name :: binary, opts :: create_stack_opts) :: ExAws.Operation.Query.t
   def create_stack(stack_name, opts \\ []) do
-    [{"StackName", stack_name} | opts] 
+    [{"StackName", stack_name} | opts]
     |> Enum.flat_map(&format_param/1)
     |> request(:create_stack)
   end
@@ -166,8 +156,8 @@ defmodule ExAws.Cloudformation do
   ]
   @spec delete_stack(stack_name :: binary, opts :: delete_stack_opts) :: ExAws.Operation.Query.t
   def delete_stack(stack_name, opts \\ []) do
-    [{"StackName", stack_name} | opts] 
-    |> Enum.flat_map(&format_param/1) 
+    [{"StackName", stack_name} | opts]
+    |> Enum.flat_map(&format_param/1)
     |> request(:delete_stack)
   end
 
@@ -260,7 +250,7 @@ defmodule ExAws.Cloudformation do
   ]
   @spec get_template(opts :: get_template_opts) :: ExAws.Operation.Query.t
   def get_template(opts \\ []) do
-    opts 
+    opts
     |> Enum.flat_map(&format_param/1)
     |> request(:get_template)
   end
@@ -284,8 +274,8 @@ defmodule ExAws.Cloudformation do
   ]
   @spec get_template_summary(opts :: get_template_summary_opts) :: ExAws.Operation.Query.t
   def get_template_summary(opts \\ []) do
-    opts 
-    |> Enum.flat_map(&format_param/1)    
+    opts
+    |> Enum.flat_map(&format_param/1)
     |> request(:get_template_summary)
   end
 
@@ -310,8 +300,8 @@ defmodule ExAws.Cloudformation do
   ]
   @spec list_stacks(opts :: list_stacks_opts) :: ExAws.Operation.Query.t
   def list_stacks(opts \\ []) do
-    opts 
-    |> Enum.flat_map(&format_param/1)    
+    opts
+    |> Enum.flat_map(&format_param/1)
     |> request(:list_stacks)
   end
 
@@ -329,7 +319,7 @@ defmodule ExAws.Cloudformation do
   """
   @spec list_stack_resources(stack_name :: binary, opts :: [next_token: binary]) :: ExAws.Operation.Query.t
   def list_stack_resources(stack_name, opts \\ []) do
-    [{"StackName", stack_name} | opts] 
+    [{"StackName", stack_name} | opts]
     |> Enum.flat_map(&format_param/1)
     |> request(:list_stack_resources)
   end
@@ -355,7 +345,7 @@ defmodule ExAws.Cloudformation do
   ########################
 
   defp format_param({:stack_status_filters, filters}) do
-    filters 
+    filters
     |> Enum.map(&upcase/1)
     |> format(prefix: "StackStatusFilter.member")
   end
