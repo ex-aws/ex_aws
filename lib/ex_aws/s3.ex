@@ -292,7 +292,7 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket CORS policy"
-  @spec put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Operation.S3.t
+  @spec put_bucket_cors(bucket :: binary, cors_config :: map()) :: ExAws.Operation.S3.t
   def put_bucket_cors(bucket, cors_rules) do
     rules = cors_rules
     |> Enum.map(&build_cors_rule/1)
@@ -307,41 +307,41 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket lifecycle configuration"
-  @spec put_bucket_lifecycle(bucket :: binary, lifecycle_config :: %{}) :: no_return
+  @spec put_bucket_lifecycle(bucket :: binary, lifecycle_config :: map()) :: no_return
   def put_bucket_lifecycle(bucket, _livecycle_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket policy configuration"
-  @spec put_bucket_policy(bucket :: binary, policy :: %{}) :: ExAws.Operation.S3.t
+  @spec put_bucket_policy(bucket :: binary, policy :: map()) :: ExAws.Operation.S3.t
   def put_bucket_policy(bucket, policy) do
     request(:put, bucket, "/", resource: "policy", body: policy)
   end
 
   @doc "Update or create a bucket logging configuration"
-  @spec put_bucket_logging(bucket :: binary, logging_config :: %{}) :: no_return
+  @spec put_bucket_logging(bucket :: binary, logging_config :: map()) :: no_return
   def put_bucket_logging(bucket, _logging_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket notification configuration"
-  @spec put_bucket_notification(bucket :: binary, notification_config :: %{}) :: no_return
+  @spec put_bucket_notification(bucket :: binary, notification_config :: map()) :: no_return
   def put_bucket_notification(bucket, _notification_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket replication configuration"
-  @spec put_bucket_replication(bucket :: binary, replication_config :: %{}) :: no_return
+  @spec put_bucket_replication(bucket :: binary, replication_config :: map()) :: no_return
   def put_bucket_replication(bucket, _replication_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket tagging configuration"
-  @spec put_bucket_tagging(bucket :: binary, tags :: %{}) :: no_return
+  @spec put_bucket_tagging(bucket :: binary, tags :: map()) :: no_return
   def put_bucket_tagging(bucket, _tags) do
     raise "not yet implemented"
     request(:put, bucket, "/")
