@@ -34,7 +34,7 @@ defmodule ExAws.Operation.S3 do
 
       headers = headers
       |> Map.put("x-amz-content-sha256", hashed_payload)
-      |> Map.put("content-length", byte_size(body))
+      |> Map.put("content-length", :erlang.iolist_size(body))
       |> Map.to_list
 
       ExAws.Request.request(http_method, url, body, headers, config, operation.service)
