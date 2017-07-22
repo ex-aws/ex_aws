@@ -77,6 +77,7 @@ it would be encoded as an integer set. This had issues because if the list was
 `[1,2,1]` you could get an error because the items are not unique.
 
 ## Highlighted Features
+
 - Easy configuration.
 - Minimal dependencies. Choose your favorite JSON codec and HTTP client.
 - Elixir streams to automatically retrieve paginated resources.
@@ -150,6 +151,7 @@ config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
 ```
+
 ## Retries
 
 ExAws will retry failed AWS API requests using exponential backoff per the "Full
@@ -171,6 +173,25 @@ config :ex_aws, :retries,
 * `base_backoff_in_ms` corresponds to the `base` value described in the blog post
 * `max_backoff_in_ms` corresponds to the `cap` value described in the blog post
 
+## Logging
+
+ExAws does not include logging except through the `:debug_requests` option which logs the
+URL, headers, and body of _every_ request. As indicated by the name, it is recommeded for
+debugging and should _not_ be enabled for production environments. You can enable it via:
+
+```elixir
+config :ex_aws,
+  debug_requests: true
+```
+
+For production logging, we recommend something like
+[Timber](http://github.com/timberio/timber-elixir), which provides a custom HTTP client to
+thoughtfully log HTTP requests:
+
+```elixir
+config :ex_aws,
+  http_client: Timber.Integrations.ExAwsHTTPClient
+```
 
 ## License
 
