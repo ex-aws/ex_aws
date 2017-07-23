@@ -46,9 +46,14 @@ defmodule ExAws.Request do
           end
         {:ok, %{status_code: status, body: body}} when status >= 500 ->
           reason = {:http_error, status, body}
-          request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
+          attempt_again = attempt_again?(attempt, reason, config)
+          retrying_text = if attempt_again, do: ", retrying", else: ""
+          Logger.warn("ExAws: Bad response status #{status}#{retrying_text}")
+          request_and_retry(method, url, service, config, headers, req_body, attempt_again)
         {:error, %{reason: reason}} ->
-          Logger.warn("ExAws: HTTP ERROR: #{inspect reason}")
+          attempt_again = attempt_again?(attempt, reason, config)
+          retrying_text = if attempt_again, do: ", retrying", else: ""
+          Logger.warn("ExAws: HTTP ERROR: #{inspect reason}#{retrying_text}")
           request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
       end
     end

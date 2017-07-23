@@ -177,7 +177,7 @@ config :ex_aws, :retries,
 
 ExAws does not include logging except through the `:debug_requests` option which logs the
 URL, headers, and body of _every_ request. As indicated by the name, it is recommeded for
-debugging and should _not_ be enabled for production environments. You can enable it via:
+debugging and should _not_ be used within production environments. You can enable it via:
 
 ```elixir
 config :ex_aws,
@@ -185,8 +185,9 @@ config :ex_aws,
 ```
 
 For production logging, we recommend something like
-[Timber](http://github.com/timberio/timber-elixir), which provides a custom HTTP client to
-thoughtfully log HTTP requests:
+[Timber](http://github.com/timberio/timber-elixir), which provides a
+[custom HTTP client](https://github.com/timberio/timber-elixir/blob/master/lib/timber/integrations/ex_aws_http_client.ex)
+to thoughtfully log HTTP requests:
 
 ```elixir
 config :ex_aws,
