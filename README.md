@@ -184,7 +184,7 @@ config :ex_aws,
   debug_requests: true
 ```
 
-For production logging, we recommend something like
+For production logging, we recommend creating a custom HTTP client, something like
 [Timber](http://github.com/timberio/timber-elixir), which provides a
 [custom HTTP client](https://github.com/timberio/timber-elixir/blob/master/lib/timber/integrations/ex_aws_http_client.ex)
 to thoughtfully log HTTP requests:
