@@ -60,7 +60,7 @@ defmodule ExAws.Request do
           else
             Logger.error("ExAws: HTTP ERROR: #{inspect reason}, failing")
           end
-          request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
+          request_and_retry(method, url, service, config, headers, req_body, attempt_again)
       end
     end
   end
