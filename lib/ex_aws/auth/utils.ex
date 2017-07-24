@@ -27,8 +27,7 @@ defmodule ExAws.Auth.Utils do
 
   def bytes_to_hex(bytes) do
     bytes
-    |> Base.encode16
-    |> String.downcase
+    |> Base.encode16(case: :lower)
   end
 
   def service_name(service), do: service |> Atom.to_string

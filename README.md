@@ -4,15 +4,14 @@ ExAws
 
 A flexible easy to use set of AWS APIs.
 
+- `ExAws.Cloudwatch`
 - `ExAws.Dynamo`
 - `ExAws.DynamoStreams`
-- `ExAws.EC2`
 - `ExAws.ElasticTranscoder`
 - `ExAws.Firehose`
 - `ExAws.Kinesis`
 - `ExAws.KMS`
 - `ExAws.Lambda`
-- `ExAws.Polly`
 - `ExAws.RDS`
 - `ExAws.Route53`
 - `ExAws.S3`
@@ -20,6 +19,9 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.SNS`
 - `ExAws.SQS`
 - `ExAws.STS`
+- `ExAws.Cloudformation (BETA)`
+- `ExAws.EC2 (BETA)`
+- `ExAws.ECS (COMING SOON)`
 
 ## 1.0.0 Changes
 

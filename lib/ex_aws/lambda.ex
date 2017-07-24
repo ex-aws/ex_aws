@@ -3,7 +3,7 @@ defmodule ExAws.Lambda do
   Operations on ExAws Lambda
   """
 
-  import ExAws.Utils, only: [camelize_keys: 1, upcase: 1]
+  import ExAws.Utils, only: [camelize_key: 1, camelize_keys: 1, upcase: 1]
   require Logger
 
   @actions %{
@@ -156,8 +156,8 @@ defmodule ExAws.Lambda do
     {:log_type, :none | :tail} |
     {:qualifier, String.t}
   ]
-  @spec invoke(function_name :: binary, payload :: %{}, client_context :: %{}) :: ExAws.Operation.JSON.t
-  @spec invoke(function_name :: binary, payload :: %{}, client_context :: %{}, opts :: invoke_opts) :: ExAws.Operation.JSON.t
+  @spec invoke(function_name :: binary, payload :: map(), client_context :: map()) :: ExAws.Operation.JSON.t
+  @spec invoke(function_name :: binary, payload :: map(), client_context :: map(), opts :: invoke_opts) :: ExAws.Operation.JSON.t
   @context_header "X-Amz-Client-Context"
   def invoke(function_name, payload, client_context, opts \\ []) do
     {qualifier, opts} = Map.pop(Enum.into(opts, %{}), :qualifier)
@@ -167,7 +167,7 @@ defmodule ExAws.Lambda do
       case Map.fetch(opts, opt) do
         :error       -> headers
         {:ok, nil}   -> headers
-        {:ok, value} -> [{header, value} | headers]
+        {:ok, value} -> [{header, value |> camelize_key} | headers]
       end
     end)
 
@@ -198,7 +198,7 @@ defmodule ExAws.Lambda do
   end
 
   @doc "Invoke a lambda function asynchronously"
-  @spec invoke_async(function_name :: binary, args :: %{}) :: ExAws.Operation.JSON.t
+  @spec invoke_async(function_name :: binary, args :: map()) :: ExAws.Operation.JSON.t
   def invoke_async(function_name, args) do
     Logger.info("This API is deprecated. See invoke/5 with the Event value set as invocation type")
     request(:invoke, args |> normalize_opts, "/2014-11-13/functions/#{function_name}/invoke-async/")
@@ -238,7 +238,7 @@ defmodule ExAws.Lambda do
   end
 
   @doc "Update event source mapping"
-  @spec update_event_source_mapping(uuid :: binary, attrs_to_update :: %{}) :: ExAws.Operation.JSON.t
+  @spec update_event_source_mapping(uuid :: binary, attrs_to_update :: map()) :: ExAws.Operation.JSON.t
   def update_event_source_mapping(uuid, attrs_to_update) do
     request(:update_event_source_mapping, attrs_to_update, "/2015-03-31/event-source-mappings/#{uuid}")
   end
@@ -251,7 +251,7 @@ defmodule ExAws.Lambda do
   end
 
   @doc "Update a function configuration"
-  @spec update_function_configuration(function_name :: binary, configuration :: %{}) :: ExAws.Operation.JSON.t
+  @spec update_function_configuration(function_name :: binary, configuration :: map()) :: ExAws.Operation.JSON.t
   def update_function_configuration(function_name, configuration) do
     data = configuration |> normalize_opts
     request(:update_function_configuration, data, "/2015-03-31/functions/#{function_name}/versions/HEAD/configuration")

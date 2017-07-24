@@ -506,6 +506,12 @@ defmodule ExAws.SQS.ParserTest do
           <MD5OfMessageBody>7fb8146a82f95e0af155278f406862c2</MD5OfMessageBody>
           <MD5OfMessageAttributes>295c5fa15a51aae6884d1d7c1d99ca50</MD5OfMessageAttributes>
         </SendMessageBatchResultEntry>
+        <BatchResultErrorEntry>
+          <Code>test_error_1</Code>
+          <Id>test_error_001</Id>
+          <Message>Big data</Message>
+          <SenderFault>true</SenderFault>
+        </BatchResultErrorEntry>
       </SendMessageBatchResult>
       <ResponseMetadata>
         <RequestId>ca1ad5d0-8271-408b-8d0f-1351bf547e74</RequestId>
@@ -528,6 +534,12 @@ defmodule ExAws.SQS.ParserTest do
     assert "15ee1ed3-87e7-40c1-bdaa-2e49968ea7e9" == second[:message_id]
     assert "7fb8146a82f95e0af155278f406862c2" == second[:md5_of_message_body]
     assert "295c5fa15a51aae6884d1d7c1d99ca50" == second[:md5_of_message_attributes]
+
+    assert [first_error] = response[:failures]
+    assert "test_error_1" == first_error[:code]
+    assert "test_error_001" == first_error[:id]
+    assert "Big data" == first_error[:message]
+    assert "true" == first_error[:sender_fault]
   end
 
   test "it should handle a set queue attributes response" do

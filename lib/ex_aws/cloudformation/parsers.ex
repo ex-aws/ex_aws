@@ -27,6 +27,22 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :create_stack, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//CreateStackResponse",
+        request_id: request_id_xpath(),
+        stack_id: ~x"./CreateStackResult/StackId/text()"s
+      )
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+    def parse({:ok, %{body: xml}=resp}, :delete_stack, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DeleteStackResponse", request_id: request_id_xpath())
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :describe_stack_resource, config) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//DescribeStackResourceResponse",
@@ -35,7 +51,7 @@ if Code.ensure_loaded?(SweetXml) do
              ~x"./DescribeStackResourceResult/StackResourceDetail",
              last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s,
              metadata: ~x"./Metadata/text()"so |> transform_by(&(parse_metadata_json(&1, config)))
-           ] ++ resource_description_fields ++ stack_fields
+           ] ++ resource_description_fields() ++ stack_fields()
          )
 
         {:ok, Map.put(resp, :body, parsed_body)}
@@ -48,10 +64,39 @@ if Code.ensure_loaded?(SweetXml) do
            resources: [
              ~x"./DescribeStackResourcesResult/StackResources/member"l,
              timestamp: ~x"./Timestamp/text()"s,
-           ] ++ resource_description_fields ++ stack_fields
+           ] ++ resource_description_fields() ++ stack_fields()
          )
 
         {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+
+    def parse({:ok, %{body: xml} = resp}, :get_template, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//GetTemplateResponse",
+          template_body: ~x"./GetTemplateResult/TemplateBody/text()"s,
+          request_id: request_id_xpath()
+       )
+     {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
+
+    def parse({:ok, %{body: xml} = resp}, :get_template_summary, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//GetTemplateSummaryResponse",
+        description: ~x"./GetTemplateSummaryResult/Description/text()"s,
+        parameters: [
+          ~x"./GetTemplateSummaryResult/Parameters/member"l,
+          no_echo: ~x"./NoEcho/text()"s,
+          parameter_key: ~x"./ParameterKey/text()"s,
+          description: ~x"./Description/text()"s,
+          parameter_type: ~x"./ParameterType/text()"s,
+        ],
+        metadata: ~x"./GetTemplateSummaryResult/Metadata/text()"s,
+        version: ~x"./GetTemplateSummaryResult/Version/text()"s,
+        request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
     end
 
     def parse({:ok, %{body: xml}=resp}, :list_stacks, _) do
@@ -78,14 +123,43 @@ if Code.ensure_loaded?(SweetXml) do
       |> SweetXml.xpath(~x"//ListStackResourcesResponse",
           next_token: ~x"./ListStackResourcesResult/NextToken/text()"s,
           request_id: request_id_xpath(),
-          resources: [ ~x"./ListStackResourcesResult/StackResourceSummaries/member"l,
-                       last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s
-                     ] ++ resource_description_fields
+          resources: [
+            ~x"./ListStackResourcesResult/StackResourceSummaries/member"l,
+            last_updated_timestamp: ~x"./LastUpdatedTimestamp/text()"s
+           ] ++ resource_description_fields()
          )
 
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :describe_stacks, _) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//DescribeStacksResponse",
+                        stacks: [
+                          ~x"./DescribeStacksResult/Stacks/member"lo,
+                          name: ~x"./StackName/text()"s,
+                          id: ~x"./StackId/text()"s,
+                          creation_time: ~x"./CreationTime/text()"s,
+                          status: ~x"./StackStatus/text()"s |> transform_by(&const_to_atom/1),
+                          disable_rollback: ~x"./DisableRollback/text()"s,
+                          outputs: [
+                            ~x"./Outputs/member"lo,
+                            key: ~x"./OutputKey/text()"s,
+                            value: ~x"./OutputValue/text()"s
+                          ] 
+                        ],
+                        request_id: request_id_xpath())
+
+      processStack = fn stack ->
+        Map.update!( stack, :outputs, &Map.new( &1, fn kv -> {kv[:key], kv[:value]} end ) )
+      end
+      
+      #Convert the list of outputs to a map
+      processed_body = Map.update!( parsed_body, :stacks, &Enum.map( &1, fn stack -> processStack.( stack ) end ) )
+
+      {:ok, Map.put(resp, :body, processed_body)}
+    end
+    
     def parse({:error, {type, http_status_code, %{body: xml}}}, _, _) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ErrorResponse",
@@ -121,7 +195,7 @@ if Code.ensure_loaded?(SweetXml) do
     end
 
     defp const_to_atom(string) do
-      _load_status_atoms
+      _load_status_atoms()
       string |> String.downcase |> String.to_existing_atom
     end
 

@@ -32,7 +32,8 @@ Running the test suite for ex_aws requires a few things:
         "ec2:DescribeInstances",
         "firehose:ListDeliveryStreams",
         "ses:VerifyEmailIdentity",
-        "elastictranscoder:ListPipelines"
+        "elastictranscoder:ListPipelines",
+        "cloudwatch:DescribeAlarms"
       ],
       "Resource": "*"
     }

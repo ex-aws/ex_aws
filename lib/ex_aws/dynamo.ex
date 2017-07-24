@@ -171,7 +171,7 @@ defmodule ExAws.Dynamo do
     index_name: "my-global-index",
     key_schema: [%{
       attribute_name: "email",
-      attribute_type: "HASH",
+      key_type: "HASH",
     }],
     provisioned_throughput: %{
       read_capacity_units: 1,
@@ -181,7 +181,7 @@ defmodule ExAws.Dynamo do
       projection_type: "KEYS_ONLY",
     }
   }]
-  create_table("TestUsers", [id: :hash], %{id: :string}, 1, 1, secondary_index, [])
+  create_table("TestUsers", [id: :hash], %{id: :string, email: :string}, 1, 1, secondary_index, [])
   ```
 
   """
@@ -325,7 +325,7 @@ defmodule ExAws.Dynamo do
     |> build_opts
     |> Map.merge(%{"TableName" => name})
 
-    request(:query, data)
+    request(:query, data, %{stream_builder: &ExAws.Dynamo.Lazy.stream_query(name, opts, &1)})
   end
 
   @doc """

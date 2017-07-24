@@ -20,7 +20,7 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       host: {"$region", "cloudformation.$region.amazonaws.com"},
       region: "us-east-1",
-      port: 80
+      port: 443
     },
     kinesis: %{
       scheme: "https://",
@@ -135,8 +135,8 @@ defmodule ExAws.Config.Defaults do
       region: "us-east-1",
       port: 443
     },
-    polly: %{
-      host: {"$region", "polly.$region.amazonaws.com"},
+    monitoring: %{
+      host: {"$region", "monitoring.$region.amazonaws.com"},
       scheme: "https://",
       region: "us-east-1",
       port: 443

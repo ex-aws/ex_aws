@@ -154,6 +154,16 @@ defmodule ExAws.SES do
     }
   end
 
+  @doc "Set whether SNS notifications should include original email headers or not"
+  @spec set_identity_headers_in_notifications_enabled(binary, notification_type, boolean) :: ExAws.Operation.Query.t
+  def set_identity_headers_in_notifications_enabled(identity, type, enabled) do
+    notification_type = Atom.to_string(type) |> String.capitalize()
+    request(
+      :set_identity_headers_in_notifications_enabled,
+      %{"Identity" => identity, "NotificationType" => notification_type, "Enabled" => enabled}
+    )
+  end
+
   defp format_dst(dst) do
     dst
     |> Map.to_list
