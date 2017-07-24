@@ -193,8 +193,8 @@ defmodule ExAws.SNSTest do
   end
 
   test "#opt_in_phone_number" do
-    expected = %{"Action" => "OptInPhoneNumber", "PhoneNumber" => "+15005550006"}
-    assert expected == SNS.list_phone_numbers_opted_out("+15005550006").params
+    expected = %{"Action" => "OptInPhoneNumber", "phoneNumber" => "+15005550006"}
+    assert expected == SNS.opt_in_phone_number("+15005550006").params
   end
 
   # Test SMS request structure. Credentials via (https://www.twilio.com/docs/api/rest/test-credentials).
