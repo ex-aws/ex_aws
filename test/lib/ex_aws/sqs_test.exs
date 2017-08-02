@@ -276,10 +276,10 @@ defmodule ExAws.SQSTest do
     assert expected == SQS.receive_message("982071696186/test_queue", attribute_names: :all,
                                                                       max_number_of_messages: 5).params
 
-    expected = %{"Action" => "ReceiveMessage", "AttributeName.1" => "SenderId", "AttributeName.2" => "ApproximateReceiveCount", "VisibilityTimeout" => 1000, "WaitTimeout" => 20}
+    expected = %{"Action" => "ReceiveMessage", "AttributeName.1" => "SenderId", "AttributeName.2" => "ApproximateReceiveCount", "VisibilityTimeout" => 1000, "WaitTimeSeconds" => 20}
     assert expected == SQS.receive_message("982071696186/test_queue", attribute_names: [:sender_id, :approximate_receive_count],
                                                                       visibility_timeout: 1000,
-                                                                      wait_timeout: 20).params
+                                                                      wait_time_seconds: 20).params
   end
 
   test "#receive_message can set the message attributes to all" do
