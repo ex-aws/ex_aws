@@ -99,9 +99,9 @@ defmodule ExAws.ElastiCacheTest do
   test "describe_replication_groups with optional params" do
     expected = build_request(:describe_replication_groups,
       %{
-        "Marker": "TestMarker",
-        "MaxRecords": 100,
-        "ReplicationGroupId": "TestReplicationGroup"
+        "Marker" =>  "TestMarker",
+        "MaxRecords" => 100,
+        "ReplicationGroupId" => "TestReplicationGroup"
       })
 
     assert expected == ElastiCache.describe_replication_groups(
