@@ -134,7 +134,7 @@ defmodule ExAws.Auth do
     #{Credentials.generate_credential_scope_v4(service, config, datetime)}
     #{request}
     """
-    |> String.rstrip
+    |> String.trim_leading()
   end
 
   defp signed_headers(headers) do
@@ -182,7 +182,7 @@ defmodule ExAws.Auth do
   defp canonical_headers(headers) do
     headers
     |> Enum.map(fn
-      {k, v} when is_binary(v) -> {String.downcase(k), String.strip(v)}
+      {k, v} when is_binary(v) -> {String.downcase(k), String.trim(v)}
       {k, v} -> {String.downcase(k), v}
     end)
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
