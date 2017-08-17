@@ -61,6 +61,12 @@ defmodule ExAws.Config.Defaults do
       },
       region: "us-east-1"
     },
+    elasticache: %{
+      host: {"$region", "elasticache.$region.amazonaws.com"},
+      scheme: "https://",
+      region: "us-east-1",
+      port: 443
+    },
     lambda: %{
       host: {"$region", "lambda.$region.amazonaws.com"},
       scheme: "https://",
