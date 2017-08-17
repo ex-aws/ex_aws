@@ -134,7 +134,7 @@ defmodule ExAws.Auth do
     #{Credentials.generate_credential_scope_v4(service, config, datetime)}
     #{request}
     """
-    |> String.trim_leading()
+    |> String.trim_trailing
   end
 
   defp signed_headers(headers) do
