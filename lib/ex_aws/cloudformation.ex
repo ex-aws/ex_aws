@@ -9,9 +9,10 @@ defmodule ExAws.Cloudformation do
   # Create a stack with name with parameters
   Cloudformation.create_stack("name",
   [parameters:
+    [
       [parameter_key: "AvailabilityZone", parameter_value: "us-east-1"],
-      [parameter_key: "InstanceType", "parameter_value: "m1.micro"]
-  ]) |> ExAws.request!
+      [parameter_key: "InstanceType", parameter_value: "m1.micro"]
+    ]]) |> ExAws.request!
 
   # Delete a stack
   Cloudformation.delete_stack("name", [role_arn: "aws:iam::blah:role/god"])
