@@ -1,3 +1,7 @@
+ExAws v1.1.4
+
+- Further refactoring of EC2, relaxed dependencies
+
 ExAws v1.1.3
 
 - Significant refactoring of EC2
