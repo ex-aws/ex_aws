@@ -32,7 +32,7 @@ defmodule ExAws.GameLift do
     |> Macro.camelize
 
     ExAws.Operation.JSON.new(:gamelift, %{
-      data: data,
+      data: params,
       headers: [
         {"x-amz-target", "#{@namespace}.#{operation}"},
         {"content-type", "application/x-amz-json-1.1"},
