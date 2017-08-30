@@ -8,6 +8,7 @@ defmodule ExAws.GameLift do
   import ExAws.Utils, only: [camelize_keys: 1]
   alias __MODULE__
 
+  alias ExAws.Dynamo.Encoder
   @namespace "GameLift"
 
   @type routing_strategy_type ::
@@ -33,7 +34,8 @@ defmodule ExAws.GameLift do
   def start_matchmaking(opts \\ []) do
     opts = opts
     |> Map.new
-    |> Map.merge(%{ "Players" => Dynamo.Encoder.encode_root(opts["Players"])})
+    |> Map.merge(%{ "Players" => Map.map(opts["Players"], 
+      fn player -> [latency_in_ms: player["latency_in_ms"], player_attributes: Encoder.encode_root(player["player_attributes"])] end ) })
     |> camelize_keys
     request(:start_matchmaking, opts)
   end
