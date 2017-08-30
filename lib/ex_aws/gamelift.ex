@@ -26,13 +26,12 @@ defmodule ExAws.GameLift do
     request(:list_aliases, opts)
   end
 
-  defp request(action, params) do
+  defp request(action, opts) do
     operation = action
     |> Atom.to_string
     |> Macro.camelize
 
     ExAws.Operation.JSON.new(:gamelift, %{
-      data: params,
       headers: [
         {"x-amz-target", "#{@namespace}.#{operation}"},
         {"content-type", "application/x-amz-json-1.1"},
