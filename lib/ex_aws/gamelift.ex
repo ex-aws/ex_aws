@@ -26,6 +26,18 @@ defmodule ExAws.GameLift do
     request(:list_aliases, opts)
   end
 
+  @doc """
+  Amazon GameLift StartMatchmaking request
+  """
+  @spec start_matchmaking(Map.t) :: Map.t
+  def start_matchmaking(opts \\ []) do
+    opts = opts
+    |> Map.new
+    |> Map.merge(%{ "Players" => Dynamo.Encoder.encode_root(opts["Players"])})
+    |> camelize_keys
+    request(:start_matchmaking, opts)
+  end
+
   defp request(action, opts) do
     operation = action
     |> Atom.to_string
