@@ -27,7 +27,7 @@ defmodule ExAws.GameLift do
   end
 
   defp request(action, params) do
-    operation = actions
+    operation = action
     |> Atom.to_string
     |> Macro.camelize
 
