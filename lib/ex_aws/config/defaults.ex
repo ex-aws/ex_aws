@@ -141,7 +141,13 @@ defmodule ExAws.Config.Defaults do
       scheme: "https://",
       region: "us-east-1",
       port: 443
-    }
+    },
+    gamelift: %{
+      host: {"$region", "gamelift.$region.amazonaws.com"},
+      scheme: "https://",
+      region: "us-east-1",
+      port: 443
+    },
   }
 
   @doc """
