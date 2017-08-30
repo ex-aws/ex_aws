@@ -35,7 +35,9 @@ defmodule ExAws.GameLift do
     opts = opts
     |> Map.new
     |> Map.merge(%{ "Players" => Enum.map(opts["Players"], 
-      fn player -> [latency_in_ms: player["latency_in_ms"], player_attributes: Encoder.encode_root(player["player_attributes"])] end })
+      fn 
+        player -> [latency_in_ms: player["latency_in_ms"], player_attributes: Encoder.encode_root(player["player_attributes"])] 
+      end)})
     |> camelize_keys
     request(:start_matchmaking, opts)
   end
