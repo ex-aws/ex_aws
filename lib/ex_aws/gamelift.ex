@@ -72,4 +72,10 @@ defmodule ExAws.GameLift do
   def stop_matchmaking(opts \\ []) do
     request(:stop_matchmaking, camelize_opts(opts))
   end
+
+  @spec accept_match(Map.t) :: Map.t
+  def accept_match(opts \\ []) do
+    request(:accept_match, camelize_opts(opts))
+  end
+
 end
