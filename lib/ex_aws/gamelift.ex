@@ -24,12 +24,29 @@ defmodule ExAws.GameLift do
     end
   end
 
-  @spec start_matchmaking(Map.t) :: Map.t
-  def get_aliases(opts \\ []) do
-    opts = opts
+  defp request(action, data) do
+    operation = action
+    |> Atom.to_string
+    |> Macro.camelize
+
+    ExAws.Operation.JSON.new(:gamelift, %{
+      data: data,
+      headers: [
+        {"x-amz-target", "#{@namespace}.#{operation}"},
+        {"content-type", "application/x-amz-json-1.1"},
+      ]
+    })
+  end
+
+  defp camelize_opts(opts) do
+    opts
     |> Map.new
     |> ExAws.Utils.camelize_keys
-    request(:list_aliases, opts)
+  end
+
+  @spec get_aliases(Map.t) :: Map.t
+  def get_aliases(opts \\ []) do
+    request(:list_aliases, camelize_opts(opts))
   end
 
   @spec start_matchmaking(Map.t) :: Map.t
@@ -51,17 +68,8 @@ defmodule ExAws.GameLift do
     request(:start_matchmaking, opts)
   end
 
-  defp request(action, data) do
-    operation = action
-    |> Atom.to_string
-    |> Macro.camelize
-
-    ExAws.Operation.JSON.new(:gamelift, %{
-      data: data,
-      headers: [
-        {"x-amz-target", "#{@namespace}.#{operation}"},
-        {"content-type", "application/x-amz-json-1.1"},
-      ]
-    })
+  @spec stop_matchmaking(Map.t) :: Map.t
+  def stop_matchmaking(opts \\ []) do
+    request(:stop_matchmaking, camelize_opts(opts))
   end
 end
