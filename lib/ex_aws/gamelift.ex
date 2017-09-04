@@ -73,9 +73,16 @@ defmodule ExAws.GameLift do
     request(:stop_matchmaking, camelize_opts(opts))
   end
 
-  @spec accept_match(Map.t) :: Map.t
-  def accept_match(opts \\ []) do
-    request(:accept_match, camelize_opts(opts))
+  @spec accept_match(
+    ticket_id :: String.t,
+    player_ids :: [String.t],
+    :accept | :reject) :: ExAws.Operation.JSON.t
+  def accept_match(ticket_id, player_ids, acceptance_type \\ :accept) do
+    data = %{
+      "TicketId" => ticket_id,
+      "PlayerIds" => player_ids,
+      "AcceptanceType" => acceptance_type |> Atom.to_string |> String.upcase,
+    }
+    request(:accept_match, data)
   end
-
 end
