@@ -191,6 +191,13 @@ defmodule ExAws.S3Test do
     assert "expires_in_exceeds_one_week" == reason
   end
 
+  test "#presigned_url respects port configuration" do
+    config = ExAws.Config.new(:s3, [port: 1234])
+    {:ok, url} = S3.presigned_url(config, :get, "bucket", "foo.txt")
+    uri = URI.parse(url)
+    assert uri.port == 1234
+  end
+
   defp assert_pre_signed_url(url, expected_scheme_host_path, expected_expire) do
     uri = URI.parse(url)
     assert expected_scheme_host_path == "#{uri.scheme}://#{uri.host}#{uri.path}"
