@@ -1,6 +1,8 @@
 defmodule ExAws.GameLiftTest do
   use ExUnit.Case, async: true
+
   alias ExAws.GameLift
+  alias ExAws.GameLift.Player
 
   test "#accept match" do
     expected = %{
@@ -18,5 +20,48 @@ defmodule ExAws.GameLiftTest do
       "TicketId" => "ticket-1"
     }
     assert GameLift.accept_match("ticket-1", ["player-1"], :reject).data == expected
+  end
+
+  test "#start matchmaking" do
+    players = [
+      %Player{
+        player_id: "player-1",
+        player_attributes: %{
+          :rating => 42,
+          "game_mode" => "deathmatch",
+          "stats" => %{:win_rate => 0.8, "win_count" => 88},
+          :levels => ["Q3DM0", "Q3DM19"],
+        },
+        team: :blue,
+        latency_in_ms: %{"us-west-1" => 42, "us-west-2" => 88},
+      },
+      %Player{
+        team: "red",
+      },
+    ]
+    expected = %{
+      "ConfigurationName" => "sample",
+      "Players" => [
+        %{
+          "PlayerId" => "player-1",
+          "PlayerAttributes" => %{
+            "rating" => %{"N" => 42},
+            "game_mode" => %{"S" => "deathmatch"},
+            "levels" => %{"SL" => ["Q3DM0", "Q3DM19"]},
+            "stats" => %{"SDM" => %{"win_rate" => 0.8, "win_count" => 88}}
+          },
+          "LatencyInMs" => %{"us-west-1" => 42, "us-west-2" => 88},
+          "Team" => "blue",
+        },
+        %{
+          "Team" => "red",
+          "LatencyInMs" => nil,
+          "PlayerId" => nil,
+          "PlayerAttributes" => nil,
+        },
+      ],
+      "TicketId" => "ticket-1"
+    }
+    assert GameLift.start_matchmaking("sample", players, "ticket-1").data == expected
   end
 end

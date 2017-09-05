@@ -5,24 +5,10 @@ defmodule ExAws.GameLift do
   http://docs.aws.amazon.com/LINK_MUST_BE_HERE
   """
 
-  import ExAws.Utils, only: [camelize_key: 1, camelize_keys: 2]
-  alias __MODULE__
+  alias ExAws.GameLift.Encodable
+  alias ExAws.GameLift.Player
 
   @namespace "GameLift"
-  
-  defp encode_root(value, options \\ []) do
-      case ExAws.GameLift.Encodable.encode(value, options) do
-        %{"M" => value} -> value
-        %{"L" => value} -> value
-      end
-  end
-  
-  defp convert_player_attributes(attributes_list) do
-    case is_nil(attributes_list) do
-        true->[]
-        false->encode_root(attributes_list)
-    end
-  end
 
   defp request(action, data) do
     operation = action
@@ -49,23 +35,44 @@ defmodule ExAws.GameLift do
     request(:list_aliases, camelize_opts(opts))
   end
 
-  @spec start_matchmaking(Map.t) :: Map.t
-  def start_matchmaking(opts \\ []) do
-    opts = opts
-    |> Map.new
-    |> Map.merge(%{players: Enum.map(opts[:players], 
-      fn 
-          player -> 
-              case Map.get(player, :player_attributes, nil) do
-                  nil->%{player_id: player[:player_id], team: player[:team], latency_in_ms: player[:latency_in_ms]}
-                  attrs->%{player_id: player[:player_id], team: player[:team], latency_in_ms: player[:latency_in_ms], 
-                  player_attributes: convert_player_attributes(attrs)}
-              end
-              |> ExAws.Utils.camelize_keys
-      end)})
-    |> ExAws.Utils.camelize_keys
+  @spec start_matchmaking(
+    configuration_name :: String.t,
+    players :: [Player.t],
+    ticket_id :: String.t | nil) :: ExAws.Operation.JSON.t
+  def start_matchmaking(configuration_name, players, ticket_id \\ nil) do
+    data = %{
+      "ConfigurationName" => configuration_name,
+      "Players" => Enum.map(players, &encode_player/1),
+      "TicketId" => ticket_id,
+    }
+    request(:start_matchmaking, data)
+  end
 
-    request(:start_matchmaking, opts)
+  defp encode_player(player) do
+    player
+    |> Map.from_struct
+    |> Stream.map(&encode_player_param/1)
+    |> Enum.into(%{})
+  end
+
+  defp encode_player_param({:player_id, player_id}) do
+    {"PlayerId", player_id}
+  end
+  defp encode_player_param({:player_attributes, nil}) do
+    {"PlayerAttributes", nil}
+  end
+  defp encode_player_param({:player_attributes, player_attributes}) do
+    encoded_player_attributes = player_attributes
+    |> Stream.map(fn {k, v} -> {to_string(k), Encodable.encode(v)} end)
+    |> Enum.into(%{})
+
+    {"PlayerAttributes", encoded_player_attributes}
+  end
+  defp encode_player_param({:latency_in_ms, latency_in_ms}) do
+    {"LatencyInMs", latency_in_ms}
+  end
+  defp encode_player_param({:team, team}) do
+    {"Team", to_string(team)}
   end
 
   @spec stop_matchmaking(Map.t) :: Map.t
