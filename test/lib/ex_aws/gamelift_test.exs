@@ -38,6 +38,7 @@ defmodule ExAws.GameLiftTest do
       %Player{
         team: "red",
       },
+      %Player{},
     ]
     expected = %{
       "ConfigurationName" => "sample",
@@ -55,6 +56,12 @@ defmodule ExAws.GameLiftTest do
         },
         %{
           "Team" => "red",
+          "LatencyInMs" => nil,
+          "PlayerId" => nil,
+          "PlayerAttributes" => nil,
+        },
+        %{
+          "Team" => nil,
           "LatencyInMs" => nil,
           "PlayerId" => nil,
           "PlayerAttributes" => nil,

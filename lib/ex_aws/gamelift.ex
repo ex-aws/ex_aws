@@ -72,7 +72,8 @@ defmodule ExAws.GameLift do
     {"LatencyInMs", latency_in_ms}
   end
   defp encode_player_param({:team, team}) do
-    {"Team", to_string(team)}
+    encoded_team = if is_nil(team), do: nil, else: to_string(team)
+    {"Team", encoded_team}
   end
 
   @spec stop_matchmaking(Map.t) :: Map.t
