@@ -138,4 +138,12 @@ defmodule ExAws.S3.Utils do
     |> Enum.map(fn {k ,v} -> {normalize_param(k), v} end)
     |> namespace("x-amz-server-side-encryption")
   end
+
+  # If we're using a standard port such as 80 or 443, then it needs to be excluded from the signed
+  # headers. Including standard ports will cause AWS's signature validation to fail with a
+  # SignatureDoesNotMatch error.
+  @excluded_ports [80, "80", 443, "443"]
+  def sanitized_port_component(%{port: nil}), do: ""
+  def sanitized_port_component(%{port: port}) when port in @excluded_ports, do: ""
+  def sanitized_port_component(%{port: port}), do: ":#{port}"
 end
