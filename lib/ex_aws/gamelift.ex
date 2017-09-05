@@ -76,6 +76,12 @@ defmodule ExAws.GameLift do
     {"Team", encoded_team}
   end
 
+  @spec describe_matchmaking(
+    ticket_ids :: String.t | [String.t]) :: ExAws.Operation.JSON.t
+  def describe_matchmaking(ticket_ids) do
+    request(:describe_matchmaking, %{"TicketIds" => List.wrap(ticket_ids)})
+  end
+
   @spec stop_matchmaking(ticket_id :: String.t) :: ExAws.Operation.JSON.t
   def stop_matchmaking(ticket_id) do
     request(:stop_matchmaking, %{"TicketId" => ticket_id})

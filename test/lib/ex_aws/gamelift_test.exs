@@ -72,6 +72,17 @@ defmodule ExAws.GameLiftTest do
     assert GameLift.start_matchmaking("sample", players, "ticket-1").data == expected
   end
 
+  test "#describe matchmaking (one ticket)" do
+    expected = %{"TicketIds" => ["ticket-1"]}
+    assert GameLift.describe_matchmaking("ticket-1").data == expected
+  end
+
+  test "#describe matchmaking (many tickets)" do
+    tickets = ["ticket-1", "ticket-2", "ticket-3"]
+    expected = %{"TicketIds" => tickets}
+    assert GameLift.describe_matchmaking(tickets).data == expected
+  end
+
   test "#stop matchmaking" do
     expected = %{"TicketId" => "ticket-1"}
     assert GameLift.stop_matchmaking("ticket-1").data == expected
