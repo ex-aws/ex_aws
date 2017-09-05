@@ -76,9 +76,9 @@ defmodule ExAws.GameLift do
     {"Team", encoded_team}
   end
 
-  @spec stop_matchmaking(Map.t) :: Map.t
-  def stop_matchmaking(opts \\ []) do
-    request(:stop_matchmaking, camelize_opts(opts))
+  @spec stop_matchmaking(ticket_id :: String.t) :: ExAws.Operation.JSON.t
+  def stop_matchmaking(ticket_id) do
+    request(:stop_matchmaking, %{"TicketId" => ticket_id})
   end
 
   @spec accept_match(
