@@ -891,10 +891,11 @@ defmodule ExAws.S3 do
   end
 
   defp url_to_sign(bucket, object, config, virtual_host) do
+    port = sanitized_port_component(config)
     object = ensure_slash(object)
     case virtual_host do
-      true -> "#{config[:scheme]}#{bucket}.#{config[:host]}#{object}"
-      false -> "#{config[:scheme]}#{config[:host]}/#{bucket}#{object}"
+      true -> "#{config[:scheme]}#{bucket}.#{config[:host]}#{port}#{object}"
+      false -> "#{config[:scheme]}#{config[:host]}#{port}/#{bucket}#{object}"
     end
   end
 
