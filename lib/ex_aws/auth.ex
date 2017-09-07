@@ -61,7 +61,15 @@ defmodule ExAws.Auth do
       query_for_url = if Enum.any?(org_query_params), do: org_query <> "&" <> amz_query, else: amz_query
 
       uri = URI.parse(url)
-      path = uri_encode(uri.path)
+
+      path = if uri.query do
+        uri.path <> "?" <> uri.query
+      else
+        uri.path
+      end
+
+      path = uri_encode(path)
+
       signature = signature(http_method, path, query_to_sign, headers, nil, service, datetime, config)
       {:ok, "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"}
     end
