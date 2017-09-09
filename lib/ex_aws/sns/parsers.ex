@@ -232,6 +232,21 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, Map.put(resp, :body, parsed_body)}
     end
 
+    def parse({:ok, %{body: xml}=resp}, :list_endpoints_by_platform_application) do
+      parsed_body = xml
+      |> SweetXml.xpath(~x"//ListEndpointsByPlatformApplicationResponse",
+                        endpoints: [
+                          ~x"./ListEndpointsByPlatformApplicationResult/Endpoints/member"l,
+                          endpoint_arn: ~x"./EndpointArn/text()"s,
+                          enabled: ~x"./Attributes/entry[./key = 'Enabled']/value/text()"s,
+                          token: ~x"./Attributes/entry[./key = 'Token']/value/text()"s,
+                       ],
+                       next_token: ~x"./ListEndpointsByPlatformApplicationResult/NextToken/text()"s,
+                       request_id: request_id_xpath())
+
+      {:ok, Map.put(resp, :body, parsed_body)}
+    end
+
     def parse({:ok, %{body: xml}=resp}, :list_phone_numbers_opted_out) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//ListPhoneNumbersOptedOutResponse",

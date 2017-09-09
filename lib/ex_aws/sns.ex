@@ -301,6 +301,22 @@ defmodule ExAws.SNS do
     })
   end
 
+  @type list_endpoints_by_platform_application_opt :: {:next_token, binary}
+
+  @doc "List endpooints and endpoint attributes for devices in a supported push notification service"
+  @spec list_endpoints_by_platform_application(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
+  @spec list_endpoints_by_platform_application(topic_arn :: topic_arn, [list_endpoints_by_platform_application_opt]) :: ExAws.Operation.Query.t
+  def list_endpoints_by_platform_application(platform_application_arn, opts \\ []) do
+    params = case opts do
+              [next_token: next_token] ->
+                %{ "PlatformApplicationArn" => platform_application_arn,
+                   "NextToken" => next_token }
+               _ ->
+                 %{ "PlatformApplicationArn" => platform_application_arn }
+            end
+    request(:list_endpoints_by_platform_application, params)
+  end
+
   ## Messages
   ######################
 

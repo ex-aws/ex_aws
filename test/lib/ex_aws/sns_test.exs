@@ -256,6 +256,14 @@ defmodule ExAws.SNSTest do
     assert expected == SNS.delete_endpoint("test-endpoint-arn").params
   end
 
+  test "list_endpoints_by_platform_application" do
+    expected = %{
+      "Action" => "ListEndpointsByPlatformApplication",
+      "PlatformApplicationArn" => "arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn"
+    }
+    assert expected == SNS.list_endpoints_by_platform_application("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn").params
+  end
+
   describe "verify_message/1" do
     setup [:add_verify_message]
 
