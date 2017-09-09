@@ -7,7 +7,7 @@ defmodule ExAws.EC2Test do
 
   @version "2016-11-15"
 
-  defp build_query(action, params \\ %{}) do
+  defp build_query(action, params) do
     action_string = action |> Atom.to_string |> Macro.camelize
 
     %ExAws.Operation.Query{

@@ -146,4 +146,5 @@ defmodule ExAws.S3.Utils do
   def sanitized_port_component(%{port: nil}), do: ""
   def sanitized_port_component(%{port: port}) when port in @excluded_ports, do: ""
   def sanitized_port_component(%{port: port}), do: ":#{port}"
+  def sanitized_port_component(_), do: ""
 end
