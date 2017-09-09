@@ -193,7 +193,7 @@ defmodule ExAws.SNSTest do
   end
 
   test "#opt_in_phone_number" do
-    expected = %{"Action" => "OptInPhoneNumber", "PhoneNumber" => "+15005550006"}
+    expected = %{"Action" => "OptInPhoneNumber", "phoneNumber" => "+15005550006"}
     assert expected == SNS.opt_in_phone_number("+15005550006").params
   end
 

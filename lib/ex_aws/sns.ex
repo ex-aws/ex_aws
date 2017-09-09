@@ -263,7 +263,7 @@ defmodule ExAws.SNS do
   @doc "Opt in phone number"
   @spec opt_in_phone_number(phone_number :: binary) :: ExAws.Operation.Query.t
   def opt_in_phone_number(phone_number) do
-    request(:opt_in_phone_number, %{"PhoneNumber" => phone_number})
+    request(:opt_in_phone_number, %{"phoneNumber" => phone_number})
   end
 
   ## Endpoints
