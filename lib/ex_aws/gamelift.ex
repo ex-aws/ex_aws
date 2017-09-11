@@ -8,6 +8,8 @@ defmodule ExAws.GameLift do
   alias ExAws.GameLift.Encodable
   alias ExAws.GameLift.Player
 
+  import ExAws.Utils, only: [camelize_keys: 1]
+
   @namespace "GameLift"
 
   defp request(action, data) do
@@ -98,5 +100,24 @@ defmodule ExAws.GameLift do
       "AcceptanceType" => acceptance_type |> Atom.to_string |> String.upcase,
     }
     request(:accept_match, data)
+  end
+
+  @type describe_game_session_details_opts :: [
+    alias_id: String.t,
+    fleet_id: String.t,
+    game_session_id: String.t,
+    limit: pos_integer,
+    next_token: String.t,
+    status_filter: :activating | :active | :terminating | :terminated,
+  ]
+  @spec describe_game_session_details(
+    opts :: describe_game_session_details_opts) :: ExAws.Operation.JSON.t
+  def describe_game_session_details(opts \\ []) do
+    data = opts
+    |> Map.new
+    |> Map.update(:status_filter, nil, &String.upcase(Atom.to_string(&1)))
+    |> camelize_keys
+
+    request(:describe_game_session_details, data)
   end
 end

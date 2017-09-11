@@ -87,4 +87,24 @@ defmodule ExAws.GameLiftTest do
     expected = %{"TicketId" => "ticket-1"}
     assert GameLift.stop_matchmaking("ticket-1").data == expected
   end
+
+  test "#describe game session details" do
+    expected = %{
+      "AliasId" => "alias-1",
+      "FleetId" => "fleet-1",
+      "GameSessionId" => "game-session-1",
+      "Limit" => 1,
+      "NextToken" => "token-1",
+      "StatusFilter" => "ACTIVE",
+    }
+    opts = [
+      alias_id: "alias-1",
+      fleet_id: "fleet-1",
+      game_session_id: "game-session-1",
+      limit: 1,
+      next_token: "token-1",
+      status_filter: :active,
+    ]
+    assert GameLift.describe_game_session_details(opts).data == expected
+  end
 end
