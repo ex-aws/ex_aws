@@ -12,10 +12,10 @@ defmodule ExAws.GameLift.Player do
     [String.t]
 
   @type t :: %__MODULE__{
-    player_id: String.t,
-    player_attributes: %{(atom | String.t) => attribute_value},
-    team: atom | String.t,
-    latency_in_ms: %{String.t => non_neg_integer},
+    player_id: nil | String.t,
+    player_attributes: nil | %{(atom | String.t) => attribute_value},
+    team: nil | atom | String.t,
+    latency_in_ms: nil | %{String.t => non_neg_integer},
   }
 
   defstruct [:player_id, :player_attributes, :team, :latency_in_ms]
