@@ -54,6 +54,7 @@ defmodule ExAws.S3 do
   """
 
   import ExAws.S3.Utils
+  import ExAws.Utils, only: [xmlize: 1]
   alias ExAws.S3.Parsers
 
   @type acl_opts :: {:acl, canned_acl} | grant
@@ -327,10 +328,10 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket notification configuration"
-  @spec put_bucket_notification(bucket :: binary, notification_config :: map()) :: no_return
-  def put_bucket_notification(bucket, _notification_config) do
-    raise "not yet implemented"
-    request(:put, bucket, "/")
+  @spec put_bucket_notification(bucket :: binary, notification_config :: list() | map() | String.t) :: no_return
+  def put_bucket_notification(bucket, notification_config) do
+    body = notification_config |> xmlize() |> IO.iodata_to_binary()
+    request(:put, bucket, "/", resource: "notification", body: body)
   end
 
   @doc "Update or create a bucket replication configuration"

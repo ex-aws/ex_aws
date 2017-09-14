@@ -164,6 +164,15 @@ defmodule ExAws.Utils do
   def maybe_stringify(elem) when is_atom(elem), do: Atom.to_string(elem)
   def maybe_stringify(elem) when is_bitstring(elem), do: elem
 
+  def xmlize(data) when is_binary(data), do: data
+  def xmlize({key, value}) do
+    key = key |> to_string |> Macro.camelize
+    ["<#{key}>", xmlize(value), "</#{key}>"]
+  end
+  def xmlize(data) when is_list(data) or is_map(data) do
+    Enum.map(data, &xmlize/1)
+  end
+
   defmacro __using__(kwargs) do
     camelize_inject = quote do
         [  spec: unquote(kwargs[:non_standard_keys] || %{}) ]
