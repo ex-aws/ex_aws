@@ -30,19 +30,29 @@ defmodule ExAws.Cloudwatch do
 
   @type put_metric_t :: { metric_counter :: integer, metrics :: list() }
   
-  @doc "Start a metric request"
-  @spec start_metric_data(namespace :: binary,
-    name :: binary,
-    value :: (binary | integer | float),
-    unit :: binary,
-    dimensions :: [ { dimension_name :: binary, dimension_value :: binary } ]
-  ) :: put_metric_t
+  @doc ~S"""
+  Start a metric request
+
+  iex> ExAws.Cloudwatch.start_metric_data("Support")
+  { 1, [namespace: "Support"] }
+
+  """
+  @spec start_metric_data(namespace :: binary) :: put_metric_t
   
-  def start_metric_data(namespace, name, value, unit, dimensions \\ []) do
-    add_metric_data( { 1, [namespace: namespace] }, name, value, unit, dimensions)
+  def start_metric_data(namespace) do
+    { 1, [namespace: namespace] }
   end
 
-  @doc "Add a metric"
+  @doc ~S"""
+  Add a metric
+
+  iex> ExAws.Cloudwatch.start_metric_data("Support") |> ExAws.Cloudwatch.add_metric_data("network", 1, "Count")
+{2,
+ [{"MetricData.member.1.MetricName", "network"},
+  {"MetricData.member.1.Value", 1}, {"MetricData.member.1.Unit", "Count"},
+  {:namespace, "Support"}]}
+
+  """
   @spec add_metric_data( metric_data :: put_metric_t,
     name :: binary,
     value :: (binary | integer | float),
@@ -69,7 +79,19 @@ defmodule ExAws.Cloudwatch do
     {metric_n+1, metric ++ metrics }
   end
 
-  @doc "Finalize metrics_data into a request"
+  @doc ~S"""
+  Finalize metrics_data into a request
+
+  iex> ExAws.Cloudwatch.start_metric_data("Support") |> ExAws.Cloudwatch.add_metric_data("network", 1, "Count") |> ExAws.Cloudwatch.put_metric_data
+%ExAws.Operation.Query{action: :put_metric_data,
+ params: %{"Action" => "PutMetricData",
+   "MetricData.member.1.MetricName" => "network",
+   "MetricData.member.1.Unit" => "Count", "MetricData.member.1.Value" => 1,
+   "Namespace" => "Support", "Version" => "2010-08-01"},
+ parser: &ExAws.Cloudwatch.Parsers.parse/2, path: "/", service: :monitoring}
+
+  """
+  
   @spec put_metric_data( metric_data :: put_metric_t ) :: ExAws.Operation.Query.t
   def put_metric_data( { _metric_n, metrics } ) do
     put_metric_data(metrics)
