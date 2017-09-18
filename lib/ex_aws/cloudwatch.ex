@@ -28,6 +28,63 @@ defmodule ExAws.Cloudwatch do
     request(:describe_alarms, opts)
   end
 
+  @type put_metric_t :: { metric_counter :: integer, metrics :: list() }
+  
+  @doc "Start a metric request"
+  @spec start_metric_data(namespace :: binary,
+    name :: binary,
+    value :: (binary | integer | float),
+    unit :: binary,
+    dimensions :: [ { dimension_name :: binary, dimension_value :: binary } ]
+  ) :: put_metric_t
+  
+  def start_metric_data(namespace, name, value, unit, dimensions \\ []) do
+    add_metric_data( { 1, [namespace: namespace] }, name, value, unit, dimensions)
+  end
+
+  @doc "Add a metric"
+  @spec add_metric_data( metric_data :: put_metric_t,
+    name :: binary,
+    value :: (binary | integer | float),
+    unit :: binary,
+    dimensions :: [ { dimension_name :: binary, dimension_value :: binary } ]
+  ) :: put_metric_t
+    
+  def add_metric_data({metric_n, metrics}, name, value, unit, dimensions \\ []) do
+    key = "MetricData.member.#{metric_n}."
+
+    dimensions = Enum.with_index(dimensions)
+    |> Enum.flat_map(fn { {d_name, d_value}, idx} ->
+      dn = key <> "Dimensions.member.#{idx}."
+      [
+	{ dn <> "Name", d_name}, 
+	{ dn <> "Value", d_value}
+      ]
+    end)
+
+    metric = [ {key <> "MetricName", name},
+	       {key <> "Value", value},
+	       {key <> "Unit", unit} | dimensions ]
+
+    {metric_n+1, metric ++ metrics }
+  end
+
+  @doc "Finalize metrics_data into a request"
+  @spec put_metric_data( metric_data :: put_metric_t ) :: ExAws.Operation.Query.t
+  def put_metric_data( { _metric_n, metrics } ) do
+    put_metric_data(metrics)
+  end
+
+  @doc "Finalize metrics list into a request"
+  @spec put_metric_data( metrics :: list() ) :: ExAws.Operation.Query.t
+  def put_metric_data(metrics) do
+    opts = metrics
+    |> Map.new
+    |> camelize_keys
+    
+    request(:put_metric_data,opts)
+  end
+  
   defp request(action, params) do
     action_string = action |> Atom.to_string |> Macro.camelize
 
