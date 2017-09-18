@@ -55,7 +55,7 @@ defmodule ExAws.Cloudwatch do
 
     dimensions = Enum.with_index(dimensions)
     |> Enum.flat_map(fn { {d_name, d_value}, idx} ->
-      dn = key <> "Dimensions.member.#{idx}."
+      dn = key <> "Dimensions.member.#{idx+1}."
       [
 	{ dn <> "Name", d_name}, 
 	{ dn <> "Value", d_value}
