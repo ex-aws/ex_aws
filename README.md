@@ -152,6 +152,9 @@ config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
 ```
+
+Like AWS CLI, you can specify a `role_arn` and `source_profile` in your `~/.aws/config` and ExAws will issue an `AssumeRoleCredentials` request to fetch the `access_key_id` and `secret_access_key`.
+
 ## Retries
 
 ExAws will retry failed AWS API requests using exponential backoff per the "Full

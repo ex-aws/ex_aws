@@ -90,5 +90,6 @@ defmodule ExAws.STS do
   defp parse_opt(opts, {:duration, val}), do: Map.put(opts, "DurationSeconds", val)
   defp parse_opt(opts, {:token_code, val}), do: Map.put(opts, "TokenCode", val)
   defp parse_opt(opts, {:serial_number, val}), do: Map.put(opts, "SerialNumber", val)
+  defp parse_opt(opts, {:external_id, val}), do: Map.put(opts, "ExternalId", val)
   defp parse_opt(opts, {:policy, val}), do: Map.put(opts, "Policy", Poison.encode!(val))
 end
