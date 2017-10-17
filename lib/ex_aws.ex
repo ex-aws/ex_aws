@@ -71,7 +71,6 @@ defmodule ExAws do
 
     children = [
       worker(ExAws.Config.AuthCache, [[name: ExAws.Config.AuthCache]]),
-      worker(ExAws.SNS.PublicKeyCache, [[name: ExAws.SNS.PublicKeyCache]])
     ]
 
     opts = [strategy: :one_for_one, name: ExAws.Supervisor]

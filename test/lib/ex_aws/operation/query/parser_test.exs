@@ -4,8 +4,11 @@ end
 
 defmodule ExAws.Operation.Query.ParserTest do
   use ExUnit.Case, async: true
-  import Support.ParserHelpers
   alias ExAws.Operation.Query.ParserTest.Dummy.Parser
+
+  defp to_error(doc) do
+    {:error, {:http_error, 403, %{body: doc}}}
+  end
 
   test "it should handle parsing an error" do
     rsp = """
