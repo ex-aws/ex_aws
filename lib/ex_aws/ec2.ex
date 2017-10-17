@@ -66,7 +66,7 @@ defmodule ExAws.EC2 do
   @type tag :: {key :: atom, value :: binary}
 
   @type tag_specification :: {
-    resource_type :: binary,
+    resource_type :: atom,
     tags :: [tag, ...]
   }
 
