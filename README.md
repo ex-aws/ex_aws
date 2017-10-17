@@ -6,126 +6,38 @@ ExAws
 
 A flexible easy to use set of AWS APIs.
 
-- `ExAws.Cloudwatch`
-- `ExAws.Dynamo`
-- `ExAws.DynamoStreams`
-- `ExAws.ElasticTranscoder`
-- `ExAws.Firehose`
-- `ExAws.Kinesis`
-- `ExAws.KMS`
-- `ExAws.Lambda`
-- `ExAws.RDS`
-- `ExAws.Route53`
-- `ExAws.S3`
-- `ExAws.SES`
-- `ExAws.SNS`
-- `ExAws.SQS`
-- `ExAws.STS`
-- `ExAws.Cloudformation (BETA)`
-- `ExAws.EC2 (BETA)`
-- `ExAws.ECS (COMING SOON)`
+Available Services: https://github.com/ex-aws
 
-## 1.0.0 Changes
+## Getting Started
 
-The `v0.5` branch holds the legacy approach.
+ExAws v2.0 breaks out every service into its own package. To use the S3 service, you need both the core `:ex_aws` package as well as the `:ex_aws_s3` package.
 
-ExAws 1.0.0 takes a more data driven approach to querying APIs. The various
-functions that exist inside a service like `S3.list_objects` or
-`Dynamo.create_table` all return a struct which holds the information necessary
-to make that particular operation.
-
-You then have 4 ways you can choose to execute that operation:
+As with all ExAws services, you'll need a compatible HTTP client (defaults to `:hackney`) and whatever JSON or XML codecs needed by the services you want to use. Consult individual service documentation for details on what each service needs.
 
 ```elixir
-# Simple
-S3.list_buckets |> ExAws.request #=> {:ok, response}
-# With per request configuration overrides
-S3.list_buckets |> ExAws.request(config) #=> {:ok, response}
-
-# Raise on error, return successful responses directly
-S3.list_buckets |> ExAws.request! #=> response
-S3.list_buckets |> ExAws.request!(config) #=> response
-```
-
-Certain operations also support Elixir streams:
-
-```elixir
-S3.list_objects("my-bucket") |> ExAws.stream! #=> #Function<13.52451638/2 in Stream.resource/3>
-S3.list_objects("my-bucket") |> ExAws.stream!(config) #=> #Function<13.52451638/2 in Stream.resource/3>
-```
-
-The ability to return a stream is noticed in the function's documentation.
-
-### Migration
-
-TL;DR:
-Do this now:
-```
-ExAws.S3.get_object("my-bucket", "path/to/object") |> ExAws.request
-```
-not
-```
-ExAws.S3.get_object("my-bucket", "path/to/object")
-```
-
-This change greatly simplifies the ExAws code paths, and removes entirely the
-complex meta-programming pervasive to the original approach. However, it does
-constitute a breaking change for anyone who had a client with custom logic.
-
-#### DynamoDB Users
-
-Lists are always encoded as dynamodb lists now. Previously if you had `[1,2,3]`
-it would be encoded as an integer set. This had issues because if the list was
-`[1,2,1]` you could get an error because the items are not unique.
-
-## Highlighted Features
-- Easy configuration.
-- Minimal dependencies. Choose your favorite JSON codec and HTTP client.
-- Elixir streams to automatically retrieve paginated resources.
-- Elixir protocols allow easy customization of Dynamo encoding / decoding.
-- `mix kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
-- Simple. ExAws aims to provide a clear and consistent elixir wrapping around AWS APIs, not abstract them away entirely. For every action in a given AWS API there is a corresponding function within the appropriate module. Higher level abstractions like the aforementioned streams are in addition to and not instead of basic API calls.
-
-## Getting started
-
-Add ex_aws to your mix.exs, along with your json parser and http client of
-choice. ExAws works out of the box with Poison and :hackney and sweet_xml. All
-APIs require an http client, but only some require a json or xml codec. You only
-need the codec for the API you intend to use. At this time only SweetXml is
-supported for xml parsing.
-
-- Dynamo: json
-- Kinesis: json
-- Kms: json
-- Lambda: json
-- SQS: xml
-- S3: xml
-
-If you wish to use instance roles to obtain AWS access keys you will need to add
-a JSON codec whether the particular API requires one or not.
-
-```elixir
-def deps do
+defp deps do
   [
-    {:ex_aws, "~> 1.0"},
-    {:poison, "~> 2.0"},
-    {:hackney, "~> 1.6"}
+    {:ex_aws, "~> 2.0"},
+    {:ex_aws_s3, "~> 2.0"},
+    {:hackney, "~> 1.9"},
+    {:sweet_xml, "~ 0.6"},
   ]
 end
 ```
-Don't forget to add :hackney to your applications list if that's in fact the
-http client you choose. `:ex_aws` must always be added to your applications
-list.
 
-```elixir
-def application do
-  [applications: [:ex_aws, :hackney, :poison]]
-end
+With these deps you can use `ExAws` precisely as you're used to:
+
+```
+# make a request
+ExAws.S3.list_objects("my-bucket") |> ExAws.request
+
+# some operations support streaming
+ExAws.S3.list_objects("my-bucket") |> ExAws.stream! |> Enum.to_list
 ```
 
-That's it!
+### AWS Key configuration
 
-ExAws has by default the equivalent including the following in your mix.exs
+ExAws requires valid AWS keys in order to work properly. ExAws by default does the equivalent of:
 
 ```elixir
 config :ex_aws,
@@ -152,6 +64,23 @@ config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
 ```
+
+## Direct Usage
+
+ExAws can also be used directly without any specific service module.
+
+--TODO--
+
+## Highlighted Features
+- Easy configuration.
+- Minimal dependencies. Choose your favorite JSON codec and HTTP client.
+- Elixir streams to automatically retrieve paginated resources.
+- Elixir protocols allow easy customization of Dynamo encoding / decoding.
+- `mix kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
+- Simple. ExAws aims to provide a clear and consistent elixir wrapping around AWS APIs, not abstract them away entirely. For every action in a given AWS API there is a corresponding function within the appropriate module. Higher level abstractions like the aforementioned streams are in addition to and not instead of basic API calls.
+
+That's it!
+
 ## Retries
 
 ExAws will retry failed AWS API requests using exponential backoff per the "Full
