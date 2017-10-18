@@ -23,6 +23,8 @@ These service modules now live in their own packages, and have a variety of main
 
 The ExAws organization is happy to accept new services, but be advised that you the contributor are committing to maintain the service. If this is not a responsibility that you want, please simply maintain the code under your own GitHub account.
 
+After you have built a project following the rest of this document, create an issue on the main `ex_aws` project asking for a repo for the project. After one is created, create a PR from your project to the new, empty project. If the review process is succesful it will be merged, and you will be given commit rights on that repository.
+
 ### Determine the Operation
 
 As mentioned, ExAws is built around some common operations and thus the first step of adding a new service is figuring out what operation to use. The Go SDK also uses a similar paradigm, and the JSON documents found there are a useful reference. Find the API you want to use in  https://github.com/aws/aws-sdk-go/tree/master/models/apis. If we wanted to build Redshift, we'd go to https://github.com/aws/aws-sdk-go/blob/master/models/apis/redshift/2012-12-01/api-2.json#L6, looking at the `"protocol"` key. In this case it's the `query` protocol so we want the `ExAws.Operation.Query` type.
