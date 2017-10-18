@@ -56,12 +56,12 @@ defmodule ExAws.Request do
 
   def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
-      {:ok, %{"__type" => error_type, "message" => message} = err} ->
-        error_type
-        |> String.split("#")
-        |> case do
-          [_, type] -> handle_aws_error(type, message)
-          _         -> {:error, {:http_error, status, err}}
+      {:ok, %{"__type" => error_type} = err} ->
+        case {String.split(error_type, "#"), err["message"] || err["Message"]} do
+          {_, nil}             -> {:error, {:http_error, status, err}}
+          {[type], message}    -> handle_aws_error(type, message)
+          {[_, type], message} -> handle_aws_error(type, message)
+          _                    -> {:error, {:http_error, status, err}}
         end
       _ -> {:error, {:http_error, status, error}}
     end
