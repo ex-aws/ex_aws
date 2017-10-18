@@ -106,6 +106,29 @@ defmodule ExAws.EC2 do
     spread_domain: binary,
     tenancy: binary
   ]
+  @type spot_placement_spec :: [
+    availability_zone: binary,
+    group_name: binary,
+    tenancy: binary
+  ]
+  @type request_spot_launch_specification :: [
+    addressing_type: binary,
+    block_device_mappings: [block_device_mapping, ...],
+    ebs_optimized: boolean,
+    iam_instance_profile: iam_instance_profile_spec,
+    image_id: binary,
+    instance_type: binary,
+    kernel_id: binary,
+    key_name: binary,
+    monitoring: monitoring_enabled,
+    network_interfaces: [network_interface_spec, ...],
+    placement: spot_placement_spec,
+    ramdisk_id: binary,
+    security_groups: [binary, ...],
+    security_group_ids: [binary, ...],
+    subnet_id: binary,
+    user_data: binary
+  ]
 
   #######################
   # Instance Operations #
@@ -2614,6 +2637,134 @@ defmodule ExAws.EC2 do
    |> build_request(:revoke_security_group_egress)
  end
 
+  ############################
+  # Spot Instance Operations #
+  ############################
+
+  @doc """
+  Creates a Spot instance request.
+
+  Spot instances are instances that Amazon EC2 launches when the bid price that
+  you specify exceeds the current Spot price. Amazon EC2 periodically sets the
+  Spot price based on available Spot Instance capacity and current Spot instance
+  requests. For more information, see Spot Instance Requests in the Amazon
+  Elastic Compute Cloud User Guide.
+
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RequestSpotInstances.html
+
+  ## Examples:
+
+      iex> ExAws.EC2.request_spot_instances
+      %ExAws.Operation.Query{action: :request_spot_instances,
+      params: %{"Action" => "RequestSpotInstances", "Version" => "2016-11-15"},
+      parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+      iex> ExAws.EC2.request_spot_instances(spot_price: 0.03, instance_count: 2,
+      ...> type: "one-time", launch_specification: [image_id: "ami-1a2b3c4d",
+      ...> key_ame: "my-key-pair", security_group_ids: ["sg-1a2b3c4d"],
+      ...> instance_type: "m3.medium", iam_instance_profile: [name: "s3access"]])
+      %ExAws.Operation.Query{action: :request_spot_instances,
+      params: %{"Action" => "RequestSpotInstances", "InstanceCount" => 2,
+      "LaunchSpecification.IamInstanceProfile.Name" => "s3access",
+      "LaunchSpecification.ImageId" => "ami-1a2b3c4d",
+      "LaunchSpecification.InstanceType" => "m3.medium",
+      "LaunchSpecification.KeyAme" => "my-key-pair",
+      "LaunchSpecification.SecurityGroupIds.1" => "sg-1a2b3c4d",
+      "SpotPrice" => 0.03, "Type" => "one-time", "Version" => "2016-11-15"},
+      parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+  """
+  @type request_spot_instances_opts :: [
+    availability_zone_group: binary,
+    block_duration_minutes: integer,
+    client_token: binary,
+    dry_run: boolean,
+    instance_count: integer,
+    launch_group: binary,
+    launch_specification: request_spot_launch_specification,
+    spot_price: binary,
+    type: binary,
+    valid_from: integer,
+    valid_until: integer
+  ]
+  @spec request_spot_instances() :: ExAws.Operation.Query.t
+  @spec request_spot_instances(opts :: request_spot_instances_opts) :: ExAws.Operation.Query.t
+  def request_spot_instances(opts \\ []) do
+    opts |> build_request(:request_spot_instances)
+  end
+
+  @doc """
+  Describes the Spot instance requests that belong to your account.
+
+  You can use DescribeSpotInstanceRequests to find a running Spot instance
+  by examining the response. If the status of the Spot instance is fulfilled,
+  the instance ID appears in the response and contains the identifier of
+  the instance. Alternatively, you can use DescribeInstances with a filter
+  to look for instances where the instance lifecycle is spot.
+
+  Spot instance requests are deleted 4 hours after they are canceled and
+  their instances are terminated.
+
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeSpotInstanceRequests.html
+
+  ## Examples:
+
+      iex> ExAws.EC2.describe_spot_instance_requests
+      %ExAws.Operation.Query{action: :describe_spot_instance_requests,
+      params: %{"Action" => "DescribeSpotInstanceRequests",
+      "Version" => "2016-11-15"}, parser: &ExAws.Utils.identity/2, path: "/",
+      service: :ec2}
+
+      iex> ExAws.EC2.describe_spot_instance_requests(filters: [
+      ...> "spot-instance-request-id": "sir-rpqijgzq"])
+      %ExAws.Operation.Query{action: :describe_spot_instance_requests,
+      params: %{"Action" => "DescribeSpotInstanceRequests",
+      "Filter.1.Name" => "spot-instance-request-id",
+      "Filter.1.Value" => "sir-rpqijgzq", "Version" => "2016-11-15"},
+      parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+  """
+  @type describe_spot_instance_requests_opts :: [
+    dry_run: boolean,
+    filters: [filter, ...],
+    spot_instance_request_id: [binary, ...]
+  ]
+  @spec describe_spot_instance_requests() :: ExAws.Operation.Query.t
+  @spec describe_spot_instance_requests(opts :: describe_spot_instance_requests_opts) :: ExAws.Operation.Query.t
+  def describe_spot_instance_requests(opts \\ []) do
+    opts |> build_request(:describe_spot_instance_requests)
+  end
+
+  @doc """
+  Cancels one or more Spot instance requests.
+
+  Important
+  Canceling a Spot instance request does not terminate running Spot instances
+  associated with the request.
+
+  Doc: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CancelSpotInstanceRequests.html
+
+  ## Examples:
+
+      iex> ExAws.EC2.cancel_spot_instance_requests
+      %ExAws.Operation.Query{action: :cancel_spot_instance_requests,
+      params: %{"Action" => "CancelSpotInstanceRequests", "Version" => "2016-11-15"},
+      parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+
+      iex> ExAws.EC2.cancel_spot_instance_requests(spot_instance_request_id: ["sir-rpqijgzq"])
+      %ExAws.Operation.Query{action: :cancel_spot_instance_requests,
+      params: %{"Action" => "CancelSpotInstanceRequests",
+      "SpotInstanceRequestId.1" => "sir-rpqijgzq", "Version" => "2016-11-15"},
+      parser: &ExAws.Utils.identity/2, path: "/", service: :ec2}
+  """
+  @type cancel_spot_instance_requests_opts :: [
+    dry_run: boolean,
+    spot_instance_request_ids: [binary, ...]
+  ]
+  @spec cancel_spot_instance_requests() :: ExAws.Operation.Query.t
+  @spec cancel_spot_instance_requests(opts :: cancel_spot_instance_requests_opts) :: ExAws.Operation.Query.t
+  def cancel_spot_instance_requests(opts \\ []) do
+    opts |> build_request(:cancel_spot_instance_requests)
+  end
 
   ####################
   # Helper Functions #
