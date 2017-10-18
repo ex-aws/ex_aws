@@ -84,7 +84,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Upload do
       |> Stream.with_index(1)
       |> Task.async_stream(&Upload.upload_chunk!(&1, op, config),
         max_concurrency: Keyword.get(op.opts, :max_concurrency, 4),
-        timeout: Keyword.get(op.opts, :timeout, 30_000),
+        timeout: Keyword.get(op.opts, :timeout, 30_000)
       )
       |> Enum.to_list
       |> Enum.map(fn {:ok, val} -> val end)
