@@ -138,7 +138,7 @@ if Code.ensure_loaded?(SweetXml) do
                         request_id: request_id_xpath(),
                         message_id: ~x"./SendMessageResult/MessageId/text()"s,
                         md5_of_message_body: ~x"./SendMessageResult/MD5OfMessageBody/text()"s,
-                        md5_of_message_attributes: ~x"./SendMessageResult/MD5OfMessageAttributes/text()"s,
+                        md5_of_message_attributes: ~x"./SendMessageResult/MD5OfMessageAttributes/text()"s
       )
 
       {:ok, Map.put(resp, :body, parsed_body)}

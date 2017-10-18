@@ -71,7 +71,7 @@ defimpl ExAws.Operation, for: ExAws.S3.Download do
       :ok = :file.pwrite(file, [chunk])
     end,
       max_concurrency: Keyword.get(op.opts, :max_concurrency, 8),
-      timeout: Keyword.get(op.opts, :timeout, 30_000),
+      timeout: Keyword.get(op.opts, :timeout, 30_000)
     )
     |> Stream.run
 
