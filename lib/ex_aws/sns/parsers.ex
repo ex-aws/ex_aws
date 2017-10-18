@@ -206,12 +206,18 @@ if Code.ensure_loaded?(SweetXml) do
     def parse({:ok, %{body: xml}=resp}, :get_endpoint_attributes) do
       parsed_body = xml
       |> SweetXml.xpath(~x"//GetEndpointAttributesResponse",
-                        custom_user_data: ~x"./GetEndpointAttributesResult/Attributes/entry[./key = 'CustomUserData']/value/text()"s,
+                        custom_user_data: ~x"./GetEndpointAttributesResult/Attributes/entry[./key = 'CustomUserData']/value/text()"o,
                         enabled: ~x"./GetEndpointAttributesResult/Attributes/entry[./key = 'Enabled']/value/text()"s,
                         token: ~x"./GetEndpointAttributesResult/Attributes/entry[./key = 'Token']/value/text()"s,
                         request_id: request_id_xpath())
 
       parsed_body = Map.put(parsed_body, :enabled, parsed_body[:enabled] == "true")
+      parsed_body = case parsed_body[:custom_user_data] do
+        nil -> 
+          parsed_body |> Map.delete(:custom_user_data)
+        char_list when is_list(char_list) ->
+          parsed_body |> Map.put(:custom_user_data, to_string(char_list))
+      end
 
       {:ok, Map.put(resp, :body, parsed_body)}
     end

@@ -157,11 +157,18 @@ defmodule ExAws.SNS do
                                    token :: binary,
                                    custom_user_data :: binary) :: ExAws.Operation.Query.t
   def create_platform_endpoint(platform_application_arn, token, custom_user_data \\ nil) do
-    request(:create_platform_endpoint, %{
+    attrs = %{
       "PlatformApplicationArn" => platform_application_arn,
-      "Token" => token,
-      "CustomUserData" => custom_user_data
-    })
+      "Token" => token
+    }
+    
+    attrs = if custom_user_data do
+      Map.put(attrs, "CustomUserData", custom_user_data)
+    else
+      attrs
+    end
+    
+    request(:create_platform_endpoint, attrs)
   end
 
   @doc "Get platform application attributes"

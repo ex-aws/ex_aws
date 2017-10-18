@@ -60,6 +60,15 @@ defmodule ExAws.SNSTest do
     }
     assert expected == SNS.create_platform_endpoint("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn", "123abc456def", "user data").params
   end
+  
+  test "#create_platform_endpoint removes user data if it's nil" do
+    expected = %{
+      "Action" => "CreatePlatformEndpoint",
+      "PlatformApplicationArn" => "arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn",
+      "Token" => "123abc456def"
+    }
+    assert expected == SNS.create_platform_endpoint("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn", "123abc456def", nil).params
+  end
 
   test "#list_platform_applications" do
     expected = %{"Action" => "ListPlatformApplications"}

@@ -605,6 +605,35 @@ defmodule ExAws.SNS.ParserTest do
     assert parsed_doc[:token] == "APA91bGi7fFachkC1xjlqT66VYEucGHochmf1VQAr9k...jsM0PKPxKhddCzx6paEsyay9Zn3D4wNUJb8m6HZrBEXAMPLE"
     assert parsed_doc[:request_id] == "6c725a19-a142-5b77-94f9-1055a9ea04e7"
   end
+  
+  test "#parsing a get_endpoint_attributes response with no CustomUserData" do
+    rsp = """
+      <GetEndpointAttributesResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <GetEndpointAttributesResult>
+          <Attributes>
+            <entry>
+              <key>Enabled</key>
+              <value>true</value>
+            </entry>
+            <entry>
+              <key>Token</key>
+              <value>APA91bGi7fFachkC1xjlqT66VYEucGHochmf1VQAr9k...jsM0PKPxKhddCzx6paEsyay9Zn3D4wNUJb8m6HZrBEXAMPLE</value>
+            </entry>
+          </Attributes>
+        </GetEndpointAttributesResult>
+        <ResponseMetadata>
+          <RequestId>6c725a19-a142-5b77-94f9-1055a9ea04e7</RequestId>
+        </ResponseMetadata>
+      </GetEndpointAttributesResponse>
+    """
+    |> to_success
+
+    {:ok, %{body: parsed_doc}} = Parsers.parse(rsp, :get_endpoint_attributes)
+    assert parsed_doc[:enabled] == true
+    assert parsed_doc[:custom_user_data] == nil
+    assert parsed_doc[:token] == "APA91bGi7fFachkC1xjlqT66VYEucGHochmf1VQAr9k...jsM0PKPxKhddCzx6paEsyay9Zn3D4wNUJb8m6HZrBEXAMPLE"
+    assert parsed_doc[:request_id] == "6c725a19-a142-5b77-94f9-1055a9ea04e7"
+  end
 
   test "#parsing a set_endpoint_attributes response" do
     rsp = """
