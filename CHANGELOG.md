@@ -1,3 +1,7 @@
+ExAws v2.0
+
+- Major Project Split
+
 ExAws v1.1.4
 
 - Further refactoring of EC2, relaxed dependencies

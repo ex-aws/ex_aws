@@ -6,7 +6,7 @@ ExAws
 
 A flexible easy to use set of AWS APIs.
 
-Available Services: https://github.com/ex-aws
+Available Services: https://github.com/ex-aws?q=service&type=&language=
 
 ## Getting Started
 
