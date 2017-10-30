@@ -21,13 +21,23 @@ end
 
 defimpl ExAws.Operation, for: ExAws.Operation.Query do
   def perform(operation, config) do
-    data = operation.params |> URI.encode_query
+
+    # If the content type is json, do not convert to URI encoded. Will get converted
+    # to JSON as part of the ExAWs.Request.request
+    data = if Map.get(config, :content_type, "") =~ "application/x-amz-json" do
+      operation.params
+
+    # Convert params to URI encoded
+    else
+      operation.params |> URI.encode_query
+    end
+
     url = operation
     |> Map.delete(:params)
     |> ExAws.Request.Url.build(config)
 
     headers = [
-      {"content-type", "application/x-www-form-urlencoded"},
+      {"content-type", config[:content_type] || "application/x-www-form-urlencoded"},
     ]
 
     result = ExAws.Request.request(:post, url, data, headers, config, operation.service)

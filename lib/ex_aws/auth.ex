@@ -29,11 +29,16 @@ defmodule ExAws.Auth do
   def headers(http_method, url, service, config, headers, body) do
     with {:ok, config} <- validate_config(config) do
       datetime = :calendar.universal_time
-      headers = [
-        {"host", URI.parse(url).authority},
-        {"x-amz-date", amz_date(datetime)} |
-        headers
-      ]
+
+      headers = Map.get(config, :headers, [])  # Get headers from config, if they exist
+      |> List.wrap
+      |> Enum.concat(
+        [
+          {"host", URI.parse(url).authority},
+          {"x-amz-date", amz_date(datetime)} |
+          headers
+        ]
+      )
       |> handle_temp_credentials(config)
 
       auth_header = auth_header(

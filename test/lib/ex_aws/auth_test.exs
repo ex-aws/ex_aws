@@ -1,6 +1,7 @@
 defmodule ExAws.AuthTest do
   use ExUnit.Case, async: true
   import ExAws.Auth, only: [
+    headers: 6,
     build_canonical_request: 5
   ]
   import ExAws.Auth.Utils, only: [
@@ -12,6 +13,24 @@ defmodule ExAws.AuthTest do
     secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
     region: "us-east-1"
   }
+
+  test "headers includes headers from config" do
+    headers_config = Map.merge(@config, %{
+        headers: [
+          {"Fancy-Header-A", "So Fancy"},
+          {"Fancy-Header-B", "More Fancy"}
+        ]
+    })
+
+    # Cram the generated headers into a map for easy lookup
+    result = headers(:post, "http://localhost/path", :test, headers_config, [], "")
+    |> elem(1)
+    |> Enum.into(%{})
+
+    assert result["Fancy-Header-A"] == "So Fancy"
+    assert result["Fancy-Header-B"] == "More Fancy"
+    assert result["Authorization"] =~ "fancy-header-a;fancy-header-b"
+  end
 
   test "build_canonical_request can handle : " do
     expected = "GET\n/bar%3Abaz%40blag\n\n\n\n\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
