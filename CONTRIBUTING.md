@@ -106,7 +106,9 @@ Running the test suite for ex_aws requires a few things:
         "firehose:ListDeliveryStreams",
         "ses:VerifyEmailIdentity",
         "elastictranscoder:ListPipelines",
-        "cloudwatch:DescribeAlarms"
+        "cloudwatch:DescribeAlarms",
+        "cloudformation:DescribeStacks",
+        "cloudformation:ListStacks"
       ],
       "Resource": "*"
     }
