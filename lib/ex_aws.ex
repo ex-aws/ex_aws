@@ -29,6 +29,19 @@ defmodule ExAws do
   Alternatively you can create operation structs manually for services
   that aren't supported:
 
+  ```
+  op = %ExAws.Operation.JSON{
+    http_method: :post,
+    service: :dynamodb,
+    headers: [
+      {"x-amz-target", "DynamoDB_20120810.ListTables"},
+      {"content-type", "application/x-amz-json-1.0"}
+    ],
+  }
+
+  ExAws.request(op)
+  ```
+
   """
   @spec request(ExAws.Operation.t) :: term
   @spec request(ExAws.Operation.t, Keyword.t) :: {:ok, term} | {:error, term}

@@ -10,11 +10,14 @@ defmodule ExAwsTest do
   end
 
   test "basic json operation works" do
-    op = %ExAws.Operation.JSON{before_request: nil, data: %{},
-      headers: [{"x-amz-target", "DynamoDB_20120810.ListTables"},
-      {"content-type", "application/x-amz-json-1.0"}], http_method: :post,
-      params: %{}, parser: &(&1),
-      path: "/", service: :dynamodb, stream_builder: nil}
+    op = %ExAws.Operation.JSON{
+      http_method: :post,
+      service: :dynamodb,
+      headers: [
+        {"x-amz-target", "DynamoDB_20120810.ListTables"},
+        {"content-type", "application/x-amz-json-1.0"}
+      ],
+    }
 
     assert {:ok, %{"TableNames" => _}} = ExAws.request(op)
   end
