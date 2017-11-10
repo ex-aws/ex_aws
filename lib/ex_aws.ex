@@ -16,6 +16,8 @@ defmodule ExAws do
 
   ## Examples
 
+  If you have one of the service modules installed, you can just use those service
+  modules like this:
   ```
   ExAws.S3.list_buckets |> ExAws.request
 
@@ -23,6 +25,9 @@ defmodule ExAws do
 
   ExAws.Dynamo.get_object("users", "foo@bar.com") |> ExAws.request
   ```
+
+  Alternatively you can create operation structs manually for services
+  that aren't supported:
 
   """
   @spec request(ExAws.Operation.t) :: term
