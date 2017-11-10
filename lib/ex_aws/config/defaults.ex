@@ -3,8 +3,6 @@ defmodule ExAws.Config.Defaults do
   Defaults for each service
   """
 
-  require ExAws.Config.Builder
-
   @common %{
     access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
     secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
@@ -59,10 +57,19 @@ defmodule ExAws.Config.Defaults do
     to_string(service)
   end
 
-  @partitions ExAws.Config.Builder.get_partitions()
+  @partition_data :ex_aws
+    |> :code.priv_dir()
+    |> Path.join("endpoints.exs")
+    |> File.read!
+    |> Code.eval_string
+    |> elem(0)
+    |> Map.get("partitions")
+    |> Map.new(fn partition ->
+      {partition["partition"], partition}
+    end)
 
   def do_host(partition, service_slug, region) do
-    partition = @partitions |> Map.fetch!(partition)
+    partition = @partition_data |> Map.fetch!(partition)
     partition_name = partition["partition"]
 
     service = service_map(service_slug)
