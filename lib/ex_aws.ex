@@ -8,18 +8,38 @@ defmodule ExAws do
   First build an operation from one of the services, and then pass it to this
   function to perform it.
 
+  If you want to build an operation manually, see: `ExAws.Operation`
+
   This function takes an optional second parameter of configuration overrides.
   This is useful if you want to have certain configuration changed on a per
   request basis.
 
   ## Examples
 
+  If you have one of the service modules installed, you can just use those service
+  modules like this:
   ```
   ExAws.S3.list_buckets |> ExAws.request
 
   ExAws.S3.list_buckets |> ExAws.request(region: "eu-west-1")
 
   ExAws.Dynamo.get_object("users", "foo@bar.com") |> ExAws.request
+  ```
+
+  Alternatively you can create operation structs manually for services
+  that aren't supported:
+
+  ```
+  op = %ExAws.Operation.JSON{
+    http_method: :post,
+    service: :dynamodb,
+    headers: [
+      {"x-amz-target", "DynamoDB_20120810.ListTables"},
+      {"content-type", "application/x-amz-json-1.0"}
+    ],
+  }
+
+  ExAws.request(op)
   ```
 
   """
