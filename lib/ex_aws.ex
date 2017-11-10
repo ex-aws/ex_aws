@@ -8,6 +8,8 @@ defmodule ExAws do
   First build an operation from one of the services, and then pass it to this
   function to perform it.
 
+  If you want to build an operation manually, see: `ExAws.Operation`
+
   This function takes an optional second parameter of configuration overrides.
   This is useful if you want to have certain configuration changed on a per
   request basis.
