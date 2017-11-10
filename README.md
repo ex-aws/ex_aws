@@ -42,7 +42,7 @@ ExAws requires valid AWS keys in order to work properly. ExAws by default does t
 ```elixir
 config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
 ```
 
 This means it will try to resolve credentials in order
