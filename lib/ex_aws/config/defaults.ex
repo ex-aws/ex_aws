@@ -70,8 +70,17 @@ defmodule ExAws.Config.Defaults do
     partition
     |> Map.fetch!("services")
     |> fetch_or(service, "#{service_slug} not found in partition #{partition_name}")
-    |> Map.fetch!("endpoints")
-    |> fetch_or(region, "#{service_slug} not supported in region #{region} for partition #{partition_name}")
+    |> case do
+      %{"isRegionalized" => false} = data ->
+        data
+        |> Map.fetch!("endpoints")
+        |> Map.values
+        |> List.first
+      data ->
+        data
+        |> Map.fetch!("endpoints")
+        |> fetch_or(region, "#{service_slug} not supported in region #{region} for partition #{partition_name}")
+    end
     |> case do
       %{"hostname" => hostname} ->
         hostname
