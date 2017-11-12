@@ -32,10 +32,10 @@ defmodule ExAws.Config do
   end
 
   def build_base(service, overrides \\ %{}) do
-    region = Map.get(overrides, :region, "us-east-1")
-    defaults = ExAws.Config.Defaults.get(service, region)
     common_config = Application.get_all_env(:ex_aws) |> Map.new |> Map.take(@common_config)
     service_config = Application.get_env(:ex_aws, service, []) |> Map.new
+    region = Map.get(overrides, :region) || Map.get(service_config, :region) || Map.get(common_config, :region) || "us-east-1"
+    defaults = ExAws.Config.Defaults.get(service, region)
 
     defaults
     |> Map.merge(common_config)
