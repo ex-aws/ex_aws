@@ -1,6 +1,11 @@
-ExAws v2.0
+v2.0.1
+
+- Fix regression where mix config region was applies too late.
+
+ExAws v2.0.0
 
 - Major Project Split
+- Configuration update to support all regions on all services.
 
 ExAws v1.1.4
 
