@@ -54,7 +54,9 @@ defmodule ExAws.Config.Defaults do
   defp service_map(:ses), do: "email"
   defp service_map(:dynamodb_streams), do: "streams.dynamodb"
   defp service_map(service) do
-    to_string(service)
+    service
+    |> to_string
+    |> String.replace("_", "-")
   end
 
   @partition_data :ex_aws
