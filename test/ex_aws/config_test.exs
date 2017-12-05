@@ -43,4 +43,10 @@ defmodule ExAws.ConfigTest do
 
     assert config.region == "eu-west-1"
   end
+
+  test "allow custom host & region" do
+    config = ExAws.Config.new(:s3, [host: %{"nyc3" => "nyc3.digitaloceanspaces.com"}, region: "nyc3"])
+    assert config.region == "nyc3"
+    assert config.host == "nyc3.digitaloceanspaces.com"
+  end
 end
