@@ -1,3 +1,8 @@
+v2.0.2
+
+- Enhancement: Enable `ExAws.Auth.presigned_url` with custom body. Enables https://github.com/ex-aws/ex_aws_rds/pull/3
+- Enhancement: Handle non AWS regions with new default structure.
+
 v2.0.1
 
 - Fix regression where mix config region was applies too late.

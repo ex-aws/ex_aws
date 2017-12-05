@@ -44,11 +44,14 @@ defmodule ExAws.Config.Defaults do
   ]
 
   def host(service, region) do
-    {_, partition} = Enum.find(@partitions, fn {regex, _} ->
+    partition = Enum.find(@partitions, fn {regex, _} ->
       Regex.run(regex, region)
     end)
 
-    do_host(partition, service, region)
+    with {_, partition} <- partition do
+      do_host(partition, service, region)
+    end
+
   end
 
   defp service_map(:ses), do: "email"

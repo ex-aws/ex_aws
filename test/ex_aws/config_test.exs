@@ -1,6 +1,11 @@
 defmodule ExAws.ConfigTest do
   use ExUnit.Case, async: true
 
+  test "overrides work properly" do
+    config = ExAws.Config.new(:s3, region: "us-west-2")
+    assert config.region == "us-west-2"
+  end
+
   test "{:system} style configs work" do
     value = "foo"
     System.put_env("ExAwsConfigTest", value)
