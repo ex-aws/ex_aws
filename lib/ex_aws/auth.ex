@@ -49,7 +49,7 @@ defmodule ExAws.Auth do
     end
   end
 
-  def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ []) do
+  def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ [], body \\ nil) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)
       headers = presigned_url_headers(url)
@@ -70,7 +70,7 @@ defmodule ExAws.Auth do
 
       path = uri_encode(path)
 
-      signature = signature(http_method, path, query_to_sign, headers, nil, service, datetime, config)
+      signature = signature(http_method, path, query_to_sign, headers, body, service, datetime, config)
       {:ok, "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"}
     end
   end
@@ -95,7 +95,6 @@ defmodule ExAws.Auth do
   defp signature(http_method, path, query, headers, body, service, datetime, config) do
     request = build_canonical_request(http_method, path, query, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
-
     Signatures.generate_signature_v4(service, config, datetime, string_to_sign)
   end
 

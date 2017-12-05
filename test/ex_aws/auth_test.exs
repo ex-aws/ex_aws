@@ -65,4 +65,27 @@ defmodule ExAws.AuthTest do
 
     assert {:ok, expected} == actual
   end
+
+  test "presigned url with empty request body" do
+    # Required for RDS generate_db_token
+    # Data taken from botocore https://github.com/boto/botocore/blob/master/tests/unit/test_signers.py#L922
+    http_method = :get
+    url = "https://prod-instance.us-east-1.rds.amazonaws.com:3306/"
+    service = :"rds-db"
+    datetime = {{2016, 11, 7}, {17, 39, 33}}
+    expires = 900
+    query_params = ["Action": "connect", "DBUser": "someusername"]
+    body = ""
+    config = %{access_key_id: "akid", secret_access_key: "skid", region: "us-east-1"}
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires, query_params, body)
+
+    expected =
+      "https://prod-instance.us-east-1.rds.amazonaws.com:3306/?Action=connect"
+                <> "&DBUser=someusername&X-Amz-Algorithm=AWS4-HMAC-SHA256"
+                <> "&X-Amz-Credential=akid%2F20161107%2Fus-east-1%2Frds-db%2Faws4_request"
+                <> "&X-Amz-Date=20161107T173933Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host"
+                <> "&X-Amz-Signature=d1138cdbc0ca63eec012ec0fc6c2267e03642168f5884a7795320d4c18374c61"
+
+    assert {:ok, expected} == actual
+  end
 end
