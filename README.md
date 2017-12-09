@@ -29,7 +29,7 @@ With these deps you can use `ExAws` precisely as you're used to:
 
 ```
 # make a request
-ExAws.S3.list_objects("my-bucket") |> ExAws.request
+ExAws.S3.list_objects("my-bucket") |> ExAws.request(region: "us-west-1")
 
 # some operations support streaming
 ExAws.S3.list_objects("my-bucket") |> ExAws.stream! |> Enum.to_list
