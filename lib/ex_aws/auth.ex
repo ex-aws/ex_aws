@@ -5,6 +5,11 @@ defmodule ExAws.Auth do
   alias ExAws.Auth.Signatures
 
   @moduledoc false
+  @amz_meta_regexp (~r/x\-amz\-\meta\-?(.+)/i)
+
+  @test_meta_key "X-Amz-Meta-metadata"
+  @test_meta_value "foobar"
+  @test_meta_params {@test_meta_key, @test_meta_value}
 
   def validate_config(config) do
     with :ok <- get_key(config, :secret_access_key),
@@ -49,12 +54,16 @@ defmodule ExAws.Auth do
     end
   end
 
-  def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ [], body \\ nil) do
+  def presigned_url(http_method, url, service, datetime, config, expires, query_params \\ [], custom_metadata \\ [], body \\ nil) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)
-      headers = presigned_url_headers(url)
-
+      headers = presigned_url_headers(url, custom_metadata)
       org_query_params = query_params |> Enum.map(fn({k, v}) -> {to_string(k), v} end)
+
+      metadata_query_params = org_query_params
+      |> Enum.filter(fn {k, _} -> String.match?(k, @amz_meta_regexp) end)
+      |> Enum.map(&elem(&1, 0))
+
       amz_query_params = build_amz_query_params(service, datetime, config, expires)
       [org_query, amz_query] = [org_query_params, amz_query_params] |> Enum.map(&canonical_query_params/1)
       query_to_sign = org_query_params ++ amz_query_params |> canonical_query_params
@@ -195,9 +204,9 @@ defmodule ExAws.Auth do
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
 
-  defp presigned_url_headers(url) do
+  defp presigned_url_headers(url, custom_metadata) do
     uri = URI.parse(url)
-    [{"host", uri.authority}]
+    [{"host", uri.authority}] ++ Enum.map(custom_metadata, fn {k, v} -> {"x-amz-meta-#{k}", v} end)
   end
 
   defp build_amz_query_params(service, datetime, config, expires) do
@@ -206,7 +215,8 @@ defmodule ExAws.Auth do
       {"X-Amz-Credential",    Credentials.generate_credential_v4(service, config, datetime)},
       {"X-Amz-Date",          amz_date(datetime)},
       {"X-Amz-Expires",       expires},
-      {"X-Amz-SignedHeaders", "host"},
+#      {"X-Amz-SignedHeaders", "host"},
+      {"X-Amz-SignedHeaders", "host;#{@test_meta_key}"},
     ] ++
     if config[:security_token] do
       [{"X-Amz-Security-Token", config[:security_token]}]
