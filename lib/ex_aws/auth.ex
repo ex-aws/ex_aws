@@ -5,11 +5,6 @@ defmodule ExAws.Auth do
   alias ExAws.Auth.Signatures
 
   @moduledoc false
-  @amz_meta_regexp (~r/x\-amz\-\meta\-?(.+)/i)
-
-  @test_meta_key "X-Amz-Meta-metadata"
-  @test_meta_value "foobar"
-  @test_meta_params {@test_meta_key, @test_meta_value}
 
   def validate_config(config) do
     with :ok <- get_key(config, :secret_access_key),
