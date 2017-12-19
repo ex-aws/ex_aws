@@ -108,9 +108,10 @@ defmodule ExAws.AuthTest do
     datetime = {{2016, 11, 7}, {17, 39, 33}}
     expires = 900
     query_params = ["Action": "connect", "DBUser": "someusername"]
+    custom_metadata = []
     body = ""
     config = %{access_key_id: "akid", secret_access_key: "skid", region: "us-east-1"}
-    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires, query_params, body)
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, config, expires, query_params, custom_metadata, body)
 
     expected =
       "https://prod-instance.us-east-1.rds.amazonaws.com:3306/?Action=connect"

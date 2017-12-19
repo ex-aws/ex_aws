@@ -205,8 +205,14 @@ defmodule ExAws.Auth do
   end
 
   defp presigned_url_headers(url, custom_metadata) do
-    uri = URI.parse(url)
-    [{"host", uri.authority}] ++ Enum.map(custom_metadata, fn {k, v} -> {"x-amz-meta-#{k}", v} end)
+    %{authority: authority} = URI.parse(url)
+    base = [{"host", authority}]
+
+    unless custom_metadata == [] do
+      base ++ Enum.map(custom_metadata, fn {k, v} -> {"x-amz-meta-#{k}", v} end)
+    else
+      base
+    end
   end
 
   defp build_amz_query_params(service, datetime, config, expires) do
