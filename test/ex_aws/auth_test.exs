@@ -74,27 +74,18 @@ defmodule ExAws.AuthTest do
     service = :s3
     datetime = {{2013, 5, 24}, {0, 0, 0}}
     expires = 86400
-    query_params = ["X-Amz-Meta-custom-metadata": "foobar"]
-    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires, query_params)
-
-    boto_expected =
-      "https://examplebucket.s3.amazonaws.com/test.txt" <>
-      "?X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
-      "&X-Amz-SignedHeaders=host%3Bx-amz-meta-custom-metadata" <>
-      "&X-Amz-Expires=86400" <>
-      "&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20171217%2Fus-east-1%2Fs3%2Faws4_request" <>
-      "&X-Amz-Date=20171217T164355Z" <>
-      "&X-Amz-Signature=251fb500b328f653aea745729aaff021a5a1ec2d09c1241d20ef3573a76aca78"
+    query_params = []
+    custom_metadata = [{"metadata", "foobar"}]
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires, query_params, custom_metadata)
 
     expected =
       "https://examplebucket.s3.amazonaws.com/test.txt" <>
-      "&X-Amz-Meta-custom-metadata=foobar" <>
-      "&X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
+      "?X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
       "&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request" <>
       "&X-Amz-Date=20130524T000000Z" <>
       "&X-Amz-Expires=86400" <>
-      "&X-Amz-SignedHeaders=host,X-Amz-Meta-custom-metadata" <>
-      "&X-Amz-Signature=1fdac5451b2996880dc23162853ce76e4cf0a05257e430aec59e309ecd126ade"
+      "&X-Amz-SignedHeaders=host%3Bx-amz-meta-metadata" <>
+      "&X-Amz-Signature=40a4ae3891dcf3dd5e71396c722d73879ffac734f6c34586f1f747066b45f472"
 
     assert {:ok, expected} == actual
   end
