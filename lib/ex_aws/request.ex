@@ -36,7 +36,7 @@ defmodule ExAws.Request do
       end
 
       case config[:http_client].request(method, url, req_body, full_headers, Map.get(config, :http_opts, [])) do
-        {:ok, response = %{status_code: status}} when status in 200..299 ->
+        {:ok, response = %{status_code: status}} when status in 200..299 or status == 304 ->
           {:ok, response}
         {:ok, %{status_code: status} = resp} when status in 400..499 ->
           case client_error(resp, config[:json_codec]) do
