@@ -7,7 +7,7 @@ defmodule ExAws.AssumeRoleCredentials do
     ]
 
     if auth[:external_id] do
-      List.push(assume_role_options, :external_id, auth[:external_id])
+      assume_role_options = List.push(assume_role_options, :external_id, auth[:external_id])
     end
 
     role_session_name = auth[:role_session_name] || "default_session"
