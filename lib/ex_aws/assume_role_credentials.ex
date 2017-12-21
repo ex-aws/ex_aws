@@ -2,6 +2,10 @@ defmodule ExAws.AssumeRoleCredentials do
   @moduledoc false
 
   def security_credentials(auth, expiration) do
+    if !Code.ensure_loaded?(ExAws.STS) do
+      raise "ExAws.STS required to use `role_arn` in the aws config"
+    end
+
     assume_role_options = [
       duration: credential_duration_seconds(expiration)
     ]
