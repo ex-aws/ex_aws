@@ -11,6 +11,11 @@ defmodule ExAws.Request do
   @type error_t :: {:error, {:http_error, http_status, binary}}
   @type response_t :: success_t | error_t
 
+  @retryable_errors [
+    "ProvisionedThroughputExceededException",
+    "ThrottlingException"
+  ]
+
   def request(http_method, url, data, headers, config, service) do
     body = case data do
       []  -> "{}"
@@ -58,29 +63,32 @@ defmodule ExAws.Request do
   def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
-        error_type
-        |> String.split("#")
-        |> case do
-          [_, type] -> handle_aws_error(type, message)
-          _         -> {:error, {:http_error, status, err}}
+        if retry_error?(error_type) do
+          {:retry, {error_type, message}}
+        else
+          {:error, {:http_error, status, err}}
         end
-      _ -> {:error, {:http_error, status, error}}
+
+      _ ->
+        {:error, {:http_error, status, error}}
     end
   end
   def client_error(%{status_code: status} = error, _) do
     {:error, {:http_error, status, error}}
   end
 
-  def handle_aws_error("ProvisionedThroughputExceededException" = type, message) do
-    {:retry, {type, message}}
+  def retry_error?(error_type) do
+    clean_error_type = get_clean_error_type(error_type)
+    Enum.member?(@retryable_errors, clean_error_type)
   end
 
-  def handle_aws_error("ThrottlingException" = type, message) do
-    {:retry, {type, message}}
-  end
-
-  def handle_aws_error(type, message) do
-    {:error, {type, message}}
+  def get_clean_error_type(error_type) do
+    error_type
+    |> String.split("#")
+    |> case do
+      [_, type] -> type
+      type      -> type
+    end
   end
 
   def attempt_again?(attempt, reason, config) do
