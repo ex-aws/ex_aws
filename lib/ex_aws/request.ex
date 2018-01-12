@@ -48,7 +48,6 @@ defmodule ExAws.Request do
         {:ok, %{status_code: status} = resp} when status in 400..499 ->
           case client_error(resp, config[:json_codec]) do
             {:retry, reason} ->
-              Logger.warn("ExAws: HTTP ERROR: #{inspect(reason)}")
               request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
             {:error, reason} ->
               {:error, reason}
@@ -57,7 +56,6 @@ defmodule ExAws.Request do
         {:ok, %{status_code: status} = resp} when status >= 500 ->
           body = Map.get(resp, :body)
           reason = {:http_error, status, body}
-          Logger.warn("ExAws: HTTP ERROR: #{inspect(reason)}")
           request_and_retry(method, url, service, config, headers, req_body, attempt_again?(attempt, reason, config))
 
         {:error, %{reason: reason}} ->
@@ -69,11 +67,13 @@ defmodule ExAws.Request do
 
   def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
-      {:ok, %{"__type" => error_type, "message" => message} = err} ->
-        if retry_error?(error_type) do
-          {:retry, {error_type, message}}
+      {:ok, %{"__type" => error_type, "message" => message}} ->
+        clean_error_type = get_clean_error_type(error_type)
+
+        if Enum.member?(@retryable_errors, clean_error_type) do
+          {:retry, {clean_error_type, message}}
         else
-          {:error, {:http_error, status, err}}
+          {:error, {clean_error_type, message}}
         end
 
       _ ->
@@ -82,11 +82,6 @@ defmodule ExAws.Request do
   end
   def client_error(%{status_code: status} = error, _) do
     {:error, {:http_error, status, error}}
-  end
-
-  def retry_error?(error_type) do
-    clean_error_type = get_clean_error_type(error_type)
-    Enum.member?(@retryable_errors, clean_error_type)
   end
 
   def get_clean_error_type(error_type) do
