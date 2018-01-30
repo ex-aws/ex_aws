@@ -1,8 +1,12 @@
 if Code.ensure_loaded?(ConfigParser) do
   defmodule ExAws.CredentialsIni do
-    def security_credentials(profile_name) do
-      shared_credentials = profile_from_shared_credentials(profile_name)
-      config_credentials = profile_from_config(profile_name)
+    def security_credentials(profile_name, file_names \\ nil) do
+      {config_file, credentials_file} = file_names || {
+        System.user_home |> Path.join(".aws/config"),
+        System.user_home |> Path.join(".aws/credentials")
+      }
+      shared_credentials = profile_from_shared_credentials(credentials_file, profile_name)
+      config_credentials = profile_from_config(config_file, profile_name)
       Map.merge(config_credentials, shared_credentials)
     end
 
@@ -42,22 +46,20 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp profile_from_shared_credentials(profile_name) do
-      System.user_home
-      |> Path.join(".aws/credentials")
+    defp profile_from_shared_credentials(credentials_file, profile_name) do
+      credentials_file
       |> File.read
       |> parse_ini_file(profile_name)
       |> replace_token_key
     end
 
-    defp profile_from_config(profile_name) do
+    defp profile_from_config(config_file, profile_name) do
       section = case profile_name do
         "default" -> "default"
         other -> "profile #{other}"
       end
 
-      System.user_home
-      |> Path.join(".aws/config")
+      config_file
       |> File.read
       |> parse_ini_file(section)
     end
