@@ -93,21 +93,6 @@ defmodule ExAws.ConfigTest do
     ]
 
     assert ExAws.Config.new(:sts, config).host == "service-eu-west-1.amazonaws.com"
-
-  test "properly derives host based on the service and region" do
-    # Hostname specified for service+region
-    assert ExAws.Config.new(:sts, region: "ap-northeast-2").host == "sts.ap-northeast-2.amazonaws.com"
-
-    # Default from partition; hostname not specified for service+region
-    assert ExAws.Config.new(:sts, region: "us-east-1").host == "sts.us-east-1.amazonaws.com"
-
-    # Non-regionalized service in standard partition
-    assert ExAws.Config.new(:iam).host == "iam.amazonaws.com"
-    assert ExAws.Config.new(:iam, region: "eu-west-1").host == "iam.amazonaws.com"
-
-    # Service in non-standard partition
-    assert ExAws.Config.new(:iam, region: "cn-north-1").host == "iam.cn-north-1.amazonaws.com.cn"
-    assert ExAws.Config.new(:sts, region: "us-gov-west-1").host == "sts.us-gov-west-1.amazonaws.com"
   end
 
   test "host in config file overrides the derived host" do
