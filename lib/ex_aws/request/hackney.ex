@@ -9,7 +9,8 @@ defmodule ExAws.Request.Hackney do
       config :ex_aws, :hackney_opts,
         recv_timeout: 30_000
 
-  The default config handles setting the above
+  The default config handles setting the above timeout. Note that the generic `http_opts` are also
+  concatenated to the `:hackney_opts`.
   """
 
   @default_opts [recv_timeout: 30_000]

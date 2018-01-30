@@ -14,7 +14,8 @@ defmodule ExAws.Request.HttpClient do
 
   ```elixir
   config :ex_aws,
-    http_client: ExAws.Request.HTTPotion
+    http_client: ExAws.Request.HTTPotion,
+    http_opts: []  # client-dependant options
   ```
 
   ```elixir
