@@ -31,18 +31,26 @@ defmodule ExAws.Config do
     |> parse_host_for_region
   end
 
-  defp build_base(service, overrides \\ %{}) do
+  defp build_base(service, overrides) do
+    defaults = ExAws.Config.Defaults.get(service)
     common_config = Application.get_all_env(:ex_aws) |> Map.new |> Map.take(@common_config)
     service_config = Application.get_env(:ex_aws, service, []) |> Map.new
-    region = Map.get(overrides, :region) || Map.get(service_config, :region) || Map.get(common_config, :region) || "us-east-1"
-    defaults =
-      ExAws.Config.Defaults.get(service)
-      |> Map.put(:host, ExAws.Config.Host.get_host(service, region))
 
-    defaults
-    |> Map.merge(common_config)
-    |> Map.merge(service_config)
-    |> Map.merge(overrides)
+    base =
+      defaults
+      |> Map.merge(common_config)
+      |> Map.merge(service_config)
+      |> Map.merge(overrides)
+
+    manual_host? =
+      [common_config, service_config, overrides]
+      |> Enum.any?(&Map.has_key?(&1, :host))
+
+    if manual_host? do
+      base
+    else
+      base |> derive_host(service)
+    end
   end
 
   @runtime_values [:access_key_id, :secret_access_key, :security_token, :host, :region]
@@ -78,6 +86,12 @@ defmodule ExAws.Config do
     |> Enum.find(& &1 != nil)
   end
   defp retrieve_runtime_value(value, _key, _config), do: value
+
+  defp derive_host(config, service) do
+    region = Map.get(config, :region, "us-east-1")
+    config
+    |> Map.put(:host, ExAws.Config.Host.get_host(service, region))
+  end
 
   defp parse_host_for_region(%{host: {stub, host}, region: region} = config) do
     Map.put(config, :host, String.replace(host, stub, region))

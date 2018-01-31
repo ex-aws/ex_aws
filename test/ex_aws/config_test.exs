@@ -43,21 +43,24 @@ defmodule ExAws.ConfigTest do
       {"EX_AWS_TEST_ACCESS_KEY_ID", "TEST_ACCESS_KEY_ID"},
       {"EX_AWS_TEST_SECRET_ACCESS_KEY", "TEST_SECRET_ACCESS_KEY"},
       {"EX_AWS_TEST_SECURITY_TOKEN", "TEST_SECURITY_TOKEN"},
-      {"EX_AWS_TEST_HOST", "TEST_HOST"}
+      {"EX_AWS_TEST_HOST", "TEST_HOST"},
+      {"EX_AWS_TEST_REGION", "eu-west-1"}
     ] |> Enum.each(fn {env_var, value} -> System.put_env(env_var, value) end)
 
     config = [
       access_key_id: {:system, "EX_AWS_TEST_ACCESS_KEY_ID"},
       secret_access_key: {:system, "EX_AWS_TEST_SECRET_ACCESS_KEY"},
       security_token: {:system, "EX_AWS_TEST_SECURITY_TOKEN"},
-      host: {:system, "EX_AWS_TEST_HOST"}
+      host: {:system, "EX_AWS_TEST_HOST"},
+      region: {:system, "EX_AWS_TEST_REGION"}
     ]
 
     assert %{
         access_key_id: "TEST_ACCESS_KEY_ID",
         secret_access_key: "TEST_SECRET_ACCESS_KEY",
         security_token: "TEST_SECURITY_TOKEN",
-        host: "TEST_HOST"
+        host: "TEST_HOST",
+        region: "eu-west-1"
       } = ExAws.Config.new(:s3, config)
   end
 
@@ -78,14 +81,15 @@ defmodule ExAws.ConfigTest do
     config = [
       access_key_id: {:awscli, "default", 30},
       secret_access_key: {:awscli, "default", 30},
-      security_token: {:awscli, "default", 30}
+      security_token: {:awscli, "default", 30},
+      region: {:awscli, "default", 30}
     ]
 
     assert %{
         access_key_id: "TEST_ACCESS_KEY_ID",
         secret_access_key: "TEST_SECRET_ACCESS_KEY",
         security_token: "TEST_SECURITY_TOKEN",
-        region: "us-east-1"
+        region: "eu-west-1"
       } = ExAws.Config.new(:s3, config)
   end
 
