@@ -8,6 +8,31 @@ defmodule ExAws.ConfigTest do
 
   defp fixture(file_name), do: Path.join(["test", "ex_aws", "fixtures", file_name])
 
+  test "allows to specify options that override the defaults" do
+    config = [
+      http_client: ExAws.ConfigTest,
+      http_opts: [x: 1, y: 2],
+      access_key_id: "TEST_ACCESS_KEY_ID",
+      retries: [
+        max_attempts: 3,
+        base_backoff_in_ms: 100,
+        max_backoff_in_ms: 20_000
+      ]
+    ]
+
+    assert %{
+        http_client: ExAws.ConfigTest,
+        http_opts: [x: 1, y: 2],
+        access_key_id: "TEST_ACCESS_KEY_ID",
+        retries: [
+          max_attempts: 3,
+          base_backoff_in_ms: 100,
+          max_backoff_in_ms: 20_000
+        ],
+        port: 443
+      } = ExAws.Config.new(:s3, config)
+  end
+
   test "overrides work properly" do
     config = ExAws.Config.new(:s3, region: "us-west-2")
     assert config.region == "us-west-2"
@@ -60,7 +85,7 @@ defmodule ExAws.ConfigTest do
         access_key_id: "TEST_ACCESS_KEY_ID",
         secret_access_key: "TEST_SECRET_ACCESS_KEY",
         security_token: "TEST_SECURITY_TOKEN",
-        region: "eu-west-1"  # bug #521, should be "us-east-1" as per config/test.exs
+        region: "us-east-1"
       } = ExAws.Config.new(:s3, config)
   end
 
@@ -73,17 +98,6 @@ defmodule ExAws.ConfigTest do
     ]
 
     assert %{access_key_id: "TEST_ACCESS_KEY_ID"} = ExAws.Config.new(:s3, config)
-  end
-
-  test "unexpected replace of config values" do
-
-    config = [
-      access_key_id: "access_key",
-      secret_access_key: {:awscli, "default", 30}
-    ]
-
-    # bug, should be "access_key"
-    assert ExAws.Config.new(:s3, config).access_key_id == "TEST_ACCESS_KEY_ID"
   end
 
   test "supports complex host configuration" do
