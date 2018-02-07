@@ -28,7 +28,9 @@ end
 With these deps you can use `ExAws` precisely as you're used to:
 
 ```
-# make a request
+# make a request (with the default region)
+ExAws.S3.list_objects("my-bucket") |> ExAws.request
+# or specify the region
 ExAws.S3.list_objects("my-bucket") |> ExAws.request(region: "us-west-1")
 
 # some operations support streaming
