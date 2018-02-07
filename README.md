@@ -67,6 +67,8 @@ config :ex_aws,
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
 ```
 
+Like AWS CLI, you can specify a `role_arn` and `source_profile` in your `~/.aws/config` and ExAws will issue an `AssumeRoleCredentials` request to fetch the `access_key_id` and `secret_access_key`.
+
 #### Hackney configuration
 
 ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make HTTP requests to AWS API. You can modify the options as such:
