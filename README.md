@@ -67,7 +67,7 @@ config :ex_aws,
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
 ```
 
-#### Hackney configuration
+### Hackney configuration
 
 ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make HTTP requests to AWS API. You can modify the options as such:
 
@@ -75,6 +75,15 @@ ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make HTTP
 config :ex_aws, :hackney_opts,
   follow_redirect: true,
   recv_timeout: 30_000
+```
+
+### AWS Region Configuration.
+
+You can set the region used by default for requests.
+
+```elixir
+config :ex_aws,
+  region: "us-west-2",
 ```
 
 ## Direct Usage
