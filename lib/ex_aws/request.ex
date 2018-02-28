@@ -26,16 +26,16 @@ defmodule ExAws.Request do
   def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
 
-    url = replace_spaces(url)
-
     with {:ok, full_headers} <- full_headers do
+      safe_url = replace_spaces(url)
+
       if config[:debug_requests] do
-        Logger.debug("Request URL: #{inspect url}")
+        Logger.debug("Request URL: #{inspect safe_url}")
         Logger.debug("Request HEADERS: #{inspect full_headers}")
         Logger.debug("Request BODY: #{inspect req_body}")
       end
 
-      case config[:http_client].request(method, url, req_body, full_headers, Map.get(config, :http_opts, [])) do
+      case config[:http_client].request(method, safe_url, req_body, full_headers, Map.get(config, :http_opts, [])) do
         {:ok, %{status_code: status} = resp} when status in 200..299 or status == 304 ->
           {:ok, resp}
         {:ok, %{status_code: status} = resp} when status in 400..499 ->
