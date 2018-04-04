@@ -91,6 +91,10 @@ defmodule ExAws.Config do
   end
   def parse_host_for_region(config), do: config
 
+  def awscli_auth_config_provider do
+    Application.get_env(:ex_aws, :awscli_auth_config_provider, ExAws.Config.AuthCache.DefaultConfigProvider)
+  end
+
   defp valid_map_or_nil(map) when map == %{}, do: nil
   defp valid_map_or_nil(map), do: map
 

@@ -1,5 +1,11 @@
 if Code.ensure_loaded?(ConfigParser) do
   defmodule ExAws.CredentialsIni do
+    # as per https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
+    @valid_config_keys ~w(
+      aws_access_key_id aws_secret_access_key aws_session_token region
+      role_arn source_profile credential_source external_id mfa_serial role_session_name
+    )
+
     def security_credentials(profile_name) do
       shared_credentials = profile_from_shared_credentials(profile_name)
       config_credentials = profile_from_config(profile_name)
@@ -22,7 +28,7 @@ if Code.ensure_loaded?(ConfigParser) do
 
     def strip_key_prefix(credentials) do
       credentials
-      |> Map.take(~w(aws_access_key_id aws_secret_access_key aws_session_token region))
+      |> Map.take(@valid_config_keys)
       |> Map.new(fn({key, val}) ->
         updated_key =
           key
