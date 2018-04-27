@@ -99,7 +99,7 @@ defmodule ExAws.Auth do
   end
 
   def build_canonical_request(http_method, path, query, headers, body) do
-    http_method = http_method |> method_string |> String.upcase
+    http_method = http_method |> method_string
 
     headers = headers |> canonical_headers
     header_string = headers
