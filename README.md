@@ -67,6 +67,14 @@ config :ex_aws,
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
 ```
 
+For role based authentication via `role_arn` and `source_profile` an additional dependency is required:
+
+```elixir
+{:ex_aws_sts, "~> 2.0"}
+```
+
+Further information on role based authentication is provided in said dependency.
+
 ### Hackney configuration
 
 ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make HTTP requests to AWS API. You can modify the options as such:

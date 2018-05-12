@@ -70,7 +70,7 @@ defmodule ExAws.Config do
   end
   def retrieve_runtime_value({:awscli, profile, expiration}, _) do
     ExAws.Config.AuthCache.get(profile, expiration * 1000)
-    |> Map.take([:access_key_id, :secret_access_key, :region, :security_token])
+    |> Map.take([:source_profile, :role_arn, :access_key_id, :secret_access_key, :region, :security_token, :role_session_name, :external_id])
     |> valid_map_or_nil
   end
   def retrieve_runtime_value(values, config) when is_list(values) do
@@ -90,6 +90,10 @@ defmodule ExAws.Config do
     end
   end
   def parse_host_for_region(config), do: config
+
+  def awscli_auth_adapter do
+    Application.get_env(:ex_aws, :awscli_auth_adapter, nil)
+  end
 
   defp valid_map_or_nil(map) when map == %{}, do: nil
   defp valid_map_or_nil(map), do: map

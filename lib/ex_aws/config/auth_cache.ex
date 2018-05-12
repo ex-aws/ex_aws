@@ -5,6 +5,14 @@ defmodule ExAws.Config.AuthCache do
 
   # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
 
+  defmodule AuthConfigAdapter do
+    @moduledoc false
+
+    @doc "Compute the awscli auth information."
+    @callback adapt_auth_config(auth :: map, profile :: String.t, expiration :: integer) :: any
+
+  end
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
@@ -15,6 +23,7 @@ defmodule ExAws.Config.AuthCache do
       [] -> GenServer.call(__MODULE__, {:refresh_config, config}, 30_000)
     end
   end
+
   def get(profile, expiration) do
     case :ets.lookup(__MODULE__, :awscli) do
       [{:awscli, auth_config}] -> auth_config
@@ -48,10 +57,21 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def refresh_awscli_config(profile, expiration, ets) do
+    Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
+
     auth = ExAws.CredentialsIni.security_credentials(profile)
     :ets.insert(ets, {:awscli, auth})
-    Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
-    auth
+
+    case ExAws.Config.awscli_auth_adapter() do
+      nil ->
+        auth
+
+      adapter ->
+        auth = adapter.adapt_auth_config(auth, profile, expiration)
+        :ets.insert(ets, {:awscli, auth})
+
+        auth
+    end
   end
 
   def refresh_config(config, ets) do
