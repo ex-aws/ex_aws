@@ -40,6 +40,7 @@ defmodule ExAws.Mixfile do
       {:poison, ">= 1.2.0", optional: true},
       {:jsx, "~> 2.8", optional: true},
       {:dialyze, "~> 0.2.0", only: [:dev, :test]},
+      {:mox, "~> 0.3", only: :test},
       {:bypass, "~> 0.7", only: :test},
       {:configparser_ex, "~> 2.0", optional: true},
     ]

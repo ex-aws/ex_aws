@@ -38,6 +38,9 @@ defmodule ExAws.Request do
       case config[:http_client].request(method, safe_url, req_body, full_headers, Map.get(config, :http_opts, [])) do
         {:ok, %{status_code: status} = resp} when status in 200..299 or status == 304 ->
           {:ok, resp}
+        {:ok, %{status_code: status} = _resp} when status == 301 ->
+          Logger.warn("ExAws: Received redirect, did you specify the correct region?")
+          {:error, {:http_error, status, "redirected"}}
         {:ok, %{status_code: status} = resp} when status in 400..499 ->
           case client_error(resp, config[:json_codec]) do
             {:retry, reason} ->
