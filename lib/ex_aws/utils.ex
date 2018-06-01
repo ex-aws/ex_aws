@@ -7,34 +7,6 @@ defmodule ExAws.Utils do
 
   # This isn't tail recursive. However, given that the structures
   # being worked upon are relatively shallow, this is ok.
-  def camelize_keys(opts, kwargs \\ []) do
-    deep = kwargs[:deep] || false
-    spec = kwargs[:spec] || %{}
-    do_cmlz_keys(opts, deep: deep, spec: spec)
-  end
-
-  defp do_cmlz_keys([%{} | _] = opts, deep: deep, spec: spec) do
-    Enum.map(opts, &do_cmlz_keys(&1, deep: deep, spec: spec))
-  end
-
-  defp do_cmlz_keys(opts = %{}, deep: deep, spec: spec) do
-    opts |> Enum.reduce(%{}, fn {k ,v}, map ->
-      if deep do
-        Map.put(map, camelize_key(k, spec: spec), do_cmlz_keys(v, deep: true, spec: spec))
-      else
-        Map.put(map, camelize_key(k, spec: spec), v)
-      end
-    end)
-  end
-
-  defp do_cmlz_keys(opts, kwargs) do
-    try do
-      opts |> Map.new |> do_cmlz_keys(kwargs)
-    rescue
-      [Protocol.UndefinedError, ArgumentError, FunctionClauseError] -> opts
-    end
-  end
-
   def camelize_key(key, [spec: spec] \\ [spec: %{}]) do
     spec[key] || (key |> maybe_stringify |> camelize)
   end
@@ -177,13 +149,11 @@ defmodule ExAws.Utils do
     quote do
       import ExAws.Utils, except: [
         format: 2, format: 1,
-        camelize_keys: 2, camelize_keys: 1,
         camelize_key: 2, camelize_key: 1,
         maybe_camelize: 2, maybe_camelize: 1
       ]
 
       defp format(params, kwargs \\ []), do: ExAws.Utils.format(params, unquote(format_inject))
-      defp camelize_keys(opts, kwargs \\ []), do: ExAws.Utils.camelize_keys(opts, unquote(camelize_inject))
       defp camelize_key(opts, kwargs \\ []), do: ExAws.Utils.camelize_key(opts, unquote(camelize_inject))
       defp maybe_camelize(opts, kwargs \\ []), do: ExAws.Utils.maybe_camelize(opts, unquote(camelize_inject))
     end
