@@ -68,10 +68,12 @@ defmodule ExAws.Auth do
       ) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)
-      headers = presigned_url_headers(url)
+      signed_headers = presigned_url_headers(url, query_params)
 
       org_query_params = query_params |> Enum.map(fn {k, v} -> {to_string(k), v} end)
-      amz_query_params = build_amz_query_params(service, datetime, config, expires)
+
+      amz_query_params =
+        build_amz_query_params(service, datetime, config, expires, signed_headers)
 
       [org_query, amz_query] =
         [org_query_params, amz_query_params] |> Enum.map(&canonical_query_params/1)
@@ -93,7 +95,16 @@ defmodule ExAws.Auth do
       path = uri_encode(path)
 
       signature =
-        signature(http_method, path, query_to_sign, headers, body, service, datetime, config)
+        signature(
+          http_method,
+          path,
+          query_to_sign,
+          signed_headers,
+          body,
+          service,
+          datetime,
+          config
+        )
 
       {:ok,
        "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"}
@@ -245,18 +256,18 @@ defmodule ExAws.Auth do
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
 
-  defp presigned_url_headers(url) do
+  defp presigned_url_headers(url, query_params) do
     uri = URI.parse(url)
-    [{"host", uri.authority}]
+    canonical_headers([{"host", uri.authority} | query_params])
   end
 
-  defp build_amz_query_params(service, datetime, config, expires) do
+  defp build_amz_query_params(service, datetime, config, expires, signed_headers) do
     [
       {"X-Amz-Algorithm", "AWS4-HMAC-SHA256"},
       {"X-Amz-Credential", Credentials.generate_credential_v4(service, config, datetime)},
       {"X-Amz-Date", amz_date(datetime)},
       {"X-Amz-Expires", expires},
-      {"X-Amz-SignedHeaders", "host"}
+      {"X-Amz-SignedHeaders", Keyword.keys(signed_headers) |> Enum.join(";")}
     ] ++
       if config[:security_token] do
         [{"X-Amz-Security-Token", config[:security_token]}]
