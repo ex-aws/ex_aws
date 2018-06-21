@@ -69,15 +69,7 @@ defmodule ExAws.AuthTest do
       )
 
     expected =
-      "https://examplebucket.s3.amazonaws.com/test.txt" <>
-        "?partNumber=1" <>
-        "&uploadId=sample.upload.id" <>
-        "&X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
-        "&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request" <>
-        "&X-Amz-Date=20130524T000000Z" <>
-        "&X-Amz-Expires=86400" <>
-        "&X-Amz-SignedHeaders=host" <>
-        "&X-Amz-Signature=1fdac5451b2996880dc23162853ce76e4cf0a05257e430aec59e309ecd126ade"
+      "https://examplebucket.s3.amazonaws.com/test.txt?partNumber=1&uploadId=sample.upload.id&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20130524T000000Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host%3Bpartnumber%3Buploadid&X-Amz-Signature=1412f890faf2f24896692c9508d79a5e31585789e2529c98c6516fcff3d0bf51"
 
     assert {:ok, expected} == actual
   end
@@ -107,11 +99,7 @@ defmodule ExAws.AuthTest do
       )
 
     expected =
-      "https://prod-instance.us-east-1.rds.amazonaws.com:3306/?Action=connect" <>
-        "&DBUser=someusername&X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
-        "&X-Amz-Credential=akid%2F20161107%2Fus-east-1%2Frds-db%2Faws4_request" <>
-        "&X-Amz-Date=20161107T173933Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host" <>
-        "&X-Amz-Signature=d1138cdbc0ca63eec012ec0fc6c2267e03642168f5884a7795320d4c18374c61"
+      "https://prod-instance.us-east-1.rds.amazonaws.com:3306/?Action=connect&DBUser=someusername&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=akid%2F20161107%2Fus-east-1%2Frds-db%2Faws4_request&X-Amz-Date=20161107T173933Z&X-Amz-Expires=900&X-Amz-SignedHeaders=action%3Bdbuser%3Bhost&X-Amz-Signature=d5c838ff074ccc8246e3ee56dd8607b106afb5624321cb5ad982e57fcd346dfa"
 
     assert {:ok, expected} == actual
   end
