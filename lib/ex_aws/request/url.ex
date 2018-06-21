@@ -13,7 +13,7 @@ defmodule ExAws.Request.Url do
     |> normalize_path
     |> convert_port_to_integer
     |> (&struct(URI, &1)).()
-    |> URI.to_string
+    |> URI.to_string()
     |> String.trim_trailing("?")
   end
 
@@ -21,7 +21,7 @@ defmodule ExAws.Request.Url do
     operation
     |> Map.get(:params, %{})
     |> normalize_params
-    |> URI.encode_query
+    |> URI.encode_query()
   end
 
   defp normalize_scheme(url) do
@@ -36,10 +36,12 @@ defmodule ExAws.Request.Url do
     {port, _} = Integer.parse(port)
     put_in(url[:port], port)
   end
+
   defp convert_port_to_integer(url), do: url
 
-  defp normalize_params(params) when is_map(params)  do
+  defp normalize_params(params) when is_map(params) do
     params |> Map.delete("") |> Map.delete(nil)
   end
+
   defp normalize_params(params), do: params
 end

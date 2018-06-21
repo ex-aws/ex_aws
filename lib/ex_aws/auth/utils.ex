@@ -1,5 +1,4 @@
 defmodule ExAws.Auth.Utils do
-
   @moduledoc false
 
   def uri_encode(url) do
@@ -11,6 +10,7 @@ defmodule ExAws.Auth.Utils do
   # Space character
   def valid_path_char?(?\ ), do: false
   def valid_path_char?(?/), do: true
+
   def valid_path_char?(c) do
     URI.char_unescaped?(c) && !URI.char_reserved?(c)
   end
@@ -30,12 +30,12 @@ defmodule ExAws.Auth.Utils do
     |> Base.encode16(case: :lower)
   end
 
-  def service_name(service), do: service |> Atom.to_string
+  def service_name(service), do: service |> Atom.to_string()
 
   def method_string(method) do
     method
-    |> Atom.to_string
-    |> String.upcase
+    |> Atom.to_string()
+    |> String.upcase()
   end
 
   def date({date, _time}) do
@@ -47,7 +47,7 @@ defmodule ExAws.Auth.Utils do
     time = time |> quasi_iso_format
 
     [date, "T", time, "Z"]
-    |> IO.iodata_to_binary
+    |> IO.iodata_to_binary()
   end
 
   def quasi_iso_format({y, m, d}) do
