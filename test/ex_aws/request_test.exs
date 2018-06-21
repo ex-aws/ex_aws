@@ -10,12 +10,11 @@ defmodule ExAws.RequestTest do
        secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
        region: "us-east-1"
      },
-      headers: [
-        { "x-amz-bucket-region", "us-east-1"},
-        { "x-amz-content-sha256", ExAws.Auth.Utils.hash_sha256("") },
-        { "content-length", byte_size("") }
-      ]
-    }
+     headers: [
+       {"x-amz-bucket-region", "us-east-1"},
+       {"x-amz-content-sha256", ExAws.Auth.Utils.hash_sha256("")},
+       {"content-length", byte_size("")}
+     ]}
   end
 
   test "301 redirect", context do
@@ -26,6 +25,7 @@ defmodule ExAws.RequestTest do
     url = "https://examplebucket.s3.amazonaws.com/test.txt"
     service = :s3
     request_body = ""
+
     assert {:error, {:http_error, 301, "redirected"}} ==
              ExAws.Request.request_and_retry(
                http_method,

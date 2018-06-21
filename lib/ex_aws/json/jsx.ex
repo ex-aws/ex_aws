@@ -5,7 +5,7 @@ defmodule ExAws.JSON.JSX do
 
   if Code.ensure_loaded?(:jsx) do
     def encode!(%{} = map) do
-      map |> :jsx.encode
+      map |> :jsx.encode()
     end
 
     def decode!(string) do

@@ -11,5 +11,4 @@ defmodule ExAws.Auth.UtilsTest do
     assert amz_date({{2015, 1, 2}, {1, 3, 5}}) == "20150102T010305Z"
     assert amz_date({{2015, 11, 22}, {11, 31, 51}}) == "20151122T113151Z"
   end
-
 end

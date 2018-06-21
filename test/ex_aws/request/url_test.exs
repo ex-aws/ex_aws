@@ -5,13 +5,15 @@ defmodule ExAws.Request.UrlTest do
   setup do
     query = %{
       path: "/path",
-      params: %{foo: :bar},
+      params: %{foo: :bar}
     }
+
     config = %{
       scheme: "https",
       host: "example.com",
       port: 443
     }
+
     {:ok, %{query: query, config: config}}
   end
 
@@ -35,7 +37,7 @@ defmodule ExAws.Request.UrlTest do
   end
 
   test "it accepts params as a list of keywords", %{query: query, config: config} do
-    query = query |> Map.put(:params, [foo: :bar])
+    query = query |> Map.put(:params, foo: :bar)
     assert Url.build(query, config) == "https://example.com/path?foo=bar"
   end
 
