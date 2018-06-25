@@ -4,12 +4,15 @@ defmodule ExAws.Auth.SignaturesTest do
 
   describe "generate_signature_v4/4" do
     test "with a basic string to sign" do
-      config = ExAws.Config.new(:s3, [
-        access_key_id: "AKIAIOSFODNN7EXAMPLE",
-        secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-        region: "us-east-1"
-      ])
-      datetime = {{2016,8,29},{19,41,33}}
+      config =
+        ExAws.Config.new(
+          :s3,
+          access_key_id: "AKIAIOSFODNN7EXAMPLE",
+          secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+          region: "us-east-1"
+        )
+
+      datetime = {{2016, 8, 29}, {19, 41, 33}}
 
       signature = Signatures.generate_signature_v4("s3", config, datetime, "hello world")
 

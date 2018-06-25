@@ -5,6 +5,7 @@ defmodule ExAws.Auth.CredentialsTest do
 
   test "generate_credential_v4/3 returns the correct value" do
     datetime = {{2013, 5, 24}, {0, 0, 0}}
+
     config = [
       access_key_id: "AKIAIOSFODNN7EXAMPLE",
       region: "us-east-1"

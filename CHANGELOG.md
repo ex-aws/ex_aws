@@ -1,3 +1,9 @@
+v2.1.0
+
+- Slew of bug fixes
+- Updated endpoints and regions
+- [Breaking] kinesis.tail task renamed to aws.kinesis.tail
+
 v2.0.2
 
 - Enhancement: Enable `ExAws.Auth.presigned_url` with custom body. Enables https://github.com/ex-aws/ex_aws_rds/pull/3

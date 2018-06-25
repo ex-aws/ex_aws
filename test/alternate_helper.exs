@@ -1,5 +1,4 @@
 defmodule Test.KinesisAlt do
-
   def config_root do
     Application.get_all_env(:ex_aws)
     |> Keyword.put(:http_client, ExAws.Request.HTTPotion)
@@ -8,17 +7,19 @@ defmodule Test.KinesisAlt do
 end
 
 Application.ensure_all_started(:httpotion)
+
 defmodule Test.HTTPotion do
   def request(method, url, body, headers) do
-    {:ok, HTTPotion.request(method, url, [body: body, headers: headers, ibrowse: [headers_as_is: true]])}
+    {:ok,
+     HTTPotion.request(method, url, body: body, headers: headers, ibrowse: [headers_as_is: true])}
   end
 end
 
 defmodule Test.JSXCodec do
   def encode!(%{} = map) do
     map
-    |> Map.to_list
-    |> :jsx.encode
+    |> Map.to_list()
+    |> :jsx.encode()
     |> case do
       "[]" -> "{}"
       val -> val
@@ -31,7 +32,7 @@ defmodule Test.JSXCodec do
 
   def decode!(string) do
     :jsx.decode(string)
-    |> Map.new
+    |> Map.new()
   end
 
   def decode(string) do
