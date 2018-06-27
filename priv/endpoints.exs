@@ -28,6 +28,11 @@
         "us-west-2" => %{"description" => "US West (Oregon)"}
       },
       "services" => %{
+        "ce" => %{
+          "endpoints" => %{
+            "us-east-1" => {}
+          }
+        },
         "firehose" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
