@@ -24,8 +24,8 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def get(profile, expiration) do
-    case :ets.lookup(__MODULE__, :awscli) do
-      [{:awscli, auth_config}] -> auth_config
+    case :ets.lookup(__MODULE__, {:awscli, profile}) do
+      [{{:awscli, ^profile}, auth_config}] -> auth_config
       [] -> GenServer.call(__MODULE__, {:refresh_awscli_config, profile, expiration}, 30_000)
     end
   end
@@ -61,7 +61,7 @@ defmodule ExAws.Config.AuthCache do
     Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
 
     auth = ExAws.CredentialsIni.security_credentials(profile)
-    :ets.insert(ets, {:awscli, auth})
+    :ets.insert(ets, {{:awscli, profile}, auth})
 
     case ExAws.Config.awscli_auth_adapter() do
       nil ->
@@ -69,7 +69,7 @@ defmodule ExAws.Config.AuthCache do
 
       adapter ->
         auth = adapter.adapt_auth_config(auth, profile, expiration)
-        :ets.insert(ets, {:awscli, auth})
+        :ets.insert(ets, {{:awscli, profile}, auth})
 
         auth
     end
