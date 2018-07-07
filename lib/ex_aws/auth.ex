@@ -69,7 +69,7 @@ defmodule ExAws.Auth do
       ) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)
-      signed_headers = presigned_url_headers(url, custom_metadata)
+      signed_headers = presigned_url_headers(url, query_params, custom_metadata)
 
       org_query_params = query_params |> Enum.map(fn {k, v} -> {to_string(k), v} end)
 
@@ -257,9 +257,15 @@ defmodule ExAws.Auth do
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
 
-  defp presigned_url_headers(url, custom_metadata) do
+  defp presigned_url_headers(url, query_params, custom_metadata) do
     %{authority: authority} = URI.parse(url)
     base = [{"host", authority}]
+
+    base = unless query_params == [] do
+      canonical_headers(base ++ query_params)
+    else
+      base
+    end
 
     unless custom_metadata == [] do
       base ++ Enum.map(custom_metadata, fn {k, v} -> {"x-amz-meta-#{k}", v} end)
