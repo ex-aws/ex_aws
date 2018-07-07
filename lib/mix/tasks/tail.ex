@@ -22,5 +22,4 @@ defmodule Mix.Tasks.Aws.Kinesis.Tail do
   def run(_) do
     raise "Not yet implemented in 1.0.0-beta1"
   end
-
 end
