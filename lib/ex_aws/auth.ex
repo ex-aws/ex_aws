@@ -64,8 +64,8 @@ defmodule ExAws.Auth do
         config,
         expires,
         query_params \\ [],
-	custom_metadata \\ [],
-        body \\ nil
+        body \\ nil,
+	custom_metadata \\ []
       ) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)

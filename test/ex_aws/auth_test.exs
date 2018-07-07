@@ -84,7 +84,7 @@ defmodule ExAws.AuthTest do
     expires = 86400
     query_params = []
     custom_metadata = [{"metadata", "foobar"}]
-    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires, query_params, custom_metadata)
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires, query_params, nil, custom_metadata)
 
     expected =
       "https://examplebucket.s3.amazonaws.com/test.txt" <>
@@ -120,8 +120,8 @@ defmodule ExAws.AuthTest do
         config,
         expires,
         query_params,
-	custom_metadata,
-        body
+        body,
+	custom_metadata
       )
 
     expected =
