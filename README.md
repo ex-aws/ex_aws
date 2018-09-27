@@ -64,7 +64,7 @@ will pull information from `~/.aws/config` and `~/.aws/credentials`
 ```elixir
 config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role]
 ```
 
 For role based authentication via `role_arn` and `source_profile` an additional dependency is required:
