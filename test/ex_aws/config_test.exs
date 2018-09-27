@@ -7,15 +7,20 @@ defmodule ExAws.ConfigTest do
   end
 
   test "{:system} style configs work" do
-    value = "foo"
-    System.put_env("ExAwsConfigTest", value)
+    access_key_id = "foo"
+    region = "eu-central-1"
 
-    assert :s3
-           |> ExAws.Config.new(
-             access_key_id: {:system, "ExAwsConfigTest"},
-             secret_access_key: {:system, "AWS_SECURITY_TOKEN"}
-           )
-           |> Map.get(:access_key_id) == value
+    System.put_env("ExAwsConfigTest", access_key_id)
+    System.put_env("AWS_REGION", region)
+
+    config =
+      ExAws.Config.new(:s3,
+        access_key_id: {:system, "ExAwsConfigTest"},
+        secret_access_key: {:system, "AWS_SECURITY_TOKEN"},
+        region: {:system, "AWS_REGION"}
+      )
+
+    assert %{access_key_id: ^access_key_id, region: ^region} = config
   end
 
   test "security_token is configured properly" do
