@@ -12,7 +12,9 @@ defmodule ExAws.InstanceMeta do
   @task_role_root "http://169.254.170.2"
 
   def request(config, url) do
-    case config.http_client.request(:get, url, "", [], []) do
+    # Certain solutions like kube2iam will redirect instance meta requests,
+    # we need to follow those redirects.
+    case config.http_client.request(:get, url, "", [], follow_redirect: true) do
       {:ok, %{status_code: 200, body: body}} ->
         body
 
