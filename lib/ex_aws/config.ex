@@ -52,6 +52,13 @@ defmodule ExAws.Config do
     |> Map.merge(overrides)
   end
 
+  def retrieve_runtime_config(%{auth_cache: [m, f, a]} = config) do
+    cache_config = Kernel.apply(m, f, a)
+    |> Map.take(@common_config)
+
+    Map.merge(config, cache_config)
+  end
+
   def retrieve_runtime_config(config) do
     Enum.reduce(config, config, fn
       {:host, host}, config ->
