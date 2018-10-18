@@ -7,7 +7,7 @@ defmodule ExAws.InstanceMeta do
   # AWS InstanceMetaData URL
   @meta_path_root "http://169.254.169.254/latest/meta-data"
 
-  # Endpoint for ECS taks role credentials
+  # Endpoint for ECS tasks role credentials
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
   @task_role_root "http://169.254.170.2"
 
