@@ -64,11 +64,12 @@ defmodule ExAws.Auth do
         config,
         expires,
         query_params \\ [],
-        body \\ nil
+        body \\ nil,
+        headers \\ []
       ) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)
-      signed_headers = presigned_url_headers(url, query_params)
+      signed_headers = presigned_url_headers(url, headers)
 
       org_query_params = query_params |> Enum.map(fn {k, v} -> {to_string(k), v} end)
 
@@ -256,9 +257,9 @@ defmodule ExAws.Auth do
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
 
-  defp presigned_url_headers(url, query_params) do
+  defp presigned_url_headers(url, headers) do
     uri = URI.parse(url)
-    canonical_headers([{"host", uri.authority} | query_params])
+    canonical_headers([{"host", uri.authority} | headers])
   end
 
   defp build_amz_query_params(service, datetime, config, expires, signed_headers) do
