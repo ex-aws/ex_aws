@@ -19,10 +19,13 @@ defmodule ExAws.Config.Defaults do
   Retrieve the default configuration for a service.
   """
   def defaults(:dynamodb_streams) do
-    %{
-      service_override: :dynamodb
-    }
+    %{service_override: :dynamodb}
     |> Map.merge(defaults(:dynamodb))
+  end
+
+  def defaults(:sagemaker_runtime) do
+    %{service_override: :sagemaker}
+    |> Map.merge(defaults(:sagemaker))
   end
 
   def defaults(_) do
