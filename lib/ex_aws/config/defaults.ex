@@ -60,6 +60,7 @@ defmodule ExAws.Config.Defaults do
   end
 
   defp service_map(:ses), do: "email"
+  defp service_map(:sagemaker_runtime), do: "runtime.sagemaker"
   defp service_map(:dynamodb_streams), do: "streams.dynamodb"
 
   defp service_map(service) do
