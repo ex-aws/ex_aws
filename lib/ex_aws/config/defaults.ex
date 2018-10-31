@@ -79,7 +79,7 @@ defmodule ExAws.Config.Defaults do
                     {partition["partition"], partition}
                   end)
 
-  def do_host(partition, service_slug, region) do
+  defp do_host(partition, service_slug, region) do
     partition = @partition_data |> Map.fetch!(partition)
     partition_name = partition["partition"]
 
