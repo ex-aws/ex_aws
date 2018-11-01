@@ -1066,7 +1066,6 @@
           }
         },
         "runtime.sagemaker" => %{
-          "defaults" => %{"credentialScope" => %{"service" => "sagemaker"}},
           "endpoints" => %{
             "ap-northeast-1" => %{},
             "eu-west-1" => %{},
