@@ -17,7 +17,7 @@ As with all ExAws services, you'll need a compatible HTTP client (defaults to `:
 ```elixir
 defp deps do
   [
-    {:ex_aws, "~> 2.0"},
+    {:ex_aws, "~> 2.1"},
     {:ex_aws_s3, "~> 2.0"},
     {:hackney, "~> 1.9"},
     {:sweet_xml, "~> 0.6"},
@@ -29,12 +29,13 @@ With these deps you can use `ExAws` precisely as you're used to:
 
 ```
 # make a request (with the default region)
-ExAws.S3.list_objects("my-bucket") |> ExAws.request
+ExAws.S3.list_objects("my-bucket") |> ExAws.request()
+
 # or specify the region
 ExAws.S3.list_objects("my-bucket") |> ExAws.request(region: "us-west-1")
 
 # some operations support streaming
-ExAws.S3.list_objects("my-bucket") |> ExAws.stream! |> Enum.to_list
+ExAws.S3.list_objects("my-bucket") |> ExAws.stream!() |> Enum.to_list()
 ```
 
 ### AWS Key configuration
