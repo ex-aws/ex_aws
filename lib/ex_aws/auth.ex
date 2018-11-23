@@ -64,11 +64,12 @@ defmodule ExAws.Auth do
         config,
         expires,
         query_params \\ [],
+        sign_headers \\ [],
         body \\ nil
       ) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)
-      signed_headers = presigned_url_headers(url, query_params)
+      signed_headers = presigned_url_headers(url, sign_headers)
 
       org_query_params = query_params |> Enum.map(fn {k, v} -> {to_string(k), v} end)
 
