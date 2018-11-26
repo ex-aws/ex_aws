@@ -28,6 +28,11 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:sagemaker))
   end
 
+  def defaults(:iot_data) do
+    %{service_override: :iotdata}
+    |> Map.merge(defaults(:iot))
+  end
+
   def defaults(_) do
     Map.merge(
       %{
@@ -65,6 +70,7 @@ defmodule ExAws.Config.Defaults do
   defp service_map(:ses), do: "email"
   defp service_map(:sagemaker_runtime), do: "runtime.sagemaker"
   defp service_map(:dynamodb_streams), do: "streams.dynamodb"
+  defp service_map(:iot_data), do: "data.iot"
 
   defp service_map(service) do
     service
