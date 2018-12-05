@@ -49,9 +49,9 @@ defmodule ExAws.JSON.Codec do
   ```
   """
 
-  @callback encode!(%{}) :: String.t
-  @callback encode(%{}) :: {:ok, String.t} | {:error, String.t}
+  @callback encode!(%{}) :: String.t()
+  @callback encode(%{}) :: {:ok, String.t()} | {:error, String.t()}
 
-  @callback decode!(String.t) :: %{}
-  @callback decode(String.t) :: {:ok, %{}} | {:error, %{}}
+  @callback decode!(String.t()) :: %{}
+  @callback decode(String.t()) :: {:ok, %{}} | {:error, %{}}
 end

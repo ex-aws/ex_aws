@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Kinesis.Tail do
+defmodule Mix.Tasks.Aws.Kinesis.Tail do
   use Mix.Task
 
   @shortdoc "tails a stream"
@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Kinesis.Tail do
   Tails a Stream
 
   ## Usage
-      kinesis.tail [stream_name] [options]
+      aws.kinesis.tail [stream_name] [options]
 
   ## Options
       --poll N   Time in seconds between polling. Default: 5
@@ -15,12 +15,11 @@ defmodule Mix.Tasks.Kinesis.Tail do
       --from     Sequence number to start at. If unspecified, LATEST is used
 
   ## Examples
-      $mix kinesis.tail my-kinesis-stream
-      $mix kinesis.tail logs --debug --poll 10
+      $ mix aws.kinesis.tail my-kinesis-stream
+      $ mix aws.kinesis.tail logs --debug --poll 10
   """
 
   def run(_) do
     raise "Not yet implemented in 1.0.0-beta1"
   end
-
 end

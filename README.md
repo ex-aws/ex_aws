@@ -17,7 +17,7 @@ As with all ExAws services, you'll need a compatible HTTP client (defaults to `:
 ```elixir
 defp deps do
   [
-    {:ex_aws, "~> 2.0"},
+    {:ex_aws, "~> 2.1"},
     {:ex_aws_s3, "~> 2.0"},
     {:hackney, "~> 1.9"},
     {:sweet_xml, "~> 0.6"},
@@ -28,11 +28,14 @@ end
 With these deps you can use `ExAws` precisely as you're used to:
 
 ```
-# make a request
-ExAws.S3.list_objects("my-bucket") |> ExAws.request
+# make a request (with the default region)
+ExAws.S3.list_objects("my-bucket") |> ExAws.request()
+
+# or specify the region
+ExAws.S3.list_objects("my-bucket") |> ExAws.request(region: "us-west-1")
 
 # some operations support streaming
-ExAws.S3.list_objects("my-bucket") |> ExAws.stream! |> Enum.to_list
+ExAws.S3.list_objects("my-bucket") |> ExAws.stream!() |> Enum.to_list()
 ```
 
 ### AWS Key configuration
@@ -62,10 +65,18 @@ will pull information from `~/.aws/config` and `~/.aws/credentials`
 ```elixir
 config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role]
 ```
 
-#### Hackney configuration
+For role based authentication via `role_arn` and `source_profile` an additional dependency is required:
+
+```elixir
+{:ex_aws_sts, "~> 2.0"}
+```
+
+Further information on role based authentication is provided in said dependency.
+
+### Hackney configuration
 
 ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make HTTP requests to AWS API. You can modify the options as such:
 
@@ -73,6 +84,15 @@ ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make HTTP
 config :ex_aws, :hackney_opts,
   follow_redirect: true,
   recv_timeout: 30_000
+```
+
+### AWS Region Configuration.
+
+You can set the region used by default for requests.
+
+```elixir
+config :ex_aws,
+  region: "us-west-2",
 ```
 
 ## Direct Usage
@@ -86,7 +106,7 @@ ExAws can also be used directly without any specific service module.
 - Minimal dependencies. Choose your favorite JSON codec and HTTP client.
 - Elixir streams to automatically retrieve paginated resources.
 - Elixir protocols allow easy customization of Dynamo encoding / decoding.
-- `mix kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
+- `mix aws.kinesis.tail your-stream-name` task for easily watching the contents of a kinesis stream.
 - Simple. ExAws aims to provide a clear and consistent elixir wrapping around AWS APIs, not abstract them away entirely. For every action in a given AWS API there is a corresponding function within the appropriate module. Higher level abstractions like the aforementioned streams are in addition to and not instead of basic API calls.
 
 That's it!

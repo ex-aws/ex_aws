@@ -5,6 +5,13 @@ defmodule ExAws.Config.AuthCache do
 
   # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
 
+  defmodule AuthConfigAdapter do
+    @moduledoc false
+
+    @doc "Compute the awscli auth information."
+    @callback adapt_auth_config(auth :: map, profile :: String.t(), expiration :: integer) :: any
+  end
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
@@ -15,6 +22,7 @@ defmodule ExAws.Config.AuthCache do
       [] -> GenServer.call(__MODULE__, {:refresh_config, config}, 30_000)
     end
   end
+
   def get(profile, expiration) do
     case :ets.lookup(__MODULE__, :awscli) do
       [{:awscli, auth_config}] -> auth_config
@@ -33,6 +41,7 @@ defmodule ExAws.Config.AuthCache do
     auth = refresh_config(config, ets)
     {:reply, auth, ets}
   end
+
   def handle_call({:refresh_awscli_config, profile, expiration}, _from, ets) do
     auth = refresh_awscli_config(profile, expiration, ets)
     {:reply, auth, ets}
@@ -42,16 +51,28 @@ defmodule ExAws.Config.AuthCache do
     refresh_config(config, ets)
     {:noreply, ets}
   end
+
   def handle_info({:refresh_awscli_config, profile, expiration}, ets) do
     refresh_awscli_config(profile, expiration, ets)
     {:noreply, ets}
   end
 
   def refresh_awscli_config(profile, expiration, ets) do
+    Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
+
     auth = ExAws.CredentialsIni.security_credentials(profile)
     :ets.insert(ets, {:awscli, auth})
-    Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
-    auth
+
+    case ExAws.Config.awscli_auth_adapter() do
+      nil ->
+        auth
+
+      adapter ->
+        auth = adapter.adapt_auth_config(auth, profile, expiration)
+        :ets.insert(ets, {:awscli, auth})
+
+        auth
+    end
   end
 
   def refresh_config(config, ets) do
@@ -62,10 +83,11 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def refresh_in(expiration) do
-    expiration = expiration |> ExAws.Utils.iso_z_to_secs
-    time_to_expiration = expiration - ExAws.Utils.now_in_seconds
-    refresh_in = time_to_expiration - 5 * 60 # check five mins prior to expiration
-    max(0, refresh_in * 1000) # check now if we should have checked in the past
+    expiration = expiration |> ExAws.Utils.iso_z_to_secs()
+    time_to_expiration = expiration - ExAws.Utils.now_in_seconds()
+    # check five mins prior to expiration
+    refresh_in = time_to_expiration - 5 * 60
+    # check now if we should have checked in the past
+    max(0, refresh_in * 1000)
   end
-
 end

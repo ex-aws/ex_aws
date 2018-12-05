@@ -12,23 +12,36 @@ defmodule ExAws.Config.Defaults do
       max_attempts: 10,
       base_backoff_in_ms: 10,
       max_backoff_in_ms: 10_000
-    ],
+    ]
   }
 
   @doc """
   Retrieve the default configuration for a service.
   """
   def defaults(:dynamodb_streams) do
-    %{
-      service_override: :dynamodb
-    } |> Map.merge(defaults(:dynamodb))
+    %{service_override: :dynamodb}
+    |> Map.merge(defaults(:dynamodb))
   end
+
+  def defaults(:sagemaker_runtime) do
+    %{service_override: :sagemaker}
+    |> Map.merge(defaults(:sagemaker))
+  end
+
+  def defaults(:iot_data) do
+    %{service_override: :iotdata}
+    |> Map.merge(defaults(:iot))
+  end
+
   def defaults(_) do
-    Map.merge(%{
-      scheme: "https://",
-      region: "us-east-1",
-      port: 443
-    }, @common)
+    Map.merge(
+      %{
+        scheme: "https://",
+        region: "us-east-1",
+        port: 443
+      },
+      @common
+    )
   end
 
   def get(service, region) do
@@ -44,18 +57,21 @@ defmodule ExAws.Config.Defaults do
   ]
 
   def host(service, region) do
-    partition = Enum.find(@partitions, fn {regex, _} ->
-      Regex.run(regex, region)
-    end)
+    partition =
+      Enum.find(@partitions, fn {regex, _} ->
+        Regex.run(regex, region)
+      end)
 
     with {_, partition} <- partition do
       do_host(partition, service, region)
     end
-
   end
 
   defp service_map(:ses), do: "email"
+  defp service_map(:sagemaker_runtime), do: "runtime.sagemaker"
   defp service_map(:dynamodb_streams), do: "streams.dynamodb"
+  defp service_map(:iot_data), do: "data.iot"
+
   defp service_map(service) do
     service
     |> to_string
@@ -63,17 +79,17 @@ defmodule ExAws.Config.Defaults do
   end
 
   @partition_data :ex_aws
-    |> :code.priv_dir()
-    |> Path.join("endpoints.exs")
-    |> File.read!
-    |> Code.eval_string
-    |> elem(0)
-    |> Map.get("partitions")
-    |> Map.new(fn partition ->
-      {partition["partition"], partition}
-    end)
+                  |> :code.priv_dir()
+                  |> Path.join("endpoints.exs")
+                  |> File.read!()
+                  |> Code.eval_string()
+                  |> elem(0)
+                  |> Map.get("partitions")
+                  |> Map.new(fn partition ->
+                    {partition["partition"], partition}
+                  end)
 
-  def do_host(partition, service_slug, region) do
+  defp do_host(partition, service_slug, region) do
     partition = @partition_data |> Map.fetch!(partition)
     partition_name = partition["partition"]
 
@@ -86,16 +102,21 @@ defmodule ExAws.Config.Defaults do
       %{"isRegionalized" => false} = data ->
         data
         |> Map.fetch!("endpoints")
-        |> Map.values
-        |> List.first
+        |> Map.values()
+        |> List.first()
+
       data ->
         data
         |> Map.fetch!("endpoints")
-        |> fetch_or(region, "#{service_slug} not supported in region #{region} for partition #{partition_name}")
+        |> fetch_or(
+          region,
+          "#{service_slug} not supported in region #{region} for partition #{partition_name}"
+        )
     end
     |> case do
       %{"hostname" => hostname} ->
         hostname
+
       _ ->
         dns_suffix = Map.fetch!(partition, "dnsSuffix")
         hostname = Map.fetch!(partition, "defaults") |> Map.fetch!("hostname")
@@ -113,5 +134,4 @@ defmodule ExAws.Config.Defaults do
     |> String.replace("{region}", region)
     |> String.replace("{dnsSuffix}", dns_suffix)
   end
-
 end

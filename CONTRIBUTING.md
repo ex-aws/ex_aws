@@ -31,6 +31,9 @@ As mentioned, ExAws is built around some common operations and thus the first st
 
 What this means is that we need every function within our hypothetical `ExAws.Redshift` module to return an `%ExAws.Operation.Query{}` struct.
 
+Note that the mapping from protocol to operation type isn't always one-to-one.
+For example, the `"rest-json"` protocol uses the `ExAws.Operation.JSON` type.
+
 ### Build a Project
 
 We now need to build a new project.
