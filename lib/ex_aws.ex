@@ -43,8 +43,9 @@ defmodule ExAws do
   ```
 
   """
-  @spec request(ExAws.Operation.t()) :: term
+  @spec request(ExAws.Operation.t()) :: {:ok, term} | {:error, term}
   @spec request(ExAws.Operation.t(), Keyword.t()) :: {:ok, term} | {:error, term}
+
   def request(op, config_overrides \\ []) do
     ExAws.Operation.perform(op, ExAws.Config.new(op.service, config_overrides))
   end
