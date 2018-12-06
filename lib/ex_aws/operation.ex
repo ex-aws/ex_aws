@@ -3,7 +3,7 @@ defprotocol ExAws.Operation do
   An operation to perform on AWS
 
   This module defines a protocol for executing operations on AWS. ExAws ships with
-  several different modules that each implement the ExAws.Operatinon protocol. These
+  several different modules that each implement the ExAws.Operation protocol. These
   modules each handle one of the broad categories of AWS service types:
 
   - `ExAws.Operation.JSON`
@@ -11,7 +11,7 @@ defprotocol ExAws.Operation do
   - `ExAws.Operation.RestQuery`
   - `ExAws.Operation.S3`
 
-  ExAws works by creating an datastructure that implements this protocol, and then
+  ExAws works by creating a data structure that implements this protocol, and then
   calling `perform/2` on it.
 
   ## Example
@@ -26,7 +26,7 @@ defprotocol ExAws.Operation do
     params: %{},
     path: "/",
     service: :dynamodb,
-  } |> ExAw
+  } |> ExAws.Operation.perform(ExAws.Config.new(:dynamodb))
   ```
   """
   def perform(operation, config)
