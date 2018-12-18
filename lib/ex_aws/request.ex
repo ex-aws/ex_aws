@@ -32,7 +32,7 @@ defmodule ExAws.Request do
       safe_url = replace_spaces(url)
 
       if config[:debug_requests] do
-        Logger.debug("Request URL: #{inspect(safe_url)}")
+        Logger.debug("Request URL: #{inspect(safe_url)} ATTEMPT: #{attempt}")
         Logger.debug("Request HEADERS: #{inspect(full_headers)}")
         Logger.debug("Request BODY: #{inspect(req_body)}")
       end
@@ -87,7 +87,7 @@ defmodule ExAws.Request do
             Logger.warn(
               "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} HEADERS: #{
                 inspect(full_headers)
-              } BODY: #{inspect(req_body)}"
+              } BODY: #{inspect(req_body)} ATTEMPT: #{attempt}"
             )
           else
             Logger.warn("ExAws: HTTP ERROR: #{inspect(reason)}")
