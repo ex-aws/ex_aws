@@ -83,15 +83,11 @@ defmodule ExAws.Request do
           )
 
         {:error, %{reason: reason}} ->
-          if config[:debug_requests] do
-            Logger.warn(
-              "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} HEADERS: #{
-                inspect(full_headers)
-              } BODY: #{inspect(req_body)} ATTEMPT: #{attempt}"
-            )
-          else
-            Logger.warn("ExAws: HTTP ERROR: #{inspect(reason)}")
-          end
+          Logger.warn(
+            "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} HEADERS: #{
+              inspect(full_headers)
+            } BODY: #{inspect(req_body)} ATTEMPT: #{attempt}"
+          )
 
           request_and_retry(
             method,
