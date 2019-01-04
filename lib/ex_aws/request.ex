@@ -32,9 +32,11 @@ defmodule ExAws.Request do
       safe_url = replace_spaces(url)
 
       if config[:debug_requests] do
-        Logger.debug("Request URL: #{inspect(safe_url)}")
-        Logger.debug("Request HEADERS: #{inspect(full_headers)}")
-        Logger.debug("Request BODY: #{inspect(req_body)}")
+        Logger.debug(
+          "ExAws: Request URL: #{inspect(safe_url)} HEADERS: #{inspect(full_headers)} BODY: #{
+            inspect(req_body)
+          } ATTEMPT: #{attempt}"
+        )
       end
 
       case config[:http_client].request(
@@ -83,7 +85,9 @@ defmodule ExAws.Request do
           )
 
         {:error, %{reason: reason}} ->
-          Logger.warn("ExAws: HTTP ERROR: #{inspect(reason)}")
+          Logger.warn(
+            "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} ATTEMPT: #{attempt}"
+          )
 
           request_and_retry(
             method,
