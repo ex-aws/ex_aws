@@ -111,6 +111,7 @@ defmodule ExAws.Request do
         |> String.split("#")
         |> case do
           [_, type] -> handle_aws_error(type, message)
+          [type] -> handle_aws_error(type, message)
           _ -> {:error, {:http_error, status, err}}
         end
 
