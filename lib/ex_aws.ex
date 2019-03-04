@@ -2,6 +2,8 @@ defmodule ExAws do
   @moduledoc File.read!("#{__DIR__}/../README.md")
   use Application
 
+  @behaviour ExAws.Behaviour
+
   @doc """
   Perform an AWS request
 
@@ -43,9 +45,7 @@ defmodule ExAws do
   ```
 
   """
-  @spec request(ExAws.Operation.t()) :: {:ok, term} | {:error, term}
-  @spec request(ExAws.Operation.t(), Keyword.t()) :: {:ok, term} | {:error, term}
-
+  @impl ExAws.Behaviour
   def request(op, config_overrides \\ []) do
     ExAws.Operation.perform(op, ExAws.Config.new(op.service, config_overrides))
   end
@@ -56,8 +56,7 @@ defmodule ExAws do
   Same as `request/1,2` except it will either return the successful response from
   AWS or raise an exception.
   """
-  @spec request!(ExAws.Operation.t()) :: term | no_return
-  @spec request!(ExAws.Operation.t(), Keyword.t()) :: term | no_return
+  @impl ExAws.Behaviour
   def request!(op, config_overrides \\ []) do
     case request(op, config_overrides) do
       {:ok, result} ->
@@ -80,13 +79,13 @@ defmodule ExAws do
   ExAws.S3.list_objects("my-bucket") |> ExAws.stream!
   ```
   """
-  @spec stream!(ExAws.Operation.t()) :: Enumerable.t()
-  @spec stream!(ExAws.Operation.t(), Keyword.t()) :: Enumerable.t()
+  @impl ExAws.Behaviour
   def stream!(op, config_overrides \\ []) do
     ExAws.Operation.stream!(op, ExAws.Config.new(op.service, config_overrides))
   end
 
   @doc false
+  @impl Application
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
