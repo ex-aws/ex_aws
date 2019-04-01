@@ -11,19 +11,29 @@ defmodule ExAws.InstanceMeta do
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
   @task_role_root "http://169.254.170.2"
 
+  alias ExAws.Request
+
   def request(config, url) do
+    do_request(config, url, 1)
+  end
+
+  defp do_request(config, url, attempt) do
     case config.http_client.request(:get, url, "", [], []) do
       {:ok, %{status_code: 200, body: body}} ->
         body
 
-      {:ok, %{status_code: status_code}} ->
-        raise """
-        Instance Meta Error: HTTP response status code #{inspect(status_code)}
+      {:ok, %{status_code: 429}} ->
+        case Request.attempt_again?(attempt, :rate_limit, config) do
+          {:attempt, attempt} ->
+            do_request(config, url, attempt)
+          {:error, _} ->
+            raise_status_error(429)
+        end
 
-        Please check AWS EC2 IAM role.
-        """
+      {{:ok, %{status_code: status_code}}, _} ->
+        raise_status_error(status_code)
 
-      error ->
+      {error, _} ->
         raise """
         Instance Meta Error: #{inspect(error)}
 
@@ -41,6 +51,14 @@ defmodule ExAws.InstanceMeta do
         ```
         """
     end
+  end
+
+  defp raise_status_error(status_code) do
+    raise """
+    Instance Meta Error: HTTP response status code #{inspect(status_code)}
+
+    Please check AWS EC2 IAM role.
+    """
   end
 
   def instance_role(config) do
