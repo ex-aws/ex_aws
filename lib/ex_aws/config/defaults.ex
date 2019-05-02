@@ -23,6 +23,16 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:dynamodb))
   end
 
+  def defaults(:lex_runtime) do
+    %{service_override: :lex}
+    |> Map.merge(defaults(:lex))
+  end
+
+  def defaults(:lex_models) do
+    %{service_override: :lex}
+    |> Map.merge(defaults(:lex))
+  end
+
   def defaults(:sagemaker_runtime) do
     %{service_override: :sagemaker}
     |> Map.merge(defaults(:sagemaker))
@@ -69,6 +79,8 @@ defmodule ExAws.Config.Defaults do
 
   defp service_map(:ses), do: "email"
   defp service_map(:sagemaker_runtime), do: "runtime.sagemaker"
+  defp service_map(:lex_runtime), do: "runtime.lex"
+  defp service_map(:lex_models), do: "models.lex"
   defp service_map(:dynamodb_streams), do: "streams.dynamodb"
   defp service_map(:iot_data), do: "data.iot"
 
