@@ -17,7 +17,7 @@ As with all ExAws services, you'll need a compatible HTTP client (defaults to `:
 ```elixir
 defp deps do
   [
-    {:ex_aws, "~> 2.0"},
+    {:ex_aws, "~> 2.1"},
     {:ex_aws_s3, "~> 2.0"},
     {:hackney, "~> 1.9"},
     {:sweet_xml, "~> 0.6"},
@@ -29,12 +29,13 @@ With these deps you can use `ExAws` precisely as you're used to:
 
 ```
 # make a request (with the default region)
-ExAws.S3.list_objects("my-bucket") |> ExAws.request
+ExAws.S3.list_objects("my-bucket") |> ExAws.request()
+
 # or specify the region
 ExAws.S3.list_objects("my-bucket") |> ExAws.request(region: "us-west-1")
 
 # some operations support streaming
-ExAws.S3.list_objects("my-bucket") |> ExAws.stream! |> Enum.to_list
+ExAws.S3.list_objects("my-bucket") |> ExAws.stream!() |> Enum.to_list()
 ```
 
 ### AWS Key configuration
@@ -98,7 +99,64 @@ config :ex_aws,
 
 ExAws can also be used directly without any specific service module.
 
---TODO--
+You need to figure out how the API of the specific AWS service works, in particular:
+- Protocol (JSON or query).
+- Path (depends on the service and the specific operation, usually "/").
+- Service name (used to generate the request signature, [as described here](https://docs.aws.amazon.com/general/latest/gr/sigv4-create-string-to-sign.html)).
+- Request body, query params, HTTP method, and headers (depends on the service and specific operation).
+
+You can look for this information in the service's API reference at [docs.aws.amazon.com](https://docs.aws.amazon.com/index.html) or, for example, in the Go SDK API models at [github.com/aws/aws-sdk-go](https://github.com/aws/aws-sdk-go/tree/master/models/apis) (look for a `api-*.json` file).
+
+The protocol dictates which operation module to use for the request. If the protocol is JSON, use `ExAws.Operation.JSON`, if it's query, use `ExAws.Operation.Query`.
+
+### Examples
+
+#### Redshift DescribeClusters
+
+```elixir
+action = :describe_clusters
+action_string = action |> Atom.to_string |> Macro.camelize
+
+operation =
+  %ExAws.Operation.Query{
+    path: "/",
+    params: %{"Action" => action_string},
+    service: :redshift,
+    action: action
+  }
+  
+ExAws.request(operation)
+```
+
+#### ECS RunTask
+
+```elixir
+data = %{
+  taskDefinition: "hello_world",
+  launchType: "FARGATE",
+  networkConfiguration: %{
+    awsvpcConfiguration: %{
+      subnets: ["subnet-1a2b3c4d", "subnet-4d3c2b1a"],
+      securityGroups: ["sg-1a2b3c4d"],
+      assignPublicIp: "ENABLED"
+    }
+  }
+}
+
+operation =
+  %ExAws.Operation.JSON{
+    http_method: :post,
+    headers: [
+      {"x-amz-target", "AmazonEC2ContainerServiceV20141113.RunTask"},
+      {"content-type", "application/x-amz-json-1.1"}
+    ],
+    path: "/",
+    data: data,
+    service: :ecs
+}
+
+ExAws.request(operation)
+```
 
 ## Highlighted Features
 - Easy configuration.

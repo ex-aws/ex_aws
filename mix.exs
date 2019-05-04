@@ -18,7 +18,7 @@ defmodule ExAws.Mixfile do
       docs: [
         main: "ExAws",
         source_ref: "v#{@version}",
-        source_url: "https://github.com/cargosense/ex_aws"
+        source_url: "https://github.com/ex-aws/ex_aws"
       ]
     ]
   end
@@ -51,7 +51,7 @@ defmodule ExAws.Mixfile do
       files: ["priv", "lib", "config", "mix.exs", "README*"],
       maintainers: ["Ben Wilson"],
       licenses: ["MIT"],
-      links: %{github: "https://github.com/CargoSense/ex_aws"}
+      links: %{github: "https://github.com/ex-aws/ex_aws"}
     ]
   end
 end

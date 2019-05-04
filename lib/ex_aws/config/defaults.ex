@@ -19,10 +19,28 @@ defmodule ExAws.Config.Defaults do
   Retrieve the default configuration for a service.
   """
   def defaults(:dynamodb_streams) do
-    %{
-      service_override: :dynamodb
-    }
+    %{service_override: :dynamodb}
     |> Map.merge(defaults(:dynamodb))
+  end
+
+  def defaults(:lex_runtime) do
+    %{service_override: :lex}
+    |> Map.merge(defaults(:lex))
+  end
+
+  def defaults(:lex_models) do
+    %{service_override: :lex}
+    |> Map.merge(defaults(:lex))
+  end
+
+  def defaults(:sagemaker_runtime) do
+    %{service_override: :sagemaker}
+    |> Map.merge(defaults(:sagemaker))
+  end
+
+  def defaults(:iot_data) do
+    %{service_override: :iotdata}
+    |> Map.merge(defaults(:iot))
   end
 
   def defaults(_) do
@@ -60,7 +78,11 @@ defmodule ExAws.Config.Defaults do
   end
 
   defp service_map(:ses), do: "email"
+  defp service_map(:sagemaker_runtime), do: "runtime.sagemaker"
+  defp service_map(:lex_runtime), do: "runtime.lex"
+  defp service_map(:lex_models), do: "models.lex"
   defp service_map(:dynamodb_streams), do: "streams.dynamodb"
+  defp service_map(:iot_data), do: "data.iot"
 
   defp service_map(service) do
     service
@@ -79,7 +101,7 @@ defmodule ExAws.Config.Defaults do
                     {partition["partition"], partition}
                   end)
 
-  def do_host(partition, service_slug, region) do
+  defp do_host(partition, service_slug, region) do
     partition = @partition_data |> Map.fetch!(partition)
     partition_name = partition["partition"]
 
