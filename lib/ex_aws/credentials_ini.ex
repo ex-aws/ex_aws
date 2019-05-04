@@ -37,6 +37,7 @@ if Code.ensure_loaded?(ConfigParser) do
           key
           |> String.replace_leading("aws_", "")
           |> String.to_atom()
+
         {updated_key, val}
       end)
     end

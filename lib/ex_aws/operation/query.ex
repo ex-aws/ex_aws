@@ -21,6 +21,7 @@ end
 defimpl ExAws.Operation, for: ExAws.Operation.Query do
   def perform(operation, config) do
     data = operation.params |> URI.encode_query()
+
     data =
       case operation.content_encoding do
         "identity" -> data
@@ -34,7 +35,7 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
 
     headers = [
       {"content-type", "application/x-www-form-urlencoded"},
-      {"content-encoding", operation.content_encoding},
+      {"content-encoding", operation.content_encoding}
     ]
 
     result = ExAws.Request.request(:post, url, data, headers, config, operation.service)

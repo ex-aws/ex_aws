@@ -29,11 +29,6 @@
         "us-west-2" => %{"description" => "US West (Oregon)"}
       },
       "services" => %{
-        "ce" => %{
-          "endpoints" => %{
-            "us-east-1" => {}
-          }
-        },
         "firehose" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
@@ -1841,12 +1836,12 @@
         },
         "transcribe" => %{
           "endpoints" => %{
-          "us-east-1" => %{},
-          "us-east-2" => %{},
-          "us-west-2" => %{},
-          "ap-southeast-2" => %{},
-          "ca-central-1" => %{},
-          "eu-west-1" => %{},
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "eu-west-1" => %{}
           }
         },
         "mediapackage" => %{
