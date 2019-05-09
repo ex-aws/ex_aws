@@ -6,6 +6,10 @@ if Code.ensure_loaded?(ConfigParser) do
       role_arn source_profile credential_source external_id mfa_serial role_session_name
     )
 
+    def security_credentials(:system) do
+      security_credentials(System.get_env("AWS_PROFILE"))
+    end
+
     def security_credentials(profile_name) do
       shared_credentials = profile_from_shared_credentials(profile_name)
       config_credentials = profile_from_config(profile_name)
