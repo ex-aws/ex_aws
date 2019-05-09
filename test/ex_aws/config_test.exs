@@ -46,6 +46,28 @@ defmodule ExAws.ConfigTest do
     assert credentials.secret_access_key == "TESTSECRET"
     assert credentials.security_token == "TESTTOKEN"
   end
+  
+  test "{:system} in profile name gets dynamic profile name" do
+    System.put_env("AWS_PROFILE", "custom-profile")
+
+    example_credentials = """
+    [custom-profile]
+    aws_access_key_id     = TESTKEYID
+    aws_secret_access_key = TESTSECRET
+    aws_session_token     = TESTTOKEN
+    """
+
+    assert :s3
+           |> ExAws.Config.new(
+             access_key_id: [{:awscli, :system, 30}],
+             secret_access_key: [{:awscli, :system, 30}]
+           )
+           |> (fn 
+             %{access_key_id: "TESTKEYID", secret_access_key: "TESTSECRET", security_token: "TESTTOKEN"} -> true
+             _ -> false
+           end).()
+  end
+
 
   test "config file is parsed" do
     example_config = """
