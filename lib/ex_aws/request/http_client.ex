@@ -27,14 +27,15 @@ defmodule ExAws.Request.HttpClient do
   ```
 
   When conforming your selected HTTP Client take note of a few things:
-    - The module name doesn't need to follow the same styling as this module it is simply your own 'HTTP Client', i.e. #{project_name}.HttpClient
+    - The module name doesn't need to follow the same styling as this module it is simply your own 'HTTP Client', i.e. MyApp.HttpClient
     - The request function must accept the methods as described in the @callback below, you can however set these as optional, i.e. (http_opts \\ [])
     - Ensure the call to your chosen HTTP Client is correct and the return is in the same format as defined in the @callback below, for example:
-      ```elixir
-          def request(method, url, body, headers, http_opts \\ []) do
-            Mojito.request(method, url, headers, body, http_opts)
-          end
-      ```
+
+  ```
+  def request(method, url, body, headers, http_opts \\ []) do
+    Mojito.request(method, url, headers, body, http_opts)
+  end
+  ```
   """
 
   @type http_method :: :get | :post | :put | :delete
