@@ -12,7 +12,8 @@ defmodule ExAws.Config.Defaults do
       max_attempts: 10,
       base_backoff_in_ms: 10,
       max_backoff_in_ms: 10_000
-    ]
+    ],
+    normalize_path: true
   }
 
   @doc """

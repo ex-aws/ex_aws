@@ -14,7 +14,8 @@ defmodule ExAws.Config do
     :debug_requests,
     :region,
     :security_token,
-    :retries
+    :retries,
+    :normalize_path
   ]
 
   @type t :: %{} | Keyword.t()
