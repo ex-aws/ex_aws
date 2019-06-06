@@ -11,7 +11,8 @@ defmodule ExAws.Request.UrlTest do
     config = %{
       scheme: "https",
       host: "example.com",
-      port: 443
+      port: 443,
+      normalize_path: true
     }
 
     {:ok, %{query: query, config: config}}
