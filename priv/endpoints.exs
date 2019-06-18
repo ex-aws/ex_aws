@@ -2143,7 +2143,8 @@
         "ecs" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "directconnect" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "cloudformation" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
-        "swf" => %{"endpoints" => %{"us-gov-west-1" => %{}}}
+        "swf" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "sagemaker" => %{"endpoints" => %{"us-gov-west-1" => %{}}}
       }
     }
   ],
