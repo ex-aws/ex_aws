@@ -8,6 +8,7 @@ defmodule ExAws.Config do
 
   @common_config [
     :http_client,
+    :http_opts,
     :json_codec,
     :access_key_id,
     :secret_access_key,

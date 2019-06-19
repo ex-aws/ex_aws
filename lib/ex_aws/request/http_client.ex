@@ -21,7 +21,7 @@ defmodule ExAws.Request.HttpClient do
   defmodule ExAws.Request.HTTPotion do
     @behaviour ExAws.Request.HttpClient
     def request(method, url, body, headers, http_opts) do
-      {:ok, HTTPotion.request(method, url, [body: body, headers: headers, ibrowse: [headers_as_is: true]])}
+      {:ok, HTTPotion.request(method, url, [body: body, headers: headers, ibrowse: [{:headers_as_is, true} | http_opts]])}
     end
   end
   ```
