@@ -18,7 +18,9 @@ defmodule ExAws.Request.Hackney do
     opts = Application.get_env(:ex_aws, :hackney_opts, @default_opts)
     opts = http_opts ++ [:with_body | opts]
 
-    case :hackney.request(method, url, headers, body, opts) do
+    encoded_url = ExAws.Request.Url.encode_path(url)
+
+    case :hackney.request(method, encoded_url, headers, body, opts) do
       {:ok, status, headers} ->
         {:ok, %{status_code: status, headers: headers}}
 

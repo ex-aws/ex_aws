@@ -3,7 +3,7 @@ defmodule ExAws.Auth.Utils do
 
   def uri_encode(url) do
     url
-    |> String.replace("+", " ")
+    |> sanitize_url
     |> URI.encode(&valid_path_char?/1)
   end
 
@@ -58,4 +58,18 @@ defmodule ExAws.Auth.Utils do
 
   defp zero_pad(<<_>> = val), do: "0" <> val
   defp zero_pad(val), do: val
+
+  defp sanitize_url(url) do
+    uri = URI.parse(url)
+
+    sanitized_query =
+      uri
+      |> Map.get(:query)
+      |> sanitize_query()
+
+    URI.to_string(%{uri | query: sanitized_query})
+  end
+
+  defp sanitize_query(nil), do: nil
+  defp sanitize_query(query), do: String.replace(query, "+", " ")
 end

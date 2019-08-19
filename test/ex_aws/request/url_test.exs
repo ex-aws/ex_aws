@@ -70,4 +70,10 @@ defmodule ExAws.Request.UrlTest do
     query = query |> Map.put(:params, %{"foo" => "bar", nil => 1})
     assert Url.build(query, config) == "https://example.com/path?foo=bar"
   end
+
+  test "it encodes the path", %{query: query, config: config} do
+    query = query |> Map.put(:path, "/path+with+pluses")
+    url = Url.build(query, config) |> Url.encode_path()
+    assert url == "https://example.com/path%2Bwith%2Bpluses?foo=bar"
+  end
 end

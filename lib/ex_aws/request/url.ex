@@ -17,6 +17,19 @@ defmodule ExAws.Request.Url do
     |> String.trim_trailing("?")
   end
 
+  @doc """
+  Encodes the path for a url
+  """
+  def encode_path(url) do
+    uri = URI.parse(url)
+
+    encoded_path = uri
+    |> Map.get(:path)
+    |> sanitize_path()
+
+    URI.to_string(%{uri | path: encoded_path})
+  end
+
   defp query(operation) do
     operation
     |> Map.get(:params, %{})
@@ -44,4 +57,13 @@ defmodule ExAws.Request.Url do
   end
 
   defp normalize_params(params), do: params
+
+  defp sanitize_path(nil), do: nil
+  defp sanitize_path(path) do
+    path
+    |> String.split("/")
+    |> Enum.map(&URI.encode_www_form/1)
+    |> Enum.join("/")
+  end
+
 end
