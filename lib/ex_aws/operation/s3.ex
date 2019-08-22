@@ -33,11 +33,17 @@ defmodule ExAws.Operation.S3 do
       headers =
         headers
         |> Map.put("x-amz-content-sha256", hashed_payload)
-        |> Map.put("content-length", byte_size(body))
+        |> put_content_length_header(body, http_method)
         |> Map.to_list()
 
       ExAws.Request.request(http_method, url, body, headers, config, operation.service)
       |> operation.parser.()
+    end
+
+    defp put_content_length_header(headers, "", :get), do: headers
+
+    defp put_content_length_header(headers, body, _) do
+      Map.put(headers, "content-length", byte_size(body))
     end
 
     def stream!(%{stream_builder: fun}, config) do
