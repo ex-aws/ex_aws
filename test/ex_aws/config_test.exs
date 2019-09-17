@@ -57,4 +57,22 @@ defmodule ExAws.ConfigTest do
 
     assert config.region == "eu-west-1"
   end
+
+  test "region as a plain string" do
+    region_value = "us-west-1"
+
+    assert :s3
+           |> ExAws.Config.new(region: region_value)
+           |> Map.get(:region) == region_value
+
+  end
+
+  test "region as an envar" do
+    region_value = "us-west-1"
+    System.put_env("AWS_REGION", region_value)
+
+    assert :s3
+           |> ExAws.Config.new(region: {:system, "AWS_REGION"})
+           |> Map.get(:region) == region_value
+  end
 end
