@@ -94,6 +94,13 @@ You can set the region used by default for requests.
 config :ex_aws,
   region: "us-west-2",
 ```
+Alternatively, the region can be set in an environment variable:
+
+```elixir
+config :ex_aws,
+  region: {:system, "AWS_REGION"}
+```
+
 
 ## Direct Usage
 
