@@ -541,6 +541,15 @@
             "us-west-2" => %{}
           }
         },
+        "session.qldb" => %{
+          "endpoints" => %{
+            "ap-northeast-1" => %{ },
+            "eu-west-1" => %{ },
+            "us-east-1" => %{ },
+            "us-east-2" => %{ },
+            "us-west-2" => %{ }
+          }
+        },
         "shield" => %{
           "defaults" => %{
             "protocols" => ["https"],
@@ -1907,7 +1916,16 @@
           },
           "isRegionalized" => false,
           "partitionEndpoint" => "aws-global"
-        }
+        },
+        "qldb" => %{
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "eu-west-1" => %{},
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{}
+          }
+        },
       }
     },
     %{
