@@ -43,6 +43,11 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:iot))
   end
 
+  def defaults(:"session.qldb") do
+    %{service_override: :qldb}
+    |> Map.merge(defaults(:qldb))
+  end
+
   def defaults(_) do
     Map.merge(
       %{
