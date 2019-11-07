@@ -46,13 +46,13 @@ defmodule ExAws.RequestTest do
       ExAws.Request.HttpMock,
       :request,
       fn _method, url, _body, _headers, _opts ->
-        assert url == "https://examplebucket.s3.amazonaws.com/test%20hello%20%233.txt"
+        assert url == "https://examplebucket.s3.amazonaws.com/test%20hello%20%233.txt?t=21"
         {:ok, %{status_code: 200}}
       end
     )
 
     http_method = :get
-    url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt"
+    url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt?t=21"
     service = :s3
     request_body = ""
 

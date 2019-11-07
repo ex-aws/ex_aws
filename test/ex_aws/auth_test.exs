@@ -6,7 +6,7 @@ defmodule ExAws.AuthTest do
       build_canonical_request: 5
     ]
 
-  import ExAws.Auth.Utils,
+  import ExAws.Request.Url,
     only: [
       uri_encode: 1
     ]

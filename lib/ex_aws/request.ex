@@ -29,7 +29,7 @@ defmodule ExAws.Request do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
 
     with {:ok, full_headers} <- full_headers do
-      safe_url = sanitize(url)
+      safe_url = __MODULE__.Url.sanitize(url, service)
 
       if config[:debug_requests] do
         Logger.debug(
@@ -150,13 +150,5 @@ defmodule ExAws.Request do
     |> trunc
     |> :rand.uniform()
     |> :timer.sleep()
-  end
-
-  defp sanitize(url) do
-    new_path = url |> ExAws.Auth.Utils.get_path() |> String.replace_prefix("/", "") |> URI.encode_www_form()
-
-    %{URI.parse(url) | fragment: nil, path: "/" <> new_path}
-    |> URI.to_string()
-    |> String.replace("+", "%20")
   end
 end

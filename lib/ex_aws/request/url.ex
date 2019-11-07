@@ -44,4 +44,63 @@ defmodule ExAws.Request.Url do
   end
 
   defp normalize_params(params), do: params
+
+  def sanitize(url, :s3 = service) do
+    new_path =
+      url
+      |> get_path(service)
+      |> String.replace_prefix("/", "")
+      |> uri_encode()
+
+    query =
+      case String.split(url, "?", parts: 2) do
+        [_] -> nil
+        [_, ""] -> nil
+        [_, q] -> q
+      end
+
+    url
+    |> URI.parse()
+    |> Map.put(:fragment, nil)
+    |> Map.put(:path, "/" <> new_path)
+    |> Map.put(:query, query)
+    |> URI.to_string()
+    |> String.replace("+", "%20")
+  end
+  def sanitize(url, _), do: String.replace(url, "+", "%20")
+
+  def get_path(url, service \\ nil)
+  def get_path(url, :s3) do
+    base =
+      url
+      |> URI.parse()
+      |> Map.put(:path, nil)
+      |> Map.put(:query, nil)
+      |> Map.put(:fragment, nil)
+      |> URI.to_string()
+      |> URI.parse()
+      |> URI.to_string()
+
+    url
+    |> String.split(base, parts: 2)
+    |> List.last()
+    |> String.split("?")
+    |> List.first()
+  end
+
+  def get_path(url, _), do: URI.parse(url).path
+
+  def uri_encode(url) do
+    url
+    |> String.replace("+", " ")
+    |> URI.encode(&valid_path_char?/1)
+  end
+
+  # Space character
+  def valid_path_char?(?\ ), do: false
+  def valid_path_char?(?/), do: true
+
+  def valid_path_char?(c) do
+    URI.char_unescaped?(c) && !URI.char_reserved?(c)
+  end
 end
