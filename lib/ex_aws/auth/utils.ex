@@ -7,6 +7,21 @@ defmodule ExAws.Auth.Utils do
     |> URI.encode(&valid_path_char?/1)
   end
 
+  def get_path(url) do
+    base =
+      url
+      |> URI.parse()
+      |> Map.put(:path, nil)
+      |> Map.put(:fragment, nil)
+      |> URI.to_string()
+      |> URI.parse()
+      |> URI.to_string()
+
+    url
+    |> String.split(base, parts: 2)
+    |> List.last()
+  end
+
   # Space character
   def valid_path_char?(?\ ), do: false
   def valid_path_char?(?/), do: true

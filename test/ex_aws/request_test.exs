@@ -37,4 +37,31 @@ defmodule ExAws.RequestTest do
                {:attempt, 1}
              )
   end
+
+  test "handles encoding S3 URLs", context do
+    expect(
+      ExAws.Request.HttpMock,
+      :request,
+      fn _method, url, _body, _headers, _opts ->
+        assert url == "https://examplebucket.s3.amazonaws.com/test%20hello%20%233.txt"
+        {:ok, %{status_code: 200}}
+      end
+    )
+
+    http_method = :get
+    url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:ok, %{status_code: 200}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
 end
