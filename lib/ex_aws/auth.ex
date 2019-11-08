@@ -87,17 +87,18 @@ defmodule ExAws.Auth do
 
       uri = URI.parse(url)
 
+      path = url |> Url.get_path(service) |> Url.uri_encode
       path =
         if uri.query do
-          uri.path <> "?" <> uri.query
+          path <> "?" <> uri.query
         else
-          uri.path
+          path
         end
 
       signature =
         signature(
           http_method,
-          path,
+          url,
           query_to_sign,
           signed_headers,
           body,

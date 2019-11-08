@@ -29,7 +29,7 @@ defmodule ExAws.Request do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
 
     with {:ok, full_headers} <- full_headers do
-      safe_url = __MODULE__.Url.sanitize(url, service)
+      safe_url = ExAws.Request.Url.sanitize(url, service)
 
       if config[:debug_requests] do
         Logger.debug(

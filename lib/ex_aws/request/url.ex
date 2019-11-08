@@ -45,7 +45,7 @@ defmodule ExAws.Request.Url do
 
   defp normalize_params(params), do: params
 
-  def sanitize(url, :s3 = service) do
+  def sanitize(url, service) when service in ["s3", :s3] do
     new_path =
       url
       |> get_path(service)
@@ -65,12 +65,28 @@ defmodule ExAws.Request.Url do
     |> Map.put(:path, "/" <> new_path)
     |> Map.put(:query, query)
     |> URI.to_string()
-    |> String.replace("+", "%20")
+    |> String.replace("+", "%2B")
   end
+
   def sanitize(url, _), do: String.replace(url, "+", "%20")
 
   def get_path(url, service \\ nil)
-  def get_path(url, :s3) do
+  # Elixir's URI.parse will treat everything after the # sign
+  # as a fragment. This is correct, but S3 treats it as part
+  # of the path of the object.
+  #
+  # This will split the URL based on the base with the right
+  # side being the path, except for the query params.
+  #
+  # for example:
+  # "https://bucket.aws.com/my/path/here+ #3.txt?t=21"
+  # https://bucket.aws.com | /my/path/here+ #3.txt?t=21
+  # ________base__________ | /my/path/here+ #3.txt | t=21
+  # ________base__________ | /my/path/here+ #3.txt | _params_
+  #
+  # This ends up being URI encoded to /my/path/here%2B%20%233.txt
+  #
+  def get_path(url, service) when service in ["s3", :s3] do
     base =
       url
       |> URI.parse()
@@ -78,29 +94,22 @@ defmodule ExAws.Request.Url do
       |> Map.put(:query, nil)
       |> Map.put(:fragment, nil)
       |> URI.to_string()
-      |> URI.parse()
-      |> URI.to_string()
 
-    url
-    |> String.split(base, parts: 2)
-    |> List.last()
-    |> String.split("?")
-    |> List.first()
+    [_base, path_with_params] = String.split(url, base, parts: 2)
+    [path | _query_params] = String.split(path_with_params, "?", parts: 2)
+
+    path
   end
 
   def get_path(url, _), do: URI.parse(url).path
 
-  def uri_encode(url) do
-    url
-    |> String.replace("+", " ")
-    |> URI.encode(&valid_path_char?/1)
-  end
+  def uri_encode(url), do: URI.encode(url, &valid_path_char?/1)
 
   # Space character
-  def valid_path_char?(?\ ), do: false
-  def valid_path_char?(?/), do: true
+  defp valid_path_char?(?\ ), do: false
+  defp valid_path_char?(?/), do: true
 
-  def valid_path_char?(c) do
+  defp valid_path_char?(c) do
     URI.char_unescaped?(c) && !URI.char_reserved?(c)
   end
 end

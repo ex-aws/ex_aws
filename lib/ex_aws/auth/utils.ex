@@ -1,6 +1,8 @@
 defmodule ExAws.Auth.Utils do
   @moduledoc false
 
+  def uri_encode(url), do: ExAws.Request.Url.uri_encode(url)
+
   def hash_sha256(data) do
     :sha256
     |> :crypto.hash(data)
