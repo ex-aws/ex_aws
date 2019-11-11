@@ -70,7 +70,7 @@ defmodule ExAws.RequestTest do
 
   test "handles encoding S3 URLs without params", context do
     http_method = :get
-    url = "https://examplebucket.s3.amazonaws.com/test hello+#3.txt"
+    url = "https://examplebucket.s3.amazonaws.com/up//double//test hello+#3.txt"
     service = :s3
     request_body = ""
 
@@ -78,7 +78,7 @@ defmodule ExAws.RequestTest do
       ExAws.Request.HttpMock,
       :request,
       fn _method, url, _body, _headers, _opts ->
-        assert url == "https://examplebucket.s3.amazonaws.com/test%20hello%2B%233.txt"
+        assert url == "https://examplebucket.s3.amazonaws.com/up//double//test%20hello%2B%233.txt"
         {:ok, %{status_code: 200}}
       end
     )

@@ -75,16 +75,16 @@ defmodule ExAws.Request.Url do
   # as a fragment. This is correct, but S3 treats it as part
   # of the path of the object.
   #
-  # This will split the URL based on the base with the right
-  # side being the path, except for the query params.
+  # This will split the URL at the base with the right side
+  # being the path, except for the query params.
   #
   # for example:
-  # "https://bucket.aws.com/my/path/here+ #3.txt?t=21"
+  # `"https://bucket.aws.com/my/path/here+ #3.txt?t=21"`
   # https://bucket.aws.com | /my/path/here+ #3.txt?t=21
   # ________base__________ | /my/path/here+ #3.txt | t=21
   # ________base__________ | /my/path/here+ #3.txt | _params_
   #
-  # This ends up being URI encoded to /my/path/here%2B%20%233.txt
+  # After using `uri_encode` it will be `/my/path/here%2B%20%233.txt`
   #
   def get_path(url, service) when service in ["s3", :s3] do
     base =
