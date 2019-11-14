@@ -3,6 +3,7 @@ defmodule ExAws.Auth do
 
   alias ExAws.Auth.Credentials
   alias ExAws.Auth.Signatures
+  alias ExAws.Request.Url
 
   @moduledoc false
 
@@ -86,19 +87,18 @@ defmodule ExAws.Auth do
 
       uri = URI.parse(url)
 
+      path = url |> Url.get_path(service) |> Url.uri_encode
       path =
         if uri.query do
-          uri.path <> "?" <> uri.query
+          path <> "?" <> uri.query
         else
-          uri.path
+          path
         end
-
-      path = uri_encode(path)
 
       signature =
         signature(
           http_method,
-          path,
+          url,
           query_to_sign,
           signed_headers,
           body,
@@ -120,14 +120,12 @@ defmodule ExAws.Auth do
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
     uri = URI.parse(url)
-    path = uri_encode(uri.path)
-
     query =
       if uri.query,
         do: uri.query |> URI.decode_query() |> Enum.to_list() |> canonical_query_params,
         else: ""
 
-    signature = signature(http_method, path, query, headers, body, service, datetime, config)
+    signature = signature(http_method, url, query, headers, body, service, datetime, config)
 
     [
       "AWS4-HMAC-SHA256 Credential=",
@@ -142,7 +140,8 @@ defmodule ExAws.Auth do
     |> IO.iodata_to_binary()
   end
 
-  defp signature(http_method, path, query, headers, body, service, datetime, config) do
+  defp signature(http_method, url, query, headers, body, service, datetime, config) do
+    path = url |> Url.get_path(service) |> Url.uri_encode()
     request = build_canonical_request(http_method, path, query, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
     Signatures.generate_signature_v4(service, config, datetime, string_to_sign)

@@ -29,7 +29,7 @@ defmodule ExAws.Request do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
 
     with {:ok, full_headers} <- full_headers do
-      safe_url = replace_spaces(url)
+      safe_url = ExAws.Request.Url.sanitize(url, service)
 
       if config[:debug_requests] do
         Logger.debug(
@@ -150,9 +150,5 @@ defmodule ExAws.Request do
     |> trunc
     |> :rand.uniform()
     |> :timer.sleep()
-  end
-
-  defp replace_spaces(url) do
-    String.replace(url, " ", "%20")
   end
 end

@@ -6,7 +6,7 @@ defmodule ExAws.AuthTest do
       build_canonical_request: 5
     ]
 
-  import ExAws.Auth.Utils,
+  import ExAws.Request.Url,
     only: [
       uri_encode: 1
     ]
@@ -43,6 +43,26 @@ defmodule ExAws.AuthTest do
         "&X-Amz-Expires=86400" <>
         "&X-Amz-SignedHeaders=host" <>
         "&X-Amz-Signature=aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404"
+
+    assert {:ok, expected} == actual
+  end
+
+  test "presigned url with special characters" do
+    http_method = :get
+    url = "https://examplebucket.s3.amazonaws.com/folder-one/test+ #3.txt"
+    service = :s3
+    datetime = {{2013, 5, 24}, {0, 0, 0}}
+    expires = 86400
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires)
+
+    expected =
+      "https://examplebucket.s3.amazonaws.com/folder-one/test%2B%20%233.txt" <>
+        "?X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
+        "&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request" <>
+        "&X-Amz-Date=20130524T000000Z" <>
+        "&X-Amz-Expires=86400" <>
+        "&X-Amz-SignedHeaders=host" <>
+        "&X-Amz-Signature=d1892eeaf3110a6c1a805d8ad7a0c825a72a4255c7f48908922be55a7c4ae753"
 
     assert {:ok, expected} == actual
   end
