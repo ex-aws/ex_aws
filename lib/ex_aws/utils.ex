@@ -119,7 +119,6 @@ defmodule ExAws.Utils do
   end
 
   defp xml_format([nested | _] = params, prefix: pre, spec: spec) when is_list(nested) do
-    # IO.inspect("nested")
     params
     |> Stream.with_index(1)
     |> Stream.map(fn {params, i} -> {params, Integer.to_string(i)} end)
@@ -130,7 +129,6 @@ defmodule ExAws.Utils do
   end
 
   defp xml_format([param | _] = params, prefix: pre, spec: spec) when is_tuple(param) do
-    # IO.inspect("prefixed")
     params
     |> Stream.map(fn {key, values} -> {maybe_camelize(key, spec: spec), values} end)
     |> Stream.flat_map(fn {key, values} ->
@@ -141,7 +139,6 @@ defmodule ExAws.Utils do
 
   # Non-indexed formats
   defp xml_format(params, kwargs) when is_list(params) do
-    # IO.inspect("values")
     pre = kwargs[:prefix]
 
     params

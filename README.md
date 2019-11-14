@@ -101,6 +101,14 @@ config :ex_aws,
   region: {:system, "AWS_REGION"}
 ```
 
+### JSON Codec Configuration
+
+The default JSON codec is Poison.  You can choose a different one:
+
+```elixir
+config :ex_aws,
+  json_codec: Jason
+```
 
 ## Direct Usage
 

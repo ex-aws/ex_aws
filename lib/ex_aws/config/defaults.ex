@@ -7,7 +7,7 @@ defmodule ExAws.Config.Defaults do
     access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
     secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
     http_client: ExAws.Request.Hackney,
-    json_codec: Poison,
+    json_codec: Jason,
     retries: [
       max_attempts: 10,
       base_backoff_in_ms: 10,
@@ -41,6 +41,11 @@ defmodule ExAws.Config.Defaults do
   def defaults(:iot_data) do
     %{service_override: :iotdata}
     |> Map.merge(defaults(:iot))
+  end
+
+  def defaults(:"session.qldb") do
+    %{service_override: :qldb}
+    |> Map.merge(defaults(:qldb))
   end
 
   def defaults(_) do
