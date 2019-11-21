@@ -3,7 +3,7 @@ if Code.ensure_loaded?(ConfigParser) do
     # as per https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
     @valid_config_keys ~w(
       aws_access_key_id aws_secret_access_key aws_session_token region
-      role_arn source_profile credential_source external_id mfa_serial role_session_name
+      role_arn source_profile credential_source external_id mfa_serial role_session_name credential_process
     )
 
     def security_credentials(profile_name) do
