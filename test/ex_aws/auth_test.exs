@@ -177,6 +177,23 @@ defmodule ExAws.AuthTest do
       refute String.contains?(auth_header, "x-amzn-trace-id")
     end
 
+    test "keeps unsignable headers in the headers list" do
+      assert {:ok, headers} =
+      headers(
+        :get,
+        "https://my-bucket.s3-eu-west-1.amazonaws.com",
+        :s3,
+        @config,
+        [
+          {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
+          {"content-type", "application/json"}
+        ],
+        body = ""
+      )
+
+      assert {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"} = List.keyfind(headers, "X-Amzn-Trace-Id", 0)
+    end
+
     test "when security token is provided" do
       assert {:ok, headers} =
                headers(
