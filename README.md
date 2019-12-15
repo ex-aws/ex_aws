@@ -2,7 +2,7 @@ ExAws
 =====
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![Build Docs](https://img.shields.io/badge/hexdocs-release-blue.svg)](https://hexdocs.pm/ex_aws/ExAws.html)
-[![Build Status](https://travis-ci.org/CargoSense/ex_aws.svg?branch=master)](https://travis-ci.org/CargoSense/ex_aws)
+[![Build Status](https://travis-ci.org/ex-aws/ex_aws.svg?branch=master)](https://travis-ci.org/ex-aws/ex_aws)
 
 A flexible easy to use set of AWS APIs.
 
