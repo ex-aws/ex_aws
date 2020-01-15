@@ -1072,7 +1072,6 @@
             "ca-central-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{},
-            "eu-west-1" => %{},
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "sa-east-1" => %{},

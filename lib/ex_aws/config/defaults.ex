@@ -96,11 +96,9 @@ defmodule ExAws.Config.Defaults do
     |> String.replace("_", "-")
   end
 
-  @partition_data :ex_aws
-                  |> :code.priv_dir()
-                  |> Path.join("endpoints.exs")
-                  |> File.read!()
-                  |> Code.eval_string()
+  @external_resource "priv/endpoints.exs"
+
+  @partition_data Code.eval_file("priv/endpoints.exs", File.cwd!())
                   |> elem(0)
                   |> Map.get("partitions")
                   |> Map.new(fn partition ->
