@@ -2133,6 +2133,7 @@
       "regionRegex" => "^us\\-gov\\-\\w+\\-\\d+$",
       "regions" => %{
         "us-gov-east-1" => %{"description" => "AWS GovCloud (US-East)"},
+        # "us-gov-east-1-fips" => %{"description" => "AWS GovCloud (US-East)"},
         "us-gov-west-1" => %{"description" => "AWS GovCloud (US-West)"}
       },
       "services" => %{
@@ -2227,7 +2228,7 @@
               "credentialScope" => %{"region" => "us-gov-east-1"},
               "hostname" => "ecr-fips.us-gov-east-1.amazonaws.com"
             },
-            "fips-us-gov-west-1" => %{
+            "fips-us-gov-west_fips-1" => %{
               "credentialScope" => %{"region" => "us-gov-west-1"},
               "hostname" => "ecr-fips.us-gov-west-1.amazonaws.com"
             },
