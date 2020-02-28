@@ -2133,7 +2133,6 @@
       "regionRegex" => "^us\\-gov\\-\\w+\\-\\d+$",
       "regions" => %{
         "us-gov-east-1" => %{"description" => "AWS GovCloud (US-East)"},
-        # "us-gov-east-1-fips" => %{"description" => "AWS GovCloud (US-East)"},
         "us-gov-west-1" => %{"description" => "AWS GovCloud (US-West)"}
       },
       "services" => %{
