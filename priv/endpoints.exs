@@ -2177,11 +2177,11 @@
           "endpoints" => %{
             "us-gov-east-1-fips" => %{
               "credentialScope" => %{"region" => "us-gov-east-1"},
-              "host" => "dynamodb.us-gov-east-1.amazonaws.com"
+              "hostname" => "dynamodb.us-gov-east-1.amazonaws.com"
             },
             "us-gov-west-1-fips" => %{
               "credentialScope" => %{"region" => "us-gov-west-1"},
-              "host" => "dynamodb.us-gov-west-1.amazonaws.com"
+              "hostname" => "dynamodb.us-gov-west-1.amazonaws.com"
             },
             "us-gov-east-1" => %{},
             "us-gov-west-1" => %{}
@@ -2192,11 +2192,11 @@
           "endpoints" => %{
             "us-gov-east-1-fips" => %{
               "credentialScope" => %{"region" => "us-gov-east-1"},
-              "host" => "dynamodb.us-gov-east-1.amazonaws.com"
+              "hostname" => "dynamodb.us-gov-east-1.amazonaws.com"
             },
             "us-gov-west-1-fips" => %{
               "credentialScope" => %{"region" => "us-gov-west-1"},
-              "host" => "dynamodb.us-gov-west-1.amazonaws.com"
+              "hostname" => "dynamodb.us-gov-west-1.amazonaws.com"
             },
             "us-gov-east-1" => %{},
             "us-gov-west-1" => %{}
