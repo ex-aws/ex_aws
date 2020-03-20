@@ -1,3 +1,7 @@
+v2.1.3
+
+- Relax Jason version
+
 v2.1.0
 
 - Slew of bug fixes
