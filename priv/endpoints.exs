@@ -1494,6 +1494,7 @@
             "ap-southeast-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{},
+            "eu-west-2" => %{},
             "us-east-1" => %{},
             "us-west-2" => %{}
           }
