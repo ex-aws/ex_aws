@@ -3,6 +3,7 @@ defmodule ExAws.AuthTest do
 
   import ExAws.Auth,
     only: [
+      headers: 6,
       build_canonical_request: 5
     ]
 
@@ -23,6 +24,16 @@ defmodule ExAws.AuthTest do
 
     path = URI.parse("http://foo.com/bar:baz@blag").path |> uri_encode
     assert build_canonical_request(:get, path, "", %{}, "") == expected
+  end
+
+  test "build_canonical_request ignores unsignable headers" do
+    path = URI.parse("http://foo.com/bar:baz@blag").path |> uri_encode
+    without_unsignable_header = build_canonical_request(:get, path, "", %{}, "")
+    with_unsignable_header = build_canonical_request(:get, path, "", %{
+      "X-Amzn-Trace-Id" => "1-aaaaaaa-bbbbbbbbbbbbb"
+    }, "")
+
+    assert with_unsignable_header == without_unsignable_header
   end
 
   test "presigned url" do
@@ -134,5 +145,71 @@ defmodule ExAws.AuthTest do
     config = ExAws.Config.new(:s3, host: "nyc3.digitaloceanspaces.com", region: "nyc3")
     assert config.region == "nyc3"
     assert config.host == "nyc3.digitaloceanspaces.com"
+  end
+
+  describe "headers/6" do
+    @config ExAws.Config.new(:s3,
+      host: "nyc3.digitaloceanspaces.com",
+      region: "eu-west-1",
+      secret_access_key: "",
+      access_key_id: ""
+    )
+
+    test "builds authentication headers with X-Amzn-Trace-Id" do
+      assert {:ok, headers} =
+               headers(
+                 :get,
+                 "https://my-bucket.s3-eu-west-1.amazonaws.com",
+                 :s3,
+                 @config,
+                 [
+                   {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
+                   {"content-type", "application/json"}
+                 ],
+                 body = ""
+               )
+
+      {"Authorization", auth_header} = List.keyfind(headers, "Authorization", 0)
+      assert String.contains?(auth_header, "x-amz-date")
+      assert String.contains?(auth_header, "host")
+      assert String.contains?(auth_header, "content-type")
+      refute String.contains?(auth_header, "x-amz-security-token")
+      refute String.contains?(auth_header, "x-amzn-trace-id")
+    end
+
+    test "keeps unsignable headers in the headers list" do
+      assert {:ok, headers} =
+      headers(
+        :get,
+        "https://my-bucket.s3-eu-west-1.amazonaws.com",
+        :s3,
+        @config,
+        [
+          {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
+          {"content-type", "application/json"}
+        ],
+        body = ""
+      )
+
+      assert {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"} = List.keyfind(headers, "X-Amzn-Trace-Id", 0)
+    end
+
+    test "when security token is provided" do
+      assert {:ok, headers} =
+               headers(
+                 :get,
+                 "https://my-bucket.s3-eu-west-1.amazonaws.com",
+                 :s3,
+                 @config |> Map.put(:security_token, "abc"),
+                 [
+                   {"content-type", "application/json"}
+                 ],
+                 body = ""
+               )
+
+      {"Authorization", auth_header} = List.keyfind(headers, "Authorization", 0)
+
+      assert String.contains?(auth_header, "x-amz-security-token")
+    end
   end
 end

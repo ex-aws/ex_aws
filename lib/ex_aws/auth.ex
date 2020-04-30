@@ -7,6 +7,9 @@ defmodule ExAws.Auth do
 
   @moduledoc false
 
+  @unsignable_headers ["x-amzn-trace-id"]
+  @unsignable_headers_multi_case ["x-amzn-trace-id", "X-Amzn-Trace-Id"]
+
   def validate_config(config) do
     with :ok <- get_key(config, :secret_access_key),
          :ok <- get_key(config, :access_key_id) do
@@ -207,6 +210,7 @@ defmodule ExAws.Auth do
   defp signed_headers(headers) do
     headers
     |> Enum.map(fn {k, _} -> String.downcase(k) end)
+    |> Kernel.--(@unsignable_headers)
     |> Enum.sort(&(&1 < &2))
     |> Enum.join(";")
   end
@@ -249,9 +253,10 @@ defmodule ExAws.Auth do
 
   defp canonical_headers(headers) do
     headers
-    |> Enum.map(fn
-      {k, v} when is_binary(v) -> {String.downcase(to_string(k)), String.trim(v)}
-      {k, v} -> {String.downcase(to_string(k)), v}
+    |> Enum.reduce([], fn
+      {k, _v}, acc when k in @unsignable_headers_multi_case -> acc
+      {k, v}, acc when is_binary(v) -> [{String.downcase(to_string(k)), String.trim(v)} | acc]
+      {k, v}, acc -> [{String.downcase(to_string(k)), v} | acc]
     end)
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
