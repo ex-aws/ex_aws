@@ -90,7 +90,8 @@ defmodule ExAws.Auth do
 
       uri = URI.parse(url)
 
-      path = url |> Url.get_path(service) |> Url.uri_encode
+      path = url |> Url.get_path(service) |> Url.uri_encode()
+
       path =
         if uri.query do
           path <> "?" <> uri.query
@@ -123,6 +124,7 @@ defmodule ExAws.Auth do
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
     uri = URI.parse(url)
+
     query =
       if uri.query,
         do: uri.query |> URI.decode_query() |> Enum.to_list() |> canonical_query_params,
@@ -237,10 +239,14 @@ defmodule ExAws.Auth do
 
   # is basically the same as URI.encode_www_form
   # but doesn't use %20 instead of "+"
+  @space 32
+  @plus 43
   def aws_encode_www_form(str) when is_binary(str) do
     import Bitwise
 
     for <<c <- str>>, into: "" do
+      c = if c == @space, do: @plus, else: c
+
       case URI.char_unreserved?(c) do
         true -> <<c>>
         false -> "%" <> hex(bsr(c, 4)) <> hex(band(c, 15))
