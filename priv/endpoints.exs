@@ -1207,6 +1207,102 @@
             "us-west-2" => %{}
           }
         },
+        "chime" => %{
+          "endpoints" => %{
+            "us-east-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "us-east-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "us-west-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "us-west-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "af-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-east-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-northeast-3" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-northeast-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-southeast-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-southeast-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-northeast-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ca-central-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-central-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-west-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-west-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-west-3" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-north-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "me-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "sa-east-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "aws-global" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "aws" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            }
+          }
+        },
         "s3" => %{
           "defaults" => %{"protocols" => ["http", "https"], "signatureVersions" => ["s3v4"]},
           "endpoints" => %{
@@ -2093,6 +2189,7 @@
           "defaults" => %{"credentialScope" => %{"service" => "execute-api"}},
           "endpoints" => %{"cn-north-1" => %{}}
         },
+        "chime" => %{"endpoints" => %{"defaults" => %{}}},
         "s3" => %{
           "defaults" => %{"protocols" => ["http", "https"], "signatureVersions" => ["s3v4"]},
           "endpoints" => %{"cn-north-1" => %{}, "cn-northwest-1" => %{}}
@@ -2210,6 +2307,7 @@
         "ecr" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "cloudhsm" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "rekognition" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "chime" => %{"endpoints" => %{"defaults" => %{}}},
         "s3" => %{
           "defaults" => %{"signatureVersions" => ["s3", "s3v4"]},
           "endpoints" => %{
