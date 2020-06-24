@@ -1209,11 +1209,7 @@
         },
         "chime" => %{
           "endpoints" => %{
-            "aws-global" => %{
-              "hostname" => "service.chime.aws.amazon.com",
-              "signatureVersions" => ["v2", "v3", "v4"]
-            },
-            "aws" => %{
+            "us-east-2" => %{
               "hostname" => "service.chime.aws.amazon.com",
               "signatureVersions" => ["v2", "v3", "v4"]
             },
@@ -1221,7 +1217,87 @@
               "hostname" => "service.chime.aws.amazon.com",
               "signatureVersions" => ["v2", "v3", "v4"]
             },
-            "us-east-2" => %{
+            "us-west-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "us-west-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "af-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-east-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-northeast-3" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-northeast-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-southeast-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-southeast-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ap-northeast-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "ca-central-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-central-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-west-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-west-2" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-west-3" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "eu-north-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "me-south-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "sa-east-1" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "aws-global" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            },
+            "aws" => %{
               "hostname" => "service.chime.aws.amazon.com",
               "signatureVersions" => ["v2", "v3", "v4"]
             }
