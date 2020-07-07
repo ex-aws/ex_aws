@@ -2013,6 +2013,16 @@
             "us-west-2" => %{}
           }
         }
+      },
+      "chime" => %{
+        "endpoints" => %{
+          "aws-global" => %{
+            "credentialScope" => %{"region" => "us-east-1"},
+            "hostname" => "service.chime.aws.amazon.com"
+          }
+        },
+        "isRegionalized" => false,
+        "partitionEndpoint" => "aws-global"
       }
     },
     %{
