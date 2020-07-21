@@ -63,10 +63,9 @@ defmodule ExAws.Request.Url do
     url
     |> URI.parse()
     |> Map.put(:fragment, nil)
-    |> Map.put(:path, "/" <> new_path)
-    |> Map.put(:query, query)
+    |> Map.put(:path, "/" <> String.replace(new_path, "+", "%2B"))
+    |> Map.put(:query, query_replace_spaces(query))
     |> URI.to_string()
-    |> String.replace("+", "%2B")
   end
 
   def sanitize(url, _), do: String.replace(url, "+", "%20")
@@ -105,6 +104,9 @@ defmodule ExAws.Request.Url do
   def get_path(url, _), do: URI.parse(url).path
 
   def uri_encode(url), do: URI.encode(url, &valid_path_char?/1)
+
+  defp query_replace_spaces(nil), do: nil
+  defp query_replace_spaces(query), do: String.replace(query, "+", "%20")
 
   # Space character
   defp valid_path_char?(?\ ), do: false
