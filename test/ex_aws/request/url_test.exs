@@ -102,8 +102,8 @@ defmodule ExAws.Request.UrlTest do
 
   describe "sanitize" do
     test "it URI encodes spaces, + and unicode characters in the path" do
-      url = "s3://my-bucket/uploads/a key with ++"
-      assert Url.sanitize(url, :s3) == "s3://my-bucket/uploads/a%20key%20with%20%2B%2B"
+      url = "s3://my-bucket/uplo+ads/a key with ++"
+      assert Url.sanitize(url, :s3) == "s3://my-bucket/uplo%2Bads/a%20key%20with%20%2B%2B"
     end
 
     test "it URI encodes unicode characters in the path" do

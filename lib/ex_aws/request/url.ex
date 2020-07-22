@@ -63,7 +63,7 @@ defmodule ExAws.Request.Url do
     url
     |> URI.parse()
     |> Map.put(:fragment, nil)
-    |> Map.put(:path, "/" <> String.replace(new_path, "+", "%2B"))
+    |> Map.put(:path, "/" <> new_path)
     |> Map.put(:query, query_replace_spaces(query))
     |> URI.to_string()
   end
