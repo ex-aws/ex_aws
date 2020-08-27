@@ -43,7 +43,7 @@ defmodule ExAws.Operation.S3 do
     defp put_content_length_header(headers, "", :get), do: headers
 
     defp put_content_length_header(headers, body, _) do
-      Map.put(headers, "content-length", byte_size(body))
+      Map.put(headers, "content-length", byte_size(body) |> Integer.to_string())
     end
 
     def stream!(%{stream_builder: fun}, config) do
