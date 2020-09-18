@@ -160,10 +160,7 @@ defmodule ExAws.Auth do
       |> Enum.map(fn {k, v} -> "#{k}:#{remove_dup_spaces(to_string(v))}" end)
       |> Enum.join("\n")
 
-    signed_headers_list =
-      headers
-      |> Keyword.keys()
-      |> Enum.join(";")
+    signed_headers_list = signed_headers_value(headers)
 
     payload =
       case body do
@@ -272,13 +269,19 @@ defmodule ExAws.Auth do
       {"X-Amz-Credential", Credentials.generate_credential_v4(service, config, datetime)},
       {"X-Amz-Date", amz_date(datetime)},
       {"X-Amz-Expires", expires},
-      {"X-Amz-SignedHeaders", Keyword.keys(signed_headers) |> Enum.join(";")}
+      {"X-Amz-SignedHeaders", signed_headers_value(signed_headers)}
     ] ++
       if config[:security_token] do
         [{"X-Amz-Security-Token", config[:security_token]}]
       else
         []
       end
+  end
+
+  defp signed_headers_value(headers) do
+    headers
+    |> Enum.map(&elem(&1, 0))
+    |> Enum.join(";")
   end
 
   defp service_override(service, config) do
