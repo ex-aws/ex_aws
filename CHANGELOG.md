@@ -1,3 +1,7 @@
+v2.1.5
+
+- Elixir 1.11 compatibility tweak
+
 v2.1.3
 
 - Relax Jason version
