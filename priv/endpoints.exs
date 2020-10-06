@@ -198,6 +198,22 @@
             "us-west-2" => %{}
           }
         },
+        "ingest.timestream" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{},
+            "eu-west-1" => %{}
+          }
+        },
+        "query.timestream" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{},
+            "eu-west-1" => %{}
+          }
+        },
         "translate" => %{
           "defaults" => %{"protocols" => ["https"]},
           "endpoints" => %{
