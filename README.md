@@ -8,6 +8,20 @@ A flexible easy to use set of AWS APIs.
 
 Available Services: https://github.com/ex-aws?q=service&type=&language=
 
+## Deprecation Notice
+
+ExAws is no longer actively maintained. While ExAws got a lot of things right
+as an AWS client, there are some fundamental issues as well that place a large
+burden on maintainers keep things up to date manually.
+
+Efforts to find new ownership that could create and execute a vision to resolve
+those issues were not successful. CargoSense has officially moved off of AWS on
+to GCP as of October 2020, which provides the right moment to call it quits I think.
+
+See https://elixirforum.com/t/maintainer-wanted-exaws/31731 for further discussion.
+
+- Ben Wilson
+
 ## Getting Started
 
 ExAws v2.0 breaks out every service into its own package. To use the S3 service, you need both the core `:ex_aws` package as well as the `:ex_aws_s3` package.
