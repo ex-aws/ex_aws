@@ -1418,6 +1418,7 @@
         "comprehend" => %{
           "defaults" => %{"protocols" => ["https"]},
           "endpoints" => %{
+            "eu-central-1" => %{},
             "eu-west-1" => %{},
             "us-east-1" => %{},
             "us-east-2" => %{},
