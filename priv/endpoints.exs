@@ -1516,6 +1516,7 @@
         },
         "email" => %{
           "endpoints" => %{
+            "ap-northeast-1" => %{},
             "ap-south-1" => %{},
             "ap-southeast-1" => %{},
             "eu-central-1" => %{},
