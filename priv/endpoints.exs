@@ -1207,6 +1207,16 @@
             "us-west-2" => %{}
           }
         },
+        "chime" => %{
+          "endpoints" => %{
+            "aws-global" => %{
+              "hostname" => "service.chime.aws.amazon.com",
+              "signatureVersions" => ["v2", "v3", "v4"]
+            }
+          },
+          "isRegionalized" => false,
+          "partitionEndpoint" => "aws-global"
+        },
         "s3" => %{
           "defaults" => %{"protocols" => ["http", "https"], "signatureVersions" => ["s3v4"]},
           "endpoints" => %{
@@ -2093,6 +2103,7 @@
           "defaults" => %{"credentialScope" => %{"service" => "execute-api"}},
           "endpoints" => %{"cn-north-1" => %{}}
         },
+        "chime" => %{"endpoints" => %{"defaults" => %{}}},
         "s3" => %{
           "defaults" => %{"protocols" => ["http", "https"], "signatureVersions" => ["s3v4"]},
           "endpoints" => %{"cn-north-1" => %{}, "cn-northwest-1" => %{}}
@@ -2210,6 +2221,7 @@
         "ecr" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "cloudhsm" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "rekognition" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "chime" => %{"endpoints" => %{"defaults" => %{}}},
         "s3" => %{
           "defaults" => %{"signatureVersions" => ["s3", "s3v4"]},
           "endpoints" => %{
