@@ -8,19 +8,12 @@ A flexible easy to use set of AWS APIs.
 
 Available Services: https://github.com/ex-aws?q=service&type=&language=
 
-## Deprecation Notice
+## Un-Deprecation Notice
 
-ExAws is no longer actively maintained. While ExAws got a lot of things right
-as an AWS client, there are some fundamental issues as well that place a large
-burden on maintainers keep things up to date manually.
+ExAws is now actively maintained again :). It's going to take me a while to work through
+all the outstanding issues and PRs, so please bear with me.
 
-Efforts to find new ownership that could create and execute a vision to resolve
-those issues were not successful. CargoSense has officially moved off of AWS on
-to GCP as of October 2020, which provides the right moment to call it quits I think.
-
-See https://elixirforum.com/t/maintainer-wanted-exaws/31731 for further discussion.
-
-- Ben Wilson
+- Bernard
 
 ## Getting Started
 
