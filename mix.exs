@@ -7,7 +7,7 @@ defmodule ExAws.Mixfile do
     [
       app: :ex_aws,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       description: "Generic AWS client",
       name: "ExAws",
