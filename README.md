@@ -133,6 +133,17 @@ config :ex_aws,
   json_codec: Jason
 ```
 
+### Path Normalization
+
+Paths that include multiple consecutive /'s will by default be normalized
+to a single slash. There are cases when paths need to be literal (S3) and
+this normalization behaviour can be turned off via configuration:
+
+```elixir
+config :ex_aws,
+  normalize_path: false
+```
+
 ## Direct Usage
 
 ExAws can also be used directly without any specific service module.
