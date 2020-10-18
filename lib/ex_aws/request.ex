@@ -1,9 +1,9 @@
 defmodule ExAws.Request do
-  require Logger
-
   @moduledoc """
   Makes requests to AWS.
   """
+
+  require Logger
 
   @type http_status :: pos_integer
   @type success_content :: %{body: binary, headers: [{binary, binary}]}

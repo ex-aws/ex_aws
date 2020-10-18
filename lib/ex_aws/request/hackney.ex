@@ -2,14 +2,14 @@ defmodule ExAws.Request.Hackney do
   @behaviour ExAws.Request.HttpClient
 
   @moduledoc """
-  Configuration for :hackney
+  Configuration for `:hackney`
 
-  Options can be set for :hackney with the following config:
+  Options can be set for `:hackney` with the following config:
 
       config :ex_aws, :hackney_opts,
         recv_timeout: 30_000
 
-  The default config handles setting the above
+  The default config handles setting the above.
   """
 
   @default_opts [recv_timeout: 30_000]

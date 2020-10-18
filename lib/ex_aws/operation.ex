@@ -16,18 +16,17 @@ defprotocol ExAws.Operation do
 
   ## Example
 
-  ```
-  %ExAws.Operation.JSON{
-    data: %{},
-    headers: [
-    {"x-amz-target", "DynamoDB_20120810.ListTables"},
-      {"content-type", "application/x-amz-json-1.0"}
-    ], http_method: :post,
-    params: %{},
-    path: "/",
-    service: :dynamodb,
-  } |> ExAws.Operation.perform(ExAws.Config.new(:dynamodb))
-  ```
+      %ExAws.Operation.JSON{
+        data: %{},
+        headers: [
+        {"x-amz-target", "DynamoDB_20120810.ListTables"},
+          {"content-type", "application/x-amz-json-1.0"}
+        ], http_method: :post,
+        params: %{},
+        path: "/",
+        service: :dynamodb,
+      } |> ExAws.Operation.perform(ExAws.Config.new(:dynamodb))
+
   """
   def perform(operation, config)
 
