@@ -1,6 +1,7 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
+  @source_url "https://github.com/ex-aws/ex_aws"
   @version "2.1.5"
 
   def project do
@@ -11,15 +12,11 @@ defmodule ExAws.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env()),
       description: "Generic AWS client",
       name: "ExAws",
-      source_url: "https://github.com/ex-aws/ex_aws",
+      source_url: @source_url,
       package: package(),
       dialyzer: [flags: "--fullpath"],
       deps: deps(),
-      docs: [
-        main: "ExAws",
-        source_ref: "v#{@version}",
-        source_url: "https://github.com/ex-aws/ex_aws"
-      ]
+      docs: docs(),
     ]
   end
 
@@ -46,12 +43,26 @@ defmodule ExAws.Mixfile do
 
   defp package do
     [
-      description:
-        "AWS client. Currently supports Dynamo, DynamoStreams, EC2, Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS",
+      description: description(),
       files: ["priv", "lib", "config", "mix.exs", "README*"],
-      maintainers: ["Ben Wilson"],
+      maintainers: ["Bernard Duggan", "Ben Wilson"],
       licenses: ["MIT"],
-      links: %{github: "https://github.com/ex-aws/ex_aws"}
+      links: %{GitHub: @source_url}
+    ]
+  end
+
+  defp description do
+    """
+    AWS client for Elixir. Currently supports Dynamo, DynamoStreams, EC2,
+    Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS
+    """
+  end
+
+  defp docs do
+    [
+      main: "ExAws",
+      source_ref: "v#{@version}",
+      source_url: @source_url
     ]
   end
 end
