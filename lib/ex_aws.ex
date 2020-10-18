@@ -88,10 +88,8 @@ defmodule ExAws do
   @doc false
   @impl Application
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     children = [
-      worker(ExAws.Config.AuthCache, [[name: ExAws.Config.AuthCache]])
+      {ExAws.Config.AuthCache, [name: ExAws.Config.AuthCache]}
     ]
 
     opts = [strategy: :one_for_one, name: ExAws.Supervisor]

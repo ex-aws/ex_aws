@@ -166,7 +166,7 @@ defmodule ExAws.AuthTest do
                    {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
                    {"content-type", "application/json"}
                  ],
-                 body = ""
+                 _body = ""
                )
 
       {"Authorization", auth_header} = List.keyfind(headers, "Authorization", 0)
@@ -188,7 +188,7 @@ defmodule ExAws.AuthTest do
           {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
           {"content-type", "application/json"}
         ],
-        body = ""
+        _body = ""
       )
 
       assert {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"} = List.keyfind(headers, "X-Amzn-Trace-Id", 0)
@@ -204,7 +204,7 @@ defmodule ExAws.AuthTest do
                  [
                    {"content-type", "application/json"}
                  ],
-                 body = ""
+                 _body = ""
                )
 
       {"Authorization", auth_header} = List.keyfind(headers, "Authorization", 0)
