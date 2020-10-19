@@ -37,7 +37,8 @@ defmodule ExAws.Mixfile do
       {:dialyze, "~> 0.2.0", only: [:dev, :test]},
       {:mox, "~> 0.3", only: :test},
       {:bypass, "~> 1.0", only: :test},
-      {:configparser_ex, "~> 4.0", optional: true}
+      {:configparser_ex, "~> 4.0", optional: true},
+      {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false}
     ]
   end
 
