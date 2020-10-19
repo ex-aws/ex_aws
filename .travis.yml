@@ -3,6 +3,7 @@ elixir: 1.9
 notifications:
   recipients:
     - ben.wilson@cargosense.com
+    - bernard@circl.es
 otp_release:
   - 22.1
 before_script:
