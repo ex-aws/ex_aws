@@ -24,8 +24,8 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def get(profile, expiration) do
-    case :ets.lookup(__MODULE__, :awscli) do
-      [{:awscli, auth_config}] ->
+    case :ets.lookup(__MODULE__, {:awscli, profile}) do
+      [{{:awscli, ^profile}, auth_config}] ->
         auth_config
 
       [] ->
@@ -74,7 +74,7 @@ defmodule ExAws.Config.AuthCache do
           adapter.adapt_auth_config(auth, profile, expiration)
       end
 
-    :ets.insert(ets, {:awscli, auth})
+    :ets.insert(ets, {{:awscli, profile}, auth})
 
     auth
   end
