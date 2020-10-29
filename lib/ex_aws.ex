@@ -1,8 +1,7 @@
 defmodule ExAws do
-  @moduledoc "#{__DIR__}/../README.md"
-             |> File.read!()
-             |> String.split("<!-- MDOC !-->")
-             |> Enum.fetch!(1)
+  @moduledoc """
+  Module for making and processing AWS request
+  """
 
   use Application
 

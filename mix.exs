@@ -47,7 +47,10 @@ defmodule ExAws.Mixfile do
       files: ["priv", "lib", "config", "mix.exs", "README*"],
       maintainers: ["Bernard Duggan", "Ben Wilson"],
       licenses: ["MIT"],
-      links: %{GitHub: @source_url}
+      links: %{
+        Changelog: "#{@source_url}/blob/master/CHANGELOG.md",
+        GitHub: @source_url
+      }
     ]
   end
 
@@ -60,9 +63,10 @@ defmodule ExAws.Mixfile do
 
   defp docs do
     [
-      main: "ExAws",
+      main: "readme",
       source_ref: "v#{@version}",
-      source_url: @source_url
+      source_url: @source_url,
+      extras: ["README.md"]
     ]
   end
 end
