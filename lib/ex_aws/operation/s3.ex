@@ -24,7 +24,6 @@ defmodule ExAws.Operation.S3 do
 
       url =
         operation
-        |> add_bucket_to_path
         |> add_resource_to_params
         |> ExAws.Request.Url.build(config)
 
@@ -48,11 +47,6 @@ defmodule ExAws.Operation.S3 do
 
     def stream!(%{stream_builder: fun}, config) do
       fun.(config)
-    end
-
-    def add_bucket_to_path(operation) do
-      path = "/#{operation.bucket}/#{operation.path}" |> String.trim_leading("//")
-      operation |> Map.put(:path, path)
     end
 
     def add_resource_to_params(operation) do

@@ -7,6 +7,7 @@ defmodule ExAws.Request.Url do
   def build(operation, config) do
     config
     |> Map.take([:scheme, :host, :port])
+    |> set_host(operation)
     |> Map.put(:query, query(operation))
     |> Map.put(:path, operation.path)
     |> normalize_scheme
@@ -15,6 +16,16 @@ defmodule ExAws.Request.Url do
     |> (&struct(URI, &1)).()
     |> URI.to_string()
     |> String.trim_trailing("?")
+  end
+
+  defp set_host(config, operation) do
+    case operation do
+      %ExAws.Operation.S3{} ->
+        %{config | host: "#{operation.bucket}.s3.amazonaws.com"}
+
+      _ ->
+        %{config | host: config.host}
+    end
   end
 
   defp query(operation) do
