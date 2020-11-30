@@ -1376,6 +1376,7 @@
             "hostname" => "sts.amazonaws.com"
           },
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{
               "credentialScope" => %{"region" => "ap-northeast-2"},
