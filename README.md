@@ -2,7 +2,7 @@
 
 <!-- MDOC !-->
 
-[![travis-ci.org](https://travis-ci.org/ex-aws/ex_aws.svg?branch=master)](https://travis-ci.org/ex-aws/ex_aws)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ex-aws/ex_aws/on-push)
 [![hex.pm](https://img.shields.io/hexpm/v/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/dt/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/l/ex_aws.svg)](https://hex.pm/packages/ex_aws)
