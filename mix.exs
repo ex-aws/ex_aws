@@ -8,7 +8,7 @@ defmodule ExAws.Mixfile do
     [
       app: :ex_aws,
       version: @version,
-      elixir: "~> 1.5",
+      elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       description: "Generic AWS client",
       name: "ExAws",
@@ -29,15 +29,15 @@ defmodule ExAws.Mixfile do
 
   defp deps() do
     [
-      {:sweet_xml, "~> 0.6", optional: true},
+      {:bypass, "~> 1.0", only: :test},
+      {:configparser_ex, "~> 4.0", optional: true},
+      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
       {:ex_doc, "~> 0.16", only: [:dev, :test]},
       {:hackney, "~> 1.9", optional: true},
       {:jason, "~> 1.1", optional: true},
       {:jsx, "~> 2.8", optional: true},
-      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
       {:mox, "~> 0.3", only: :test},
-      {:bypass, "~> 1.0", only: :test},
-      {:configparser_ex, "~> 4.0", optional: true}
+      {:sweet_xml, "~> 0.6", optional: true}
     ]
   end
 
