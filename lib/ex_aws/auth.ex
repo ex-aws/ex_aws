@@ -90,7 +90,8 @@ defmodule ExAws.Auth do
 
       uri = URI.parse(url)
 
-      path = url |> Url.get_path(service) |> Url.uri_encode
+      path = url |> Url.get_path(service) |> Url.uri_encode()
+
       path =
         if uri.query do
           path <> "?" <> uri.query
@@ -123,6 +124,7 @@ defmodule ExAws.Auth do
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
     uri = URI.parse(url)
+
     query =
       if uri.query,
         do: uri.query |> URI.decode_query() |> Enum.to_list() |> canonical_query_params,

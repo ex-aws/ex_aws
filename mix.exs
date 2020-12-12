@@ -16,7 +16,7 @@ defmodule ExAws.Mixfile do
       package: package(),
       dialyzer: [flags: "--fullpath"],
       deps: deps(),
-      docs: docs(),
+      docs: docs()
     ]
   end
 
