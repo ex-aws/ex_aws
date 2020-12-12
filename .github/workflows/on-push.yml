@@ -23,4 +23,5 @@ jobs:
             cors: '*'
       - run: mix deps.get
       - run: mix compile
+      - run: mix format --check-formatted
       - run: mix test
