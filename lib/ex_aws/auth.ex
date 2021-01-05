@@ -75,28 +75,27 @@ defmodule ExAws.Auth do
       service = service_name(service)
       signed_headers = presigned_url_headers(url, headers)
 
-      org_query_params = query_params |> Enum.map(fn {k, v} -> {to_string(k), v} end)
+      uri = URI.parse(url)
+      uri_query = query_from_parsed_uri(uri)
+
+      org_query_params =
+        Enum.reduce(query_params, uri_query, fn {k, v}, acc -> [{to_string(k), v} | acc] end)
 
       amz_query_params =
         build_amz_query_params(service, datetime, config, expires, signed_headers)
 
-      [org_query, amz_query] =
-        [org_query_params, amz_query_params] |> Enum.map(&canonical_query_params/1)
+      query_to_sign = (org_query_params ++ amz_query_params) |> canonical_query_params()
 
-      query_to_sign = (org_query_params ++ amz_query_params) |> canonical_query_params
+      amz_query_string = canonical_query_params(amz_query_params)
 
       query_for_url =
-        if Enum.any?(org_query_params), do: org_query <> "&" <> amz_query, else: amz_query
-
-      uri = URI.parse(url)
-
-      path = url |> Url.get_path(service) |> Url.uri_encode
-      path =
-        if uri.query do
-          path <> "?" <> uri.query
+        if Enum.any?(org_query_params) do
+          canonical_query_params(org_query_params) <> "&" <> amz_query_string
         else
-          path
+          amz_query_string
         end
+
+      path = url |> Url.get_path(service) |> Url.uri_encode()
 
       signature =
         signature(
