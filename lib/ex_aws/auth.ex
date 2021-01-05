@@ -216,9 +216,12 @@ defmodule ExAws.Auth do
 
   defp canonical_query_params(params) do
     params
-    |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
+    |> Enum.sort(&compare_query_params/2)
     |> Enum.map_join("&", &pair/1)
   end
+
+  defp compare_query_params({key, value1}, {key, value2}), do: value1 < value2
+  defp compare_query_params({key_1, _}, {key_2, _}), do: key_1 < key_2
 
   defp pair({k, _}) when is_list(k) do
     raise ArgumentError, "encode_query/1 keys cannot be lists, got: #{inspect(k)}"
