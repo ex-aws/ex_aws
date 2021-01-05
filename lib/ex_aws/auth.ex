@@ -122,11 +122,11 @@ defmodule ExAws.Auth do
   defp handle_temp_credentials(headers, _), do: headers
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
-    uri = URI.parse(url)
     query =
-      if uri.query,
-        do: uri.query |> URI.decode_query() |> Enum.to_list() |> canonical_query_params,
-        else: ""
+      url
+      |> URI.parse()
+      |> query_from_parsed_uri()
+      |> canonical_query_params()
 
     signature = signature(http_method, url, query, headers, body, service, datetime, config)
 
@@ -141,6 +141,14 @@ defmodule ExAws.Auth do
       signature
     ]
     |> IO.iodata_to_binary()
+  end
+
+  defp query_from_parsed_uri(%{query: nil}), do: []
+
+  defp query_from_parsed_uri(%{query: query_string}) do
+    query_string
+    |> URI.decode_query()
+    |> Enum.to_list()
   end
 
   defp signature(http_method, url, query, headers, body, service, datetime, config) do
