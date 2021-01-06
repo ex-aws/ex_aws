@@ -13,7 +13,7 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    GenServer.start_link(__MODULE__, :ok, Keyword.put(opts, :name, __MODULE__))
   end
 
   def get(config) do
