@@ -82,6 +82,9 @@ AWS CLI config files are supported, but require an additional dependency:
 You can then add `{:awscli, "profile_name", timeout}` to the above config and
 it will pull information from `~/.aws/config` and `~/.aws/credentials`
 
+Alternatively, if you already have a profile name set in the `AWS_PROFILE` environment
+variable, you can use that with `{:awscli, :system, timeout}`
+
 ```elixir
 config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
