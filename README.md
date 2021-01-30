@@ -126,14 +126,6 @@ config :ex_aws,
   region: {:system, "AWS_REGION"}
 ```
 
-
-Alternatively, the region can be set in an environment variable:
-
-```elixir
-config :ex_aws,
-  region: {:system, "AWS_REGION"}
-```
-
 ### JSON Codec Configuration
 
 The default JSON codec is Poison.  You can choose a different one:
