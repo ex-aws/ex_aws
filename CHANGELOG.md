@@ -1,3 +1,20 @@
+v2.1.6
+
+- Fixes/updates for various service endpoints
+- Add support form Chime, via ex_chime_aws
+- Typing fix for HTTP content-lenght header
+- Fix warnings for Elixir 1.11
+- Increase minimum Elixir version to 1.5
+- Update and tidy docs and README
+
+v2.1.5
+
+- Elixir 1.11 compatibility tweak
+
+v2.1.3
+
+- Relax Jason version
+
 v2.1.0
 
 - Slew of bug fixes

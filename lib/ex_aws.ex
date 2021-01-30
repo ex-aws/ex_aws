@@ -1,5 +1,8 @@
 defmodule ExAws do
-  @moduledoc File.read!("#{__DIR__}/../README.md")
+  @moduledoc """
+  Module for making and processing AWS request
+  """
+
   use Application
 
   @behaviour ExAws.Behaviour
@@ -20,29 +23,26 @@ defmodule ExAws do
 
   If you have one of the service modules installed, you can just use those service
   modules like this:
-  ```
-  ExAws.S3.list_buckets |> ExAws.request
 
-  ExAws.S3.list_buckets |> ExAws.request(region: "eu-west-1")
+      ExAws.S3.list_buckets |> ExAws.request
 
-  ExAws.Dynamo.get_object("users", "foo@bar.com") |> ExAws.request
-  ```
+      ExAws.S3.list_buckets |> ExAws.request(region: "eu-west-1")
+
+      ExAws.Dynamo.get_object("users", "foo@bar.com") |> ExAws.request
 
   Alternatively you can create operation structs manually for services
   that aren't supported:
 
-  ```
-  op = %ExAws.Operation.JSON{
-    http_method: :post,
-    service: :dynamodb,
-    headers: [
-      {"x-amz-target", "DynamoDB_20120810.ListTables"},
-      {"content-type", "application/x-amz-json-1.0"}
-    ],
-  }
+      op = %ExAws.Operation.JSON{
+        http_method: :post,
+        service: :dynamodb,
+        headers: [
+          {"x-amz-target", "DynamoDB_20120810.ListTables"},
+          {"content-type", "application/x-amz-json-1.0"}
+        ],
+      }
 
-  ExAws.request(op)
-  ```
+      ExAws.request(op)
 
   """
   @impl ExAws.Behaviour
@@ -75,9 +75,9 @@ defmodule ExAws do
   Return a stream for the AWS resource.
 
   ## Examples
-  ```
-  ExAws.S3.list_objects("my-bucket") |> ExAws.stream!
-  ```
+
+      ExAws.S3.list_objects("my-bucket") |> ExAws.stream!
+
   """
   @impl ExAws.Behaviour
   def stream!(op, config_overrides \\ []) do
@@ -87,10 +87,8 @@ defmodule ExAws do
   @doc false
   @impl Application
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     children = [
-      worker(ExAws.Config.AuthCache, [[name: ExAws.Config.AuthCache]])
+      {ExAws.Config.AuthCache, [name: ExAws.Config.AuthCache]}
     ]
 
     opts = [strategy: :one_for_one, name: ExAws.Supervisor]

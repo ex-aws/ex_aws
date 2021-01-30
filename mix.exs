@@ -1,25 +1,22 @@
 defmodule ExAws.Mixfile do
   use Mix.Project
 
-  @version "2.1.2"
+  @source_url "https://github.com/ex-aws/ex_aws"
+  @version "2.1.6"
 
   def project do
     [
       app: :ex_aws,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       description: "Generic AWS client",
       name: "ExAws",
-      source_url: "https://github.com/ex-aws/ex_aws",
+      source_url: @source_url,
       package: package(),
       dialyzer: [flags: "--fullpath"],
       deps: deps(),
-      docs: [
-        main: "ExAws",
-        source_ref: "v#{@version}",
-        source_url: "https://github.com/ex-aws/ex_aws"
-      ]
+      docs: docs(),
     ]
   end
 
@@ -32,26 +29,44 @@ defmodule ExAws.Mixfile do
 
   defp deps() do
     [
-      {:sweet_xml, "~> 0.6", optional: true},
-      {:ex_doc, "~> 0.16", only: [:dev, :test]},
-      {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9", optional: true},
-      {:poison, ">= 1.2.0", optional: true},
-      {:jsx, "~> 2.8", optional: true},
-      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
-      {:mox, "~> 0.3", only: :test},
       {:bypass, "~> 1.0", only: :test},
-      {:configparser_ex, "~> 4.0", optional: true}
+      {:configparser_ex, "~> 4.0", optional: true},
+      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
+      {:ex_doc, "~> 0.16", only: [:dev, :test]},
+      {:hackney, "~> 1.9", optional: true},
+      {:jason, "~> 1.1", optional: true},
+      {:jsx, "~> 2.8", optional: true},
+      {:mox, "~> 0.3", only: :test},
+      {:sweet_xml, "~> 0.6", optional: true}
     ]
   end
 
   defp package do
     [
-      description:
-        "AWS client. Currently supports Dynamo, DynamoStreams, EC2, Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS",
+      description: description(),
       files: ["priv", "lib", "config", "mix.exs", "README*"],
-      maintainers: ["Ben Wilson"],
+      maintainers: ["Bernard Duggan", "Ben Wilson"],
       licenses: ["MIT"],
-      links: %{github: "https://github.com/ex-aws/ex_aws"}
+      links: %{
+        Changelog: "#{@source_url}/blob/master/CHANGELOG.md",
+        GitHub: @source_url
+      }
+    ]
+  end
+
+  defp description do
+    """
+    AWS client for Elixir. Currently supports Dynamo, DynamoStreams, EC2,
+    Firehose, Kinesis, KMS, Lambda, RRDS, Route53, S3, SES, SNS, SQS, STS
+    """
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_ref: "v#{@version}",
+      source_url: @source_url,
+      extras: ["README.md"]
     ]
   end
 end

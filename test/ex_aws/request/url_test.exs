@@ -11,7 +11,8 @@ defmodule ExAws.Request.UrlTest do
     config = %{
       scheme: "https",
       host: "example.com",
-      port: 443
+      port: 443,
+      normalize_path: true
     }
 
     {:ok, %{query: query, config: config}}
@@ -69,5 +70,17 @@ defmodule ExAws.Request.UrlTest do
   test "it ignores nil parameter key", %{query: query, config: config} do
     query = query |> Map.put(:params, %{"foo" => "bar", nil => 1})
     assert Url.build(query, config) == "https://example.com/path?foo=bar"
+  end
+
+  describe "get_path" do
+    test "it uses S3-specific URL parsing to keep the path for S3 services" do
+      url = "https://example.com/uploads/invalid path but+valid//for#s3/haha.txt"
+      assert Url.get_path(url, :s3) == "/uploads/invalid path but+valid//for#s3/haha.txt"
+    end
+
+    test "it uses standard URL parsing for the path for non-S3 services" do
+      url = "https://example.com/uploads/invalid path but+valid//for#i-am-anchor"
+      assert Url.get_path(url) == "/uploads/invalid path but+valid//for"
+    end
   end
 end

@@ -1,7 +1,7 @@
 defmodule ExAws.Config.AuthCache do
-  use GenServer
-
   @moduledoc false
+
+  use GenServer
 
   # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
 
@@ -25,8 +25,11 @@ defmodule ExAws.Config.AuthCache do
 
   def get(profile, expiration) do
     case :ets.lookup(__MODULE__, :awscli) do
-      [{:awscli, auth_config}] -> auth_config
-      [] -> GenServer.call(__MODULE__, {:refresh_awscli_config, profile, expiration}, 30_000)
+      [{:awscli, auth_config}] ->
+        auth_config
+
+      [] ->
+        GenServer.call(__MODULE__, {:refresh_awscli_config, profile, expiration}, 30_000)
     end
   end
 
@@ -61,18 +64,19 @@ defmodule ExAws.Config.AuthCache do
     Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
 
     auth = ExAws.CredentialsIni.security_credentials(profile)
+
+    auth =
+      case ExAws.Config.awscli_auth_adapter() do
+        nil ->
+          auth
+
+        adapter ->
+          adapter.adapt_auth_config(auth, profile, expiration)
+      end
+
     :ets.insert(ets, {:awscli, auth})
 
-    case ExAws.Config.awscli_auth_adapter() do
-      nil ->
-        auth
-
-      adapter ->
-        auth = adapter.adapt_auth_config(auth, profile, expiration)
-        :ets.insert(ets, {:awscli, auth})
-
-        auth
-    end
+    auth
   end
 
   def refresh_config(config, ets) do

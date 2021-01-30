@@ -11,42 +11,39 @@ defmodule ExAws.JSON.Codec do
 
   In your config you would do:
 
-  ```elixir
-  config :ex_aws,
-    json_codec: ExAws.JSON.JSX
-  ```
+      config :ex_aws,
+        json_codec: ExAws.JSON.JSX
 
-  ```elixir
-  defmodule ExAws.JSON.JSX do
-    @behaviour ExAws.JSON.Codec
+      defmodule ExAws.JSON.JSX do
+        @behaviour ExAws.JSON.Codec
 
-    @moduledoc false
+        @moduledoc false
 
-    def encode!(%{} = map) do
-      map |> :jsx.encode
-    end
+        def encode!(%{} = map) do
+          map |> :jsx.encode
+        end
 
-    def encode(map) do
-      try do
-        {:ok, encode!(map)}
-      rescue
-        ArgumentError -> {:error, :badarg}
+        def encode(map) do
+          try do
+            {:ok, encode!(map)}
+          rescue
+            ArgumentError -> {:error, :badarg}
+          end
+        end
+
+        def decode!(string) do
+          :jsx.decode(string, [:return_maps])
+        end
+
+        def decode(string) do
+          try do
+            {:ok, decode!(string)}
+          rescue
+            ArgumentError -> {:error, :badarg}
+          end
+        end
       end
-    end
 
-    def decode!(string) do
-      :jsx.decode(string, [:return_maps])
-    end
-
-    def decode(string) do
-      try do
-        {:ok, decode!(string)}
-      rescue
-        ArgumentError -> {:error, :badarg}
-      end
-    end
-  end
-  ```
   """
 
   @callback encode!(%{}) :: String.t()
