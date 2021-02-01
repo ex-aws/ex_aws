@@ -119,6 +119,7 @@ You can set the region used by default for requests.
 config :ex_aws,
   region: "us-west-2",
 ```
+
 Alternatively, the region can be set in an environment variable:
 
 ```elixir
@@ -255,8 +256,8 @@ config :ex_aws, :retries,
 
 ## Testing
 
-If you want to run `mix test`, you'll need to have a local `dynamodb` running on port 8000.  
-See [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
+If you want to run `mix test`, you'll need to have a local `dynamodb` running
+on port 8000.  See [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
 
 The redirect test will intentionally cause a warning to be issued.
 
