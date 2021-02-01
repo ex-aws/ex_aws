@@ -9,8 +9,9 @@
       "dnsSuffix" => "amazonaws.com",
       "partition" => "aws",
       "partitionName" => "AWS Standard",
-      "regionRegex" => "^(us|eu|ap|sa|ca)\\-\\w+\\-\\d+$",
+      "regionRegex" => "^(us|eu|ap|sa|ca|me|af)\\-\\w+\\-\\d+$",
       "regions" => %{
+        "af-south-1" => %{"description" => "Africa (Cape Town)"},
         "ap-northeast-1" => %{"description" => "Asia Pacific (Tokyo)"},
         "ap-northeast-2" => %{"description" => "Asia Pacific (Seoul)"},
         "ap-east-1" => %{"description" => "Asia Pacific (Hong Kong)"},
@@ -25,6 +26,7 @@
         "eu-north-1" => %{"description" => "EU (Stockholm)"},
         "eu-south-1" => %{"description" => "EU (Milan)"},
         "sa-east-1" => %{"description" => "South America (Sao Paulo)"},
+        "me-south-1" => %{"description" => "Middle East (Bahrain)"},
         "us-east-1" => %{"description" => "US East (N. Virginia)"},
         "us-east-2" => %{"description" => "US East (Ohio)"},
         "us-west-1" => %{"description" => "US West (N. California)"},
@@ -1239,6 +1241,7 @@
         "s3" => %{
           "defaults" => %{"protocols" => ["http", "https"], "signatureVersions" => ["s3v4"]},
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{
               "hostname" => "s3.ap-northeast-1.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
@@ -1263,6 +1266,7 @@
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
+            "me-south-1" => %{},
             "s3-external-1" => %{
               "credentialScope" => %{"region" => "us-east-1"},
               "hostname" => "s3-external-1.amazonaws.com",
