@@ -1,3 +1,16 @@
+v2.1.7
+
+- Various documentation updates
+- Add `comprehend` endpoint
+- Support firehose in region ca-central-1
+- More documentation fixes
+- Add github workflow actions for CI
+- Add us-east-2 endpoint for SES
+- Use :crypto.mac/4 rather than the deprecated :crypto.hmac/3 when available
+- Support virtual-host style S3 buckets
+- Fix presigned URLs with embedded query parameter strings
+- Support reading profile for CLI config from AWS_PROFILE environment variable
+
 v2.1.6
 
 - Fixes/updates for various service endpoints
