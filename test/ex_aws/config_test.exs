@@ -83,7 +83,6 @@ defmodule ExAws.ConfigTest do
     assert :s3
            |> ExAws.Config.new(region: region_value)
            |> Map.get(:region) == region_value
-
   end
 
   test "region as an envar" do
