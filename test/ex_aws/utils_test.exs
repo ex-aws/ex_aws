@@ -36,10 +36,6 @@ defmodule ExAws.UtilsTest do
              |> camelize_keys(spec: %{foo_bar: "non-standard"})
   end
 
-  test "iso_z_to_secs converts iso string to epoch seconds" do
-    assert 1_436_134_578 == iso_z_to_secs("2015-07-05T22:16:18Z")
-  end
-
   test "rename_keys renames keys in a list of keywords" do
     assert [d: 1, b: 2, e: 3] == [a: 1, b: 2, c: 3] |> rename_keys(a: :d, c: :e)
   end

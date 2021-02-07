@@ -5,6 +5,9 @@ defmodule ExAws.Config.AuthCache do
 
   # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
 
+  @refresh_lead_time 300_000
+  @instance_auth_key :aws_instance_auth
+
   defmodule AuthConfigAdapter do
     @moduledoc false
 
@@ -13,14 +16,12 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    GenServer.start_link(__MODULE__, :ok, Keyword.put(opts, :name, __MODULE__))
   end
 
   def get(config) do
-    case :ets.lookup(__MODULE__, :aws_instance_auth) do
-      [{:aws_instance_auth, auth_config}] -> auth_config
-      [] -> GenServer.call(__MODULE__, {:refresh_config, config}, 30_000)
-    end
+    :ets.lookup(__MODULE__, @instance_auth_key)
+    |> refresh_auth_if_required(config)
   end
 
   def get(profile, expiration) do
@@ -40,8 +41,8 @@ defmodule ExAws.Config.AuthCache do
     {:ok, ets}
   end
 
-  def handle_call({:refresh_config, config}, _from, ets) do
-    auth = refresh_config(config, ets)
+  def handle_call({:refresh_auth, config}, _from, ets) do
+    auth = refresh_auth(config, ets)
     {:reply, auth, ets}
   end
 
@@ -50,8 +51,8 @@ defmodule ExAws.Config.AuthCache do
     {:reply, auth, ets}
   end
 
-  def handle_info({:refresh_config, config}, ets) do
-    refresh_config(config, ets)
+  def handle_info({:refresh_auth, config}, ets) do
+    refresh_auth(config, ets)
     {:noreply, ets}
   end
 
@@ -79,19 +80,61 @@ defmodule ExAws.Config.AuthCache do
     auth
   end
 
-  def refresh_config(config, ets) do
+  defp refresh_auth_if_required([], config) do
+    GenServer.call(__MODULE__, {:refresh_auth, config}, 30_000)
+  end
+
+  defp refresh_auth_if_required([{_key, cached_auth}], config) do
+    if next_refresh_in(cached_auth) > 0 do
+      cached_auth
+    else
+      GenServer.call(__MODULE__, {:refresh_auth, config}, 30_000)
+    end
+  end
+
+  defp refresh_auth(config, ets) do
+    :ets.lookup(__MODULE__, @instance_auth_key)
+    |> refresh_auth_if_stale(config, ets)
+  end
+
+  defp refresh_auth_if_stale([], config, ets) do
+    refresh_auth_now(config, ets)
+  end
+
+  defp refresh_auth_if_stale([{_key, cached_auth}], config, ets) do
+    if next_refresh_in(cached_auth) > @refresh_lead_time do
+      # we still have a valid auth token, so simply return that
+      cached_auth
+    else
+      refresh_auth_now(config, ets)
+    end
+  end
+
+  defp refresh_auth_if_stale(_, config, ets), do: refresh_auth_now(config, ets)
+
+  defp refresh_auth_now(config, ets) do
     auth = ExAws.InstanceMeta.security_credentials(config)
-    :ets.insert(ets, {:aws_instance_auth, auth})
-    Process.send_after(self(), {:refresh_config, config}, refresh_in(auth[:expiration]))
+    :ets.insert(ets, {@instance_auth_key, auth})
+    Process.send_after(__MODULE__, {:refresh_auth, config}, next_refresh_in(auth))
     auth
   end
 
-  def refresh_in(expiration) do
-    expiration = expiration |> ExAws.Utils.iso_z_to_secs()
-    time_to_expiration = expiration - ExAws.Utils.now_in_seconds()
-    # check five mins prior to expiration
-    refresh_in = time_to_expiration - 5 * 60
-    # check now if we should have checked in the past
-    max(0, refresh_in * 1000)
+  defp next_refresh_in(%{expiration: expiration}) do
+    try do
+      time_to_expiration =
+        expiration
+        |> NaiveDateTime.from_iso8601!()
+        |> NaiveDateTime.diff(NaiveDateTime.utc_now())
+
+      expires_in_ms = max(0, 1000 * time_to_expiration)
+
+      # check either when it expires, or lead_time before that
+      # whichever is longer
+      max(expires_in_ms, expires_in_ms - @refresh_lead_time)
+    rescue
+      _e -> 0
+    end
   end
+
+  defp next_refresh_in(_), do: 0
 end
