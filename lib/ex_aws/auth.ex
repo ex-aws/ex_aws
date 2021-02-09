@@ -95,17 +95,6 @@ defmodule ExAws.Auth do
           amz_query_string
         end
 
-      uri = URI.parse(url)
-
-      path = url |> Url.get_path(service) |> Url.uri_encode()
-
-      path =
-        if uri.query do
-          path <> "?" <> uri.query
-        else
-          amz_query_string
-        end
-
       path = url |> Url.get_path(service) |> Url.uri_encode()
 
       signature =
@@ -132,8 +121,6 @@ defmodule ExAws.Auth do
   defp handle_temp_credentials(headers, _), do: headers
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
-    uri = URI.parse(url)
-
     query =
       url
       |> URI.parse()
