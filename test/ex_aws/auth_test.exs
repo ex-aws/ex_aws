@@ -3,8 +3,9 @@ defmodule ExAws.AuthTest do
 
   import ExAws.Auth,
     only: [
-      headers: 6,
-      build_canonical_request: 5
+      aws_encode_www_form: 1,
+      build_canonical_request: 5,
+      headers: 6
     ]
 
   import ExAws.Request.Url,
@@ -18,6 +19,11 @@ defmodule ExAws.AuthTest do
     region: "us-east-1"
   }
 
+  test "aws_encode_www_form can handle spaces" do
+    expected = "TRX%2BABC%2B%2B%2B2020.xml"
+    assert aws_encode_www_form("TRX ABC   2020.xml") == expected
+  end
+
   test "build_canonical_request can handle : " do
     expected =
       "GET\n/bar%3Abaz%40blag\n\n\n\n\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -29,9 +35,17 @@ defmodule ExAws.AuthTest do
   test "build_canonical_request ignores unsignable headers" do
     path = URI.parse("http://foo.com/bar:baz@blag").path |> uri_encode
     without_unsignable_header = build_canonical_request(:get, path, "", %{}, "")
-    with_unsignable_header = build_canonical_request(:get, path, "", %{
-      "X-Amzn-Trace-Id" => "1-aaaaaaa-bbbbbbbbbbbbb"
-    }, "")
+
+    with_unsignable_header =
+      build_canonical_request(
+        :get,
+        path,
+        "",
+        %{
+          "X-Amzn-Trace-Id" => "1-aaaaaaa-bbbbbbbbbbbbb"
+        },
+        ""
+      )
 
     assert with_unsignable_header == without_unsignable_header
   end
@@ -149,11 +163,11 @@ defmodule ExAws.AuthTest do
 
   describe "headers/6" do
     @config ExAws.Config.new(:s3,
-      host: "nyc3.digitaloceanspaces.com",
-      region: "eu-west-1",
-      secret_access_key: "",
-      access_key_id: ""
-    )
+              host: "nyc3.digitaloceanspaces.com",
+              region: "eu-west-1",
+              secret_access_key: "",
+              access_key_id: ""
+            )
 
     test "builds authentication headers with X-Amzn-Trace-Id" do
       assert {:ok, headers} =
@@ -179,19 +193,20 @@ defmodule ExAws.AuthTest do
 
     test "keeps unsignable headers in the headers list" do
       assert {:ok, headers} =
-      headers(
-        :get,
-        "https://my-bucket.s3-eu-west-1.amazonaws.com",
-        :s3,
-        @config,
-        [
-          {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
-          {"content-type", "application/json"}
-        ],
-        _body = ""
-      )
+               headers(
+                 :get,
+                 "https://my-bucket.s3-eu-west-1.amazonaws.com",
+                 :s3,
+                 @config,
+                 [
+                   {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
+                   {"content-type", "application/json"}
+                 ],
+                 _body = ""
+               )
 
-      assert {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"} = List.keyfind(headers, "X-Amzn-Trace-Id", 0)
+      assert {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"} =
+               List.keyfind(headers, "X-Amzn-Trace-Id", 0)
     end
 
     test "when security token is provided" do

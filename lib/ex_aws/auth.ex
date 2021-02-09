@@ -89,8 +89,15 @@ defmodule ExAws.Auth do
       amz_query_string = canonical_query_params(amz_query_params)
 
       query_for_url =
-        if Enum.any?(org_query_params) do
-          canonical_query_params(org_query_params) <> "&" <> amz_query_string
+        if Enum.any?(org_query_params), do: org_query <> "&" <> amz_query, else: amz_query
+
+      uri = URI.parse(url)
+
+      path = url |> Url.get_path(service) |> Url.uri_encode()
+
+      path =
+        if uri.query do
+          path <> "?" <> uri.query
         else
           amz_query_string
         end
@@ -121,6 +128,8 @@ defmodule ExAws.Auth do
   defp handle_temp_credentials(headers, _), do: headers
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
+    uri = URI.parse(url)
+
     query =
       url
       |> URI.parse()
@@ -244,10 +253,14 @@ defmodule ExAws.Auth do
 
   # is basically the same as URI.encode_www_form
   # but doesn't use %20 instead of "+"
+  @space 32
+  @plus 43
   def aws_encode_www_form(str) when is_binary(str) do
     import Bitwise
 
     for <<c <- str>>, into: "" do
+      c = if c == @space, do: @plus, else: c
+
       case URI.char_unreserved?(c) do
         true -> <<c>>
         false -> "%" <> hex(bsr(c, 4)) <> hex(band(c, 15))
