@@ -89,7 +89,11 @@ defmodule ExAws.Auth do
       amz_query_string = canonical_query_params(amz_query_params)
 
       query_for_url =
-        if Enum.any?(org_query_params), do: org_query <> "&" <> amz_query, else: amz_query
+        if Enum.any?(org_query_params) do
+          canonical_query_params(org_query_params) <> "&" <> amz_query_string
+        else
+          amz_query_string
+        end
 
       uri = URI.parse(url)
 
