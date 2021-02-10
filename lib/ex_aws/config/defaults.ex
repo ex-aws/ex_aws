@@ -76,7 +76,11 @@ defmodule ExAws.Config.Defaults do
     |> Map.put(:host, host(service, region))
   end
 
-  @partitions []
+  @partitions [
+    {~r/^(us|eu|ap|sa|ca)\-\w+\-(?!000$)\d+$/, "aws"},
+    {~r/^cn\-\w+\-\d+$/, "aws-cn"},
+    {~r/^us\-gov\-\w+\-\d+$/, "aws-us-gov"}
+  ]
 
   def host(service, region) do
     partition =
