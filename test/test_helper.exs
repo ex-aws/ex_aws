@@ -6,5 +6,6 @@ Application.ensure_all_started(:jsx)
 Application.ensure_all_started(:bypass)
 
 Mox.defmock(ExAws.Request.HttpMock, for: ExAws.Request.HttpClient)
+Mox.defmock(ExAws.Credentials.InitMock, for: ExAws.CredentialsIni.Provider)
 
 ExUnit.start()

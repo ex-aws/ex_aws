@@ -1,5 +1,5 @@
 if Code.ensure_loaded?(ConfigParser) do
-  defmodule ExAws.CredentialsIni do
+  defmodule ExAws.CredentialsIni.File do
     # as per https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
     @valid_config_keys ~w(
       aws_access_key_id aws_secret_access_key aws_session_token region
@@ -83,7 +83,7 @@ if Code.ensure_loaded?(ConfigParser) do
     end
   end
 else
-  defmodule ExAws.CredentialsIni do
+  defmodule ExAws.CredentialsIni.File do
     def security_credentials(_), do: raise("ConfigParser required to use")
     def parse_ini_file(_, _), do: raise("ConfigParser required to use")
     def replace_token_key(_), do: raise("ConfigParser required to use")
