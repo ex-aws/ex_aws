@@ -26,6 +26,7 @@ defmodule ExAws.Operation.S3 do
 
       url =
         operation
+        |> normalize_path()
         |> add_resource_to_params()
         |> ExAws.Request.Url.build(config)
 
@@ -61,6 +62,19 @@ defmodule ExAws.Operation.S3 do
     def add_bucket_to_path(operation, config) do
       path = Path.join(["/", operation.bucket, operation.path]) |> Path.expand()
       {operation |> Map.put(:path, path), config}
+    end
+
+    @spec normalize_path(operation :: ExAws.Operation.S3.t()) ::
+            ExAws.Operation.S3.t()
+    def normalize_path(operation) do
+      normalized_path =
+        if String.first(operation.path) === "/" do
+          operation.path
+        else
+          Path.join(["/", operation.path])
+        end
+
+      operation |> Map.put(:path, normalized_path)
     end
 
     @spec add_resource_to_params(operation :: ExAws.Operation.S3.t()) :: ExAws.Operation.S3.t()
