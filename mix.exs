@@ -15,7 +15,10 @@ defmodule ExAws.Mixfile do
       source_url: @source_url,
       package: package(),
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      dialyzer: [
+        plt_add_apps: [:mix, :hackney, :configparser_ex, :jsx]
+      ]
     ]
   end
 
