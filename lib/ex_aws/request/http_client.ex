@@ -52,6 +52,7 @@ defmodule ExAws.Request.HttpClient do
               headers :: [{binary, binary}, ...],
               http_opts :: term
             ) ::
-              {:ok, %{status_code: pos_integer, body: binary}}
+              {:ok, %{status_code: pos_integer, headers: any}}
+              | {:ok, %{status_code: pos_integer, headers: any, body: binary}}
               | {:error, %{reason: any}}
 end

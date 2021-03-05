@@ -14,7 +14,6 @@ defmodule ExAws.Mixfile do
       name: "ExAws",
       source_url: @source_url,
       package: package(),
-      dialyzer: [flags: "--fullpath"],
       deps: deps(),
       docs: docs()
     ]
@@ -31,7 +30,7 @@ defmodule ExAws.Mixfile do
     [
       {:bypass, "~> 1.0", only: :test},
       {:configparser_ex, "~> 4.0", optional: true},
-      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.16", only: [:dev, :test]},
       {:hackney, "~> 1.9", optional: true},
       {:jason, "~> 1.1", optional: true},
