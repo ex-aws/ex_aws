@@ -15,7 +15,10 @@ defmodule ExAws.Mixfile do
       source_url: @source_url,
       package: package(),
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      dialyzer: [
+        plt_add_apps: [:mix, :hackney, :configparser_ex, :jsx]
+      ]
     ]
   end
 
@@ -30,7 +33,7 @@ defmodule ExAws.Mixfile do
     [
       {:bypass, "~> 1.0", only: :test},
       {:configparser_ex, "~> 4.0", optional: true},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.16", only: [:dev, :test]},
       {:hackney, "~> 1.9", optional: true},
       {:jason, "~> 1.1", optional: true},
