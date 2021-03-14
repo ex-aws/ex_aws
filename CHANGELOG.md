@@ -1,3 +1,12 @@
+v2.1.8
+- Fix regression introduced in 2.1.7 which broke creation of folders (#752)
+- Fixes to run cleanly under dialyzer
+- Fix ExAws.Request.HttpClient.request spec to include header fields required by S3
+- Fix S3 path handling on Windows
+- Add Athena for eu-west-2
+- Refactor auth cache refreshing (fixes issue #625)
+- `mix format` pass
+
 v2.1.7
 
 - Various documentation updates
