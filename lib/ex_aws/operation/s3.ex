@@ -59,7 +59,7 @@ defmodule ExAws.Operation.S3 do
     end
 
     def add_bucket_to_path(operation, config) do
-      path = Path.join(["/", operation.bucket, operation.path]) |> expand_dot()
+      path = "/#{operation.bucket}#{ensure_absolute(operation.path)}" |> expand_dot()
       {operation |> Map.put(:path, path), config}
     end
 
@@ -68,6 +68,9 @@ defmodule ExAws.Operation.S3 do
       params = operation.params |> Map.new() |> Map.put(operation.resource, 1)
       operation |> Map.put(:params, params)
     end
+
+    defp ensure_absolute(<<"/", _rest::binary>> = path), do: path
+    defp ensure_absolute(path), do: "/#{path}"
 
     # A subset of Elixir's built-in Path.expand/1 - because it's OS-specific
     # we can't use it to normalise paths with "." or ".." in them (otherwise
