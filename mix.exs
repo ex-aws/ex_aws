@@ -31,7 +31,7 @@ defmodule ExAws.Mixfile do
 
   defp deps() do
     [
-      {:bypass, "~> 1.0", only: :test},
+      {:bypass, "~> 2.1", only: :test},
       {:configparser_ex, "~> 4.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.16", only: [:dev, :test]},
