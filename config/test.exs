@@ -35,3 +35,5 @@ config :ex_aws, :s3,
   scheme: "https://",
   host: "s3.amazonaws.com",
   region: "us-east-1"
+
+config :ex_aws, :metadata, http_opts: [pool: :ex_aws_metadata]
