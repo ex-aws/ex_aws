@@ -1,3 +1,6 @@
+v2.1.9
+- Small tweak to correctly handle error responses from DynamoDB local v1.15
+
 v2.1.8
 - Fix regression introduced in 2.1.7 which broke creation of folders (#752)
 - Fixes to run cleanly under dialyzer
