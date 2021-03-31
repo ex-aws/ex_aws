@@ -107,12 +107,12 @@ defmodule ExAws.Request do
   def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
-        error_type
-        |> String.split("#")
-        |> case do
-          [_, type] -> handle_aws_error(type, message)
-          _ -> {:error, {:http_error, status, err}}
-        end
+        handle_error(error_type, message, status, err)
+
+      # Rather irritatingly, as of 1.15, the local version of DynamoDB returns this with a
+      # capital M in "Message"
+      {:ok, %{"__type" => error_type, "Message" => message} = err} ->
+        handle_error(error_type, message, status, err)
 
       _ ->
         {:error, {:http_error, status, error}}
@@ -133,6 +133,15 @@ defmodule ExAws.Request do
 
   def handle_aws_error(type, message) do
     {:error, {type, message}}
+  end
+
+  defp handle_error(error_type, message, status, err) do
+    error_type
+    |> String.split("#")
+    |> case do
+      [_, type] -> handle_aws_error(type, message)
+      _ -> {:error, {:http_error, status, err}}
+    end
   end
 
   def attempt_again?(attempt, reason, config) do
