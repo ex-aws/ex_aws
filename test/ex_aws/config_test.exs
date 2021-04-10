@@ -47,6 +47,25 @@ defmodule ExAws.ConfigTest do
     assert credentials.security_token == "TESTTOKEN"
   end
 
+  test "{:system} in profile name gets dynamic profile name" do
+    System.put_env("AWS_PROFILE", "custom-profile")
+
+    example_credentials = """
+    [custom-profile]
+    aws_access_key_id     = TESTKEYID
+    aws_secret_access_key = TESTSECRET
+    aws_session_token     = TESTTOKEN
+    """
+
+    credentials =
+      ExAws.CredentialsIni.parse_ini_file({:ok, example_credentials}, :system)
+      |> ExAws.CredentialsIni.replace_token_key()
+
+    assert credentials.access_key_id == "TESTKEYID"
+    assert credentials.secret_access_key == "TESTSECRET"
+    assert credentials.security_token == "TESTTOKEN"
+  end
+
   test "config file is parsed" do
     example_config = """
     [default]
@@ -64,7 +83,6 @@ defmodule ExAws.ConfigTest do
     assert :s3
            |> ExAws.Config.new(region: region_value)
            |> Map.get(:region) == region_value
-
   end
 
   test "region as an envar" do

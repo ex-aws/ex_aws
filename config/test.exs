@@ -3,7 +3,9 @@ use Mix.Config
 config :logger, level: :warn
 
 config :ex_aws,
-  json_codec: Test.JSONCodec
+  json_codec: Test.JSONCodec,
+  access_key_id: ["test_key_id"],
+  secret_access_key: ["secret_access_key"]
 
 config :ex_aws, :kinesis,
   scheme: "https://",
@@ -33,3 +35,5 @@ config :ex_aws, :s3,
   scheme: "https://",
   host: "s3.amazonaws.com",
   region: "us-east-1"
+
+config :ex_aws, :metadata, http_opts: [pool: :ex_aws_metadata]

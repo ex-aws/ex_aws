@@ -1,8 +1,7 @@
 defmodule ExAws do
-  @moduledoc "#{__DIR__}/../README.md"
-             |> File.read!()
-             |> String.split("<!-- MDOC !-->")
-             |> Enum.fetch!(1)
+  @moduledoc """
+  Module for making and processing AWS request
+  """
 
   use Application
 
@@ -89,7 +88,7 @@ defmodule ExAws do
   @impl Application
   def start(_type, _args) do
     children = [
-      {ExAws.Config.AuthCache, [name: ExAws.Config.AuthCache]}
+      ExAws.Config.AuthCache
     ]
 
     opts = [strategy: :one_for_one, name: ExAws.Supervisor]

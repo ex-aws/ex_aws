@@ -12,6 +12,10 @@ if Code.ensure_loaded?(ConfigParser) do
       Map.merge(config_credentials, shared_credentials)
     end
 
+    def parse_ini_file({:ok, contents}, :system) do
+      parse_ini_file({:ok, contents}, profile_name_from_env())
+    end
+
     def parse_ini_file({:ok, contents}, profile_name) do
       contents
       |> ConfigParser.parse_string()
@@ -63,6 +67,7 @@ if Code.ensure_loaded?(ConfigParser) do
     defp profile_from_config(profile_name) do
       section =
         case profile_name do
+          :system -> "profile #{profile_name_from_env()}"
           "default" -> "default"
           other -> "profile #{other}"
         end
@@ -71,6 +76,10 @@ if Code.ensure_loaded?(ConfigParser) do
       |> Path.join(".aws/config")
       |> File.read()
       |> parse_ini_file(section)
+    end
+
+    defp profile_name_from_env() do
+      System.get_env("AWS_PROFILE") || "default"
     end
   end
 else

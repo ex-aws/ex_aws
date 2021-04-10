@@ -35,17 +35,17 @@ defmodule ExAws.RequestTest do
     request_body = ""
 
     assert capture_log(fn ->
-      assert {:error, {:http_error, 301, "redirected"}} ==
-              ExAws.Request.request_and_retry(
-                http_method,
-                url,
-                service,
-                context[:config],
-                context[:headers],
-                request_body,
-                {:attempt, 1}
-              )
-    end) =~ "Received redirect, did you specify the correct region?"
+             assert {:error, {:http_error, 301, "redirected"}} ==
+                      ExAws.Request.request_and_retry(
+                        http_method,
+                        url,
+                        service,
+                        context[:config],
+                        context[:headers],
+                        request_body,
+                        {:attempt, 1}
+                      )
+           end) =~ "Received redirect, did you specify the correct region?"
   end
 
   test "handles encoding S3 URLs with params", context do

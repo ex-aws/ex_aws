@@ -1,3 +1,28 @@
+v2.1.9
+- Small tweak to correctly handle error responses from DynamoDB local v1.15
+
+v2.1.8
+- Fix regression introduced in 2.1.7 which broke creation of folders (#752)
+- Fixes to run cleanly under dialyzer
+- Fix ExAws.Request.HttpClient.request spec to include header fields required by S3
+- Fix S3 path handling on Windows
+- Add Athena for eu-west-2
+- Refactor auth cache refreshing (fixes issue #625)
+- `mix format` pass
+
+v2.1.7
+
+- Various documentation updates
+- Add `comprehend` endpoint
+- Support firehose in region ca-central-1
+- More documentation fixes
+- Add github workflow actions for CI
+- Add us-east-2 endpoint for SES
+- Use :crypto.mac/4 rather than the deprecated :crypto.hmac/3 when available
+- Support virtual-host style S3 buckets
+- Fix presigned URLs with embedded query parameter strings
+- Support reading profile for CLI config from AWS_PROFILE environment variable
+
 v2.1.6
 
 - Fixes/updates for various service endpoints

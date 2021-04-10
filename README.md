@@ -2,7 +2,7 @@
 
 <!-- MDOC !-->
 
-[![travis-ci.org](https://travis-ci.org/ex-aws/ex_aws.svg?branch=master)](https://travis-ci.org/ex-aws/ex_aws)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ex-aws/ex_aws/on-push)
 [![hex.pm](https://img.shields.io/hexpm/v/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/dt/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/l/ex_aws.svg)](https://hex.pm/packages/ex_aws)
@@ -81,6 +81,9 @@ AWS CLI config files are supported, but require an additional dependency:
 
 You can then add `{:awscli, "profile_name", timeout}` to the above config and
 it will pull information from `~/.aws/config` and `~/.aws/credentials`
+
+Alternatively, if you already have a profile name set in the `AWS_PROFILE` environment
+variable, you can use that with `{:awscli, :system, timeout}`
 
 ```elixir
 config :ex_aws,
