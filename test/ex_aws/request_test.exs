@@ -1,15 +1,22 @@
 defmodule ExAws.RequestTest do
   use ExUnit.Case, async: false
   import ExUnit.CaptureLog
+  alias ExAws.JSON.JSX
   import Mox
 
   setup do
     {:ok,
      config: %{
        http_client: ExAws.Request.HttpMock,
+       json_codec: JSX,
        access_key_id: "AKIAIOSFODNN7EXAMPLE",
        secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-       region: "us-east-1"
+       region: "us-east-1",
+       retries: [
+          max_attempts: 5,
+          base_backoff_in_ms: 1,
+          max_backoff_in_ms: 20
+        ]
      },
      headers: [
        {"x-amz-bucket-region", "us-east-1"},
@@ -84,6 +91,32 @@ defmodule ExAws.RequestTest do
     )
 
     assert {:ok, %{status_code: 200}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
+
+  test "ProvisionedThroughputExceededException is retried", context do
+    exception = "{\"__type\": \"ProvisionedThroughputExceededException\", \"message\": \"Rate exceeded for shard shardId-000000000005 in stream my_stream under account 1234567890.\"}"
+    success = "{\"SequenceNumber\":\"49592207023850419758877078054930583111417627497740632066\",\"ShardId\":\"shardId-000000000000\"}"
+
+
+    ExAws.Request.HttpMock
+    |> expect(:request, 2, fn _method, _url, _body, _headers, _opts -> {:ok, %{status_code: 400, body: exception}} end)
+    |> expect(:request, fn _method, _url, _body, _headers, _opts -> {:ok, %{status_code: 200, body: success}} end)
+
+    http_method = :post
+    url = "https://kinesis.aws.com/"
+    service = :kinesis
+    request_body = ""
+
+    assert {:ok, %{body: success, status_code: 200}} ==
              ExAws.Request.request_and_retry(
                http_method,
                url,
