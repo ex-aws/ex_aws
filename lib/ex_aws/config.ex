@@ -122,8 +122,19 @@ defmodule ExAws.Config do
 
   def parse_host_for_region(config), do: config
 
-  def awscli_auth_adapter do
-    Application.get_env(:ex_aws, :awscli_auth_adapter, nil)
+  def awscli_auth_adapter, do: Application.get_env(:ex_aws, :awscli_auth_adapter, nil)
+
+  def awscli_auth_credentials(profile, credentials_ini_provider \\ ExAws.CredentialsIni.File) do
+    case Application.get_env(:ex_aws, :awscli_credentials, nil) do
+      nil ->
+        credentials_ini_provider.security_credentials(profile)
+
+      %{^profile => profile_credentials} ->
+        profile_credentials
+
+      _otherwise ->
+        raise("Missing #{profile} in provided credentials.")
+    end
   end
 
   defp valid_map_or_nil(map) when map == %{}, do: nil

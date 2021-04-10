@@ -64,7 +64,7 @@ defmodule ExAws.Config.AuthCache do
   def refresh_awscli_config(profile, expiration, ets) do
     Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
 
-    auth = ExAws.CredentialsIni.security_credentials(profile)
+    auth = ExAws.Config.awscli_auth_credentials(profile)
 
     auth =
       case ExAws.Config.awscli_auth_adapter() do
