@@ -1,3 +1,12 @@
+v2.2.0
+- Add us-west-1 to list of supported ses services.
+- Handle aws errors that do not have a `#` in the type
+- [Breaking] Allow STS credentials to be injected by configuration
+  - This change moves the `ExAws.CredentialsIni` functions into
+    `ExAws.CredentialsIni.File` and turns the former into a behaviour definition.
+    Any explicit uses of `ExAws.CredentialsIni.<function>` will need to be
+    replaced with `ExAws.CredentialsIni.File.<function>`.
+
 v2.1.9
 - Small tweak to correctly handle error responses from DynamoDB local v1.15
 
