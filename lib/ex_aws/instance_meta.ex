@@ -88,7 +88,7 @@ defmodule ExAws.InstanceMeta do
 
     overrides =
       Application.get_env(:ex_aws, :metadata, [])
-      |> Keyword.get(:http_opts)
+      |> Keyword.get(:http_opts, [])
 
     Keyword.merge(defaults, overrides)
   end
