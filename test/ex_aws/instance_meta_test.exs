@@ -24,10 +24,12 @@ defmodule ExAws.InstanceMetaTest do
   describe "metadata options" do
     setup %{metadata_opts: metadata_opts} do
       metadata_opts_old = Application.get_env(:ex_aws, :metadata, nil)
+
       on_exit(fn ->
         case metadata_opts_old do
           nil ->
             Application.delete_env(:ex_aws, :metadata)
+
           _other ->
             Application.put_env(:ex_aws, :metadata, metadata_opts_old)
         end
