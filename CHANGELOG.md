@@ -1,3 +1,7 @@
+v2.2.1
+- Fix regression in 2.2.0 requiring metadata instance config parameter
+- Fix calculation of authentication cache time
+
 v2.2.0
 - Add us-west-1 to list of supported ses services.
 - Handle aws errors that do not have a `#` in the type
