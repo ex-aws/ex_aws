@@ -121,16 +121,14 @@ defmodule ExAws.Config.AuthCache do
 
   defp next_refresh_in(%{expiration: expiration}) do
     try do
-      time_to_expiration =
+      expires_in_ms =
         expiration
         |> NaiveDateTime.from_iso8601!()
-        |> NaiveDateTime.diff(NaiveDateTime.utc_now())
+        |> NaiveDateTime.diff(NaiveDateTime.utc_now(), :millisecond)
 
-      expires_in_ms = max(0, 1000 * time_to_expiration)
-
-      # check either when it expires, or lead_time before that
-      # whichever is longer
-      max(expires_in_ms, expires_in_ms - @refresh_lead_time)
+      # refresh lead_time before auth expires, unless the time has passed
+      # otherwise refresh needed now
+      max(0, expires_in_ms - @refresh_lead_time)
     rescue
       _e -> 0
     end
