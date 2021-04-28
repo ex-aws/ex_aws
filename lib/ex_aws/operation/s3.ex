@@ -26,7 +26,6 @@ defmodule ExAws.Operation.S3 do
 
       url =
         operation
-        |> ensure_absolute_path()
         |> add_resource_to_params()
         |> ExAws.Request.Url.build(config)
 
@@ -56,7 +55,9 @@ defmodule ExAws.Operation.S3 do
 
     def add_bucket_to_path(operation, %{virtual_host: true, host: base_host} = config) do
       vhost_domain = "#{operation.bucket}.#{base_host}"
-      {operation, Map.put(config, :host, vhost_domain)}
+
+      {put_in(operation.path, ensure_absolute(operation.path)),
+       Map.put(config, :host, vhost_domain)}
     end
 
     def add_bucket_to_path(operation, config) do
