@@ -2,7 +2,7 @@ defmodule ExAws.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ex-aws/ex_aws"
-  @version "2.1.7"
+  @version "2.2.1"
 
   def project do
     [
@@ -14,9 +14,11 @@ defmodule ExAws.Mixfile do
       name: "ExAws",
       source_url: @source_url,
       package: package(),
-      dialyzer: [flags: "--fullpath"],
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      dialyzer: [
+        plt_add_apps: [:mix, :hackney, :configparser_ex, :jsx]
+      ]
     ]
   end
 
@@ -29,14 +31,14 @@ defmodule ExAws.Mixfile do
 
   defp deps() do
     [
-      {:bypass, "~> 1.0", only: :test},
+      {:bypass, "~> 2.1", only: :test},
       {:configparser_ex, "~> 4.0", optional: true},
-      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.16", only: [:dev, :test]},
       {:hackney, "~> 1.9", optional: true},
       {:jason, "~> 1.1", optional: true},
-      {:jsx, "~> 2.8", optional: true},
-      {:mox, "~> 0.3", only: :test},
+      {:jsx, "~> 3.0", optional: true},
+      {:mox, "~> 1.0", only: :test},
       {:sweet_xml, "~> 0.6", optional: true}
     ]
   end

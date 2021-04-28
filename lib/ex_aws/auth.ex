@@ -219,8 +219,6 @@ defmodule ExAws.Auth do
     |> Enum.join(";")
   end
 
-  defp canonical_query_params(nil), do: ""
-
   defp canonical_query_params(params) do
     params
     |> Enum.sort(&compare_query_params/2)

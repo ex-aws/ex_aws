@@ -47,4 +47,28 @@ defmodule ExAws.Operation.S3Test do
     assert(processed_config.host == "#{operation.bucket}.#{config.host}")
     assert(processed_operation.path == operation.path)
   end
+
+  test "ensure paths with . and .. are correctly resolved" do
+    config = ExAws.Config.new(:s3)
+    operation = %{s3_operation() | path: "a/../b/../c/./d"}
+
+    {processed_operation, _processed_config} = S3.add_bucket_to_path(operation, config)
+    assert processed_operation.path == "/my-bucket-1/c/d"
+  end
+
+  test "ensure paths ending with / preserve the trailing /" do
+    config = ExAws.Config.new(:s3) |> Map.put(:virtual_host, false)
+    operation = %{s3_operation() | path: "folder/"}
+
+    {processed_operation, _processed_config} = S3.add_bucket_to_path(operation, config)
+    assert processed_operation.path == "/my-bucket-1/folder/"
+  end
+
+  test "ensure paths ending with / preserve the trailing / (virtual-host)" do
+    config = ExAws.Config.new(:s3) |> Map.put(:virtual_host, true)
+    operation = %{s3_operation() | path: "folder/"}
+
+    {processed_operation, _processed_config} = S3.add_bucket_to_path(operation, config)
+    assert processed_operation.path == "folder/"
+  end
 end

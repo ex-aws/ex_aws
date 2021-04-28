@@ -1,3 +1,28 @@
+v2.2.1
+- Fix regression in 2.2.0 requiring metadata instance config parameter
+- Fix calculation of authentication cache time
+
+v2.2.0
+- Add us-west-1 to list of supported ses services.
+- Handle aws errors that do not have a `#` in the type
+- [Breaking] Allow STS credentials to be injected by configuration
+  - This change moves the `ExAws.CredentialsIni` functions into
+    `ExAws.CredentialsIni.File` and turns the former into a behaviour definition.
+    Any explicit uses of `ExAws.CredentialsIni.<function>` will need to be
+    replaced with `ExAws.CredentialsIni.File.<function>`.
+
+v2.1.9
+- Small tweak to correctly handle error responses from DynamoDB local v1.15
+
+v2.1.8
+- Fix regression introduced in 2.1.7 which broke creation of folders (#752)
+- Fixes to run cleanly under dialyzer
+- Fix ExAws.Request.HttpClient.request spec to include header fields required by S3
+- Fix S3 path handling on Windows
+- Add Athena for eu-west-2
+- Refactor auth cache refreshing (fixes issue #625)
+- `mix format` pass
+
 v2.1.7
 
 - Various documentation updates

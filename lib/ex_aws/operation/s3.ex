@@ -60,7 +60,7 @@ defmodule ExAws.Operation.S3 do
     end
 
     def add_bucket_to_path(operation, config) do
-      path = Path.join(["/", operation.bucket, operation.path]) |> Path.expand()
+      path = "/#{operation.bucket}#{ensure_absolute(operation.path)}" |> expand_dot()
       {operation |> Map.put(:path, path), config}
     end
 
@@ -70,6 +70,21 @@ defmodule ExAws.Operation.S3 do
       operation |> Map.put(:params, params)
     end
 
-    defp ensure_absolute_path(operation), do: put_in(operation.path, Path.join(["/", operation.path]))
+    defp ensure_absolute(<<"/", _rest::binary>> = path), do: path
+    defp ensure_absolute(path), do: "/#{path}"
+
+    # A subset of Elixir's built-in Path.expand/1 - because it's OS-specific
+    # we can't use it to normalise paths with "." or ".." in them (otherwise
+    # it breaks on Windows because the /'s become \'s).
+    defp expand_dot(<<"/", rest::binary>>), do: "/" <> do_expand_dot(rest)
+    defp expand_dot(path), do: do_expand_dot(path)
+
+    defp do_expand_dot(path), do: do_expand_dot(:binary.split(path, "/", [:global]), [])
+    defp do_expand_dot([".." | t], [_, _ | acc]), do: do_expand_dot(t, acc)
+    defp do_expand_dot([".." | t], []), do: do_expand_dot(t, [])
+    defp do_expand_dot(["." | t], acc), do: do_expand_dot(t, acc)
+    defp do_expand_dot([h | t], acc), do: do_expand_dot(t, ["/", h | acc])
+    defp do_expand_dot([], []), do: ""
+    defp do_expand_dot([], ["/" | acc]), do: IO.iodata_to_binary(:lists.reverse(acc))
   end
 end
