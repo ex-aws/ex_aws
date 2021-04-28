@@ -26,7 +26,7 @@ defmodule ExAws.Operation.S3 do
 
       url =
         operation
-        |> normalize_path()
+        |> ensure_absolute_path()
         |> add_resource_to_params()
         |> ExAws.Request.Url.build(config)
 
@@ -64,23 +64,12 @@ defmodule ExAws.Operation.S3 do
       {operation |> Map.put(:path, path), config}
     end
 
-    @spec normalize_path(operation :: ExAws.Operation.S3.t()) ::
-            ExAws.Operation.S3.t()
-    def normalize_path(operation) do
-      normalized_path =
-        if String.first(operation.path) === "/" do
-          operation.path
-        else
-          Path.join(["/", operation.path])
-        end
-
-      operation |> Map.put(:path, normalized_path)
-    end
-
     @spec add_resource_to_params(operation :: ExAws.Operation.S3.t()) :: ExAws.Operation.S3.t()
     def add_resource_to_params(operation) do
       params = operation.params |> Map.new() |> Map.put(operation.resource, 1)
       operation |> Map.put(:params, params)
     end
+
+    defp ensure_absolute_path(operation), do: put_in(operation.path, Path.join(["/", operation.path]))
   end
 end
