@@ -1,15 +1,19 @@
 if Code.ensure_loaded?(ConfigParser) do
-  defmodule ExAws.CredentialsIni do
+  defmodule ExAws.CredentialsIni.File do
     # as per https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
     @valid_config_keys ~w(
       aws_access_key_id aws_secret_access_key aws_session_token region
-      role_arn source_profile credential_source external_id mfa_serial role_session_name
+      role_arn source_profile credential_source external_id mfa_serial role_session_name credential_process
     )
 
     def security_credentials(profile_name) do
       shared_credentials = profile_from_shared_credentials(profile_name)
       config_credentials = profile_from_config(profile_name)
       Map.merge(config_credentials, shared_credentials)
+    end
+
+    def parse_ini_file({:ok, contents}, :system) do
+      parse_ini_file({:ok, contents}, profile_name_from_env())
     end
 
     def parse_ini_file({:ok, contents}, profile_name) do
@@ -36,7 +40,7 @@ if Code.ensure_loaded?(ConfigParser) do
         updated_key =
           key
           |> String.replace_leading("aws_", "")
-          |> String.to_existing_atom()
+          |> String.to_atom()
 
         {updated_key, val}
       end)
@@ -63,6 +67,7 @@ if Code.ensure_loaded?(ConfigParser) do
     defp profile_from_config(profile_name) do
       section =
         case profile_name do
+          :system -> "profile #{profile_name_from_env()}"
           "default" -> "default"
           other -> "profile #{other}"
         end
@@ -72,9 +77,13 @@ if Code.ensure_loaded?(ConfigParser) do
       |> File.read()
       |> parse_ini_file(section)
     end
+
+    defp profile_name_from_env() do
+      System.get_env("AWS_PROFILE") || "default"
+    end
   end
 else
-  defmodule ExAws.CredentialsIni do
+  defmodule ExAws.CredentialsIni.File do
     def security_credentials(_), do: raise("ConfigParser required to use")
     def parse_ini_file(_, _), do: raise("ConfigParser required to use")
     def replace_token_key(_), do: raise("ConfigParser required to use")

@@ -14,3 +14,4 @@ erl_crash.dump
 # IntelliJ IDEA files
 /.idea
 /exaws.iml
+.elixir_ls

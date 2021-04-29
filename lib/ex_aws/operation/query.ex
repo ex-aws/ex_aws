@@ -10,6 +10,7 @@ defmodule ExAws.Operation.Query do
 
   defstruct path: "/",
             params: %{},
+            content_encoding: "identity",
             service: nil,
             action: nil,
             parser: &ExAws.Utils.identity/2
@@ -21,13 +22,20 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
   def perform(operation, config) do
     data = operation.params |> URI.encode_query()
 
+    data =
+      case operation.content_encoding do
+        "identity" -> data
+        "gzip" -> :zlib.gzip(data)
+      end
+
     url =
       operation
       |> Map.delete(:params)
       |> ExAws.Request.Url.build(config)
 
     headers = [
-      {"content-type", "application/x-www-form-urlencoded"}
+      {"content-type", "application/x-www-form-urlencoded"},
+      {"content-encoding", operation.content_encoding}
     ]
 
     result = ExAws.Request.request(:post, url, data, headers, config, operation.service)

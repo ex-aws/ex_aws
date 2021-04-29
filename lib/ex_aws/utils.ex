@@ -60,33 +60,6 @@ defmodule ExAws.Utils do
   def upcase(value) when is_binary(value), do: String.upcase(value)
   def upcase(char), do: :string.to_upper(char)
 
-  @seconds_0_to_1970 :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
-
-  def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">> <> _) do
-    [year, mon, day] =
-      date
-      |> String.split("-")
-      |> Enum.map(&String.to_integer/1)
-
-    [hour, min, sec] =
-      time
-      |> String.split(":")
-      |> Enum.map(&String.to_integer/1)
-
-    # Seriously? Gregorian seconds but not epoch seconds?
-    greg_secs = :calendar.datetime_to_gregorian_seconds({{year, mon, day}, {hour, min, sec}})
-    greg_secs - @seconds_0_to_1970
-  end
-
-  def now_in_seconds do
-    greg_secs =
-      :os.timestamp()
-      |> :calendar.now_to_universal_time()
-      |> :calendar.datetime_to_gregorian_seconds()
-
-    greg_secs - @seconds_0_to_1970
-  end
-
   def uuid, do: DateTime.utc_now() |> :erlang.phash2()
 
   def rename_keys(params, mapping) do
@@ -119,7 +92,6 @@ defmodule ExAws.Utils do
   end
 
   defp xml_format([nested | _] = params, prefix: pre, spec: spec) when is_list(nested) do
-    # IO.inspect("nested")
     params
     |> Stream.with_index(1)
     |> Stream.map(fn {params, i} -> {params, Integer.to_string(i)} end)
@@ -130,7 +102,6 @@ defmodule ExAws.Utils do
   end
 
   defp xml_format([param | _] = params, prefix: pre, spec: spec) when is_tuple(param) do
-    # IO.inspect("prefixed")
     params
     |> Stream.map(fn {key, values} -> {maybe_camelize(key, spec: spec), values} end)
     |> Stream.flat_map(fn {key, values} ->
@@ -141,7 +112,6 @@ defmodule ExAws.Utils do
 
   # Non-indexed formats
   defp xml_format(params, kwargs) when is_list(params) do
-    # IO.inspect("values")
     pre = kwargs[:prefix]
 
     params
