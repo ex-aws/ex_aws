@@ -35,7 +35,7 @@ defmodule ExAws.Mixfile do
       {:configparser_ex, "~> 4.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.16", only: [:dev, :test]},
-      {:hackney, "~> 1.9", optional: true},
+      {:hackney, "~> 1.16", optional: true},
       {:jason, "~> 1.1", optional: true},
       {:jsx, "~> 3.0", optional: true},
       {:mox, "~> 1.0", only: :test},
