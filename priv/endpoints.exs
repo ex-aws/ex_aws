@@ -9,8 +9,9 @@
       "dnsSuffix" => "amazonaws.com",
       "partition" => "aws",
       "partitionName" => "AWS Standard",
-      "regionRegex" => "^(us|eu|ap|sa|ca)\\-\\w+\\-\\d+$",
+      "regionRegex" => "^(us|eu|af|ap|sa|ca)\\-\\w+\\-\\d+$",
       "regions" => %{
+        "af-south-1" => %{"description" => "Africa (Cape Town)"},
         "ap-northeast-1" => %{"description" => "Asia Pacific (Tokyo)"},
         "ap-northeast-2" => %{"description" => "Asia Pacific (Seoul)"},
         "ap-east-1" => %{"description" => "Asia Pacific (Hong Kong)"},
@@ -45,6 +46,7 @@
         },
         "firehose" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-southeast-1" => %{},
             "ap-southeast-2" => %{},
@@ -111,6 +113,7 @@
         },
         "config" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
@@ -164,6 +167,7 @@
         },
         "snowball" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-south-1" => %{},
             "ap-southeast-1" => %{},
@@ -412,6 +416,7 @@
         "sns" => %{
           "defaults" => %{"protocols" => ["http", "https"]},
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
@@ -434,6 +439,7 @@
         "health" => %{"endpoints" => %{"us-east-1" => %{}}},
         "glue" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-south-1" => %{},
@@ -486,6 +492,7 @@
         },
         "lambda" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
@@ -780,6 +787,7 @@
         "ec2" => %{
           "defaults" => %{"protocols" => ["http", "https"]},
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
@@ -870,6 +878,7 @@
         },
         "apigateway" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
@@ -938,6 +947,7 @@
         },
         "sms" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-south-1" => %{},
@@ -957,6 +967,7 @@
         },
         "rds" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
@@ -1293,6 +1304,7 @@
         },
         "elasticbeanstalk" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
@@ -1366,6 +1378,7 @@
             "hostname" => "sts.amazonaws.com"
           },
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{
               "credentialScope" => %{"region" => "ap-northeast-2"},
