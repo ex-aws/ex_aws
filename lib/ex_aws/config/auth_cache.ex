@@ -25,7 +25,6 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def get(profile, expiration) do
-
     case :ets.lookup(__MODULE__, {:awscli, profile}) do
       [{{:awscli, ^profile}, auth_config}] ->
         auth_config
