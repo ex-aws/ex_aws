@@ -50,6 +50,19 @@ defmodule ExAws do
 
       ExAws.request(op)
 
+  ## Telemetry events
+
+  ### `[:ex_aws, :request]`
+
+  This event is invoked on every request sent to the aws.
+
+  With `:metadata` map including the following fields:
+
+    * `:result` - the request result: `:ok` or `:error`
+    * `:attempt` - the attempt number
+    * `:options` - extra options given to the repo operation under
+      `:telemetry_options`
+
   """
   @impl ExAws.Behaviour
   def request(op, config_overrides \\ []) do
