@@ -19,6 +19,12 @@ defmodule ExAws do
   This is useful if you want to have certain configuration changed on a per
   request basis.
 
+  Also you can configure telemetry metrics with:
+
+    * `:telemetry_event` - The telemetry event name to dispatch the event under.
+      Defaults to `[:ex_aws, :request]`.
+    * `:telemetry_options` - Extra options to attach to telemetry event name.
+
   ## Examples
 
   If you have one of the service modules installed, you can just use those service
