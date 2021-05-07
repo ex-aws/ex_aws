@@ -1267,6 +1267,10 @@
               "hostname" => "s3.ap-southeast-2.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
             },
+            "af-south-1" => %{
+              "hostname" => "s3.af-south-1.amazonaws.com",
+              "signatureVersions" => ["s3", "s3v4"]
+            },
             "ca-central-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{
