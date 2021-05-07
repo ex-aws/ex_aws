@@ -15,7 +15,9 @@ defmodule ExAws.Config do
     :region,
     :security_token,
     :retries,
-    :normalize_path
+    :normalize_path,
+    :telemetry_event,
+    :telemetry_options
   ]
 
   @type t :: %{} | Keyword.t()
@@ -66,6 +68,12 @@ defmodule ExAws.Config do
 
       {:http_opts, http_opts}, config ->
         Map.put(config, :http_opts, http_opts)
+
+      {:telemetry_event, telemetry_event}, config ->
+        Map.put(config, :telemetry_event, telemetry_event)
+
+      {:telemetry_options, telemetry_options}, config ->
+        Map.put(config, :telemetry_options, telemetry_options)
 
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
