@@ -52,9 +52,11 @@ defmodule ExAws do
 
   ## Telemetry events
 
-  ### `[:ex_aws, :request]`
+  The following events are published:
 
-  This event is invoked on every request sent to the aws.
+  * `[:ex_aws, :request, :start]` - dispatched on start every request sent to the AWS.
+  * `[:ex_aws, :request, :stop]` - dispatched on every response from AWS.
+  * `[:ex_aws, :request, :exception]` - dispatched after exceptions on request sent to AWS.
 
   With `:metadata` map including the following fields:
 
