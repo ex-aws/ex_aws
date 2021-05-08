@@ -1,3 +1,7 @@
+v2.2.3
+- Add af-south-1 S3 region
+- Add support for telemetry events
+
 v2.2.2
 - Add sa-east-1 region to cognito-idp service
 - Support for af-south-1
