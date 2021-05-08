@@ -39,13 +39,7 @@ defmodule ExAws.Request do
         )
       end
 
-      case config[:http_client].request(
-             method,
-             safe_url,
-             req_body,
-             full_headers,
-             Map.get(config, :http_opts, [])
-           ) do
+      case do_request(config, method, safe_url, req_body, full_headers, attempt) do
         {:ok, %{status_code: status} = resp} when status in 200..299 or status == 304 ->
           {:ok, resp}
 
@@ -102,6 +96,32 @@ defmodule ExAws.Request do
           )
       end
     end
+  end
+
+  defp do_request(config, method, safe_url, req_body, full_headers, attempt) do
+    telemetry_event = Map.get(config, :telemetry_event, [:ex_aws, :request])
+    telemetry_options = Map.get(config, :telemetry_options, [])
+    telemetry_metadata = %{options: telemetry_options, attempt: attempt}
+
+    :telemetry.span(telemetry_event, telemetry_metadata, fn ->
+      result =
+        config[:http_client].request(
+          method,
+          safe_url,
+          req_body,
+          full_headers,
+          Map.get(config, :http_opts, [])
+        )
+
+      telemetry_result =
+        case result do
+          {:ok, %{status_code: status}} when status in 200..299 or status == 304 -> :ok
+          _ -> :error
+        end
+
+      telemetry_metadata = Map.put(telemetry_metadata, :result, telemetry_result)
+      {result, telemetry_metadata}
+    end)
   end
 
   def client_error(%{status_code: status, body: body} = error, json_codec) do

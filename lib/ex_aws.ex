@@ -19,6 +19,12 @@ defmodule ExAws do
   This is useful if you want to have certain configuration changed on a per
   request basis.
 
+  Also you can configure telemetry metrics with:
+
+    * `:telemetry_event` - The telemetry event name to dispatch the event under.
+      Defaults to `[:ex_aws, :request]`.
+    * `:telemetry_options` - Extra options to attach to telemetry event name.
+
   ## Examples
 
   If you have one of the service modules installed, you can just use those service
@@ -43,6 +49,21 @@ defmodule ExAws do
       }
 
       ExAws.request(op)
+
+  ## Telemetry events
+
+  The following events are published:
+
+  * `[:ex_aws, :request, :start]` - dispatched on start every request sent to the AWS.
+  * `[:ex_aws, :request, :stop]` - dispatched on every response from AWS.
+  * `[:ex_aws, :request, :exception]` - dispatched after exceptions on request sent to AWS.
+
+  With `:metadata` map including the following fields:
+
+    * `:result` - the request result: `:ok` or `:error`
+    * `:attempt` - the attempt number
+    * `:options` - extra options given to the repo operation under
+      `:telemetry_options`
 
   """
   @impl ExAws.Behaviour

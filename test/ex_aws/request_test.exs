@@ -26,6 +26,8 @@ defmodule ExAws.RequestTest do
   end
 
   test "301 redirect", context do
+    TelemetryHelper.attach_telemetry([:ex_aws, :request])
+
     ExAws.Request.HttpMock
     |> expect(:request, fn _method, _url, _body, _headers, _opts -> {:ok, %{status_code: 301}} end)
 
@@ -46,6 +48,19 @@ defmodule ExAws.RequestTest do
                         {:attempt, 1}
                       )
            end) =~ "Received redirect, did you specify the correct region?"
+
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _},
+                    %{
+                      options: [],
+                      attempt: 1
+                    }}
+
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _},
+                    %{
+                      options: [],
+                      attempt: 1,
+                      result: :error
+                    }}
   end
 
   test "handles encoding S3 URLs with params", context do
@@ -53,6 +68,8 @@ defmodule ExAws.RequestTest do
     url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt?acl=21"
     service = :s3
     request_body = ""
+
+    TelemetryHelper.attach_telemetry([:ex_aws, :request])
 
     expect(
       ExAws.Request.HttpMock,
@@ -73,6 +90,19 @@ defmodule ExAws.RequestTest do
                request_body,
                {:attempt, 1}
              )
+
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _},
+                    %{
+                      options: [],
+                      attempt: 1
+                    }}
+
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _},
+                    %{
+                      options: [],
+                      attempt: 1,
+                      result: :ok
+                    }}
   end
 
   test "handles encoding S3 URLs without params", context do
@@ -109,6 +139,8 @@ defmodule ExAws.RequestTest do
     success =
       "{\"SequenceNumber\":\"49592207023850419758877078054930583111417627497740632066\",\"ShardId\":\"shardId-000000000000\"}"
 
+    TelemetryHelper.attach_telemetry([:ex_aws, :request])
+
     ExAws.Request.HttpMock
     |> expect(:request, 2, fn _method, _url, _body, _headers, _opts ->
       {:ok, %{status_code: 400, body: exception}}
@@ -132,5 +164,12 @@ defmodule ExAws.RequestTest do
                request_body,
                {:attempt, 1}
              )
+
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 1}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 1, result: :error}}
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 2}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 2, result: :error}}
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 3}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 3, result: :ok}}
   end
 end
