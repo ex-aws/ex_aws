@@ -24,7 +24,7 @@ jobs:
       - run: mix deps.get
       - run: mix compile
       - run: mix format --check-formatted
-        if: matrix.elixir == '1.11.3' # Only check formatting with the latest verison
+        if: matrix.elixir == '1.11.4' # Only check formatting with the latest verison
       - run: mix dialyzer
-        if: matrix.elixir == '1.11.3'
+        if: matrix.elixir == '1.11.4'
       - run: mix test
