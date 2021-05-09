@@ -76,7 +76,7 @@ This means it will try to resolve credentials in order:
 AWS CLI config files are supported, but require an additional dependency:
 
 ```elixir
-{:configparser_ex, "~> 2.0"}
+{:configparser_ex, "~> 4.0"}
 ```
 
 You can then add `{:awscli, "profile_name", timeout}` to the above config and
