@@ -192,12 +192,8 @@ defmodule ExAws.Auth do
     |> IO.iodata_to_binary()
   end
 
-  defp remove_dup_spaces(""), do: ""
-  defp remove_dup_spaces("  " <> rest), do: remove_dup_spaces(" " <> rest)
-
-  defp remove_dup_spaces(<<char::binary-1, rest::binary>>) do
-    char <> remove_dup_spaces(rest)
-  end
+  def remove_dup_spaces(""), do: ""
+  def remove_dup_spaces(<<value::binary>>), do: Regex.replace(~r/^\s+/, value, " ")
 
   defp string_to_sign(request, service, datetime, config) do
     request = hash_sha256(request)
