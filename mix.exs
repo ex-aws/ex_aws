@@ -47,7 +47,7 @@ defmodule ExAws.Mixfile do
   defp package do
     [
       description: description(),
-      files: ["priv", "lib", "config", "mix.exs", "README*"],
+      files: ["priv", "lib", "config", "mix.exs", "README*, LICENSE"],
       maintainers: ["Bernard Duggan", "Ben Wilson"],
       licenses: ["MIT"],
       links: %{
