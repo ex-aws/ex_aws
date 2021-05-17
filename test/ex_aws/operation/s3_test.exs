@@ -69,6 +69,6 @@ defmodule ExAws.Operation.S3Test do
     operation = %{s3_operation() | path: "folder/"}
 
     {processed_operation, _processed_config} = S3.add_bucket_to_path(operation, config)
-    assert processed_operation.path == "folder/"
+    assert processed_operation.path == "/folder/"
   end
 end
