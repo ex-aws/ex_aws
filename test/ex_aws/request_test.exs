@@ -133,4 +133,32 @@ defmodule ExAws.RequestTest do
                {:attempt, 1}
              )
   end
+
+  test "Expected sequence token is provided", context do
+    exception =
+      "{\"__type\": \"InvalidSequenceTokenException\", \"message\": \"The given sequenceToken is invalid. The next expected sequenceToken is: 49616449618992442982853194240983586320797062450229805234\", \"expectedSequenceToken\": \"49616449618992442982853194240983586320797062450229805234\"}"
+
+    ExAws.Request.HttpMock
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 400, body: exception}}
+    end)
+
+    http_method = :post
+    url = "https://kinesis.aws.com/"
+    service = :kinesis
+    request_body = ""
+
+    assert {:error,
+            {"InvalidSequenceTokenException", _,
+             "49616449618992442982853194240983586320797062450229805234"}} =
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
 end
