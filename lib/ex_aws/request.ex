@@ -123,15 +123,19 @@ defmodule ExAws.Request do
     {:error, {:http_error, status, error}}
   end
 
-  def handle_aws_error("ProvisionedThroughputExceededException" = type, message) do
+  def handle_aws_error("ProvisionedThroughputExceededException" = type, message, _) do
     {:retry, {type, message}}
   end
 
-  def handle_aws_error("ThrottlingException" = type, message) do
+  def handle_aws_error("ThrottlingException" = type, message, _) do
     {:retry, {type, message}}
   end
 
-  def handle_aws_error(type, message) do
+  def handle_aws_error(type, message, %{"expectedSequenceToken" => expected_sequence_token}) do
+    {:error, {type, message, expected_sequence_token}}
+  end
+
+  def handle_aws_error(type, message, _) do
     {:error, {type, message}}
   end
 
@@ -139,8 +143,8 @@ defmodule ExAws.Request do
     error_type
     |> String.split("#")
     |> case do
-      [_, type] -> handle_aws_error(type, message)
-      [type] -> handle_aws_error(type, message)
+      [_, type] -> handle_aws_error(type, message, err)
+      [type] -> handle_aws_error(type, message, err)
       _ -> {:error, {:http_error, status, err}}
     end
   end
