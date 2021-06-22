@@ -29,6 +29,7 @@ defmodule ExAws.Request.Url do
   end
 
   defp normalize_path(url, false), do: url
+
   defp normalize_path(url, _normalize) do
     url |> Map.update(:path, "", &String.replace(&1, ~r/\/{2,}/, "/"))
   end

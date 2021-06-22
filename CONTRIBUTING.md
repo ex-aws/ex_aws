@@ -83,6 +83,10 @@ Unfortunately however my own (Ben Wilson) efforts at this keep hitting dead ends
 
 For now, it's been simply easier to build helper modules by hand. Who knows, maybe you're up for building ExAws v3.0?
 
+## Formatting and code style
+
+Before opening a PR, please run `mix format` over your changes with a recent Elixir version, and also `mix dialyzer` to make sure you haven't introduced any typing errors.
+
 ## Running Tests
 Running the test suite for ex_aws requires a few things:
 

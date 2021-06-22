@@ -1,6 +1,14 @@
 defmodule ExAws.ConfigTest do
   use ExUnit.Case, async: true
 
+  setup do
+    Application.delete_env(:ex_aws, :awscli_credentials)
+
+    on_exit(fn ->
+      Application.delete_env(:ex_aws, :awscli_credentials)
+    end)
+  end
+
   test "overrides work properly" do
     config = ExAws.Config.new(:s3, region: "us-west-2")
     assert config.region == "us-west-2"
@@ -30,32 +38,56 @@ defmodule ExAws.ConfigTest do
            |> Map.get(:security_token) == value
   end
 
-  test "credentials file is parsed" do
-    example_credentials = """
-    [default]
-    aws_access_key_id     = TESTKEYID
-    aws_secret_access_key = TESTSECRET
-    aws_session_token     = TESTTOKEN
-    """
+  test "config file is parsed if no given credentials in configuraion" do
+    profile = "default"
 
-    credentials =
-      ExAws.CredentialsIni.parse_ini_file({:ok, example_credentials}, "default")
-      |> ExAws.CredentialsIni.replace_token_key()
+    Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 1, fn ^profile ->
+      %{region: "eu-west-1"}
+    end)
 
-    assert credentials.access_key_id == "TESTKEYID"
-    assert credentials.secret_access_key == "TESTSECRET"
-    assert credentials.security_token == "TESTTOKEN"
-  end
-
-  test "config file is parsed" do
-    example_config = """
-    [default]
-    region = eu-west-1
-    """
-
-    config = ExAws.CredentialsIni.parse_ini_file({:ok, example_config}, "default")
+    config = ExAws.Config.awscli_auth_credentials(profile, ExAws.Credentials.InitMock)
 
     assert config.region == "eu-west-1"
+  end
+
+  test "profile config returned if given credentials in configuration" do
+    profile = "default"
+
+    example_credentials = %{
+      "default" => %{
+        region: "eu-west-1"
+      }
+    }
+
+    Application.put_env(:ex_aws, :awscli_credentials, example_credentials)
+
+    Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 0, fn ^profile ->
+      %{region: "eu-west-1"}
+    end)
+
+    config = ExAws.Config.awscli_auth_credentials(profile, ExAws.Credentials.InitMock)
+
+    assert config.region == "eu-west-1"
+  end
+
+  test "error on wrong credentials configuration" do
+    profile = "other"
+
+    example_credentials = %{
+      "default" => %{
+        region: "eu-west-1"
+      }
+    }
+
+    Application.put_env(:ex_aws, :awscli_credentials, example_credentials)
+
+    Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 0, fn ^profile ->
+      %{region: "eu-west-1"}
+    end)
+
+    assert_raise RuntimeError, fn ->
+      ExAws.Config.awscli_auth_credentials(profile, ExAws.Credentials.InitMock)
+    end
   end
 
   test "region as a plain string" do
@@ -64,7 +96,6 @@ defmodule ExAws.ConfigTest do
     assert :s3
            |> ExAws.Config.new(region: region_value)
            |> Map.get(:region) == region_value
-
   end
 
   test "region as an envar" do

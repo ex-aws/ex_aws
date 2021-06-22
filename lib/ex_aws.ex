@@ -1,5 +1,8 @@
 defmodule ExAws do
-  @moduledoc File.read!("#{__DIR__}/../README.md")
+  @moduledoc """
+  Module for making and processing AWS request
+  """
+
   use Application
 
   @behaviour ExAws.Behaviour
@@ -16,33 +19,51 @@ defmodule ExAws do
   This is useful if you want to have certain configuration changed on a per
   request basis.
 
+  Also you can configure telemetry metrics with:
+
+    * `:telemetry_event` - The telemetry event name to dispatch the event under.
+      Defaults to `[:ex_aws, :request]`.
+    * `:telemetry_options` - Extra options to attach to telemetry event name.
+
   ## Examples
 
   If you have one of the service modules installed, you can just use those service
   modules like this:
-  ```
-  ExAws.S3.list_buckets |> ExAws.request
 
-  ExAws.S3.list_buckets |> ExAws.request(region: "eu-west-1")
+      ExAws.S3.list_buckets |> ExAws.request
 
-  ExAws.Dynamo.get_object("users", "foo@bar.com") |> ExAws.request
-  ```
+      ExAws.S3.list_buckets |> ExAws.request(region: "eu-west-1")
+
+      ExAws.Dynamo.get_object("users", "foo@bar.com") |> ExAws.request
 
   Alternatively you can create operation structs manually for services
   that aren't supported:
 
-  ```
-  op = %ExAws.Operation.JSON{
-    http_method: :post,
-    service: :dynamodb,
-    headers: [
-      {"x-amz-target", "DynamoDB_20120810.ListTables"},
-      {"content-type", "application/x-amz-json-1.0"}
-    ],
-  }
+      op = %ExAws.Operation.JSON{
+        http_method: :post,
+        service: :dynamodb,
+        headers: [
+          {"x-amz-target", "DynamoDB_20120810.ListTables"},
+          {"content-type", "application/x-amz-json-1.0"}
+        ],
+      }
 
-  ExAws.request(op)
-  ```
+      ExAws.request(op)
+
+  ## Telemetry events
+
+  The following events are published:
+
+  * `[:ex_aws, :request, :start]` - dispatched on start every request sent to the AWS.
+  * `[:ex_aws, :request, :stop]` - dispatched on every response from AWS.
+  * `[:ex_aws, :request, :exception]` - dispatched after exceptions on request sent to AWS.
+
+  With `:metadata` map including the following fields:
+
+    * `:result` - the request result: `:ok` or `:error`
+    * `:attempt` - the attempt number
+    * `:options` - extra options given to the repo operation under
+      `:telemetry_options`
 
   """
   @impl ExAws.Behaviour
@@ -75,9 +96,9 @@ defmodule ExAws do
   Return a stream for the AWS resource.
 
   ## Examples
-  ```
-  ExAws.S3.list_objects("my-bucket") |> ExAws.stream!
-  ```
+
+      ExAws.S3.list_objects("my-bucket") |> ExAws.stream!
+
   """
   @impl ExAws.Behaviour
   def stream!(op, config_overrides \\ []) do
@@ -87,10 +108,8 @@ defmodule ExAws do
   @doc false
   @impl Application
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     children = [
-      worker(ExAws.Config.AuthCache, [[name: ExAws.Config.AuthCache]])
+      ExAws.Config.AuthCache
     ]
 
     opts = [strategy: :one_for_one, name: ExAws.Supervisor]

@@ -29,9 +29,17 @@ defmodule ExAws.AuthTest do
   test "build_canonical_request ignores unsignable headers" do
     path = URI.parse("http://foo.com/bar:baz@blag").path |> uri_encode
     without_unsignable_header = build_canonical_request(:get, path, "", %{}, "")
-    with_unsignable_header = build_canonical_request(:get, path, "", %{
-      "X-Amzn-Trace-Id" => "1-aaaaaaa-bbbbbbbbbbbbb"
-    }, "")
+
+    with_unsignable_header =
+      build_canonical_request(
+        :get,
+        path,
+        "",
+        %{
+          "X-Amzn-Trace-Id" => "1-aaaaaaa-bbbbbbbbbbbbb"
+        },
+        ""
+      )
 
     assert with_unsignable_header == without_unsignable_header
   end
@@ -149,11 +157,11 @@ defmodule ExAws.AuthTest do
 
   describe "headers/6" do
     @config ExAws.Config.new(:s3,
-      host: "nyc3.digitaloceanspaces.com",
-      region: "eu-west-1",
-      secret_access_key: "",
-      access_key_id: ""
-    )
+              host: "nyc3.digitaloceanspaces.com",
+              region: "eu-west-1",
+              secret_access_key: "",
+              access_key_id: ""
+            )
 
     test "builds authentication headers with X-Amzn-Trace-Id" do
       assert {:ok, headers} =
@@ -166,7 +174,7 @@ defmodule ExAws.AuthTest do
                    {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
                    {"content-type", "application/json"}
                  ],
-                 body = ""
+                 _body = ""
                )
 
       {"Authorization", auth_header} = List.keyfind(headers, "Authorization", 0)
@@ -179,19 +187,20 @@ defmodule ExAws.AuthTest do
 
     test "keeps unsignable headers in the headers list" do
       assert {:ok, headers} =
-      headers(
-        :get,
-        "https://my-bucket.s3-eu-west-1.amazonaws.com",
-        :s3,
-        @config,
-        [
-          {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
-          {"content-type", "application/json"}
-        ],
-        body = ""
-      )
+               headers(
+                 :get,
+                 "https://my-bucket.s3-eu-west-1.amazonaws.com",
+                 :s3,
+                 @config,
+                 [
+                   {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"},
+                   {"content-type", "application/json"}
+                 ],
+                 _body = ""
+               )
 
-      assert {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"} = List.keyfind(headers, "X-Amzn-Trace-Id", 0)
+      assert {"X-Amzn-Trace-Id", "1-aaaaaaa-bbbbbbbbbbbbb"} =
+               List.keyfind(headers, "X-Amzn-Trace-Id", 0)
     end
 
     test "when security token is provided" do
@@ -204,7 +213,7 @@ defmodule ExAws.AuthTest do
                  [
                    {"content-type", "application/json"}
                  ],
-                 body = ""
+                 _body = ""
                )
 
       {"Authorization", auth_header} = List.keyfind(headers, "Authorization", 0)

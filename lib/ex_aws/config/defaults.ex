@@ -49,6 +49,16 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:qldb))
   end
 
+  def defaults(:ingest_timestream) do
+    %{service_override: :timestream}
+    |> Map.merge(defaults(:timestream))
+  end
+
+  def defaults(:query_timestream) do
+    %{service_override: :timestream}
+    |> Map.merge(defaults(:timestream))
+  end
+
   def defaults(_) do
     Map.merge(
       %{
@@ -67,7 +77,7 @@ defmodule ExAws.Config.Defaults do
   end
 
   @partitions [
-    {~r/^(us|eu|ap|sa|ca)\-\w+\-\d+$/, "aws"},
+    {~r/^(us|eu|af|ap|sa|ca)\-\w+\-\d+$/, "aws"},
     {~r/^cn\-\w+\-\d+$/, "aws-cn"},
     {~r/^us\-gov\-\w+\-\d+$/, "aws-us-gov"}
   ]
@@ -89,6 +99,8 @@ defmodule ExAws.Config.Defaults do
   defp service_map(:lex_models), do: "models.lex"
   defp service_map(:dynamodb_streams), do: "streams.dynamodb"
   defp service_map(:iot_data), do: "data.iot"
+  defp service_map(:ingest_timestream), do: "ingest.timestream"
+  defp service_map(:query_timestream), do: "query.timestream"
 
   defp service_map(service) do
     service
