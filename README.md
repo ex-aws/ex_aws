@@ -129,11 +129,11 @@ config :ex_aws,
 
 ### JSON Codec Configuration
 
-The default JSON codec is Poison.  You can choose a different one:
+The default JSON codec is Jason.  You can choose a different one:
 
 ```elixir
 config :ex_aws,
-  json_codec: Jason
+  json_codec: Poison
 ```
 
 ### Path Normalization
