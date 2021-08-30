@@ -100,6 +100,18 @@ dependency is required:
 
 Further information on role based authentication is provided in said dependency.
 
+#### Session token configuration
+
+Alternatively, you can also provide `AWS_SESSION_TOKEN` to `security_token` to authenticate
+with session token:
+
+```elixir
+config :ex_aws,
+  access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+  security_token: {:system, "AWS_SESSION_TOKEN"},
+  secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"}
+```
+
 ### Hackney configuration
 
 ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make
