@@ -1,3 +1,16 @@
+v2.2.4
+- Various documentation updates
+- Improve performance of space de-duplication on auth headers (#788)
+- Include the expected sequence token in error returns where it exists (#791)
+- Ensure absolute path for virtual hosted stile S3 URLs (#792)
+- Add QuickSight endpoints (#793)
+- Tighten up `telemetry` version requirement
+- Prevent `:awscli` config values from causing config from the CLI to leak into other values for
+which it wasn't specified (#796)
+- Update SageMaker endpoints (#804)
+- Update SES endpoints (#807)
+- Add eu-north-1 endpoint for logs (#811)
+
 v2.2.3
 - Add af-south-1 S3 region
 - Add support for telemetry events
@@ -8,7 +21,6 @@ v2.2.2
 - Increase minimum hackney version to 1.16 to hopefully reduce instances of people hitting bugs
 in older versions
 - Include profile in ETS key used for :awscli auth cache
-
 
 v2.2.1
 - Fix regression in 2.2.0 requiring metadata instance config parameter
