@@ -32,6 +32,7 @@ defmodule ExAws.Mixfile do
   defp deps() do
     [
       {:telemetry, "~> 0.4.3 or ~> 1.0"},
+      {:mime, "~> 1.2"}, # mime 2.x requires Elixir ~> 1.10
       {:bypass, "~> 2.1", only: :test},
       {:configparser_ex, "~> 4.0", optional: true},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
