@@ -48,7 +48,7 @@ defmodule ExAws.Config do
          Map.get(service_config, :region) ||
          Map.get(common_config, :region) ||
          "us-east-1")
-      |> retrieve_runtime_value(%{})
+      |> retrieve_runtime_value(:region, %{})
 
     defaults = ExAws.Config.Defaults.get(service, region)
 
@@ -61,7 +61,7 @@ defmodule ExAws.Config do
   def retrieve_runtime_config(config) do
     Enum.reduce(config, config, fn
       {:host, host}, config ->
-        Map.put(config, :host, retrieve_runtime_value(host, config))
+        Map.put(config, :host, retrieve_runtime_value(host, :host, config))
 
       {:retries, retries}, config ->
         Map.put(config, :retries, retries)
@@ -76,46 +76,36 @@ defmodule ExAws.Config do
         Map.put(config, :telemetry_options, telemetry_options)
 
       {k, v}, config ->
-        case retrieve_runtime_value(v, config) do
-          %{} = result -> Map.put(config, k, result[k])
+        case retrieve_runtime_value(v, k, config) do
+          nil -> config
           value -> Map.put(config, k, value)
         end
     end)
   end
 
-  def retrieve_runtime_value({:system, env_key}, _) do
+  def retrieve_runtime_value({:system, env_key}, _key, _config) do
     System.get_env(env_key)
   end
 
-  def retrieve_runtime_value(:instance_role, config) do
+  def retrieve_runtime_value(:instance_role, key, config) do
     config
     |> ExAws.Config.AuthCache.get()
-    |> Map.take([:access_key_id, :secret_access_key, :security_token])
-    |> valid_map_or_nil
+    |> Map.get(key)
   end
 
-  def retrieve_runtime_value({:awscli, profile, expiration}, _) do
-    ExAws.Config.AuthCache.get(profile, expiration * 1000)
-    |> Map.take([
-      :source_profile,
-      :role_arn,
-      :access_key_id,
-      :secret_access_key,
-      :region,
-      :security_token,
-      :role_session_name,
-      :external_id
-    ])
-    |> valid_map_or_nil
+  def retrieve_runtime_value({:awscli, profile, expiration}, key, _config) do
+    profile
+    |> ExAws.Config.AuthCache.get(expiration * 1000)
+    |> Map.get(key)
   end
 
-  def retrieve_runtime_value(values, config) when is_list(values) do
+  def retrieve_runtime_value(values, key, config) when is_list(values) do
     values
-    |> Stream.map(&retrieve_runtime_value(&1, config))
+    |> Stream.map(&retrieve_runtime_value(&1, key, config))
     |> Enum.find(& &1)
   end
 
-  def retrieve_runtime_value(value, _), do: value
+  def retrieve_runtime_value(value, _key, _config), do: value
 
   def parse_host_for_region(%{host: {stub, host}, region: region} = config) do
     Map.put(config, :host, String.replace(host, stub, region))
@@ -132,7 +122,7 @@ defmodule ExAws.Config do
 
   def awscli_auth_adapter, do: Application.get_env(:ex_aws, :awscli_auth_adapter, nil)
 
-  def awscli_auth_credentials(profile, credentials_ini_provider \\ ExAws.CredentialsIni.File) do
+  def awscli_auth_credentials(profile, credentials_ini_provider) do
     case Application.get_env(:ex_aws, :awscli_credentials, nil) do
       nil ->
         credentials_ini_provider.security_credentials(profile)
@@ -144,7 +134,4 @@ defmodule ExAws.Config do
         raise("Missing #{profile} in provided credentials.")
     end
   end
-
-  defp valid_map_or_nil(map) when map == %{}, do: nil
-  defp valid_map_or_nil(map), do: map
 end

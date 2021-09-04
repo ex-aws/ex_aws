@@ -29,11 +29,19 @@ defmodule ExAws.AuthCacheTest do
     end
   end
 
-  setup do
-    Application.put_env(:ex_aws, :awscli_auth_adapter, SleepAdapter)
-
+  setup_all do
+    ExAws.Config.AuthCache.reset()
     :ok
   end
+
+  setup do
+    Application.put_env(:ex_aws, :awscli_auth_adapter, SleepAdapter)
+    :ok
+
+    on_exit(fn -> Application.delete_env(:ex_aws, :awscli_auth_adapter) end)
+  end
+
+  setup :verify_on_exit!
 
   test "using adapter does not leak dirty cache" do
     parent = self()

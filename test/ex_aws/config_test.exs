@@ -1,5 +1,7 @@
 defmodule ExAws.ConfigTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
+
+  import Mox
 
   setup do
     Application.delete_env(:ex_aws, :awscli_credentials)
@@ -8,6 +10,9 @@ defmodule ExAws.ConfigTest do
       Application.delete_env(:ex_aws, :awscli_credentials)
     end)
   end
+
+  setup :set_mox_global
+  setup :verify_on_exit!
 
   test "overrides work properly" do
     config = ExAws.Config.new(:s3, region: "us-west-2")
@@ -105,5 +110,66 @@ defmodule ExAws.ConfigTest do
     assert :s3
            |> ExAws.Config.new(region: {:system, "AWS_REGION"})
            |> Map.get(:region) == region_value
+  end
+
+  describe "cli config merging tests" do
+    setup do
+      :ok = ExAws.Config.AuthCache.reset()
+      orig_env = Application.get_all_env(:ex_aws)
+
+      on_exit(fn ->
+        Application.put_all_env(ex_aws: orig_env)
+      end)
+    end
+
+    test "runtime config is correctly constructed" do
+      Application.put_all_env(
+        ex_aws: [
+          access_key_id: {:awscli, "default", 30},
+          secret_access_key: {:awscli, "default", 30},
+          region: "us-east-1",
+          credentials_ini_provider: ExAws.Credentials.InitMock
+        ]
+      )
+
+      Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 1, fn "default" ->
+        %{
+          region: "eu-west-1",
+          access_key_id: "key_id",
+          secret_access_key: "secret_key"
+        }
+      end)
+
+      config = ExAws.Config.new(:sqs)
+
+      assert config.region == "us-east-1"
+      assert config.access_key_id == "key_id"
+      assert config.secret_access_key == "secret_key"
+    end
+
+    test "runtime config should not overwrite explicit config" do
+      System.put_env("EX_AWS_TEST_ID", "system_id")
+      System.put_env("EX_AWS_TEST_KEY", "system_key")
+      System.put_env("EX_AWS_TEST_REGION", "us-east-2")
+
+      Application.put_all_env(
+        ex_aws: [
+          access_key_id: [{:awscli, "default", 30}, {:system, "EX_AWS_TEST_ID"}],
+          secret_access_key: [{:awscli, "default", 30}, {:system, "EX_AWS_TEST_KEY"}],
+          region: [{:awscli, "default", 30}, {:system, "EX_AWS_TEST_REGION"}],
+          credentials_ini_provider: ExAws.Credentials.InitMock
+        ]
+      )
+
+      Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 1, fn "default" ->
+        %{region: "eu-west-1"}
+      end)
+
+      config = ExAws.Config.new(:sqs)
+
+      assert config.region == "eu-west-1"
+      assert config.access_key_id == "system_id"
+      assert config.secret_access_key == "system_key"
+    end
   end
 end
