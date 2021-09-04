@@ -118,18 +118,19 @@ defmodule ExAws.ConfigTest do
       orig_env = Application.get_all_env(:ex_aws)
 
       on_exit(fn ->
-        Application.put_all_env(ex_aws: orig_env)
+        Enum.map(orig_env, fn {k, v} -> Application.put_env(:ex_aws, k, v) end)
       end)
     end
 
     test "runtime config is correctly constructed" do
-      Application.put_all_env(
-        ex_aws: [
+      Enum.map(
+        [
           access_key_id: {:awscli, "default", 30},
           secret_access_key: {:awscli, "default", 30},
           region: "us-east-1",
           credentials_ini_provider: ExAws.Credentials.InitMock
-        ]
+        ],
+        fn {k, v} -> Application.put_env(:ex_aws, k, v) end
       )
 
       Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 1, fn "default" ->
@@ -152,13 +153,14 @@ defmodule ExAws.ConfigTest do
       System.put_env("EX_AWS_TEST_KEY", "system_key")
       System.put_env("EX_AWS_TEST_REGION", "us-east-2")
 
-      Application.put_all_env(
-        ex_aws: [
+      Enum.map(
+        [
           access_key_id: [{:awscli, "default", 30}, {:system, "EX_AWS_TEST_ID"}],
           secret_access_key: [{:awscli, "default", 30}, {:system, "EX_AWS_TEST_KEY"}],
           region: [{:awscli, "default", 30}, {:system, "EX_AWS_TEST_REGION"}],
           credentials_ini_provider: ExAws.Credentials.InitMock
-        ]
+        ],
+        fn {k, v} -> Application.put_env(:ex_aws, k, v) end
       )
 
       Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 1, fn "default" ->
