@@ -77,7 +77,7 @@ defmodule ExAws.Config do
 
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
-          %{} = result -> Map.put(config, k, result[k])
+          %{} = result -> Map.merge(config, result)
           value -> Map.put(config, k, value)
         end
     end)
