@@ -1,3 +1,6 @@
+v2.2.5
+- Revert #796 to resolve #814. A more comprehensive fix for #796 is in the works.
+
 v2.2.4
 - Various documentation updates
 - Improve performance of space de-duplication on auth headers (#788)
