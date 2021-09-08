@@ -42,7 +42,7 @@ defmodule ExAws.Mixfile do
       {:jason, "~> 1.1", optional: true},
       {:jsx, "~> 3.0", optional: true},
       {:mox, "~> 1.0", only: :test},
-      {:sweet_xml, "~> 0.6", optional: true}
+      {:sweet_xml, "~> 0.7", optional: true}
     ]
   end
 
