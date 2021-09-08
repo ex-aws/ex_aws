@@ -8,6 +8,7 @@ if Code.ensure_loaded?(SweetXml) do
         def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
           parsed_body =
             xml
+            |> SweetXml.parse(dtd: :none)
             |> SweetXml.xpath(
               ~x"//ErrorResponse",
               request_id: ~x"./RequestId/text()"s,

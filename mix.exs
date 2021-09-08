@@ -18,6 +18,13 @@ defmodule ExAws.Mixfile do
       docs: docs(),
       dialyzer: [
         plt_add_apps: [:mix, :hackney, :configparser_ex, :jsx]
+      ],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
       ]
     ]
   end
@@ -42,7 +49,8 @@ defmodule ExAws.Mixfile do
       {:jason, "~> 1.1", optional: true},
       {:jsx, "~> 3.0", optional: true},
       {:mox, "~> 1.0", only: :test},
-      {:sweet_xml, "~> 0.7", optional: true}
+      {:sweet_xml, "~> 0.7", optional: true},
+      {:excoveralls, "~> 0.10", only: :test}
     ]
   end
 
