@@ -12,7 +12,7 @@ end
 
 defimpl ExAws.Operation, for: ExAws.Operation.RestQuery do
   def perform(operation, config) do
-    headers = []
+    headers = config[:headers] || []
     url = ExAws.Request.Url.build(operation, config)
 
     ExAws.Request.request(
