@@ -1,3 +1,9 @@
+v2.2.6
+- Increase minimum SweetXML version and disable DTD parsing (#781)
+- Pass optional headers to REST requests (#820)
+- Restrict mime version to 1.x
+- Add config for sagemaker_runtime_a2i
+
 v2.2.5
 - Revert #796 to resolve #814. A more comprehensive fix for #796 is in the works.
 
