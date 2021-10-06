@@ -67,7 +67,7 @@ defmodule ExAws.Request.Url do
     |> Map.put(:path, "/" <> new_path)
     |> Map.put(:query, query)
     |> URI.to_string()
-    |> String.replace("+", "%2B")
+    |> String.replace("+", "%20")
   end
 
   def sanitize(url, _), do: String.replace(url, "+", "%20")
