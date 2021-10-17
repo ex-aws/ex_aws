@@ -21,7 +21,7 @@ jobs:
         with:
             port: 8000
             cors: '*'
-      - run: mix format --check-formatted
+      - run: mix deps.update --all
         if: matrix.elixir == '1.12.3'
       - run: mix deps.get
       - run: mix compile
