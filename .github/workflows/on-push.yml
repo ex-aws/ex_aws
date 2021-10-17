@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: ['24.1.2']
+        otp: ['23.3.3']
         elixir: ['1.7.4', '1.8.2', '1.9.4', '1.10.4', '1.11.4', '1.12.3']
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +21,7 @@ jobs:
         with:
             port: 8000
             cors: '*'
-      - run: mix deps.update --all
+      - run: mix format --check-formatted
         if: matrix.elixir == '1.12.3'
       - run: mix deps.get
       - run: mix compile
