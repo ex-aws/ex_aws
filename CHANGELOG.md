@@ -1,3 +1,9 @@
+v2.2.7
+- `Request.Url`: Fix sanitize with spaces in request params
+- Relax `jsx` requirement
+- Relax `mime` requirement
+- Update CI tests to include elixir 1.12
+
 v2.2.6
 - Increase minimum SweetXML version and disable DTD parsing (#781)
 - Pass optional headers to REST requests (#820)
