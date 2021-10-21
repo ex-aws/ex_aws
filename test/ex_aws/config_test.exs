@@ -108,9 +108,10 @@ defmodule ExAws.ConfigTest do
   end
 
   test "headers are passed as provided" do
-    headers = [{ "If-Match", "ABC" }]
+    headers = [{"If-Match", "ABC"}]
+
     assert :s3
-           |> ExAws.Config.new(headers: headers )
+           |> ExAws.Config.new(headers: headers)
            |> Map.get(:headers) == headers
   end
 end

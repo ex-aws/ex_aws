@@ -74,7 +74,7 @@ defmodule ExAws.Config do
 
       {:telemetry_options, telemetry_options}, config ->
         Map.put(config, :telemetry_options, telemetry_options)
-        
+
       {:headers, headers}, config ->
         Map.put(config, :headers, headers)
 
