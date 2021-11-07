@@ -108,7 +108,7 @@ defmodule ExAws.Request.Url do
   def uri_encode(url), do: URI.encode(url, &valid_path_char?/1)
 
   # Space character
-  defp valid_path_char?(?\ ), do: false
+  defp valid_path_char?(?\s), do: false
   defp valid_path_char?(?/), do: true
 
   defp valid_path_char?(c) do
