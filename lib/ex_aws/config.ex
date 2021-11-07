@@ -75,6 +75,9 @@ defmodule ExAws.Config do
       {:telemetry_options, telemetry_options}, config ->
         Map.put(config, :telemetry_options, telemetry_options)
 
+      {:headers, headers}, config ->
+        Map.put(config, :headers, headers)
+
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
           %{} = result -> Map.merge(config, result)
