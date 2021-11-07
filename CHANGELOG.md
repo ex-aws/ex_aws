@@ -1,3 +1,8 @@
+v2.2.8
+- Fix compiler warning on Elixir 1.13
+- Fix support for explicitly passing in headers
+- Add new Rekognition endpoints
+
 v2.2.7
 - `Request.Url`: Fix sanitize with spaces in request params
 - Relax `jsx` requirement
