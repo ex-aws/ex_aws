@@ -1,10 +1,13 @@
 defmodule ExAws.Config do
-  @moduledoc false
+  @moduledoc """
+  Generates the configuration for a service
 
-  # Generates the configuration for a service.
-  # It starts with the defaults for a given environment
-  # and then merges in the common config from the ex_aws config root,
-  # and then finally any config specified for the particular service
+  It starts with the defaults for a given environment
+  and then merges in the common config from the ex_aws config root,
+  and then finally any config specified for the particular service.
+
+  TODO: Add proper documentation?
+  """
 
   @common_config [
     :http_client,
