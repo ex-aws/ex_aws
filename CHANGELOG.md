@@ -1,3 +1,7 @@
+v2.2.9
+- Add me-south-1 region
+- Display `ExAws.Config` docs
+
 v2.2.8
 - Fix compiler warning on Elixir 1.13
 - Fix support for explicitly passing in headers
