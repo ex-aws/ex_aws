@@ -106,4 +106,12 @@ defmodule ExAws.ConfigTest do
            |> ExAws.Config.new(region: {:system, "AWS_REGION"})
            |> Map.get(:region) == region_value
   end
+
+  test "headers are passed as provided" do
+    headers = [{"If-Match", "ABC"}]
+
+    assert :s3
+           |> ExAws.Config.new(headers: headers)
+           |> Map.get(:headers) == headers
+  end
 end
