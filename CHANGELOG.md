@@ -1,3 +1,7 @@
+v2.2.10
+- Add Athena support in `ca-central-1`
+- Add support for `me` region
+
 v2.2.9
 - Add me-south-1 region
 - Display `ExAws.Config` docs
