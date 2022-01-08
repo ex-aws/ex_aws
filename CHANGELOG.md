@@ -1,3 +1,8 @@
+v2.2.9
+- Add Athena support in `ca-central-1`
+- Add support for `me` region
+- Expose docs for `ExAws.Config`
+
 v2.2.8
 - Fix compiler warning on Elixir 1.13
 - Fix support for explicitly passing in headers
