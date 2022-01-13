@@ -82,15 +82,14 @@ if Code.ensure_loaded?(ConfigParser) do
 
     defp rename_sso_credential_keys(role_credentials) do
       # TODO: make this future proof and just convert all to snake case or be explicit?
-      Enum.into(role_credentials, %{}, fn {k, v} ->
-        case k do
-          "accessKeyId" -> {:access_key_id, v}
-          "expiration" -> {:expiration, v}
-          "secretAccessKey" -> {:secret_access_key, v}
-          "sessionToken" -> {:session_token, v}
+      Enum.reduce(role_credentials, %{}, fn 
+          {"accessKeyId", v}, acc -> Map.put(acc, :access_key_id, v)
+          {"expiration", v}, acc -> Map.put(acc, :expiration, v)
+          {"secretAccessKey", v}, acc -> Map.put(acc, :secret_access_key, v)
+          {"sessionToken", v}, acc -> Map.put(acc, :session_token, v)
+          _, acc -> acc
         end
       end)
-    end
 
     def parse_ini_file({:ok, contents}, :system) do
       parse_ini_file({:ok, contents}, profile_name_from_env())
