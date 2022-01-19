@@ -2063,7 +2063,8 @@
             "us-west-2" => %{},
             "ap-southeast-2" => %{},
             "ca-central-1" => %{},
-            "eu-west-1" => %{}
+            "eu-west-1" => %{},
+            "eu-west-2" => %{}
           }
         },
         "mediapackage" => %{
