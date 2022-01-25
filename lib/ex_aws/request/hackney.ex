@@ -2,7 +2,7 @@ defmodule ExAws.Request.Hackney do
   @behaviour ExAws.Request.HttpClient
 
   @moduledoc """
-  Configuration for `:hackney`
+  Configuration for `:hackney`.
 
   Options can be set for `:hackney` with the following config:
 

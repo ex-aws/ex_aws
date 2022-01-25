@@ -1,4 +1,6 @@
 defmodule ExAws.Operation.RestQuery do
+  @moduledoc false
+
   defstruct http_method: nil,
             path: "/",
             params: %{},

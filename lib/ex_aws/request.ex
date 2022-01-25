@@ -1,7 +1,5 @@
 defmodule ExAws.Request do
-  @moduledoc """
-  Makes requests to AWS.
-  """
+  @moduledoc false
 
   require Logger
 

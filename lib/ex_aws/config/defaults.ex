@@ -19,6 +19,8 @@ defmodule ExAws.Config.Defaults do
   @doc """
   Retrieve the default configuration for a service.
   """
+  @spec defaults(service :: atom) :: map
+
   def defaults(:dynamodb_streams) do
     %{service_override: :dynamodb}
     |> Map.merge(defaults(:dynamodb))

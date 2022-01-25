@@ -1,11 +1,11 @@
 defmodule ExAws.Request.HttpClient do
   @moduledoc """
-  Specifies expected behaviour of an http client
+  Specifies expected behaviour of an HTTP client.
 
-  ExAws allows you to use your http client of choice, provided that
+  ExAws allows you to use your HTTP client of choice, provided that
   it can be coerced into complying with this module's specification.
 
-  The default is :hackney.
+  The default is `:hackney`.
 
   ## Example
 
@@ -28,13 +28,14 @@ defmodule ExAws.Request.HttpClient do
   When conforming your selected HTTP Client take note of a few things:
 
     - The module name doesn't need to follow the same styling as this module it
-      is simply your own 'HTTP Client', i.e. MyApp.HttpClient
+      is simply your own 'HTTP Client', i.e. `MyApp.HttpClient`
 
     - The request function must accept the methods as described in the
-      @callback below, you can however set these as optional, i.e. (http_opts \\ [])
+      `c:request/5` callback, you can however set these as optional,
+      i.e. `http_opts \\ []`
 
     - Ensure the call to your chosen HTTP Client is correct and the return is
-      in the same format as defined in the @callback below, for example:
+      in the same format as defined in the `c:request/5` callback
 
   ## Example
 
