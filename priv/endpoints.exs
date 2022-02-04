@@ -2153,6 +2153,71 @@
             "us-east-2" => %{},
             "us-west-2" => %{}
           }
+        },
+        "places.geo" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-1" => %{},
+            "eu-north-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "ap-northeast-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{}
+          }
+        },
+        "maps.geo" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-1" => %{},
+            "eu-north-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "ap-northeast-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{}
+          }
+        },
+        "geofencing.geo" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-1" => %{},
+            "eu-north-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "ap-northeast-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{}
+          }
+        },
+        "tracking.geo" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-1" => %{},
+            "eu-north-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "ap-northeast-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{}
+          }
+        },
+        "routes.geo" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-1" => %{},
+            "eu-north-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "ap-northeast-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{}
+          }
         }
       }
     },
