@@ -47,7 +47,6 @@ defmodule ExAws.InstanceMeta do
   end
 
   def get_request_headers(config) do
-    # TODO: Make this conditional on something in config
     ExAws.InstanceMetaTokenProvider.get_headers(config)
   end
 

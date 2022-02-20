@@ -55,12 +55,17 @@ defmodule ExAws.InstanceMetaTokenProvider do
 
   def refresh_token(config, ets) do
     token = request_token(config)
-    :ets.insert(ets, {:aws_metadata_token, token})
+
+    # Setting the :no_metadata_token_cache option in tests ensures we can always expect the token request.
+    unless config[:no_metadata_token_cache] do
+      :ets.insert(ets, {:aws_metadata_token, token})
+    end
+
     Process.send_after(self(), {:refresh_token, config}, refresh_in(config))
+
     token
   end
 
-  # TODO: Allow overriding defaults in config
   def refresh_in(_config) do
     # Check five minutes prior to expiration, or now, which ever is later.
     refresh_in = @metadata_token_ttl_seconds - 5 * 60
@@ -96,7 +101,6 @@ defmodule ExAws.InstanceMetaTokenProvider do
     end
   end
 
-  # TODO: Allow overriding defaults in config
   defp token_ttl_seconds_headers(_config) do
     [{@metadata_token_ttl_header_name, @metadata_token_ttl_seconds}]
   end
