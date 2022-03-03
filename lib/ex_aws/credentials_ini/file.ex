@@ -38,6 +38,9 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
+
+      IO.puts("~~~ Getting the sso role credentials")
+
       sso_start_url
       |> get_sso_cache_file()
       |> File.read()
@@ -49,9 +52,13 @@ if Code.ensure_loaded?(ConfigParser) do
 
     defp parse_sso_cache_file({:ok, contents}) do
       #TODO: We could check expiration here and raise `aws sso login` as @ymtszw mentioned
+
+      IO.puts("Here I am!!!")
+
       contents
       |> Jason.decode!()
       |> Map.take(["accessToken"])
+      |> IO.inspect
     end
 
     defp parse_sso_cache_file(_), do: %{}
@@ -83,13 +90,13 @@ if Code.ensure_loaded?(ConfigParser) do
     defp rename_sso_credential_keys(role_credentials) do
       # TODO: make this future proof and just convert all to snake case or be explicit?
       Enum.reduce(role_credentials, %{}, fn 
-          {"accessKeyId", v}, acc -> Map.put(acc, :access_key_id, v)
-          {"expiration", v}, acc -> Map.put(acc, :expiration, v)
-          {"secretAccessKey", v}, acc -> Map.put(acc, :secret_access_key, v)
-          {"sessionToken", v}, acc -> Map.put(acc, :session_token, v)
-          _, acc -> acc
-        end
+        {"accessKeyId", v}, acc -> Map.put(acc, :access_key_id, v)
+        {"expiration", v}, acc -> Map.put(acc, :expiration, v)
+        {"secretAccessKey", v}, acc -> Map.put(acc, :secret_access_key, v)
+        {"sessionToken", v}, acc -> Map.put(acc, :session_token, v)
+        _, acc -> acc
       end)
+    end
 
     def parse_ini_file({:ok, contents}, :system) do
       parse_ini_file({:ok, contents}, profile_name_from_env())
