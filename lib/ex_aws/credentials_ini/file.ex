@@ -64,7 +64,7 @@ if Code.ensure_loaded?(ConfigParser) do
           _ -> {:error, "SSO access token is expired, refresh the token with `aws sso login`"}
         end
       else
-        {:error, _} -> {:error, "SSO cache file has invalid expiration format"}
+        {:error, err} -> {:error, "SSO cache file has invalid expiration format: #{err}"}
       end
     end
 
