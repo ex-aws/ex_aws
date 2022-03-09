@@ -89,6 +89,7 @@ if Code.ensure_loaded?(ConfigParser) do
         body
         |> Jason.decode()
       else
+        {:ok, resp} -> {:error, resp}
         error -> error
       end
     end
