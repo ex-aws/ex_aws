@@ -141,7 +141,10 @@ defmodule ExAws.Config do
   def awscli_auth_credentials(profile, credentials_ini_provider \\ ExAws.CredentialsIni.File) do
     case Application.get_env(:ex_aws, :awscli_credentials, nil) do
       nil ->
-        credentials_ini_provider.security_credentials(profile)
+        case credentials_ini_provider.security_credentials(profile) do
+          {:ok, creds} -> creds
+          {:error, err} -> raise "Recieved error while retrieving security credentials: #{err}"
+        end
 
       %{^profile => profile_credentials} ->
         profile_credentials

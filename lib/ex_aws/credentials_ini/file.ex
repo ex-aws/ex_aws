@@ -18,12 +18,14 @@ if Code.ensure_loaded?(ConfigParser) do
            %{
              sso_start_url: sso_start_url,
              sso_account_id: sso_account_id,
-             sso_role_name: sso_role_name
+             sso_role_name: sso_role_name,
            } = config_credentials,
            _shared_credentials
          ) do
-      get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name)
-      |> Map.merge(config_credentials)
+           case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
+             {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, config_credentials)}
+             {:error, _} = err -> err
+           end
     end
 
     defp merge_credentials(config_credentials, shared_credentials) do
@@ -38,65 +40,67 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
-
-      IO.puts("~~~ Getting the sso role credentials")
-
       sso_start_url
       |> get_sso_cache_file()
       |> File.read()
-      |> parse_sso_cache_file()
-      # this only assumes happy path, should log error and return %{} or raise issue
+      |> parse_sso_cache_file
+      |> check_sso_expiration
       |> request_sso_role_credentials(sso_account_id, sso_role_name)
-      |> rename_sso_credential_keys()
+      |> rename_sso_credential_keys
     end
 
     defp parse_sso_cache_file({:ok, contents}) do
-      #TODO: We could check expiration here and raise `aws sso login` as @ymtszw mentioned
-
-      IO.puts("Here I am!!!")
-
       contents
-      |> Jason.decode!()
-      |> Map.take(["accessToken"])
-      |> IO.inspect
+      |> Jason.decode()
     end
 
-    defp parse_sso_cache_file(_), do: %{}
+    defp parse_sso_cache_file(err), do: err
+
+    defp check_sso_expiration({:ok, %{"expiresAt" => expires_at} = config}) do
+      case Time.from_iso8601(expires_at) <= Time.utc_now() do
+        true ->
+          {:ok, config}
+        false ->
+          {:error, "SSO access token is expired, refresh the token with `aws sso login`"}
+      end
+    end
+
+    defp check_sso_expiration(err), do: err
 
     #TODO: Implement check that verifies if a user has aws_sso and source profile configured
     # Saw this concern raised in saml2aws using aws go sdk and think it could be helpful
 
     # TODO: the :ex_aws.request() abstraction that can choose hackney or what users set requires signing
     # We can't sign yet, so this is written to hackney, but need to revisit alternatives
-    defp request_sso_role_credentials(%{"accessToken" => access_token}, account_id, role_name) do
+    defp request_sso_role_credentials({:ok, %{"accessToken" => access_token, "region" => region}}, account_id, role_name) do
       with {:ok, %{status_code: 200, headers: _headers, body: body}} <-
              request(
                :get,
-               # TODO: Need to pull sso_region, defult region, and default to us-east-1
-               "https://portal.sso.us-east-1.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
+               "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
                "",
                [{"x-amz-sso_bearer_token", access_token}]
              ) do
+
         body
-        |> Jason.decode!()
-        |> Kernel.get_in(["roleCredentials"])
+        |> Jason.decode()
       else
         error -> error
       end
     end
 
-    defp request_sso_role_credentials(_, _, _), do: %{}
+    defp request_sso_role_credentials(err, _, _), do: err
 
-    defp rename_sso_credential_keys(role_credentials) do
-      # TODO: make this future proof and just convert all to snake case or be explicit?
-      Enum.reduce(role_credentials, %{}, fn 
+    defp rename_sso_credential_keys({:ok, %{"roleCredentials" => role_credentials}}) do
+      {:ok, Enum.reduce(role_credentials, %{}, fn
         {"accessKeyId", v}, acc -> Map.put(acc, :access_key_id, v)
         {"expiration", v}, acc -> Map.put(acc, :expiration, v)
         {"secretAccessKey", v}, acc -> Map.put(acc, :secret_access_key, v)
-        {"sessionToken", v}, acc -> Map.put(acc, :session_token, v)
-        _, acc -> acc
+        {"sessionToken", v}, acc -> Map.put(acc, :security_token, v)
       end)
+      }
     end
+
+    defp rename_sso_credential_keys(err), do: err
 
     def parse_ini_file({:ok, contents}, :system) do
       parse_ini_file({:ok, contents}, profile_name_from_env())
