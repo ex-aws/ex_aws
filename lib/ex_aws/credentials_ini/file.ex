@@ -47,8 +47,8 @@ if Code.ensure_loaded?(ConfigParser) do
              {:rename, rename_sso_credential_keys(sso_creds)} do
         {:ok, reformatted_creds}
       else
-        {:read, error} -> {:error, "Could not read SSO cache file"}
-        {:decode, error} -> {:error, "SSO cache file contains invalid json"}
+        {:read, {:error, error}} -> {:error, "Could not read SSO cache file: #{error}"}
+        {:decode, _} -> {:error, "SSO cache file contains invalid json"}
         {:expiration, error} -> error
         {:sso_creds, error} -> error
         {:rename, error} -> error
@@ -98,10 +98,10 @@ if Code.ensure_loaded?(ConfigParser) do
            {_, {:ok, body}} <- {:decode, Jason.decode(body_raw)} do
         {:ok, body}
       else
-        {:request, {_, %{status_code: status_code} = resp}} ->
+        {:request, {_, %{status_code: status_code}}} ->
           {:error, "SSO role credentials request responded with #{status_code}"}
 
-        {:decode, err} ->
+        {:decode, _} ->
           {:error, "Could not decode SSO role credentials response"}
       end
     end
