@@ -61,13 +61,15 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     defp check_sso_expiration(expires_at_str) do
-      with {:ok, expires_at, _} <- DateTime.from_iso8601(expires_at_str) do
-        case DateTime.compare(expires_at, DateTime.utc_now()) do
-          :gt -> :ok
-          _ -> {:error, "SSO access token is expired, refresh the token with `aws sso login`"}
-        end
+      with {_, {:ok, expires_at, _}} <- {:timestamp, DateTime.from_iso8601(expires_at_str)},
+           {_, :gt} <- {:expires, DateTime.compare(expires_at, DateTime.utc_now())} do
+        :ok
       else
-        {:error, err} -> {:error, "SSO cache file has invalid expiration format: #{err}"}
+        {:timestamp, {:error, err}} ->
+          {:error, "SSO cache file has invalid expiration format: #{err}"}
+
+        {:expires, _} ->
+          {:error, "SSO access token is expired, refresh the token with `aws sso login`"}
       end
     end
 
