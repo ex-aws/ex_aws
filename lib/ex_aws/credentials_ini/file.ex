@@ -29,7 +29,28 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     defp merge_credentials(config_credentials, shared_credentials) do
-      Map.merge(config_credentials, shared_credentials)
+      {:ok, Map.merge(config_credentials, shared_credentials)}
+    end
+
+    defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
+      with {_, {:ok, content_raw}} <-
+             {:read, File.read(get_sso_cache_file(sso_start_url))},
+           {_, {:ok, %{"expiresAt" => expires_at} = content}} <-
+             {:decode, Jason.decode(content_raw)},
+           {_, :ok} <-
+             {:expiration, check_sso_expiration(expires_at)},
+           {_, {:ok, sso_creds}} <-
+             {:sso_creds, request_sso_role_credentials(content, sso_account_id, sso_role_name)},
+           {_, {:ok, reformatted_creds}} <-
+             {:rename, rename_sso_credential_keys(sso_creds)} do
+        {:ok, reformatted_creds}
+      else
+        {:read, error} -> {:error, "Could not read SSO cache file"}
+        {:decode, error} -> {:error, "SSO cache file contains invalid json"}
+        {:expiration, error} -> error
+        {:sso_creds, error} -> error
+        {:rename, error} -> error
+      end
     end
 
     defp get_sso_cache_file(sso_start_url) do
@@ -39,28 +60,11 @@ if Code.ensure_loaded?(ConfigParser) do
       |> Path.join(".aws/sso/cache/#{hash}.json")
     end
 
-    defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
-      sso_start_url
-      |> get_sso_cache_file()
-      |> File.read()
-      |> parse_sso_cache_file
-      |> check_sso_expiration
-      |> request_sso_role_credentials(sso_account_id, sso_role_name)
-      |> rename_sso_credential_keys
-    end
-
-    defp parse_sso_cache_file({:ok, contents}) do
-      contents
-      |> Jason.decode()
-    end
-
-    defp parse_sso_cache_file(err), do: err
-
-    defp check_sso_expiration({:ok, %{"expiresAt" => expires_at_str} = config}) do
+    defp check_sso_expiration(expires_at_str) do
       with {:ok, expires_at, _} <- DateTime.from_iso8601(expires_at_str)
       do
         case DateTime.compare(expires_at, DateTime.utc_now()) do
-          :gt -> {:ok, config}
+          :gt -> :ok
           _ -> {:error, "SSO access token is expired, refresh the token with `aws sso login`"}
         end
       else
@@ -68,43 +72,43 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp check_sso_expiration(err), do: err
-
     #TODO: Implement check that verifies if a user has aws_sso and source profile configured
     # Saw this concern raised in saml2aws using aws go sdk and think it could be helpful
 
     # TODO: the :ex_aws.request() abstraction that can choose hackney or what users set requires signing
     # We can't sign yet, so this is written to hackney, but need to revisit alternatives
-    defp request_sso_role_credentials({:ok, %{"accessToken" => access_token, "region" => region}}, account_id, role_name) do
-      with {:ok, %{status_code: 200, headers: _headers, body: body}} <-
-             request(
-               :get,
-               "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
-               "",
-               [{"x-amz-sso_bearer_token", access_token}]
-             ) do
+   defp request_sso_role_credentials(%{"accessToken" => access_token, "region" => region}, account_id, role_name) do
+     with {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
+       {:request, request(
+         :get,
+         "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
+         "",
+         [{"x-amz-sso_bearer_token", access_token}]
+       )},
+          {_, {:ok, body}} <- {:decode, Jason.decode(body_raw)} do
+       {:ok, body}
+     else
+       {:request, {_, %{status_code: status_code} = resp}} -> 
+         {:error, "SSO role credentials request responded with #{status_code}"}
+       {:decode, err} ->
+         {:error, "Could not decode SSO role credentials response"}
+     end
+   end
 
-        body
-        |> Jason.decode()
+    defp rename_sso_credential_keys(%{"roleCredentials" => role_credentials}) do
+      with {_, access_key} when not is_nil(access_key) <- {:accessKey, Map.get(role_credentials, "accessKeyId")},
+           {_, expiration} when not is_nil(expiration) <- {:expiration, Map.get(role_credentials, "expiration")},
+           {_, secret_access_key} when not is_nil(secret_access_key) <- {:secretAccess, Map.get(role_credentials, "secretAccessKey")},
+           {_, session_token} when not is_nil(session_token) <- {:sessionToken, Map.get(role_credentials, "sessionToken")} do
+        {:ok, %{access_key_id: access_key,
+          expiration: expiration,
+          secret_access_key: secret_access_key,
+          security_token: session_token,
+        }}
       else
-        {:ok, resp} -> {:error, resp}
-        error -> error
+        {missing, _} -> {:error, "#{missing} is missing from SSO role credential response"}
       end
     end
-
-    defp request_sso_role_credentials(err, _, _), do: err
-
-    defp rename_sso_credential_keys({:ok, %{"roleCredentials" => role_credentials}}) do
-      {:ok, Enum.reduce(role_credentials, %{}, fn
-        {"accessKeyId", v}, acc -> Map.put(acc, :access_key_id, v)
-        {"expiration", v}, acc -> Map.put(acc, :expiration, v)
-        {"secretAccessKey", v}, acc -> Map.put(acc, :secret_access_key, v)
-        {"sessionToken", v}, acc -> Map.put(acc, :security_token, v)
-      end)
-      }
-    end
-
-    defp rename_sso_credential_keys(err), do: err
 
     def parse_ini_file({:ok, contents}, :system) do
       parse_ini_file({:ok, contents}, profile_name_from_env())
