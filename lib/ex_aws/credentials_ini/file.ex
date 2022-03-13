@@ -1,6 +1,6 @@
 if Code.ensure_loaded?(ConfigParser) do
   defmodule ExAws.CredentialsIni.File do
-    import ExAws.Request.Hackney, only: [request: 4]
+    import ExAws.Request, only: [request: 6]
     # as per https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
     @valid_config_keys ~w(
       aws_access_key_id aws_secret_access_key aws_session_token region
@@ -73,33 +73,29 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    # TODO: Implement check that verifies if a user has aws_sso and source profile configured
-    # Saw this concern raised in saml2aws using aws go sdk and think it could be helpful
-
-    # TODO: the :ex_aws.request() abstraction that can choose hackney or what users set requires signing
-    # We can't sign yet, so this is written to hackney, but need to revisit alternatives
     defp request_sso_role_credentials(
            %{"accessToken" => access_token, "region" => region},
            account_id,
            role_name
          ) do
-      with {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
-             {:request,
-              request(
-                :get,
-                "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{
-                  account_id
-                }&role_name=#{role_name}",
-                "",
-                [{"x-amz-sso_bearer_token", access_token}]
-              )},
+      with {:ok, %{status_code: 200, headers: _headers, body: body_raw}} <-
+             request(
+               :get,
+               "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
+               "",
+               [{"x-amz-sso_bearer_token", access_token}],
+               ExAws.Config.new(:sso, disable_headers_signature: true),
+               :sso
+             ),
            {_, {:ok, body}} <- {:decode, Jason.decode(body_raw)} do
         {:ok, body}
       else
-        {:request, {_, %{status_code: status_code}}} ->
+        # TODO: Do we want to include resp
+        {:request, {_, %{status_code: status_code} = resp}} ->
           {:error, "SSO role credentials request responded with #{status_code}"}
 
-        {:decode, _} ->
+        # TODO: Same for err here do we want to include it
+        {:decode, err} ->
           {:error, "Could not decode SSO role credentials response"}
       end
     end

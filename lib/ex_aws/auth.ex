@@ -10,6 +10,9 @@ defmodule ExAws.Auth do
   @unsignable_headers ["x-amzn-trace-id"]
   @unsignable_headers_multi_case ["x-amzn-trace-id", "X-Amzn-Trace-Id"]
 
+  def validate_config(%{disable_headers_signature: true} = config),
+    do: {:ok, config}
+
   def validate_config(config) do
     with :ok <- get_key(config, :secret_access_key),
          :ok <- get_key(config, :access_key_id) do
@@ -32,6 +35,9 @@ defmodule ExAws.Auth do
         {:error, "Required key: #{inspect(key)} must be a string, but instead is #{inspect(val)}"}
     end
   end
+
+  def headers(_http_method, _url, _service, %{disable_headers_signature: true}, headers, _body),
+    do: {:ok, headers}
 
   def headers(http_method, url, service, config, headers, body) do
     with {:ok, config} <- validate_config(config) do
