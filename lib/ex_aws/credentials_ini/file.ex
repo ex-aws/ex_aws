@@ -1,6 +1,5 @@
 if Code.ensure_loaded?(ConfigParser) do
   defmodule ExAws.CredentialsIni.File do
-    import ExAws.Request, only: [request: 6]
     # as per https://docs.aws.amazon.com/cli/latest/topic/config-vars.html
     @valid_config_keys ~w(
       aws_access_key_id aws_secret_access_key aws_session_token region
@@ -78,25 +77,25 @@ if Code.ensure_loaded?(ConfigParser) do
            account_id,
            role_name
          ) do
-      with {:ok, %{status_code: 200, headers: _headers, body: body_raw}} <-
-             request(
+      with config <- ExAws.Config.http_config(:sso),
+           {:ok, %{status_code: 200, headers: _headers, body: body_raw}} <-
+             config[:http_client].request(
                :get,
-               "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
+               "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{
+                 account_id
+               }&role_name=#{role_name}",
                "",
                [{"x-amz-sso_bearer_token", access_token}],
-               ExAws.Config.new(:sso, disable_headers_signature: true),
-               :sso
+               Map.get(config, :http_opts, [])
              ),
            {_, {:ok, body}} <- {:decode, Jason.decode(body_raw)} do
         {:ok, body}
       else
-        # TODO: Do we want to include resp
         {:request, {_, %{status_code: status_code} = resp}} ->
-          {:error, "SSO role credentials request responded with #{status_code}"}
+          {:error, "SSO role credentials request responded with #{status_code}: #{resp}"}
 
-        # TODO: Same for err here do we want to include it
         {:decode, err} ->
-          {:error, "Could not decode SSO role credentials response"}
+          {:error, "Could not decode SSO role credentials response: #{err}"}
       end
     end
 

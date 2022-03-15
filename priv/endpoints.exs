@@ -2469,7 +2469,12 @@
         "directconnect" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "cloudformation" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "swf" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
-        "sagemaker" => %{"endpoints" => %{"us-gov-west-1" => %{}}}
+        "sagemaker" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "sso" => %{
+          "endpoints" => %{
+            "us-gov-west-1" => %{}
+          }
+        }
       }
     }
   ],

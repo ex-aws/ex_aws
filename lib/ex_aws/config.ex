@@ -42,6 +42,17 @@ defmodule ExAws.Config do
     |> parse_host_for_region
   end
 
+  @doc """
+  Builds a minimal HTTP configuration.
+  """
+  def http_config(service, opts \\ []) do
+    overrides = Map.new(opts)
+
+    build_base(service, overrides)
+    |> Map.take([:http_client, :http_opts])
+    |> retrieve_runtime_config
+  end
+
   def build_base(service, overrides \\ %{}) do
     common_config = Application.get_all_env(:ex_aws) |> Map.new() |> Map.take(@common_config)
     service_config = Application.get_env(:ex_aws, service, []) |> Map.new()
