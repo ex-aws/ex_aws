@@ -36,12 +36,14 @@ if Code.ensure_loaded?(ConfigParser) do
     defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
       with {_, {:ok, sso_cache_content}} <-
              {:read, File.read(get_sso_cache_file(sso_start_url))},
-           {_, {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
+           {_,
+            {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
              {:decode, Jason.decode(sso_cache_content)},
            {_, :ok} <-
              {:expiration, check_sso_expiration(expires_at)},
            {_, {:ok, sso_creds}} <-
-             {:sso_creds, request_sso_role_credentials(access_token, region, sso_account_id, sso_role_name)},
+             {:sso_creds,
+              request_sso_role_credentials(access_token, region, sso_account_id, sso_role_name)},
            {_, {:ok, reformatted_creds}} <-
              {:rename, rename_sso_credential_keys(sso_creds)} do
         {:ok, reformatted_creds}
@@ -82,15 +84,16 @@ if Code.ensure_loaded?(ConfigParser) do
          ) do
       with config <- ExAws.Config.http_config(:sso),
            {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
-             {:request, config[:http_client].request(
-               :get,
-               "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{
-                 account_id
-               }&role_name=#{role_name}",
-               "",
-               [{"x-amz-sso_bearer_token", access_token}],
-               Map.get(config, :http_opts, [])
-             )},
+             {:request,
+              config[:http_client].request(
+                :get,
+                "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{
+                  account_id
+                }&role_name=#{role_name}",
+                "",
+                [{"x-amz-sso_bearer_token", access_token}],
+                Map.get(config, :http_opts, [])
+              )},
            {_, {:ok, body}} <- {:decode, Jason.decode(body_raw)} do
         {:ok, body}
       else
