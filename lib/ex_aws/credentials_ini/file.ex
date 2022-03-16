@@ -8,27 +8,23 @@ if Code.ensure_loaded?(ConfigParser) do
     )
 
     def security_credentials(profile_name) do
-      shared_credentials = profile_from_shared_credentials(profile_name)
       config_credentials = profile_from_config(profile_name)
-      merge_credentials(config_credentials, shared_credentials)
-    end
+      shared_credentials = profile_from_shared_credentials(profile_name)
 
-    defp merge_credentials(
-           %{
-             sso_start_url: sso_start_url,
-             sso_account_id: sso_account_id,
-             sso_role_name: sso_role_name
-           } = config_credentials,
-           _shared_credentials
-         ) do
-      case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
-        {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, config_credentials)}
-        {:error, _} = err -> err
+      case config_credentials do
+        %{
+          sso_start_url: sso_start_url,
+          sso_account_id: sso_account_id,
+          sso_role_name: sso_role_name
+        } ->
+          case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
+            {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, shared_credentials)}
+            {:error, _} = err -> err
+          end
+
+        _ ->
+          {:ok, Map.merge(config_credentials, shared_credentials)}
       end
-    end
-
-    defp merge_credentials(config_credentials, shared_credentials) do
-      {:ok, Map.merge(config_credentials, shared_credentials)}
     end
 
     defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
