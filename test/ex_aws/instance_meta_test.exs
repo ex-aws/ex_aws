@@ -3,10 +3,16 @@ defmodule ExAws.InstanceMetaTest do
 
   import Mox
 
+  # Let expect statements apply to ExAws.InstanceMetaTokenProvider process as well
+  setup :set_mox_from_context
+
   test "instance_role" do
     role_name = "dummy-role"
 
     ExAws.Request.HttpMock
+    |> expect(:request, fn :put, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 200, body: "dummy-token"}}
+    end)
     |> expect(:request, fn _method, _url, _body, _headers, _opts ->
       {:ok, %{status_code: 200, body: role_name}}
     end)
@@ -15,7 +21,9 @@ defmodule ExAws.InstanceMetaTest do
       ExAws.Config.new(:s3,
         http_client: ExAws.Request.HttpMock,
         access_key_id: "dummy",
-        secret_access_key: "dummy"
+        secret_access_key: "dummy",
+        # Don't cache the metadata token, so we can always expect a request to get the token
+        no_metadata_token_cache: true
       )
 
     assert ExAws.InstanceMeta.instance_role(config) == role_name
@@ -43,6 +51,9 @@ defmodule ExAws.InstanceMetaTest do
       role_name = "dummy-role"
 
       ExAws.Request.HttpMock
+      |> expect(:request, fn :put, _url, _body, _headers, opts ->
+        {:ok, %{status_code: 200, body: "dummy-token"}}
+      end)
       |> expect(:request, fn _method, _url, _body, _headers, opts ->
         assert Keyword.get(opts, :pool) == :ex_aws_metadata
         {:ok, %{status_code: 200, body: role_name}}
@@ -52,7 +63,9 @@ defmodule ExAws.InstanceMetaTest do
         ExAws.Config.new(:ec2,
           http_client: ExAws.Request.HttpMock,
           access_key_id: "dummy",
-          secret_access_key: "dummy"
+          secret_access_key: "dummy",
+          # Don't cache the metadata token, so we can always expect a request to get the token
+          no_metadata_token_cache: true
         )
 
       assert ExAws.InstanceMeta.instance_role(config) == role_name
