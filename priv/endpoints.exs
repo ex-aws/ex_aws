@@ -1335,6 +1335,7 @@
               "hostname" => "s3.eu-west-1.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
             },
+            "eu-south-1" => %{},
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
