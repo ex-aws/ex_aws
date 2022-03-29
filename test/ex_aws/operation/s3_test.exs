@@ -3,10 +3,10 @@ defmodule ExAws.Operation.S3Test do
 
   alias Elixir.ExAws.Operation.ExAws.Operation.S3
 
-  def s3_operation() do
+  def s3_operation(bucket \\ "my-bucket-1") do
     %ExAws.Operation.S3{
       body: "",
-      bucket: "my-bucket-1",
+      bucket: bucket,
       headers: %{},
       http_method: :get,
       params: [],
@@ -38,7 +38,7 @@ defmodule ExAws.Operation.S3Test do
     assert(processed_operation.path == "/#{operation.bucket}#{operation.path}")
   end
 
-  test "S3 adds buck to path when virtual_host is true" do
+  test "S3 adds bucket to path when virtual_host is true" do
     config = ExAws.Config.new(:s3) |> Map.put(:virtual_host, true)
     operation = s3_operation()
 
@@ -46,6 +46,15 @@ defmodule ExAws.Operation.S3Test do
 
     assert(processed_config.host == "#{operation.bucket}.#{config.host}")
     assert(processed_operation.path == operation.path)
+  end
+
+  test "S3 raises when bucket is nil" do
+    config = ExAws.Config.new(:s3)
+    operation = s3_operation(nil)
+
+    assert_raise RuntimeError,
+                 "#{S3}.perform/2 cannot perform operation on `nil` bucket",
+                 fn -> S3.add_bucket_to_path(operation, config) end
   end
 
   test "ensure paths with . and .. are correctly resolved" do

@@ -1,13 +1,13 @@
 defmodule ExAws.Config do
   @moduledoc """
-  Generates the configuration for a service
+  Generates the configuration for a service.
 
   It starts with the defaults for a given environment
   and then merges in the common config from the ex_aws config root,
   and then finally any config specified for the particular service.
-
-  TODO: Add proper documentation?
   """
+
+  # TODO: Add proper documentation?
 
   @common_config [
     :http_client,
@@ -29,11 +29,13 @@ defmodule ExAws.Config do
   @doc """
   Builds a complete set of config for an operation.
 
-  1) Defaults are pulled from `ExAws.Config.Defaults`
-  2) Common values set via e.g `config :ex_aws` are merged in.
-  3) Keys set on the individual service e.g `config :ex_aws, :s3` are merged in
-  4) Finally, any configuration overrides are merged in
+    1. Defaults are pulled from `ExAws.Config.Defaults`
+    2. Common values set via e.g `config :ex_aws` are merged in.
+    3. Keys set on the individual service e.g `config :ex_aws, :s3` are merged in
+    4. Finally, any configuration overrides are merged in
+
   """
+  @spec new(atom, keyword) :: %{}
   def new(service, opts \\ []) do
     overrides = Map.new(opts)
 

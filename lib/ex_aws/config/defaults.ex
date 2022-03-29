@@ -19,6 +19,8 @@ defmodule ExAws.Config.Defaults do
   @doc """
   Retrieve the default configuration for a service.
   """
+  @spec defaults(service :: atom) :: map
+
   def defaults(:dynamodb_streams) do
     %{service_override: :dynamodb}
     |> Map.merge(defaults(:dynamodb))
@@ -64,6 +66,11 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:timestream))
   end
 
+  def defaults(service) when service in [:places, :maps, :geofencing, :tracking, :routes] do
+    %{service_override: :geo}
+    |> Map.merge(defaults(:geo))
+  end
+
   def defaults(_) do
     Map.merge(
       %{
@@ -107,6 +114,11 @@ defmodule ExAws.Config.Defaults do
   defp service_map(:iot_data), do: "data.iot"
   defp service_map(:ingest_timestream), do: "ingest.timestream"
   defp service_map(:query_timestream), do: "query.timestream"
+  defp service_map(:places), do: "places.geo"
+  defp service_map(:maps), do: "maps.geo"
+  defp service_map(:geofencing), do: "geofencing.geo"
+  defp service_map(:tracking), do: "tracking.geo"
+  defp service_map(:routes), do: "routes.geo"
 
   defp service_map(service) do
     service

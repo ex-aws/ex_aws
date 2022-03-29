@@ -1,6 +1,8 @@
 if Code.ensure_loaded?(SweetXml) do
   # TODO: Extract this.
   defmodule ExAws.Operation.Query.Parser do
+    @moduledoc false
+
     defmacro __using__(_opts) do
       quote do
         import SweetXml, only: [sigil_x: 2]

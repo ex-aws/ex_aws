@@ -1,7 +1,10 @@
-v2.2.9
+v2.2.10
 - Add Athena support in `ca-central-1`
 - Add support for `me` region
-- Expose docs for `ExAws.Config`
+
+v2.2.9
+- Add me-south-1 region
+- Display `ExAws.Config` docs
 
 v2.2.8
 - Fix compiler warning on Elixir 1.13
