@@ -2218,8 +2218,7 @@
             "ap-southeast-1" => %{},
             "ap-southeast-2" => %{}
           }
-        }
-        # TODO: Double check these regions and add govcloud
+        },
         "sso" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
