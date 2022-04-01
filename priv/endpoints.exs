@@ -2552,8 +2552,7 @@
         "sagemaker" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "sso" => %{
           "endpoints" => %{
-            "us-gov-west-1" => %{},
-            "us-gov-east-1" => %{}
+            "us-gov-west-1" => %{}
           }
         }
       }
