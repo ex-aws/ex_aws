@@ -12,6 +12,7 @@ if Code.ensure_loaded?(ConfigParser) do
     def security_credentials(profile_name) do
       config_credentials = profile_from_config(profile_name)
       shared_credentials = profile_from_shared_credentials(profile_name)
+      config = ExAws.Config.http_config(:sso)
 
       case config_credentials do
         %{
@@ -19,7 +20,7 @@ if Code.ensure_loaded?(ConfigParser) do
           sso_account_id: sso_account_id,
           sso_role_name: sso_role_name
         } ->
-          case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
+          case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name, config) do
             {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, shared_credentials)}
             {:error, _} = err -> err
           end
@@ -29,17 +30,23 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name) do
+    defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name, config) do
       with {_, {:ok, sso_cache_content}} <-
              {:read, File.read(get_sso_cache_file(sso_start_url))},
            {_,
             {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
-             {:decode, Jason.decode(sso_cache_content)},
+             {:decode, config[:json_codec].decode(sso_cache_content)},
            {_, :ok} <-
              {:expiration, check_sso_expiration(expires_at)},
            {_, {:ok, sso_creds}} <-
              {:sso_creds,
-              request_sso_role_credentials(access_token, region, sso_account_id, sso_role_name)},
+              request_sso_role_credentials(
+                access_token,
+                region,
+                sso_account_id,
+                sso_role_name,
+                config
+              )},
            {_, {:ok, reformatted_creds}} <-
              {:rename, rename_sso_credential_keys(sso_creds)} do
         {:ok, reformatted_creds}
@@ -76,10 +83,10 @@ if Code.ensure_loaded?(ConfigParser) do
            access_token,
            region,
            account_id,
-           role_name
+           role_name,
+           config
          ) do
-      with config <- ExAws.Config.http_config(:sso),
-           {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
+      with {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
              {:request,
               config[:http_client].request(
                 :get,
@@ -88,7 +95,7 @@ if Code.ensure_loaded?(ConfigParser) do
                 [{"x-amz-sso_bearer_token", access_token}],
                 Map.get(config, :http_opts, [])
               )},
-           {_, {:ok, body}} <- {:decode, Jason.decode(body_raw)} do
+           {_, {:ok, body}} <- {:decode, config[:json_codec].decode(body_raw)} do
         {:ok, body}
       else
         {:request, {_, %{status_code: status_code} = resp}} ->
