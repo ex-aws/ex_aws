@@ -52,7 +52,7 @@ defmodule ExAws.Config do
     overrides = Map.new(opts)
 
     build_base(service, overrides)
-    |> Map.take([:http_client, :http_opts])
+    |> Map.take([:http_client, :http_opts, :json_codec])
     |> retrieve_runtime_config
   end
 
