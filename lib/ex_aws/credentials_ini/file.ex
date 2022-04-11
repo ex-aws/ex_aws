@@ -83,9 +83,7 @@ if Code.ensure_loaded?(ConfigParser) do
              {:request,
               config[:http_client].request(
                 :get,
-                "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{
-                  account_id
-                }&role_name=#{role_name}",
+                "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
                 "",
                 [{"x-amz-sso_bearer_token", access_token}],
                 Map.get(config, :http_opts, [])
