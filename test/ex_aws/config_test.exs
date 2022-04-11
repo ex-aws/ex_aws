@@ -42,7 +42,7 @@ defmodule ExAws.ConfigTest do
     profile = "default"
 
     Mox.expect(ExAws.Credentials.InitMock, :security_credentials, 1, fn ^profile ->
-      %{region: "eu-west-1"}
+      {:ok, %{region: "eu-west-1"}}
     end)
 
     config = ExAws.Config.awscli_auth_credentials(profile, ExAws.Credentials.InitMock)
