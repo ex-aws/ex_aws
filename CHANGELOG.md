@@ -1,3 +1,11 @@
+v2.3.0
+- Raise an exception on S3 operation when bucket is `nil`
+- Update regions for transcribe service
+- Doc and spec improvements
+- Add location service
+- Add support for IMDSv2
+- Add support for awscli SSO credentials system
+
 v2.2.10
 - Add Athena support in `ca-central-1`
 - Add support for `me` region
