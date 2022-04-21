@@ -1,3 +1,7 @@
+v2.3.1
+- Fix issue with ECS instance meta data introduced in 2.3.0
+- Fix typespec on `ExAws.Request.HttpClient.request/5`
+
 v2.3.0
 - Raise an exception on S3 operation when bucket is `nil`
 - Update regions for transcribe service
