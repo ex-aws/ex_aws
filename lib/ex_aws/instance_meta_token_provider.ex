@@ -7,6 +7,9 @@ defmodule ExAws.InstanceMetaTokenProvider do
   @metadata_token_ttl_seconds 6 * 60 * 60
   @genserver_call_timeout_seconds 30
   @metadata_token_api_url "http://169.254.169.254/latest/api/token"
+  # Endpoint for ECS tasks role credentials
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
+  @task_role_root "http://169.254.170.2"
   # The header we pass to control the token's time to live
   @metadata_token_ttl_header_name "x-aws-ec2-metadata-token-ttl-seconds"
   # The header we use to pass the token along to all other metadata calls
@@ -75,7 +78,7 @@ defmodule ExAws.InstanceMetaTokenProvider do
   def request_token(config) do
     case config.http_client.request(
            :put,
-           @metadata_token_api_url,
+           metadata_token_api_url(),
            "",
            token_ttl_seconds_headers(config),
            follow_redirect: true
@@ -98,6 +101,13 @@ defmodule ExAws.InstanceMetaTokenProvider do
 
         Please check AWS EC2 Instance Metadata Service configuration to make sure the service is enabled.
         """
+    end
+  end
+
+  defp metadata_token_api_url do
+    case System.get_env("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") do
+      nil -> @metadata_token_api_url
+      uri -> @task_role_root <> uri
     end
   end
 
