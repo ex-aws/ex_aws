@@ -45,7 +45,7 @@ defmodule ExAws.Request.HttpClient do
 
   """
 
-  @type http_method :: :get | :post | :put | :delete
+  @type http_method :: :get | :post | :put | :delete | :options | :head
   @callback request(
               method :: http_method,
               url :: binary,
