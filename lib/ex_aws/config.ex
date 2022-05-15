@@ -35,7 +35,7 @@ defmodule ExAws.Config do
     4. Finally, any configuration overrides are merged in
 
   """
-  @spec new(atom, keyword) :: %{}
+  @spec new(atom, keyword) :: map()
   def new(service, opts \\ []) do
     overrides = Map.new(opts)
 
