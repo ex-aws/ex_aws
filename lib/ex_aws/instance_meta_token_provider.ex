@@ -112,6 +112,6 @@ defmodule ExAws.InstanceMetaTokenProvider do
   end
 
   defp token_ttl_seconds_headers(_config) do
-    [{@metadata_token_ttl_header_name, @metadata_token_ttl_seconds}]
+    [{@metadata_token_ttl_header_name, Integer.to_string(@metadata_token_ttl_seconds)}]
   end
 end
