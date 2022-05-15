@@ -1,3 +1,8 @@
+v2.3.2
+- Fix type for IMDSv2 header
+- Make IMDSv2 optional, with fallback to v1
+- Fix spec for `Config.new/2`
+
 v2.3.1
 - Fix issue with ECS instance meta data introduced in 2.3.0
 - Fix typespec on `ExAws.Request.HttpClient.request/5`
