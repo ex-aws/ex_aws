@@ -103,7 +103,7 @@ defmodule ExAws.Request.Url do
     path
   end
 
-  def get_path(url, _), do: URI.parse(url).path
+  def get_path(url, _), do: URI.parse(url).path || "/"
 
   def uri_encode(url), do: URI.encode(url, &valid_path_char?/1)
 

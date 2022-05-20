@@ -90,6 +90,11 @@ defmodule ExAws.Request.UrlTest do
       url = "https://example.com/uploads/invalid path but+valid//for#i-am-anchor"
       assert Url.get_path(url) == "/uploads/invalid path but+valid//for"
     end
+
+    test "returns an empty path when there isn't one specified in the url" do
+      url = "https://example.com"
+      assert Url.get_path(url) == "/"
+    end
   end
 
   describe "sanitize" do
