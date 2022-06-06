@@ -75,9 +75,26 @@ defmodule ExAws.Request do
           )
 
         {:error, %{reason: reason}} ->
-          Logger.warn(
-            "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} ATTEMPT: #{attempt}"
-          )
+          if service in ["sqs", :sqs] do
+            queue_url = URI.decode_query(req_body) |> Map.get("QueueUrl")
+
+            url_string =
+              if is_nil(queue_url) do
+                "URL: #{inspect(safe_url)}"
+              else
+                "QUEUE: #{inspect(queue_url)}"
+              end
+
+            Logger.warn(
+              "ExAws: HTTP ERROR: #{inspect(reason)} for #{url_string} ATTEMPT: #{attempt}"
+            )
+          else
+            Logger.warn(
+              "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} ATTEMPT: #{
+                attempt
+              }"
+            )
+          end
 
           request_and_retry(
             method,

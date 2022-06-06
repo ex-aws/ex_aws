@@ -200,4 +200,64 @@ defmodule ExAws.RequestTest do
                {:attempt, 1}
              )
   end
+
+  test "Failed SQS request logs QueueUrl", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      {:error, %{reason: :request_timeout}}
+    end)
+
+    http_method = :post
+    url = "https://sqs.someregion.amazonaws.com/"
+    service = :sqs
+    queue_url = "https://sqs.someregion.amazonaws.com/ACCOUNT_NUMBER/somequeue"
+
+    request_body_map = %{
+      "Action" => "ReceiveMessage",
+      "AttributeName.1" => "ApproximateReceiveCount",
+      "MaxNumberOfMessages" => "10",
+      "QueueUrl" => queue_url
+    }
+
+    request_body = URI.encode_query(request_body_map)
+
+    assert capture_log(fn ->
+             assert {:error, :request_timeout} ==
+                      ExAws.Request.request_and_retry(
+                        http_method,
+                        url,
+                        service,
+                        context[:config],
+                        context[:headers],
+                        request_body,
+                        {:attempt, 10}
+                      )
+           end) =~ "ExAws: HTTP ERROR: :request_timeout for QUEUE: \"#{queue_url}\" ATTEMPT: 10"
+  end
+
+  test "Failed SQS request without QueueUrl logs the url", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      {:error, %{reason: :request_timeout}}
+    end)
+
+    http_method = :post
+    url = "https://sqs.someregion.amazonaws.com/"
+    service = :sqs
+    request_body_map = %{"Action" => "ListQueues"}
+    request_body = URI.encode_query(request_body_map)
+
+    assert capture_log(fn ->
+             assert {:error, :request_timeout} ==
+                      ExAws.Request.request_and_retry(
+                        http_method,
+                        url,
+                        service,
+                        context[:config],
+                        context[:headers],
+                        request_body,
+                        {:attempt, 10}
+                      )
+           end) =~ "ExAws: HTTP ERROR: :request_timeout for URL: \"#{url}\" ATTEMPT: 10"
+  end
 end
