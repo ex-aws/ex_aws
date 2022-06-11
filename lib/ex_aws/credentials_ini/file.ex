@@ -180,17 +180,24 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     defp profile_from_config(profile_name) do
-      section =
-        case profile_name do
-          :system -> "profile #{profile_name_from_env()}"
-          "default" -> "default"
-          other -> "profile #{other}"
-        end
+      section = profile_from_name(profile_name)
 
       System.user_home()
       |> Path.join(".aws/config")
       |> File.read()
       |> parse_ini_file(section)
+    end
+
+    defp profile_from_name(:system) do
+      profile_name_from_env()
+      |> profile_from_name()
+    end
+
+    defp profile_from_name(profile_name) do
+      case profile_name do
+        "default" -> "default"
+        other -> "profile #{other}"
+      end
     end
 
     defp profile_name_from_env() do
