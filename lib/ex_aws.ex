@@ -62,6 +62,7 @@ defmodule ExAws do
 
     * `:result` - the request result: `:ok` or `:error`
     * `:attempt` - the attempt number
+    * `:service` - the AWS service
     * `:options` - extra options given to the repo operation under
       `:telemetry_options`
 
