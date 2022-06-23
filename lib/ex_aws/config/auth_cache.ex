@@ -81,21 +81,18 @@ defmodule ExAws.Config.AuthCache do
 
   defp attempt_credentials_refresh(adapter, auth, profile, expiration, retries \\ 6) do
     case adapter.adapt_auth_config(auth, profile, expiration) do
-      {:error, error} ->
-        if retries == 1 do
-          Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
+      {:error, error} when retries == 1 ->
+        Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
 
-          raise "Could't get credentials from auth adapter after 6 retries, last error was #{inspect error}"
-        else
-          Process.sleep(:rand.uniform(5_000))
-          attempt_credentials_refresh(adapter, auth, profile, expiration, retries - 1)
-        end
+        raise "Could't get credentials from auth adapter after 6 retries, last error was #{inspect(error)}"
+
+      {:error, _error} ->
+        Process.sleep(:rand.uniform(5_000))
+        attempt_credentials_refresh(adapter, auth, profile, expiration, retries - 1)
 
       # Always store a map on AuthCache
       auth when is_map(auth) ->
         auth
-
-      _unexpected -> %{}
     end
   end
 
