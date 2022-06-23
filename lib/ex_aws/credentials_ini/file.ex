@@ -193,12 +193,8 @@ if Code.ensure_loaded?(ConfigParser) do
       |> profile_from_name()
     end
 
-    defp profile_from_name(profile_name) do
-      case profile_name do
-        "default" -> "default"
-        other -> "profile #{other}"
-      end
-    end
+    defp profile_from_name("default"), do: "default"
+    defp profile_from_name(other), do: "profile #{other}"
 
     defp profile_name_from_env() do
       System.get_env("AWS_PROFILE") || "default"
