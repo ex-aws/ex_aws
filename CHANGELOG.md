@@ -1,9 +1,16 @@
+v2.3.3
+- Imporve resiliency/recovery when authentication token queries fail
+- Use `default` profile for `:aws_cli` config when `AWS_PROFILE is undefined
+- Include service in telemetry events
+- Fix crash generating auth headers for request with empty path
+
 v2.3.2
 - Fix type for IMDSv2 header
 - Make IMDSv2 optional, with fallback to v1
 - Fix spec for `Config.new/2`
 
 v2.3.1
+- Support container task role credentials in token provider
 - Fix issue with ECS instance meta data introduced in 2.3.0
 - Fix typespec on `ExAws.Request.HttpClient.request/5`
 
