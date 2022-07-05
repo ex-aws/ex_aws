@@ -1513,6 +1513,7 @@
             "fips-us-east-2" => %{},
             "fips-us-west-1" => %{},
             "fips-us-west-2" => %{},
+            "me-south-1" => %{},
             "sa-east-1" => %{},
             "us-east-1" => %{"sslCommonName" => "queue.{dnsSuffix}"},
             "us-east-2" => %{},
