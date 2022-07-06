@@ -77,7 +77,7 @@ defmodule ExAws.InstanceMetaTest do
       |> expect(:request, fn :put, _url, _body, _headers, _opts ->
         {:ok, %{status_code: 200, body: "dummy-token"}}
       end)
-      |> expect(:request, fn :get, _url, _body, headers, opts ->
+      |> expect(:request, fn :get, _url, _body, headers, _opts ->
         assert Enum.member?(headers, {"x-aws-ec2-metadata-token", "dummy-token"})
         {:ok, %{status_code: 200, body: role_name}}
       end)
@@ -101,7 +101,7 @@ defmodule ExAws.InstanceMetaTest do
       |> expect(:request, fn :put, _url, _body, _headers, _opts ->
         {:ok, %{status_code: 200, body: "dummy-token"}}
       end)
-      |> expect(:request, fn :get, _url, _body, headers, opts ->
+      |> expect(:request, fn :get, _url, _body, headers, _opts ->
         assert Enum.member?(headers, {"x-aws-ec2-metadata-token", "dummy-token"})
         {:ok, %{status_code: 200, body: role_name}}
       end)
