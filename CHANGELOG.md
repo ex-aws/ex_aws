@@ -1,3 +1,7 @@
+V2.3.4
+- Fix crash in authentication for regions without SSO service (#894)
+- Service endpoint updates
+
 v2.3.3
 - Imporve resiliency/recovery when authentication token queries fail
 - Use `default` profile for `:aws_cli` config when `AWS_PROFILE is undefined
