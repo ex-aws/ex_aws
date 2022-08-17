@@ -12,7 +12,6 @@ if Code.ensure_loaded?(ConfigParser) do
     def security_credentials(profile_name) do
       config_credentials = profile_from_config(profile_name)
       shared_credentials = profile_from_shared_credentials(profile_name)
-      config = ExAws.Config.http_config(:sso)
 
       case config_credentials do
         %{
@@ -20,6 +19,8 @@ if Code.ensure_loaded?(ConfigParser) do
           sso_account_id: sso_account_id,
           sso_role_name: sso_role_name
         } ->
+          config = ExAws.Config.http_config(:sso)
+
           case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name, config) do
             {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, shared_credentials)}
             {:error, _} = err -> err
