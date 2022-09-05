@@ -23,7 +23,7 @@ defimpl ExAws.Operation, for: ExAws.Operation.RestQuery do
       operation.body,
       headers,
       config,
-      operation.service
+      ExAws.Request.Context.new(operation.service)
     )
     |> operation.parser.(operation.action)
   end

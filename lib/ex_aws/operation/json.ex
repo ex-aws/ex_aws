@@ -21,6 +21,7 @@ defmodule ExAws.Operation.JSON do
   defstruct stream_builder: nil,
             http_method: :post,
             parser: nil,
+            error_parser: &Function.identity/1,
             path: "/",
             data: %{},
             params: %{},
@@ -52,7 +53,7 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
       operation.data,
       headers,
       config,
-      operation.service
+      ExAws.Request.Context.new(operation.service, error_parser: operation.error_parser)
     )
     |> parse(config)
   end
@@ -79,4 +80,5 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
   defp parse({:ok, %{body: body}}, config) do
     {:ok, config[:json_codec].decode!(body)}
   end
+
 end

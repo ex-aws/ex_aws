@@ -9,7 +9,7 @@ defmodule ExAws.Request do
   @type error_t :: {:error, {:http_error, http_status, binary}}
   @type response_t :: success_t | error_t
 
-  def request(http_method, url, data, headers, config, service) do
+  def request(http_method, url, data, headers, config, context) do
     body =
       case data do
         [] -> "{}"
@@ -17,17 +17,17 @@ defmodule ExAws.Request do
         _ -> config[:json_codec].encode!(data)
       end
 
-    request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
+    request_and_retry(http_method, url, context, config, headers, body, {:attempt, 1})
   end
 
   def request_and_retry(_method, _url, _service, _config, _headers, _req_body, {:error, reason}),
     do: {:error, reason}
 
-  def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
-    full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
+  def request_and_retry(method, url, context, config, headers, req_body, {:attempt, attempt}) do
+    full_headers = ExAws.Auth.headers(method, url, context.service, config, headers, req_body)
 
     with {:ok, full_headers} <- full_headers do
-      safe_url = ExAws.Request.Url.sanitize(url, service)
+      safe_url = ExAws.Request.Url.sanitize(url, context.service)
 
       if config[:debug_requests] do
         Logger.debug(
@@ -35,7 +35,7 @@ defmodule ExAws.Request do
         )
       end
 
-      case do_request(config, method, safe_url, req_body, full_headers, attempt, service) do
+      case do_request(config, method, safe_url, req_body, full_headers, attempt, context.service) do
         {:ok, %{status_code: status} = resp} when status in 200..299 or status == 304 ->
           {:ok, resp}
 
@@ -44,12 +44,12 @@ defmodule ExAws.Request do
           {:error, {:http_error, status, "redirected"}}
 
         {:ok, %{status_code: status} = resp} when status in 400..499 ->
-          case client_error(resp, config[:json_codec]) do
+          case client_error(resp, config[:json_codec], context) do
             {:retry, reason} ->
               request_and_retry(
                 method,
                 url,
-                service,
+                context,
                 config,
                 headers,
                 req_body,
@@ -67,7 +67,7 @@ defmodule ExAws.Request do
           request_and_retry(
             method,
             url,
-            service,
+            context,
             config,
             headers,
             req_body,
@@ -82,7 +82,7 @@ defmodule ExAws.Request do
           request_and_retry(
             method,
             url,
-            service,
+            context,
             config,
             headers,
             req_body,
@@ -118,22 +118,22 @@ defmodule ExAws.Request do
     end)
   end
 
-  def client_error(%{status_code: status, body: body} = error, json_codec) do
+  def client_error(%{status_code: status, body: body} = error, json_codec, context) do
     case json_codec.decode(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
-        handle_error(error_type, message, status, err)
+        handle_error(error_type, message, status, err, context)
 
       # Rather irritatingly, as of 1.15, the local version of DynamoDB returns this with a
       # capital M in "Message"
       {:ok, %{"__type" => error_type, "Message" => message} = err} ->
-        handle_error(error_type, message, status, err)
+        handle_error(error_type, message, status, err, context)
 
       _ ->
         {:error, {:http_error, status, error}}
     end
   end
 
-  def client_error(%{status_code: status} = error, _) do
+  def client_error(%{status_code: status} = error, _, _) do
     {:error, {:http_error, status, error}}
   end
 
@@ -149,11 +149,19 @@ defmodule ExAws.Request do
     {:error, {type, message, expected_sequence_token}}
   end
 
-  def handle_aws_error(type, message, _) do
+  def handle_aws_error(type, message, err) do
+    {:error, {:aws_unhandled, type, message, err}}
+  end
+
+  def default_aws_error({:error, {:aws_unhandled, type, message, _}}) do
     {:error, {type, message}}
   end
 
-  defp handle_error(error_type, message, status, err) do
+  def default_aws_error(result) do
+    result
+  end
+
+  defp handle_error(error_type, message, status, err, context) do
     error_type
     |> String.split("#")
     |> case do
@@ -161,6 +169,8 @@ defmodule ExAws.Request do
       [type] -> handle_aws_error(type, message, err)
       _ -> {:error, {:http_error, status, err}}
     end
+    |> context.error_parser.()
+    |> default_aws_error()
   end
 
   def attempt_again?(attempt, reason, config) do

@@ -37,7 +37,7 @@ defmodule ExAws.Operation.S3 do
         |> put_content_length_header(body, http_method)
         |> Map.to_list()
 
-      ExAws.Request.request(http_method, url, body, headers, config, operation.service)
+      ExAws.Request.request(http_method, url, body, headers, config, ExAws.Request.Context.new(operation.service))
       |> operation.parser.()
     end
 

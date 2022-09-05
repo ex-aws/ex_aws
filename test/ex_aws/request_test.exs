@@ -33,7 +33,7 @@ defmodule ExAws.RequestTest do
 
     http_method = :get
     url = "https://examplebucket.s3.amazonaws.com/test.txt"
-    service = :s3
+    service = ExAws.Request.Context.new(:s3)
     request_body = ""
 
     assert capture_log(fn ->
@@ -68,7 +68,7 @@ defmodule ExAws.RequestTest do
   test "handles encoding S3 URLs with params", context do
     http_method = :get
     url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt?acl=21"
-    service = :s3
+    service = ExAws.Request.Context.new(:s3)
     request_body = ""
 
     TelemetryHelper.attach_telemetry([:ex_aws, :request])
@@ -112,7 +112,7 @@ defmodule ExAws.RequestTest do
   test "handles encoding S3 URLs without params", context do
     http_method = :get
     url = "https://examplebucket.s3.amazonaws.com/up//double//test hello+#3.txt"
-    service = :s3
+    service = ExAws.Request.Context.new(:s3)
     request_body = ""
 
     expect(
@@ -155,7 +155,7 @@ defmodule ExAws.RequestTest do
 
     http_method = :post
     url = "https://kinesis.aws.com/"
-    service = :kinesis
+    service = ExAws.Request.Context.new(:kinesis)
     request_body = ""
 
     assert {:ok, %{body: success, status_code: 200}} ==
@@ -188,7 +188,7 @@ defmodule ExAws.RequestTest do
 
     http_method = :post
     url = "https://kinesis.aws.com/"
-    service = :kinesis
+    service = ExAws.Request.Context.new(:kinesis)
     request_body = ""
 
     assert {:error,
