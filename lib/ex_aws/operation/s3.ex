@@ -38,6 +38,7 @@ defmodule ExAws.Operation.S3 do
         |> Map.to_list()
 
       ExAws.Request.request(http_method, url, body, headers, config, operation.service)
+      |> ExAws.Request.default_aws_error()
       |> operation.parser.()
     end
 

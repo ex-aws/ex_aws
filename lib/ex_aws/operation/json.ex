@@ -21,6 +21,7 @@ defmodule ExAws.Operation.JSON do
   defstruct stream_builder: nil,
             http_method: :post,
             parser: &Function.identity/1,
+            error_parser: &Function.identity/1,
             path: "/",
             data: %{},
             params: %{},
@@ -54,6 +55,8 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
       config,
       operation.service
     )
+    |> operation.error_parser.()
+    |> ExAws.Request.default_aws_error()
     |> parse(config)
   end
 

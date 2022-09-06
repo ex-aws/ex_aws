@@ -137,28 +137,38 @@ defmodule ExAws.Request do
     {:error, {:http_error, status, error}}
   end
 
-  def handle_aws_error("ProvisionedThroughputExceededException" = type, message, _) do
+  def handle_aws_error({"ProvisionedThroughputExceededException" = type, message, _}) do
     {:retry, {type, message}}
   end
 
-  def handle_aws_error("ThrottlingException" = type, message, _) do
+  def handle_aws_error({"ThrottlingException" = type, message, _}) do
     {:retry, {type, message}}
   end
 
-  def handle_aws_error(type, message, %{"expectedSequenceToken" => expected_sequence_token}) do
+  def handle_aws_error({type, message, %{"expectedSequenceToken" => expected_sequence_token}}) do
     {:error, {type, message, expected_sequence_token}}
   end
 
-  def handle_aws_error(type, message, _) do
+  def handle_aws_error({type, message, err}) do
+    # Mark as unhandled, might intereset error_parsers.
+    {:error, {:aws_unhandled, type, message, err}}
+  end
+
+  # Clear unhandled mark, so Request.request() callers don't see it.
+  def default_aws_error({:error, {:aws_unhandled, type, message, _}}) do
     {:error, {type, message}}
+  end
+
+  def default_aws_error(result) do
+    result
   end
 
   defp handle_error(error_type, message, status, err) do
     error_type
     |> String.split("#")
     |> case do
-      [_, type] -> handle_aws_error(type, message, err)
-      [type] -> handle_aws_error(type, message, err)
+      [_, type] -> handle_aws_error({type, message, err})
+      [type] -> handle_aws_error({type, message, err})
       _ -> {:error, {:http_error, status, err}}
     end
   end
