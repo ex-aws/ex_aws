@@ -1,3 +1,8 @@
+v2.4.0
+- Increase minimum elixir version to 1.10
+- Add `error_parser` field to operations. This may be optionally populated by services which
+need to do service-specific error handling prior to falling back to the default ExAws handling.
+
 V2.3.4
 - Fix crash in authentication for regions without SSO service (#894)
 - Service endpoint updates
