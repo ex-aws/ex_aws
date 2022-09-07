@@ -38,7 +38,10 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
       {"content-encoding", operation.content_encoding}
     ]
 
-    result = ExAws.Request.request(:post, url, data, headers, config, operation.service)
+    result =
+      ExAws.Request.request(:post, url, data, headers, config, operation.service)
+      |> ExAws.Request.default_aws_error()
+
     parser = operation.parser
 
     cond do

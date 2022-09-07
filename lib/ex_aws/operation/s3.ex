@@ -4,7 +4,7 @@ defmodule ExAws.Operation.S3 do
   """
 
   defstruct stream_builder: nil,
-            parser: &ExAws.Utils.identity/1,
+            parser: &Function.identity/1,
             bucket: "",
             path: "/",
             http_method: nil,
@@ -38,6 +38,7 @@ defmodule ExAws.Operation.S3 do
         |> Map.to_list()
 
       ExAws.Request.request(http_method, url, body, headers, config, operation.service)
+      |> ExAws.Request.default_aws_error()
       |> operation.parser.()
     end
 

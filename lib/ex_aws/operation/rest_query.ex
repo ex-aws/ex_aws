@@ -25,6 +25,7 @@ defimpl ExAws.Operation, for: ExAws.Operation.RestQuery do
       config,
       operation.service
     )
+    |> ExAws.Request.default_aws_error()
     |> operation.parser.(operation.action)
   end
 
