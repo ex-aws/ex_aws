@@ -13,13 +13,6 @@ A flexible easy to use set of AWS APIs.
 
 Available Services: https://github.com/ex-aws?q=service&type=&language=
 
-## Un-Deprecation Notice
-
-ExAws is now actively maintained again :). It's going to take me a while to work through
-all the outstanding issues and PRs, so please bear with me.
-
-- Bernard
-
 ## Getting Started
 
 ExAws v2.0 breaks out every service into its own package. To use the S3
