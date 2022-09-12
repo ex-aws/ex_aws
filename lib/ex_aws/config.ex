@@ -111,7 +111,7 @@ defmodule ExAws.Config do
     refreshable = Enum.flat_map(config, fn {_k, v} -> List.wrap(v) end)
     |> Enum.reduce([], fn
       {:awscli, _, _}, acc -> [:awscli | acc]
-      :role_instance, acc -> [:role_instance | acc]
+      :instance_role, acc -> [:instance_role | acc]
       _, acc -> acc
     end)
     |> Enum.uniq()
