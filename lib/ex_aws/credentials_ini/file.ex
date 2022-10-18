@@ -26,6 +26,14 @@ if Code.ensure_loaded?(ConfigParser) do
             {:error, _} = err -> err
           end
 
+        %{credential_process: credential_process} ->
+          config = ExAws.Config.http_config(:sso)
+
+          case get_credentials_from_process(credential_process, config) do
+            {:ok, credentials} -> {:ok, Map.merge(credentials, shared_credentials)}
+            {:error, _} = err -> err
+          end
+
         _ ->
           {:ok, Map.merge(config_credentials, shared_credentials)}
       end
@@ -126,6 +134,82 @@ if Code.ensure_loaded?(ConfigParser) do
         {missing, _} -> {:error, "#{missing} is missing from SSO role credential response"}
       end
     end
+
+    defp get_credentials_from_process(credential_process, config) do
+      with {_, {:ok, process_result}} <-
+             {:process, execute_process(credential_process)},
+           {_, {:ok, %{"Version" => 1} = result}} <-
+             {:decode, config[:json_codec].decode(process_result)},
+           {_, {:ok, expiration}} <-
+             {:expiration, check_credentials_expiration(result)},
+           {_, {:ok, reformatted_creds}} <-
+             {:rename, format_result(result, expiration)} do
+        {:ok, reformatted_creds}
+      else
+        {:process, {:error, error}} -> {:error, "Could not execute process: #{error}"}
+        {:decode, _} -> {:error, "Credentials process results contains invalid json"}
+        {:expiration, error} -> error
+        {:rename, error} -> error
+      end
+    end
+
+    defp execute_process(credential_process) do
+      with [command | args] <- String.split(credential_process),
+           {result, 0} <- System.cmd(command, args, stderr_to_stdout: true) do
+        {:ok, result}
+      else
+        [] -> {:error, "Could not read command from config file : #{credential_process}"}
+        {error, exit_code} -> {:error, "Exit code : #{exit_code} - #{error}"}
+      end
+    end
+
+    defp format_result(result, nil) do
+      with {_, access_key} when not is_nil(access_key) <-
+             {:accessKey, Map.get(result, "AccessKeyId")},
+           {_, secret_access_key} when not is_nil(secret_access_key) <-
+             {:secretAccess, Map.get(result, "SecretAccessKey")} do
+        {:ok,
+         %{
+           access_key_id: access_key,
+           secret_access_key: secret_access_key
+         }}
+      else
+        {missing, _} -> {:error, "#{missing} is missing from credentials process response"}
+      end
+    end
+
+    defp format_result(result, expiration) do
+      with {_, access_key} when not is_nil(access_key) <-
+             {:accessKey, Map.get(result, "AccessKeyId")},
+           {_, secret_access_key} when not is_nil(secret_access_key) <-
+             {:secretAccess, Map.get(result, "SecretAccessKey")},
+           {_, session_token} when not is_nil(session_token) <-
+             {:sessionToken, Map.get(result, "SessionToken")} do
+        {:ok,
+         %{
+           access_key_id: access_key,
+           expiration: DateTime.to_unix(expiration),
+           secret_access_key: secret_access_key,
+           security_token: session_token
+         }}
+      else
+        {missing, _} -> {:error, "#{missing} is missing from credentials process response"}
+      end
+    end
+
+    defp check_credentials_expiration(%{"Expiration" => expiration_str}) do
+      with {:ok, expiration} <- check_expiration(expiration_str) do
+        {:ok, expiration}
+      else
+        {:timestamp, {:error, err}} ->
+          {:error, "Process returned invalid expiration format: #{err}"}
+
+        {:expires, _} ->
+          {:error, "Process returned expired credentials"}
+      end
+    end
+
+    defp check_credentials_expiration(_), do: {:ok, nil}
 
     defp check_expiration(expiration_str) do
       with {_, {:ok, expiration, _}} <- {:timestamp, DateTime.from_iso8601(expiration_str)},
