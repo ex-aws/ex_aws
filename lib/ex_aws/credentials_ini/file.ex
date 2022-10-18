@@ -68,8 +68,7 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     defp check_sso_expiration(expires_at_str) do
-      with {_, {:ok, expires_at, _}} <- {:timestamp, DateTime.from_iso8601(expires_at_str)},
-           {_, :gt} <- {:expires, DateTime.compare(expires_at, DateTime.utc_now())} do
+      with {:ok, _} <- check_expiration(expires_at_str) do
         :ok
       else
         {:timestamp, {:error, err}} ->
@@ -125,6 +124,13 @@ if Code.ensure_loaded?(ConfigParser) do
          }}
       else
         {missing, _} -> {:error, "#{missing} is missing from SSO role credential response"}
+      end
+    end
+
+    defp check_expiration(expiration_str) do
+      with {_, {:ok, expiration, _}} <- {:timestamp, DateTime.from_iso8601(expiration_str)},
+           {_, :gt} <- {:expires, DateTime.compare(expiration, DateTime.utc_now())} do
+        {:ok, expiration}
       end
     end
 
