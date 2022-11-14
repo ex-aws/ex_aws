@@ -18,6 +18,7 @@
         "ap-south-1" => %{"description" => "Asia Pacific (Mumbai)"},
         "ap-southeast-1" => %{"description" => "Asia Pacific (Singapore)"},
         "ap-southeast-2" => %{"description" => "Asia Pacific (Sydney)"},
+        "ap-southeast-3" => %{"description" => "Asia Pacific (Jakarta)"},
         "ca-central-1" => %{"description" => "Canada (Central)"},
         "eu-central-1" => %{"description" => "EU (Frankfurt)"},
         "eu-west-1" => %{"description" => "EU (Ireland)"},
