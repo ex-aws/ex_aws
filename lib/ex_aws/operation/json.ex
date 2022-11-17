@@ -20,7 +20,8 @@ defmodule ExAws.Operation.JSON do
 
   defstruct stream_builder: nil,
             http_method: :post,
-            parser: nil,
+            parser: &Function.identity/1,
+            error_parser: &Function.identity/1,
             path: "/",
             data: %{},
             params: %{},
@@ -31,7 +32,7 @@ defmodule ExAws.Operation.JSON do
   @type t :: %__MODULE__{}
 
   def new(service, opts) do
-    struct(%__MODULE__{service: service, parser: & &1}, opts)
+    struct(%__MODULE__{service: service}, opts)
   end
 end
 
@@ -54,6 +55,8 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
       config,
       operation.service
     )
+    |> operation.error_parser.()
+    |> ExAws.Request.default_aws_error()
     |> parse(config)
   end
 

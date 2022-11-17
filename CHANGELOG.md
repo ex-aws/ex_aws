@@ -1,3 +1,36 @@
+v2.4.0
+- Increase minimum elixir version to 1.10
+- Add `error_parser` field to operations. This may be optionally populated by services which
+need to do service-specific error handling prior to falling back to the default ExAws handling.
+
+V2.3.4
+- Fix crash in authentication for regions without SSO service (#894)
+- Service endpoint updates
+
+v2.3.3
+- Imporve resiliency/recovery when authentication token queries fail
+- Use `default` profile for `:aws_cli` config when `AWS_PROFILE is undefined
+- Include service in telemetry events
+- Fix crash generating auth headers for request with empty path
+
+v2.3.2
+- Fix type for IMDSv2 header
+- Make IMDSv2 optional, with fallback to v1
+- Fix spec for `Config.new/2`
+
+v2.3.1
+- Support container task role credentials in token provider
+- Fix issue with ECS instance meta data introduced in 2.3.0
+- Fix typespec on `ExAws.Request.HttpClient.request/5`
+
+v2.3.0
+- Raise an exception on S3 operation when bucket is `nil`
+- Update regions for transcribe service
+- Doc and spec improvements
+- Add location service
+- Add support for IMDSv2
+- Add support for awscli SSO credentials system
+
 v2.2.10
 - Add Athena support in `ca-central-1`
 - Add support for `me` region

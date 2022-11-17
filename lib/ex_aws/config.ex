@@ -11,6 +11,7 @@ defmodule ExAws.Config do
 
   @common_config [
     :http_client,
+    :http_opts,
     :json_codec,
     :access_key_id,
     :secret_access_key,
@@ -34,7 +35,7 @@ defmodule ExAws.Config do
     4. Finally, any configuration overrides are merged in
 
   """
-  @spec new(atom, keyword) :: %{}
+  @spec new(atom, keyword) :: map()
   def new(service, opts \\ []) do
     overrides = Map.new(opts)
 
@@ -42,6 +43,17 @@ defmodule ExAws.Config do
     |> build_base(overrides)
     |> retrieve_runtime_config
     |> parse_host_for_region
+  end
+
+  @doc """
+  Builds a minimal HTTP configuration.
+  """
+  def http_config(service, opts \\ []) do
+    overrides = Map.new(opts)
+
+    build_base(service, overrides)
+    |> Map.take([:http_client, :http_opts, :json_codec])
+    |> retrieve_runtime_config
   end
 
   def build_base(service, overrides \\ %{}) do
@@ -143,7 +155,10 @@ defmodule ExAws.Config do
   def awscli_auth_credentials(profile, credentials_ini_provider \\ ExAws.CredentialsIni.File) do
     case Application.get_env(:ex_aws, :awscli_credentials, nil) do
       nil ->
-        credentials_ini_provider.security_credentials(profile)
+        case credentials_ini_provider.security_credentials(profile) do
+          {:ok, creds} -> creds
+          {:error, err} -> raise "Recieved error while retrieving security credentials: #{err}"
+        end
 
       %{^profile => profile_credentials} ->
         profile_credentials

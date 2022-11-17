@@ -9,24 +9,24 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: ['23.3.3']
-        elixir: ['1.7.4', '1.8.2', '1.9.4', '1.10.4', '1.11.4', '1.12.3', '1.13.2']
+        otp: ["23.3.3"]
+        elixir: ["1.10.4", "1.11.4", "1.12.3", "1.13.2", "1.14.0"]
     steps:
       - uses: actions/checkout@v2
-      - uses: erlef/setup-elixir@v1
+      - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
       - uses: rrainn/dynamodb-action@v2.0.0
         with:
-            port: 8000
-            cors: '*'
+          port: 8000
+          cors: "*"
       - run: mix deps.update --all
-        if: matrix.elixir == '1.13.2'
+        if: matrix.elixir == '1.14.0'
       - run: mix deps.get
       - run: mix compile
       - run: mix format --check-formatted
-        if: matrix.elixir == '1.13.2' # Only check formatting with the latest verison
+        if: matrix.elixir == '1.14.0' # Only check formatting with the latest verison
       - run: mix dialyzer
-        if: matrix.elixir == '1.13.2'
+        if: matrix.elixir == '1.14.0'
       - run: mix test

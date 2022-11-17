@@ -13,6 +13,7 @@ defmodule ExAws.Config.Defaults do
       base_backoff_in_ms: 10,
       max_backoff_in_ms: 10_000
     ],
+    require_imds_v2: false,
     normalize_path: true
   }
 
