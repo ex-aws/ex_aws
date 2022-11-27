@@ -18,10 +18,6 @@ jobs:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
           version-type: strict
-      - uses: rrainn/dynamodb-action@v2.0.0
-        with:
-          port: 8000
-          cors: "*"
       - run: mix deps.update --all
         if: matrix.elixir == '1.14.0'
       - run: mix deps.get
