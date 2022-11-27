@@ -19,11 +19,11 @@ jobs:
           elixir-version: ${{matrix.elixir}}
           version-type: strict
       - run: mix deps.update --all
-        if: matrix.elixir == '1.14.0'
+        if: matrix.elixir == '1.14.2'
       - run: mix deps.get
       - run: mix compile
       - run: mix format --check-formatted
-        if: matrix.elixir == '1.14.0' # Only check formatting with the latest verison
+        if: matrix.elixir == '1.14.2' # Only check formatting with the latest verison
       - run: mix dialyzer
-        if: matrix.elixir == '1.14.0'
+        if: matrix.elixir == '1.14.2'
       - run: mix test
