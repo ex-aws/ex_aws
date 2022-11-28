@@ -1,3 +1,8 @@
+v2.4.1
+- Add support for credentials_process in AWS credentials config
+- Service endpoint updates
+- Switch to `Config` from `Mix.Config`
+
 v2.4.0
 - Increase minimum elixir version to 1.10
 - Add `error_parser` field to operations. This may be optionally populated by services which
