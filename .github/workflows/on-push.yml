@@ -22,6 +22,10 @@ jobs:
         with:
           port: 8000
           cors: "*"
+      - name: LocalStack - Kinesis
+        run: |
+          docker run --detach --publish 4567:4566 localstack/localstack
+          until curl -s http://localhost:4567; do sleep 0.5; done
       - run: mix deps.get
       - run: mix compile
       - run: mix format --check-formatted

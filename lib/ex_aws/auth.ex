@@ -138,10 +138,10 @@ defmodule ExAws.Auth do
     [
       "AWS4-HMAC-SHA256 Credential=",
       Credentials.generate_credential_v4(service, config, datetime),
-      ",",
+      ", ",
       "SignedHeaders=",
       signed_headers(headers),
-      ",",
+      ", ",
       "Signature=",
       signature
     ]

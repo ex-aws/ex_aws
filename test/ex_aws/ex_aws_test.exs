@@ -124,4 +124,18 @@ defmodule ExAwsTest do
                       result: :error
                     }}
   end
+
+  test "kinesis signed request" do
+    op = %ExAws.Operation.JSON{
+      http_method: :post,
+      path: "/",
+      service: :kinesis,
+      headers: [
+        {"x-amz-target", "Kinesis_20131202.ListStreams"},
+        {"content-type", "application/x-amz-json-1.1"}
+      ]
+    }
+
+    assert {:ok, %{"HasMoreStreams" => false, "StreamNames" => []}} = ExAws.request(op)
+  end
 end
