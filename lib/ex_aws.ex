@@ -106,7 +106,7 @@ defmodule ExAws do
   @impl ExAws.Behaviour
   @spec stream!(ExAws.Operation.t(), keyword) :: Enumerable.t()
   def stream!(op, config_overrides \\ []) do
-    ExAws.Operation.stream!(op, ExAws.Config.new(op.service, config_overrides))
+    ExAws.Operation.stream!(op, config_overrides)
   end
 
   @doc false
