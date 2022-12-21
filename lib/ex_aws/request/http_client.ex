@@ -18,8 +18,15 @@ defmodule ExAws.Request.HttpClient do
 
       defmodule ExAws.Request.HTTPotion do
         @behaviour ExAws.Request.HttpClient
-        def request(method, url, body, headers, http_opts) do
-          {:ok, HTTPotion.request(method, url, [body: body, headers: headers, ibrowse: [headers_as_is: true]])}
+        def request(method, url, body, headers, _http_opts) do
+          case HTTPotion.request(method, url,
+                body: body,
+                headers: headers,
+                ibrowse: [headers_as_is: true]
+              ) do
+            %HTTPotion.Response{} = response -> {:ok, response}
+            %HTTPotion.ErrorResponse{} = error -> {:error, %{reason: error}}
+          end
         end
       end
 
