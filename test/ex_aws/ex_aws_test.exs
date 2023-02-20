@@ -97,6 +97,40 @@ defmodule ExAwsTest do
                     }}
   end
 
+  test "telemetry operation and service" do
+    TelemetryHelper.attach_telemetry([:ex_aws, :custom_request])
+
+    op = %ExAws.Operation.JSON{
+      http_method: :post,
+      service: :dynamodb,
+      headers: [
+        {"x-amz-target", "DynamoDB_20120810.ListTables"},
+        {"content-type", "application/x-amz-json-1.0"}
+      ]
+    }
+
+    options = [telemetry_event: [:ex_aws, :custom_request]]
+
+    assert {:ok, %{"TableNames" => _}} = ExAws.request(op, options)
+
+    assert_receive {[:ex_aws, :custom_request, :start], %{system_time: _},
+                    %{
+                      attempt: 1,
+                      operation: "DynamoDB_20120810.ListTables",
+                      service: :dynamodb,
+                      options: []
+                    }}
+
+    assert_receive {[:ex_aws, :custom_request, :stop], %{duration: _},
+                    %{
+                      attempt: 1,
+                      operation: "DynamoDB_20120810.ListTables",
+                      service: :dynamodb,
+                      options: [],
+                      result: :ok
+                    }}
+  end
+
   test "invalid request" do
     TelemetryHelper.attach_telemetry([:ex_aws, :request])
 
