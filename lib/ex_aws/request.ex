@@ -95,7 +95,13 @@ defmodule ExAws.Request do
   defp do_request(config, method, safe_url, req_body, full_headers, attempt, service) do
     telemetry_event = Map.get(config, :telemetry_event, [:ex_aws, :request])
     telemetry_options = Map.get(config, :telemetry_options, [])
-    telemetry_metadata = %{options: telemetry_options, attempt: attempt, service: service, operation: extract_operation(full_headers)}
+
+    telemetry_metadata = %{
+      options: telemetry_options,
+      attempt: attempt,
+      service: service,
+      operation: extract_operation(full_headers)
+    }
 
     :telemetry.span(telemetry_event, telemetry_metadata, fn ->
       result =
