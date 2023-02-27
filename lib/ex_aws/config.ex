@@ -2,9 +2,18 @@ defmodule ExAws.Config do
   @moduledoc """
   Generates the configuration for a service.
 
-  It starts with the defaults for a given environment
-  and then merges in the common config from the ex_aws config root,
-  and then finally any config specified for the particular service.
+  It starts with the defaults for a given environment and then merges in the
+  common config from the ex_aws config root, and then finally any config
+  specified for the particular service.
+
+  ## Refreshable fields
+
+  Some fields are marked as refreshable. These fields will be fetched through
+  the auth cache even if they are passed in as overrides. This is so stale
+  credentials aren't used, for example, with long running streams.
+
+  You can opt out of this behavior by passing `refreshable: false` when building
+  a config with `new/2`.
   """
 
   # TODO: Add proper documentation?
