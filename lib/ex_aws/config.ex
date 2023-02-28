@@ -95,20 +95,22 @@ defmodule ExAws.Config do
 
     defaults = ExAws.Config.Defaults.get(service, region)
 
-    config = defaults
-    |> Map.merge(common_config)
-    |> Map.merge(service_config)
-    |> add_refreshable_metadata()
+    config =
+      defaults
+      |> Map.merge(common_config)
+      |> Map.merge(service_config)
+      |> add_refreshable_metadata()
 
     # (Maybe) do not allow overrides for refreshable config.
-    overrides = if refreshable = overrides[:refreshable] do
-      Enum.reduce(refreshable, overrides, fn
-        :awscli, overrides -> Map.drop(overrides, @awscli_config)
-        :instance_role, overrides -> Map.drop(overrides, @instance_role_config)
-      end)
-    else
-      overrides
-    end
+    overrides =
+      if refreshable = overrides[:refreshable] do
+        Enum.reduce(refreshable, overrides, fn
+          :awscli, overrides -> Map.drop(overrides, @awscli_config)
+          :instance_role, overrides -> Map.drop(overrides, @instance_role_config)
+        end)
+      else
+        overrides
+      end
 
     Map.merge(config, overrides)
   end
@@ -117,13 +119,14 @@ defmodule ExAws.Config do
   # which is "refreshable". This is useful for long running streams where the
   # creds can change while the stream is still running.
   defp add_refreshable_metadata(config) do
-    refreshable = Enum.flat_map(config, fn {_k, v} -> List.wrap(v) end)
-    |> Enum.reduce([], fn
-      {:awscli, _, _}, acc -> [:awscli | acc]
-      :instance_role, acc -> [:instance_role | acc]
-      _, acc -> acc
-    end)
-    |> Enum.uniq()
+    refreshable =
+      Enum.flat_map(config, fn {_k, v} -> List.wrap(v) end)
+      |> Enum.reduce([], fn
+        {:awscli, _, _}, acc -> [:awscli | acc]
+        :instance_role, acc -> [:instance_role | acc]
+        _, acc -> acc
+      end)
+      |> Enum.uniq()
 
     if refreshable != [] do
       Map.put(config, :refreshable, refreshable)
