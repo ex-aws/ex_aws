@@ -37,14 +37,17 @@ defmodule ExAwsTest do
     assert_receive {[:ex_aws, :request, :start], %{system_time: _},
                     %{
                       attempt: 1,
-                      options: []
+                      options: [],
+                      request_body: "{}"
                     }}
 
     assert_receive {[:ex_aws, :request, :stop], %{duration: _},
                     %{
                       options: [],
                       attempt: 1,
-                      result: :ok
+                      request_body: "{}",
+                      result: :ok,
+                      response_body: "{\"TableNames\":[]}"
                     }}
   end
 
@@ -148,14 +151,17 @@ defmodule ExAwsTest do
     assert_receive {[:ex_aws, :request, :start], %{system_time: _},
                     %{
                       options: [],
-                      attempt: 1
+                      attempt: 1,
+                      request_body: "{}"
                     }}
 
     assert_receive {[:ex_aws, :request, :stop], %{duration: _},
                     %{
                       options: [],
                       attempt: 1,
-                      result: :error
+                      request_body: "{}",
+                      result: :error,
+                      error: ~s({"__type":"com.amazon.coral.validate#ValidationException","Message":"Invalid table/index name.  Table/index names must be between 3 and 255 characters long, and may contain only the characters a-z, A-Z, 0-9, '_', '-', and '.'"})
                     }}
   end
 end
