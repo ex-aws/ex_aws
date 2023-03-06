@@ -2,9 +2,18 @@ defmodule ExAws.Config do
   @moduledoc """
   Generates the configuration for a service.
 
-  It starts with the defaults for a given environment
-  and then merges in the common config from the ex_aws config root,
-  and then finally any config specified for the particular service.
+  It starts with the defaults for a given environment and then merges in the
+  common config from the ex_aws config root, and then finally any config
+  specified for the particular service.
+
+  ## Refreshable fields
+
+  Some fields are marked as refreshable. These fields will be fetched through
+  the auth cache even if they are passed in as overrides. This is so stale
+  credentials aren't used, for example, with long running streams.
+
+  You can opt out of this behavior by passing `refreshable: false` when building
+  a config with `new/2`.
   """
 
   # TODO: Add proper documentation?
@@ -22,6 +31,23 @@ defmodule ExAws.Config do
     :normalize_path,
     :telemetry_event,
     :telemetry_options
+  ]
+
+  @instance_role_config [
+    :access_key_id,
+    :secret_access_key,
+    :security_token
+  ]
+
+  @awscli_config [
+    :source_profile,
+    :role_arn,
+    :access_key_id,
+    :secret_access_key,
+    :region,
+    :security_token,
+    :role_session_name,
+    :external_id
   ]
 
   @type t :: %{} | Keyword.t()
@@ -69,10 +95,44 @@ defmodule ExAws.Config do
 
     defaults = ExAws.Config.Defaults.get(service, region)
 
-    defaults
-    |> Map.merge(common_config)
-    |> Map.merge(service_config)
-    |> Map.merge(overrides)
+    config =
+      defaults
+      |> Map.merge(common_config)
+      |> Map.merge(service_config)
+      |> add_refreshable_metadata()
+
+    # (Maybe) do not allow overrides for refreshable config.
+    overrides =
+      if refreshable = overrides[:refreshable] do
+        Enum.reduce(refreshable, overrides, fn
+          :awscli, overrides -> Map.drop(overrides, @awscli_config)
+          :instance_role, overrides -> Map.drop(overrides, @instance_role_config)
+        end)
+      else
+        overrides
+      end
+
+    Map.merge(config, overrides)
+  end
+
+  # :awscli and :instance_role both read creds from ExAws.Config.AuthCache which
+  # which is "refreshable". This is useful for long running streams where the
+  # creds can change while the stream is still running.
+  defp add_refreshable_metadata(config) do
+    refreshable =
+      Enum.flat_map(config, fn {_k, v} -> List.wrap(v) end)
+      |> Enum.reduce([], fn
+        {:awscli, _, _}, acc -> [:awscli | acc]
+        :instance_role, acc -> [:instance_role | acc]
+        _, acc -> acc
+      end)
+      |> Enum.uniq()
+
+    if refreshable != [] do
+      Map.put(config, :refreshable, refreshable)
+    else
+      config
+    end
   end
 
   def retrieve_runtime_config(config) do
@@ -95,6 +155,9 @@ defmodule ExAws.Config do
       {:headers, headers}, config ->
         Map.put(config, :headers, headers)
 
+      {:refreshable, refreshable}, config ->
+        Map.put(config, :refreshable, refreshable)
+
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
           %{} = result -> Map.merge(config, result)
@@ -110,22 +173,13 @@ defmodule ExAws.Config do
   def retrieve_runtime_value(:instance_role, config) do
     config
     |> ExAws.Config.AuthCache.get()
-    |> Map.take([:access_key_id, :secret_access_key, :security_token])
+    |> Map.take(@instance_role_config)
     |> valid_map_or_nil
   end
 
   def retrieve_runtime_value({:awscli, profile, expiration}, _) do
     ExAws.Config.AuthCache.get(profile, expiration * 1000)
-    |> Map.take([
-      :source_profile,
-      :role_arn,
-      :access_key_id,
-      :secret_access_key,
-      :region,
-      :security_token,
-      :role_session_name,
-      :external_id
-    ])
+    |> Map.take(@awscli_config)
     |> valid_map_or_nil
   end
 
