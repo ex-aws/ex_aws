@@ -118,6 +118,7 @@ defmodule ExAws.Request do
         case result do
           {:ok, %{status_code: status} = resp} when status in 200..299 or status == 304 ->
             %{result: :ok, response_body: Map.get(resp, :body)}
+
           error ->
             %{result: :error, error: extract_error(error)}
         end
