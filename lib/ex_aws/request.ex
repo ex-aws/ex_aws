@@ -100,6 +100,7 @@ defmodule ExAws.Request do
       options: telemetry_options,
       attempt: attempt,
       service: service,
+      request_body: req_body,
       operation: extract_operation(full_headers)
     }
 
@@ -113,13 +114,16 @@ defmodule ExAws.Request do
           Map.get(config, :http_opts, [])
         )
 
-      telemetry_result =
+      stop_metadata =
         case result do
-          {:ok, %{status_code: status}} when status in 200..299 or status == 304 -> :ok
-          _ -> :error
+          {:ok, %{status_code: status} = resp} when status in 200..299 or status == 304 ->
+            %{result: :ok, response_body: Map.get(resp, :body)}
+
+          error ->
+            %{result: :error, error: extract_error(error)}
         end
 
-      telemetry_metadata = Map.put(telemetry_metadata, :result, telemetry_result)
+      telemetry_metadata = Map.merge(telemetry_metadata, stop_metadata)
       {result, telemetry_metadata}
     end)
   end
@@ -128,6 +132,11 @@ defmodule ExAws.Request do
 
   defp match_operation({"x-amz-target", value}), do: value
   defp match_operation({_key, _value}), do: nil
+
+  defp extract_error({:ok, %{body: body}}), do: body
+  defp extract_error({:ok, response}), do: response
+  defp extract_error({:error, error}), do: error
+  defp extract_error(error), do: error
 
   def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
