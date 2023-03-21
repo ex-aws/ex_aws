@@ -13,6 +13,7 @@ defmodule ExAws.Request.HttpClient do
 
   In your config you would do:
 
+  ```
       config :ex_aws,
         http_client: ExAws.Request.HTTPotion
 
