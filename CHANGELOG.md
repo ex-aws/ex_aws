@@ -1,3 +1,9 @@
+v2.4.2
+- Add name, request, and response data to telemetry
+- Force refresh of auth config during long-running streaming operations to avoid failed auth
+- Update endpoints
+- Update docs
+
 v2.4.1
 - Add support for credentials_process in AWS credentials config
 - Service endpoint updates
