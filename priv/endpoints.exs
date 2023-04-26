@@ -2461,7 +2461,7 @@
               "hostname" => "fsx-fips.us-gov-west-1.amazonaws.com"
             }
           }
-          },
+        },
         "config" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "iam" => %{
           "endpoints" => %{
