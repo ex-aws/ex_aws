@@ -434,6 +434,7 @@
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
+            "me-south-1" => %{},
             "sa-east-1" => %{},
             "us-east-1" => %{},
             "us-east-2" => %{},
