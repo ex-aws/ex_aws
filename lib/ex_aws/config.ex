@@ -12,8 +12,8 @@ defmodule ExAws.Config do
   the auth cache even if they are passed in as overrides. This is so stale
   credentials aren't used, for example, with long running streams.
 
-  You can opt out of this behavior by passing `refreshable: false` when building
-  a config with `new/2`.
+  This behaviour must be explicitly enabled by passing `refreshable: true` as an option
+  to Config.new/2
   """
 
   # TODO: Add proper documentation?
@@ -67,8 +67,8 @@ defmodule ExAws.Config do
 
     service
     |> build_base(overrides)
-    |> retrieve_runtime_config
-    |> parse_host_for_region
+    |> retrieve_runtime_config()
+    |> parse_host_for_region()
   end
 
   @doc """
@@ -99,11 +99,11 @@ defmodule ExAws.Config do
       defaults
       |> Map.merge(common_config)
       |> Map.merge(service_config)
-      |> add_refreshable_metadata()
+      |> add_refreshable_metadata(overrides)
 
     # (Maybe) do not allow overrides for refreshable config.
     overrides =
-      if refreshable = overrides[:refreshable] do
+      if refreshable = config[:refreshable] do
         Enum.reduce(refreshable, overrides, fn
           :awscli, overrides -> Map.drop(overrides, @awscli_config)
           :instance_role, overrides -> Map.drop(overrides, @instance_role_config)
@@ -116,9 +116,9 @@ defmodule ExAws.Config do
   end
 
   # :awscli and :instance_role both read creds from ExAws.Config.AuthCache which
-  # which is "refreshable". This is useful for long running streams where the
-  # creds can change while the stream is still running.
-  defp add_refreshable_metadata(config) do
+  # is "refreshable". This is useful for long running streams where the creds can
+  # change while the stream is still running.
+  defp add_refreshable_metadata(config, %{refreshable: true}) do
     refreshable =
       Enum.flat_map(config, fn {_k, v} -> List.wrap(v) end)
       |> Enum.reduce([], fn
@@ -133,6 +133,10 @@ defmodule ExAws.Config do
     else
       config
     end
+  end
+
+  defp add_refreshable_metadata(config, _overrides) do
+    config
   end
 
   def retrieve_runtime_config(config) do
