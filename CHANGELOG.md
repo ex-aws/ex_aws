@@ -1,3 +1,9 @@
+v2.4.3
+- Switch default behaviour of credential refreshing so that it must be explicitly enabled with
+`refreshable: true`. Having it as the default behaviour was causing breaking issues with ignoring 
+overridesin places they shouldn't have been.
+- Update endpoints
+
 v2.4.2
 - Add name, request, and response data to telemetry
 - Force refresh of auth config during long-running streaming operations to avoid failed auth
