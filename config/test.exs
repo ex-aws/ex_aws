@@ -1,6 +1,6 @@
 import Config
 
-config :logger, level: :warn
+config :logger, level: :warning
 
 config :ex_aws,
   json_codec: Test.JSONCodec,

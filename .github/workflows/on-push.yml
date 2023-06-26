@@ -9,23 +9,38 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        otp: ["23.3.4.6"]
-        elixir: ["1.10.4", "1.11.4", "1.12.3", "1.13.4", "1.14.2"]
+        otp: [23.x, 24.x, 25.x]
+        elixir: [1.11.x, 1.12.x, 1.13.x, 1.14.x, 1.15.x]
+        exclude:
+          - otp: 25.x
+            elixir: 1.11.x
+          - otp: 25.x
+            elixir: 1.12.x
+          - otp: 23.x
+            elixir: 1.15.x
+
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
-          version-type: strict
       - uses: rrainn/dynamodb-action@v2.0.0
         with:
           port: 8000
           cors: "*"
+      - uses: actions/cache@v3
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{matrix.otp}}-${{matrix.elixir}}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{matrix.otp}}-${{matrix.elixir}}-
       - run: mix deps.get
       - run: mix compile
       - run: mix format --check-formatted
-        if: matrix.elixir == '1.14.2' # Only check formatting with the latest verison
+        if: matrix.elixir == '1.15.x' # Only check formatting with the latest verison
       - run: mix dialyzer
-        if: matrix.elixir == '1.14.2'
+        if: matrix.elixir == '1.15.x'
       - run: mix test
