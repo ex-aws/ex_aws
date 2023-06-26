@@ -51,7 +51,7 @@ defmodule ExAws.Mixfile do
       {:mox, "~> 1.0", only: :test},
       {:sweet_xml, "~> 0.7", optional: true},
       {:excoveralls, "~> 0.10", only: :test},
-      {:httpotion, "~> 3.1", only: :test}
+      {:req, "~> 0.3", only: :test}
     ]
   end
 
