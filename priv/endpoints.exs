@@ -1378,6 +1378,23 @@
           "isRegionalized" => false,
           "partitionEndpoint" => "aws-global"
         },
+        "chime-sdk-media-pipelines" => %{
+          "defaults" => %{"signatureVersions" => ["v4"]},
+          "endpoints" => %{
+            "ap-southeast-1" => %{
+              "hostname" => "media-pipelines-chime.ap-southeast-1.amazonaws.com"
+            },
+            "eu-central-1" => %{
+              "hostname" => "media-pipelines-chime.eu-central-1.amazonaws.com"
+            },
+            "us-east-1" => %{
+              "hostname" => "media-pipelines-chime.us-east-1.amazonaws.com"
+            },
+            "us-west-2" => %{
+              "hostname" => "media-pipelines-chime.us-west-2.amazonaws.com"
+            }
+          }
+        },
         "s3" => %{
           "defaults" => %{"protocols" => ["http", "https"], "signatureVersions" => ["s3v4"]},
           "endpoints" => %{
