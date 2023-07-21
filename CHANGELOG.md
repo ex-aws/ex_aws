@@ -1,3 +1,7 @@
+v2.4.4
+- Endpoint updates
+- Add new endpoints for Chime SDK Media Pipelines API
+
 v2.4.3
 - Switch default behaviour of credential refreshing so that it must be explicitly enabled with
 `refreshable: true`. Having it as the default behaviour was causing breaking issues with ignoring 
