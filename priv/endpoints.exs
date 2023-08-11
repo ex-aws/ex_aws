@@ -963,6 +963,7 @@
         },
         "kms" => %{
           "endpoints" => %{
+            "af-south-1" => %{},
             "ap-northeast-1" => %{},
             "ap-northeast-2" => %{},
             "ap-east-1" => %{},
