@@ -1600,6 +1600,7 @@
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
+            "eu-south-1" => %{},
             "fips-us-east-1" => %{},
             "fips-us-east-2" => %{},
             "fips-us-west-1" => %{},
