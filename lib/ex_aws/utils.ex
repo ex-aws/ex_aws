@@ -41,7 +41,7 @@ defmodule ExAws.Utils do
   def camelize(string) do
     string
     |> to_charlist
-    |> Enum.reduce({true, ''}, fn
+    |> Enum.reduce({true, ~c""}, fn
       ?_, {_, acc} -> {true, acc}
       ?/, {_, acc} -> {false, [?. | acc]}
       char, {false, acc} -> {false, [char | acc]}
