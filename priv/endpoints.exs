@@ -1432,6 +1432,7 @@
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
+            "me-central-1" => %{},
             "s3-external-1" => %{
               "credentialScope" => %{"region" => "us-east-1"},
               "hostname" => "s3-external-1.amazonaws.com",
