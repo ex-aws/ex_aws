@@ -40,7 +40,7 @@ defmodule ExAws.Request do
           {:ok, resp}
 
         {:ok, %{status_code: status} = _resp} when status == 301 ->
-          Logger.warn("ExAws: Received redirect, did you specify the correct region?")
+          Logger.warning("ExAws: Received redirect, did you specify the correct region?")
           {:error, {:http_error, status, "redirected"}}
 
         {:ok, %{status_code: status} = resp} when status in 400..499 ->
@@ -75,7 +75,7 @@ defmodule ExAws.Request do
           )
 
         {:error, %{reason: reason}} ->
-          Logger.warn(
+          Logger.warning(
             "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} ATTEMPT: #{attempt}"
           )
 

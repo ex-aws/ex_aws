@@ -1,3 +1,6 @@
+v2.5.0
+- [Breaking] Bump minimum elixir version to 1.11
+
 v2.4.4
 - Endpoint updates
 - Add new endpoints for Chime SDK Media Pipelines API
