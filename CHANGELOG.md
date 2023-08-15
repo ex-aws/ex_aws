@@ -1,5 +1,7 @@
 v2.5.0
 - [Breaking] Bump minimum elixir version to 1.11
+- Replace retired HTTPotion with Req as default web client
+- Endpoint updates
 
 v2.4.4
 - Endpoint updates
