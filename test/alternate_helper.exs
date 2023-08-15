@@ -1,17 +1,14 @@
 defmodule Test.KinesisAlt do
   def config_root do
     Application.get_all_env(:ex_aws)
-    |> Keyword.put(:http_client, ExAws.Request.HTTPotion)
+    |> Keyword.put(:http_client, ExAws.Request.Req)
     |> Keyword.put(:json_codec, ExAws.JSON.JSX)
   end
 end
 
-Application.ensure_all_started(:httpotion)
-
-defmodule Test.HTTPotion do
-  def request(method, url, body, headers) do
-    {:ok,
-     HTTPotion.request(method, url, body: body, headers: headers, ibrowse: [headers_as_is: true])}
+defmodule Test.Req do
+  def request(method, url, body, headers, _) do
+    Req.request(method: method, url: url, body: body, headers: headers)
   end
 end
 
