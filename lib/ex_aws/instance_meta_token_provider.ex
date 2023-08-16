@@ -82,7 +82,8 @@ defmodule ExAws.InstanceMetaTokenProvider do
            "",
            token_ttl_seconds_headers(config),
            follow_redirect: true
-        ) |> ExAws.Request.maybe_transform_response() do
+         )
+         |> ExAws.Request.maybe_transform_response() do
       {:ok, %{status_code: 200, body: body}} ->
         body
 
