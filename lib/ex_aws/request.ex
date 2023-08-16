@@ -113,7 +113,7 @@ defmodule ExAws.Request do
           full_headers,
           Map.get(config, :http_opts, [])
         )
-        |> map_response()
+        |> maybe_transform_response()
 
       stop_metadata =
         case result do
@@ -138,14 +138,6 @@ defmodule ExAws.Request do
   defp extract_error({:ok, response}), do: response
   defp extract_error({:error, error}), do: error
   defp extract_error(error), do: error
-
-  defp map_response({:ok, %{status: status, body: body, headers: headers}}) do
-    # Req and Finch uses status as a key.
-
-    {:ok, %{status_code: status, body: body, headers: headers}}
-  end
-
-  defp map_response(response), do: response
 
   def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
@@ -218,4 +210,11 @@ defmodule ExAws.Request do
     |> :rand.uniform()
     |> :timer.sleep()
   end
+
+  def maybe_transform_response({:ok, %{status: status, body: body, headers: headers}}) do
+    # Req and Finch use status (rather than status_code) as a key.
+    {:ok, %{status_code: status, body: body, headers: headers}}
+  end
+
+  def maybe_transform_response(response), do: response
 end
