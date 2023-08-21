@@ -1424,6 +1424,7 @@
             },
             "ca-central-1" => %{},
             "eu-central-1" => %{},
+            "eu-central-2" => %{},
             "eu-west-1" => %{
               "hostname" => "s3.eu-west-1.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
