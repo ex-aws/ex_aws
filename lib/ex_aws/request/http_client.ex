@@ -9,21 +9,24 @@ defmodule ExAws.Request.HttpClient do
 
   ## Example
 
-  Here for example is the code required to make HTTPotion comply with this spec.
+  Here is an example using [Req](https://hexdocs.pm/req/readme.html).
 
-  In your config you would do:
+  First, create a module implementing the `ExAws.Request.HttpClient` behaviour.
 
   ```
-      config :ex_aws,
-        http_client: ExAws.Request.Req
+  defmodule ExAws.Request.Req do
+    @behaviour ExAws.Request.HttpClient
+    def request(method, url, body, headers, _http_opts) do
+      Req.request(method: method, url: url, body: body, headers: headers)
+    end
+  end
+  ```
 
-      defmodule ExAws.Request.Req do
-        @behaviour ExAws.Request.HttpClient
-        def request(method, url, body, headers, _http_opts) do
-          Req.request(method: method, url: url, body: body, headers: headers)
-        end
-      end
+  Then, in config:
 
+  ```
+  config :ex_aws,
+    http_client: ExAws.Request.Req
   ```
 
   When conforming your selected HTTP Client take note of a few things:
