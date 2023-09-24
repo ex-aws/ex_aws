@@ -22,7 +22,7 @@ defmodule ExAws.Request.HttpClient do
   end
   ```
 
-  Then, in config:
+  Then, in build-time config (e.g. config.exs):
 
   ```
   config :ex_aws,
