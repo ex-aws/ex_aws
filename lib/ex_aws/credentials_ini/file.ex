@@ -102,7 +102,8 @@ if Code.ensure_loaded?(ConfigParser) do
                 "",
                 [{"x-amz-sso_bearer_token", access_token}],
                 Map.get(config, :http_opts, [])
-              )},
+              )
+              |> ExAws.Request.maybe_transform_response()},
            {_, {:ok, body}} <- {:decode, config[:json_codec].decode(body_raw)} do
         {:ok, body}
       else

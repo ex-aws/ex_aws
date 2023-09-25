@@ -15,7 +15,8 @@ defmodule ExAws.InstanceMeta do
     # If we're using IMDSv2, we will need to pass in session token headers.
     headers = get_request_headers(config, fallback)
 
-    case config.http_client.request(:get, url, "", headers, http_opts()) do
+    case config.http_client.request(:get, url, "", headers, http_opts())
+         |> ExAws.Request.maybe_transform_response() do
       {:ok, %{status_code: 200, body: body}} ->
         body
 
