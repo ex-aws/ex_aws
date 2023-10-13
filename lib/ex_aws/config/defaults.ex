@@ -95,7 +95,7 @@ defmodule ExAws.Config.Defaults do
   end
 
   @partitions [
-    {~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+/, "aws"},
+    {~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+$/, "aws"},
     {~r/^cn\-\w+\-\d+$/, "aws-cn"},
     {~r/^us\-gov\-\w+\-\d+$/, "aws-us-gov"}
   ]
@@ -105,7 +105,6 @@ defmodule ExAws.Config.Defaults do
       Enum.find(@partitions, fn {regex, _} ->
         Regex.run(regex, region)
       end)
-      |> IO.inspect(label: "partition")
 
     with {_, partition} <- partition do
       do_host(partition, service, region)
