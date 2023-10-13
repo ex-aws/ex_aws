@@ -145,22 +145,18 @@ defmodule ExAws.Config.Defaults do
                   |> Map.new(fn partition ->
                     {partition["partition"], partition}
                   end)
-  def dbgg(x,f) do
-    File.write!("#{f}.txt", Jason.encode!(x))
-    x
-  end
 
   defp do_host(partition, service_slug, region) do
     partition = @partition_data |> Map.fetch!(partition)
-    dbgg(partition,"partition")
-    partition_name = partition["partition"] |> IO.inspect(label: "partition_name")
 
-    service = service_map(service_slug) |> IO.inspect(label: "service")
+    partition_name = partition["partition"]
+
+    service = service_map(service_slug)
 
     partition
     |> Map.fetch!("services")
-    |> dbgg("services")
-    |> fetch_or(service, "#{service_slug} not found in partition #{partition_name}") |> IO.inspect(label: "fetch_or")
+
+    |> fetch_or(service, "#{service_slug} not found in partition #{partition_name}")
     |> case do
       %{"isRegionalized" => false} = data ->
         data
