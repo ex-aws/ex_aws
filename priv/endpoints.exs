@@ -1444,6 +1444,7 @@
               "hostname" => "s3.sa-east-1.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
             },
+            "us-east-1-fips" => %{},
             "us-east-1" => %{
               "hostname" => "s3.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]

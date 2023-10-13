@@ -94,10 +94,6 @@ defmodule ExAws.Config.Defaults do
     |> Map.put(:host, host(service, region))
   end
 
-  # ExAws.Config.Defaults.host("sts", "us-east-1")
-  # Regex.run(~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+/, "us-east-1-fips")
-  # Regex.run(~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+/, "us-east-1")
-  # orig:     {~r/^(us|eu|af|ap|sa|ca|me)\-\w+\-\d+\-*$/, "aws"},
   @partitions [
     {~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+/, "aws"},
     {~r/^cn\-\w+\-\d+$/, "aws-cn"},
@@ -148,14 +144,11 @@ defmodule ExAws.Config.Defaults do
 
   defp do_host(partition, service_slug, region) do
     partition = @partition_data |> Map.fetch!(partition)
-
     partition_name = partition["partition"]
-
     service = service_map(service_slug)
 
     partition
     |> Map.fetch!("services")
-
     |> fetch_or(service, "#{service_slug} not found in partition #{partition_name}")
     |> case do
       %{"isRegionalized" => false} = data ->
