@@ -94,8 +94,12 @@ defmodule ExAws.Config.Defaults do
     |> Map.put(:host, host(service, region))
   end
 
+  # ExAws.Config.Defaults.host("sts", "us-east-1")
+  # Regex.run(~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+/, "us-east-1-fips")
+  # Regex.run(~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+/, "us-east-1")
+  # orig:     {~r/^(us|eu|af|ap|sa|ca|me)\-\w+\-\d+\-*$/, "aws"},
   @partitions [
-    {~r/^(us|eu|af|ap|sa|ca|me)\-\w+\-\d+$/, "aws"},
+    {~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+/, "aws"},
     {~r/^cn\-\w+\-\d+$/, "aws-cn"},
     {~r/^us\-gov\-\w+\-\d+$/, "aws-us-gov"}
   ]
@@ -105,6 +109,7 @@ defmodule ExAws.Config.Defaults do
       Enum.find(@partitions, fn {regex, _} ->
         Regex.run(regex, region)
       end)
+      |> IO.inspect(label: "partition")
 
     with {_, partition} <- partition do
       do_host(partition, service, region)
@@ -140,16 +145,22 @@ defmodule ExAws.Config.Defaults do
                   |> Map.new(fn partition ->
                     {partition["partition"], partition}
                   end)
+  def dbgg(x,f) do
+    File.write!("#{f}.txt", Jason.encode!(x))
+    x
+  end
 
   defp do_host(partition, service_slug, region) do
     partition = @partition_data |> Map.fetch!(partition)
-    partition_name = partition["partition"]
+    dbgg(partition,"partition")
+    partition_name = partition["partition"] |> IO.inspect(label: "partition_name")
 
-    service = service_map(service_slug)
+    service = service_map(service_slug) |> IO.inspect(label: "service")
 
     partition
     |> Map.fetch!("services")
-    |> fetch_or(service, "#{service_slug} not found in partition #{partition_name}")
+    |> dbgg("services")
+    |> fetch_or(service, "#{service_slug} not found in partition #{partition_name}") |> IO.inspect(label: "fetch_or")
     |> case do
       %{"isRegionalized" => false} = data ->
         data
