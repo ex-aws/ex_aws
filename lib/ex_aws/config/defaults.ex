@@ -95,7 +95,7 @@ defmodule ExAws.Config.Defaults do
   end
 
   @partitions [
-    {~r/^(us|eu|af|ap|sa|ca|me)\-\w+\-\d+$/, "aws"},
+    {~r/^(us|eu|af|ap|sa|ca|me)\-\w+\-\d$/, "aws"},
     {~r/^cn\-\w+\-\d+$/, "aws-cn"},
     {~r/^us\-gov\-\w+\-\d+$/, "aws-us-gov"}
   ]
