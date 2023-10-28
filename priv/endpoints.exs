@@ -978,6 +978,10 @@
             "eu-north-1" => %{},
             "sa-east-1" => %{},
             "us-east-1" => %{},
+            "us-east-1-fips" => %{
+              "hostname" => "kms-fips.us-east-1.amazonaws.com",
+              "credentialScope" => %{"region" => "us-east-1"}
+            },
             "us-east-2" => %{},
             "us-west-1" => %{},
             "us-west-2" => %{}
@@ -1036,6 +1040,11 @@
             "eu-north-1" => %{},
             "sa-east-1" => %{},
             "us-east-1" => %{"sslCommonName" => "{service}.{dnsSuffix}"},
+            "us-east-1-fips" => %{
+              "sslCommonName" => "{service}.{dnsSuffix}",
+              "hostname" => "rds-fips.us-east-1.amazonaws.com",
+              "credentialScope" => %{"region" => "us-east-1"}
+            },
             "us-east-2" => %{},
             "us-west-1" => %{},
             "us-west-2" => %{}
@@ -1442,6 +1451,10 @@
             "sa-east-1" => %{
               "hostname" => "s3.sa-east-1.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
+            },
+            "us-east-1-fips" => %{
+              "hostname" => "s3-fips.us-east-1.amazonaws.com",
+              "credentialScope" => %{"region" => "us-east-1"}
             },
             "us-east-1" => %{
               "hostname" => "s3.amazonaws.com",
