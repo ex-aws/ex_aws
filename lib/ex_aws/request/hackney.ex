@@ -29,4 +29,40 @@ defmodule ExAws.Request.Hackney do
         {:error, %{reason: reason}}
     end
   end
+
+  def request_stream(method, url, body \\ "", headers \\ [], http_opts \\ []) do
+    {:ok, headers} = headers
+
+    {:ok, status, headers, client} = begin_download(method, url, body, headers, http_opts)
+
+    stream =
+      Stream.resource(
+        fn -> client end,
+        &continue_download/1,
+        &finish_download/1
+      )
+
+    {:ok, status, headers, stream}
+  end
+
+  defp begin_download(method, url, body, headers, http_opts) do
+    :hackney.request(method, url, headers, body, http_opts)
+  end
+
+  defp continue_download(client) do
+    case :hackney.stream_body(client) do
+      {:ok, data} ->
+        {[data], client}
+
+      :done ->
+        {:halt, client}
+
+      {:error, reason} ->
+        raise reason
+    end
+  end
+
+  defp finish_download(client) do
+    :hackney.close(client)
+  end
 end

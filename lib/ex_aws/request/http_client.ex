@@ -60,4 +60,12 @@ defmodule ExAws.Request.HttpClient do
               {:ok, %{status_code: pos_integer, headers: any}}
               | {:ok, %{status_code: pos_integer, headers: any, body: binary}}
               | {:error, %{reason: any}}
+
+  @callback request_stream(
+              method :: http_method,
+              url :: binary,
+              req_body :: binary,
+              headers :: [{binary, binary}, ...],
+              http_opts :: term
+            ) :: Enumerable.t()
 end

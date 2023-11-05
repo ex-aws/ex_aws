@@ -9,6 +9,29 @@ defmodule ExAws.Request do
   @type error_t :: {:error, {:http_error, http_status, binary}}
   @type response_t :: success_t | error_t
 
+  def request_stream(method, url, data, headers, config, service) do
+    req_body =
+      case data do
+        [] -> "{}"
+        d when is_binary(d) -> d
+        _ -> config[:json_codec].encode!(data)
+      end
+
+    safe_url = ExAws.Request.Url.sanitize(url, service)
+    full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
+
+    {:ok, _status, _headers, stream} =
+      config[:http_client].request_stream(
+        method,
+        safe_url,
+        req_body,
+        full_headers,
+        Map.get(config, :http_opts, [])
+      )
+
+    stream
+  end
+
   def request(http_method, url, data, headers, config, service) do
     body =
       case data do
