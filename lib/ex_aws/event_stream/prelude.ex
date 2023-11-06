@@ -43,12 +43,17 @@ defmodule ExAws.EventStream.Prelude do
      }}
   end
 
-  def validate_prelude(prelude) do
+  def validate_prelude(
+        %__MODULE__{
+          headers_length: headers_length,
+          payload_length: payload_length
+        } = prelude
+      ) do
     cond do
-      prelude.headers_length > @max_header_length ->
+      headers_length > @max_header_length ->
         {:error, :invalid_headers_length}
 
-      prelude.payload_length > @max_payload_length ->
+      payload_length > @max_payload_length ->
         {:error, :invalid_payload_length}
 
       true ->

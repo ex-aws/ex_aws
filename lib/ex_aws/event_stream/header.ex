@@ -37,7 +37,7 @@ defmodule ExAws.EventStream.Header do
     headers_bytes
   end
 
-  def parse(%Prelude{headers_end: headers_end, headers_length: headers_length}, payload_bytes) do
+  def parse(%Prelude{headers_length: headers_length}, payload_bytes) do
     headers = headers_length |> extract_header_bytes(payload_bytes) |> extract_headers()
     {:ok, headers}
   end

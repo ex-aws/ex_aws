@@ -16,19 +16,13 @@ defmodule ExAws.EventStream.Message do
   end
 
   def verify_message_crc(prelude, payload_bytes) do
-    message_crc =
-      payload_bytes
-      |> binary_part(prelude.payload_end, 4)
-      |> :binary.decode_unsigned(:big)
+    prelude_length = Prelude.prelude_length()
+    message_length = prelude.payload_end - (prelude_length - 4)
 
-    message_length = prelude.payload_end - (Prelude.prelude_length() - 4)
+    <<_::binary-size(8), message_bytes::binary-size(message_length),
+      message_crc_bytes::binary-size(4)>> = payload_bytes
 
-    message_bytes =
-      binary_part(
-        payload_bytes,
-        Prelude.prelude_length() - 4,
-        message_length
-      )
+    message_crc = :binary.decode_unsigned(message_crc_bytes, :big)
 
     validate_checksum(message_bytes, message_crc, prelude.crc)
   end
