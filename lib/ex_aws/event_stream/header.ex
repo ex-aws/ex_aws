@@ -1,38 +1,44 @@
 defmodule ExAws.EventStream.Header do
+  @moduledoc """
+  Parses EventStream headers.
+
+  AWS encodes EventStream headers as follows:
+
+  [header-name-size][header-name][header-data-type][header-value-size][header-value-data]
+  |<--  1 byte  -->|<-variable->|<--   1 byte  -->|<--  2 bytes   -->|<--  variable  -->|
+
+  This module parses this information and returns a map of header names - values.
+  header-data-type is always 0x07(String) for S3.
+  """
   alias ExAws.EventStream.Prelude
 
-  defp extract_header_bytes(prelude, payload_bytes) do
-    binary_part(
-      payload_bytes,
-      Prelude.prelude_length(),
-      prelude.headers_end - Prelude.prelude_length()
-    )
+  def extract_headers(header_bytes) do
+    do_extract_headers(header_bytes, [])
   end
 
-  def extract_headers(<<>>, headers) do
-    Map.new(headers)
+  defp do_extract_headers(<<>>, headers), do: Map.new(headers)
+
+  defp do_extract_headers(<<header_name_size, rest::binary>>, headers) do
+    <<header_name::binary-size(header_name_size), _, rest::binary>> = rest
+    <<value_size_binary::binary-size(2), rest::binary>> = rest
+
+    value_size = :binary.decode_unsigned(value_size_binary, :big)
+    <<value::binary-size(value_size), rest::binary>> = rest
+
+    do_extract_headers(rest, [{header_name, value} | headers])
   end
 
-  def extract_headers(<<header_name_size, rest::binary>>, headers) do
-    header_name = binary_part(rest, 0, header_name_size)
-    # https://docs.aws.amazon.com/AmazonS3/latest/API/RESTSelectObjectAppendix.html
-    # +1 and -1  for ignoring first byte here (Always = 0x07) for S3
-    # TODO: Support other header data types
-    rest =
-      binary_part(rest, header_name_size + 1, byte_size(rest) - header_name_size - 1)
+  defp extract_header_bytes(headers_end, payload_bytes) do
+    prelude_length = Prelude.prelude_length()
 
-    value_size = rest |> binary_part(0, 2) |> :binary.decode_unsigned(:big)
+    <<_prelude::binary-size(prelude_length), headers_bytes::binary-size(headers_end),
+      _payload::binary>> = payload_bytes
 
-    value =
-      binary_part(rest, 2, value_size)
-
-    rest
-    |> binary_part(2 + value_size, byte_size(rest) - 2 - value_size)
-    |> extract_headers([{header_name, value} | headers])
+    headers_bytes
   end
 
-  def parse(prelude, payload_bytes) do
-    headers = prelude |> extract_header_bytes(payload_bytes) |> extract_headers([])
+  def parse(%Prelude{headers_end: headers_end, headers_length: headers_length}, payload_bytes) do
+    headers = headers_length |> extract_header_bytes(payload_bytes) |> extract_headers()
     {:ok, headers}
   end
 end

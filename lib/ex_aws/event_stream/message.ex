@@ -46,13 +46,12 @@ defmodule ExAws.EventStream.Message do
   end
 
   def parse(chunk) do
-    dbg(chunk)
     with {:ok, prelude, payload_bytes} <-
            Prelude.parse(chunk),
          :ok <- verify_message_crc(prelude, payload_bytes),
          {:ok, headers} <- Header.parse(prelude, payload_bytes),
          {:ok, payload} <- parse_payload(prelude, payload_bytes) do
-      {:ok, %__MODULE__{prelude: prelude, payload: payload, headers: headers}} |> dbg()
+      {:ok, %__MODULE__{prelude: prelude, payload: payload, headers: headers}}
     end
   end
 end
