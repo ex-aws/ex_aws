@@ -2,7 +2,6 @@ defmodule ExAws.Operation.S3 do
   @moduledoc """
   Holds data necessary for an operation on the S3 service.
   """
-  alias ExAws.EventStream
 
   defstruct stream_builder: nil,
             parser: &Function.identity/1,
