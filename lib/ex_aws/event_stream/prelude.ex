@@ -1,4 +1,6 @@
 defmodule ExAws.EventStream.Prelude do
+  import Bitwise
+
   defstruct total_length: nil,
             headers_length: nil,
             prelude_length: nil,
@@ -56,7 +58,9 @@ defmodule ExAws.EventStream.Prelude do
         <<prelude_bytes_without_crc::binary-size(@prelude_length - 4), _rest::binary>>,
         prelude_checksum
       ) do
-    if :erlang.crc32(prelude_bytes_without_crc) == prelude_checksum do
+    computed_checksum = prelude_bytes_without_crc |> :erlang.crc32() |> band(0xFFFFFFFF)
+
+    if computed_checksum == prelude_checksum do
       :ok
     else
       {:error, :prelude_checksum_mismatch}
