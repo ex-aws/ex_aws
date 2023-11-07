@@ -9,30 +9,7 @@ defmodule ExAws.Request do
   @type error_t :: {:error, {:http_error, http_status, binary}}
   @type response_t :: success_t | error_t
 
-  def request_stream(method, url, data, headers, config, service) do
-    req_body =
-      case data do
-        [] -> "{}"
-        d when is_binary(d) -> d
-        _ -> config[:json_codec].encode!(data)
-      end
-
-    safe_url = ExAws.Request.Url.sanitize(url, service)
-    full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
-
-    {:ok, _status, _headers, stream} =
-      config[:http_client].request_stream(
-        method,
-        safe_url,
-        req_body,
-        full_headers,
-        Map.get(config, :http_opts, [])
-      )
-
-    stream
-  end
-
-  def request(http_method, url, data, headers, config, service) do
+  def request(http_method, url, data, headers, config, service, stream \\ false) do
     body =
       case data do
         [] -> "{}"
@@ -40,13 +17,31 @@ defmodule ExAws.Request do
         _ -> config[:json_codec].encode!(data)
       end
 
-    request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
+    request_and_retry(http_method, url, service, config, headers, body, stream, {:attempt, 1})
   end
 
-  def request_and_retry(_method, _url, _service, _config, _headers, _req_body, {:error, reason}),
-    do: {:error, reason}
+  def request_and_retry(
+        _method,
+        _url,
+        _service,
+        _config,
+        _headers,
+        _req_body,
+        _stream,
+        {:error, reason}
+      ),
+      do: {:error, reason}
 
-  def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
+  def request_and_retry(
+        method,
+        url,
+        service,
+        config,
+        headers,
+        req_body,
+        stream,
+        {:attempt, attempt}
+      ) do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
 
     with {:ok, full_headers} <- full_headers do
@@ -58,7 +53,7 @@ defmodule ExAws.Request do
         )
       end
 
-      case do_request(config, method, safe_url, req_body, full_headers, attempt, service) do
+      case do_request(config, method, safe_url, req_body, full_headers, attempt, service, stream) do
         {:ok, %{status_code: status} = resp} when status in 200..299 or status == 304 ->
           {:ok, resp}
 
@@ -76,6 +71,7 @@ defmodule ExAws.Request do
                 config,
                 headers,
                 req_body,
+                stream,
                 attempt_again?(attempt, reason, config)
               )
 
@@ -94,6 +90,7 @@ defmodule ExAws.Request do
             config,
             headers,
             req_body,
+            stream,
             attempt_again?(attempt, reason, config)
           )
 
@@ -109,13 +106,14 @@ defmodule ExAws.Request do
             config,
             headers,
             req_body,
+            stream,
             attempt_again?(attempt, reason, config)
           )
       end
     end
   end
 
-  defp do_request(config, method, safe_url, req_body, full_headers, attempt, service) do
+  defp do_request(config, method, safe_url, req_body, full_headers, attempt, service, stream) do
     telemetry_event = Map.get(config, :telemetry_event, [:ex_aws, :request])
     telemetry_options = Map.get(config, :telemetry_options, [])
 
@@ -134,7 +132,8 @@ defmodule ExAws.Request do
           safe_url,
           req_body,
           full_headers,
-          Map.get(config, :http_opts, [])
+          Map.get(config, :http_opts, []),
+          stream
         )
         |> maybe_transform_response()
 
@@ -232,6 +231,10 @@ defmodule ExAws.Request do
     |> trunc
     |> :rand.uniform()
     |> :timer.sleep()
+  end
+
+  def maybe_transform_response({:ok, %{status: status, stream: stream, headers: headers}}) do
+    {:ok, %{status_code: status, stream: stream, headers: headers}}
   end
 
   def maybe_transform_response({:ok, %{status: status, body: body, headers: headers}}) do

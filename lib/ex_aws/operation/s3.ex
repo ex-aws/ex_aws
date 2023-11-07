@@ -31,10 +31,9 @@ defmodule ExAws.Operation.S3 do
       {operation, config, url, body, headers, http_method} =
         build_request_params(operation, config)
 
-      ExAws.Request.request_stream(http_method, url, body, headers, config, operation.service)
-      |> Stream.map(&EventStream.parse_message/1)
-      |> Stream.filter(&EventStream.Message.is_record?/1)
-      |> Stream.map(&EventStream.Message.get_payload/1)
+      ExAws.Request.request(http_method, url, body, headers, config, operation.service, true)
+      |> ExAws.Request.default_aws_error()
+      |> operation.parser.()
     end
 
     def stream!(%{stream_builder: fun}, config), do: fun.(config)
