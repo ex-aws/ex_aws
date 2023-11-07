@@ -1,4 +1,7 @@
 defmodule ExAws.EventStream.Message do
+  @moduledoc """
+  Parses EventStream messages. This module parses this information and returns a struct with the prelude, headers and payload. Also verifies the message CRC.
+  """
   alias ExAws.EventStream.Prelude
   alias ExAws.EventStream.Header
   import Bitwise
@@ -19,8 +22,9 @@ defmodule ExAws.EventStream.Message do
       message_crc_bytes::binary-size(4)>> = payload_bytes
 
     message_crc = :binary.decode_unsigned(message_crc_bytes, :big)
+    computed_crc = prelude_crc |> :erlang.crc32(message_bytes) |> band(0xFFFFFFFF)
 
-    if :erlang.crc32(prelude_crc, message_bytes) |> band(0xFFFFFFFF) == message_crc do
+    if computed_crc == message_crc do
       :ok
     else
       {:error, :message_checksum_mismatch}

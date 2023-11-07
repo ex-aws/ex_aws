@@ -1,4 +1,14 @@
 defmodule ExAws.EventStream.Prelude do
+  @moduledoc """
+  Parses EventStream preludes.
+
+  AWS encodes EventStream preludes in binary as follows:
+
+  [  total-length  ][headers-length][  prelude crc ]
+  |<--  4 bytes -->|<-- 4 bytes -->|<-- 4 bytes -->|
+
+  This module parses this information and returns a struct with the total length of the message, the length of the headers, the length of the prelude, the CRC of the message, and the length of the payload.
+  """
   import Bitwise
 
   defstruct total_length: nil,
