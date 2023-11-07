@@ -84,7 +84,6 @@ defmodule ExAws do
   def request!(op, config_overrides \\ []) do
     case request(op, config_overrides) do
       {:ok, result} ->
-
         result
 
       error ->
