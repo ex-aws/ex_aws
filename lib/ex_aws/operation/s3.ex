@@ -26,7 +26,7 @@ defmodule ExAws.Operation.S3 do
       |> operation.parser.()
     end
 
-    def stream!(%{stream_builder: :event_stream} = operation, config) do
+    def stream!(%{stream_builder: :octet_stream} = operation, config) do
       {operation, config, url, body, headers, http_method} =
         build_request_params(operation, config)
 
