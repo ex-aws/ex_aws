@@ -7,7 +7,19 @@ defmodule ExAws.EventStream.Message do
             headers: nil,
             payload: nil
 
-  def validate_checksum(message_bytes, message_crc, prelude_crc) do
+  def verify_message_crc(
+        %Prelude{
+          crc: prelude_crc,
+          payload_length: payload_length,
+          headers_length: headers_length
+        },
+        payload_bytes
+      ) do
+    <<_::binary-size(8), message_bytes::binary-size(payload_length + headers_length + 4),
+      message_crc_bytes::binary-size(4)>> = payload_bytes
+
+    message_crc = :binary.decode_unsigned(message_crc_bytes, :big)
+
     if :erlang.crc32(prelude_crc, message_bytes) |> band(0xFFFFFFFF) == message_crc do
       :ok
     else
@@ -15,20 +27,18 @@ defmodule ExAws.EventStream.Message do
     end
   end
 
-  def verify_message_crc(prelude, payload_bytes) do
-    prelude_length = Prelude.prelude_length()
-    message_length = prelude.payload_end - (prelude_length - 4)
+  def parse_payload(
+        %Prelude{
+          prelude_length: prelude_length,
+          headers_length: headers_length,
+          payload_length: payload_length
+        },
+        payload_bytes
+      ) do
+    <<_prelude_headers::binary-size(prelude_length + headers_length),
+      message_bytes::binary-size(payload_length), _::binary>> = payload_bytes
 
-    <<_::binary-size(8), message_bytes::binary-size(message_length),
-      message_crc_bytes::binary-size(4)>> = payload_bytes
-
-    message_crc = :binary.decode_unsigned(message_crc_bytes, :big)
-
-    validate_checksum(message_bytes, message_crc, prelude.crc)
-  end
-
-  def parse_payload(prelude, payload_bytes) do
-    {:ok, binary_part(payload_bytes, prelude.headers_end, prelude.payload_length)}
+    {:ok, message_bytes}
   end
 
   def is_record?(%__MODULE__{headers: headers}) do

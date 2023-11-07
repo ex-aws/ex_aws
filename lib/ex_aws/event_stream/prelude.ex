@@ -1,10 +1,9 @@
 defmodule ExAws.EventStream.Prelude do
   defstruct total_length: nil,
             headers_length: nil,
+            prelude_length: nil,
             crc: nil,
             payload_length: nil,
-            payload_end: nil,
-            headers_end: nil,
             prelude_bytes: nil
 
   @prelude_length 12
@@ -13,32 +12,24 @@ defmodule ExAws.EventStream.Prelude do
   # 16 Mb
   @max_payload_length 16 * 1024 * 1024
 
-  def prelude_length(), do: @prelude_length
-
   defp unpack_prelude(
          <<
-           total_length::binary-size(4),
-           headers_length::binary-size(4),
+           total_length_bytes::binary-size(4),
+           headers_length_bytes::binary-size(4),
            crc::binary-size(4)
          >> = prelude_bytes
        ) do
-    total_length = :binary.decode_unsigned(total_length, :big)
-    headers_length = :binary.decode_unsigned(headers_length, :big)
+    total_length = :binary.decode_unsigned(total_length_bytes, :big)
+    headers_length = :binary.decode_unsigned(headers_length_bytes, :big)
     crc = :binary.decode_unsigned(crc, :big)
-
-    # The extra minus 4 bytes is for the message CRC.
-    payload_length = total_length - @prelude_length - headers_length - 4
-    payload_end = total_length - 4
-    headers_end = @prelude_length + headers_length
 
     {:ok,
      %__MODULE__{
        total_length: total_length,
        headers_length: headers_length,
+       prelude_length: @prelude_length,
+       payload_length: total_length - @prelude_length - headers_length - 4,
        crc: crc,
-       payload_length: payload_length,
-       payload_end: payload_end,
-       headers_end: headers_end,
        prelude_bytes: prelude_bytes
      }}
   end
@@ -61,11 +52,11 @@ defmodule ExAws.EventStream.Prelude do
     end
   end
 
-  def validate_checksum(%__MODULE__{
-        prelude_bytes: <<prelude_bytes::binary-size(@prelude_length - 4), _rest::binary>>,
-        crc: checksum
-      }) do
-    if :erlang.crc32(prelude_bytes) == checksum do
+  def validate_checksum(
+        <<prelude_bytes_without_crc::binary-size(@prelude_length - 4), _rest::binary>>,
+        prelude_checksum
+      ) do
+    if :erlang.crc32(prelude_bytes_without_crc) == prelude_checksum do
       :ok
     else
       {:error, :prelude_checksum_mismatch}
@@ -75,7 +66,7 @@ defmodule ExAws.EventStream.Prelude do
   def parse(<<prelude_bytes::binary-size(@prelude_length), _rest::binary>> = payload) do
     with {:ok, unpacked_prelude} <- unpack_prelude(prelude_bytes),
          {:ok, prelude} <- validate_prelude(unpacked_prelude),
-         :ok <- validate_checksum(prelude) do
+         :ok <- validate_checksum(prelude_bytes, unpacked_prelude.crc) do
       {:ok, prelude, payload}
     end
   end

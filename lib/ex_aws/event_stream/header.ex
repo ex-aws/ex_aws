@@ -19,7 +19,7 @@ defmodule ExAws.EventStream.Header do
   defp do_extract_headers(<<>>, headers), do: Map.new(headers)
 
   defp do_extract_headers(<<header_name_size, rest::binary>>, headers) do
-    <<header_name::binary-size(header_name_size), _, rest::binary>> = rest
+    <<header_name::binary-size(header_name_size), <<7>>, rest::binary>> = rest
     <<value_size_binary::binary-size(2), rest::binary>> = rest
 
     value_size = :binary.decode_unsigned(value_size_binary, :big)
@@ -28,17 +28,24 @@ defmodule ExAws.EventStream.Header do
     do_extract_headers(rest, [{header_name, value} | headers])
   end
 
-  defp extract_header_bytes(headers_end, payload_bytes) do
-    prelude_length = Prelude.prelude_length()
-
-    <<_prelude::binary-size(prelude_length), headers_bytes::binary-size(headers_end),
+  defp extract_header_bytes(
+         %Prelude{
+           prelude_length: prelude_length,
+           headers_length: headers_length
+         },
+         payload_bytes
+       ) do
+    <<_prelude::binary-size(prelude_length), headers_bytes::binary-size(headers_length),
       _payload::binary>> = payload_bytes
 
     headers_bytes
   end
 
-  def parse(%Prelude{headers_length: headers_length}, payload_bytes) do
-    headers = headers_length |> extract_header_bytes(payload_bytes) |> extract_headers()
+  def parse(
+        %Prelude{} = prelude,
+        payload_bytes
+      ) do
+    headers = prelude |> extract_header_bytes(payload_bytes) |> extract_headers()
     {:ok, headers}
   end
 end
