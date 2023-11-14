@@ -110,15 +110,8 @@ defmodule ExAws do
       {:ok, result} ->
         result
 
-      %Stream{} = result ->
+      result ->
         result
-
-      error ->
-        raise ExAws.Error, """
-        ExAws Stream Request Error!
-
-        #{inspect(error)}
-        """
     end
   end
 
