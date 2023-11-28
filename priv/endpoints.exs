@@ -2622,7 +2622,15 @@
         },
         "ec2" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "apigateway" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
-        "kms" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
+        "kms" => %{
+          "endpoints" => %{
+            "us-gov-east-1" => %{
+              "hostname" => "kms-fips.us-gov-east-1.amazonaws.com",
+              "credentialScope" => %{"region" => "us-gov-east-1"}
+            },
+            "us-gov-west-1" => %{}
+          }
+        },
         "sms" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "rds" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "cloudtrail" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
