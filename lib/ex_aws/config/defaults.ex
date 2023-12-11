@@ -37,6 +37,16 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:lex))
   end
 
+  def defaults(:"personalize-runtime") do
+    %{service_override: :personalize}
+    |> Map.merge(defaults(:personalize))
+  end
+
+  def defaults(:"personalize-events") do
+    %{service_override: :personalize}
+    |> Map.merge(defaults(:personalize))
+  end
+
   def defaults(:sagemaker_runtime) do
     %{service_override: :sagemaker}
     |> Map.merge(defaults(:sagemaker))

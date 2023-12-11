@@ -34,6 +34,51 @@
         "us-west-2" => %{"description" => "US West (Oregon)"}
       },
       "services" => %{
+        "personalize" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{},
+            "ap-northeast-1" => %{},
+            "ap-northeast-2" => %{},
+            "ap-south-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "eu-west-1" => %{},
+            "eu-central-1" => %{}
+          }
+        },
+        "personalize-events" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{},
+            "ap-northeast-1" => %{},
+            "ap-northeast-2" => %{},
+            "ap-south-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "eu-west-1" => %{},
+            "eu-central-1" => %{}
+          }
+        },
+        "personalize-runtime" => %{
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{},
+            "ap-northeast-1" => %{},
+            "ap-northeast-2" => %{},
+            "ap-south-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "eu-west-1" => %{},
+            "eu-central-1" => %{}
+          }
+        },
         "connect" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
@@ -2450,6 +2495,9 @@
         "cn-northwest-1" => %{"description" => "China (Ningxia)"}
       },
       "services" => %{
+        "personalize" => %{"endpoints" => %{"cn-north-1" => %{}}},
+        "personalize-runtime" => %{"endpoints" => %{"cn-north-1" => %{}}},
+        "personalize-events" => %{"endpoints" => %{"cn-north-1" => %{}}},
         "elasticache" => %{"endpoints" => %{"cn-north-1" => %{}, "cn-northwest-1" => %{}}},
         "config" => %{"endpoints" => %{"cn-north-1" => %{}, "cn-northwest-1" => %{}}},
         "iam" => %{
