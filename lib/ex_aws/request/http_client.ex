@@ -7,7 +7,7 @@ defmodule ExAws.Request.HttpClient do
 
   The default is `:hackney`.
 
-  ## Example
+  ## Example: Req
 
   Here is an example using [Req](https://hexdocs.pm/req/readme.html).
 
@@ -15,9 +15,29 @@ defmodule ExAws.Request.HttpClient do
 
   ```
   defmodule ExAws.Request.Req do
+    @moduledoc \"""
+    ExAws HTTP client implementation for Req.
+    \"""
     @behaviour ExAws.Request.HttpClient
+
+    @impl ExAws.Request.HttpClient
     def request(method, url, body, headers, _http_opts) do
-      Req.request(method: method, url: url, body: body, headers: headers)
+      case Req.request(
+           method: method,
+           url: url,
+           body: body,
+           headers: headers,
+           decode_body: false
+         ) do
+        {:ok, %Req.Response{status: status} = response} ->
+          {:ok,
+           response
+           |> Map.take([:body, :headers])
+           |> Map.put(:status_code, status)}
+
+        {:error, exception} ->
+          {:error, %{reason: exception}}
+      end
     end
   end
   ```
@@ -41,7 +61,7 @@ defmodule ExAws.Request.HttpClient do
     - Ensure the call to your chosen HTTP Client is correct and the return is
       in the same format as defined in the `c:request/5` callback
 
-  ## Example
+  ## Example: Mojito
 
       def request(method, url, body, headers, http_opts \\ []) do
         Mojito.request(method, url, headers, body, http_opts)
