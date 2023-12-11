@@ -2754,11 +2754,11 @@
               "hostname" => "s3-fips.us-gov-west-1.amazonaws.com"
             },
             "us-gov-east-1" => %{
-              "hostname" => "s3.us-gov-east-1.amazonaws.com",
+              "hostname" => "s3-fips.us-gov-east-1.amazonaws.com",
               "protocols" => ["http", "https"]
             },
             "us-gov-west-1" => %{
-              "hostname" => "s3.us-gov-west-1.amazonaws.com",
+              "hostname" => "s3-fips.us-gov-west-1.amazonaws.com",
               "protocols" => ["http", "https"]
             }
           }
