@@ -204,4 +204,50 @@ defmodule ExAws.RequestTest do
                {:attempt, 1}
              )
   end
+
+  test "Retries on errors, when the error reason is a map", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      {:error, %{reason: :closed}}
+    end)
+
+    http_method = :get
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:error, :closed} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 5}
+             )
+  end
+
+  test "Retries on errors, when the error reason is a keyword list", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      {:error, [reason: :closed]}
+    end)
+
+    http_method = :get
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:error, :closed} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 5}
+             )
+  end
 end

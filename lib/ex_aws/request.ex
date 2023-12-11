@@ -74,7 +74,13 @@ defmodule ExAws.Request do
             attempt_again?(attempt, reason, config)
           )
 
-        {:error, %{reason: reason}} ->
+        {:error, reason_struct} ->
+          reason =
+            case reason_struct do
+              %{reason: reason} -> reason
+              [reason: reason] -> reason
+            end
+
           Logger.warning(
             "ExAws: HTTP ERROR: #{inspect(reason)} for URL: #{inspect(safe_url)} ATTEMPT: #{attempt}"
           )
