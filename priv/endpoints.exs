@@ -79,6 +79,25 @@
             "eu-central-1" => %{}
           }
         },
+        "bedrock" => %{
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "ap-southeast-1" => %{},
+            "eu-central-1" => %{},
+            "us-east-1" => %{},
+            "us-west-2" => %{}
+          }
+        },
+        "bedrock-runtime" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock"}},
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "ap-southeast-1" => %{},
+            "eu-central-1" => %{},
+            "us-east-1" => %{},
+            "us-west-2" => %{}
+          }
+        },
         "connect" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
