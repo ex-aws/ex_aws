@@ -22,22 +22,25 @@ defmodule ExAws.Request.HttpClient do
 
     @impl ExAws.Request.HttpClient
     def request(method, url, body, headers, _http_opts) do
-      case Req.request(
-           method: method,
-           url: url,
-           body: body,
-           headers: headers,
-           decode_body: false
-         ) do
-        {:ok, %Req.Response{status: status} = response} ->
-          {:ok,
-           response
-           |> Map.take([:body, :headers])
-           |> Map.put(:status_code, status)}
-
-        {:error, exception} ->
-          {:error, %{reason: exception}}
+      case Req.request(method: method, url: url, body: body, headers: headers, decode_body: false) do
+        {:ok, response} -> {:ok, adapt_response(response)}
+        {:error, reason} -> {:error, %{reason: reason}}
       end
+    end
+
+    defp adapt_response(response) do
+      # adapt the response to fit the shape expected by ExAWS
+      flat_headers =
+        Enum.flat_map(response.headers, fn
+          {name, vals} when is_list(vals) -> Enum.map(vals, &{name, &1})
+          {name, val} -> {name, val}
+        end)
+
+      %{
+        body: response.body,
+        status_code: response.status,
+        headers: flat_headers
+      }
     end
   end
   ```
