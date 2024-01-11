@@ -1,3 +1,11 @@
+v2.5.1 (2024-01-11)
+- Endpoint updates
+- Documentation updates
+- Fix request error handling when error type is a proplist
+- Fixes to ensure Req and Finch clients return the same success fields as hackney
+- Add basic support for Personalise service
+- Add basic support for Bedrock service
+
 v2.5.0
 - [Breaking] Bump minimum elixir version to 1.11
 - Replace retired HTTPotion with Req as default web client
