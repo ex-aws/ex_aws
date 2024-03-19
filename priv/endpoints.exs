@@ -1,3 +1,52 @@
+# Note that these lists are the CONTROL regions (since those are where we can hit the API),
+# not the MEDIA regions.
+# See https://docs.aws.amazon.com/general/latest/gr/chime-sdk.htm
+chime_identity_regions = [
+  "eu-central-1",
+  "us-east-1"
+]
+
+chime_meeting_regions = [
+  "ap-south-1",
+  "ap-northeast-1",
+  "ap-northeast-2",
+  "ap-southeast-1",
+  "ap-southeast-2",
+  "ca-central-1",
+  "eu-central-1",
+  "eu-west-2",
+  "il-central-1",
+  "us-gov-east-1",
+  "us-gov-west-1",
+  "us-east-1",
+  "us-west-2"
+]
+
+chime_media_pipeline_regions = [
+  "ap-southeast-1",
+  "eu-central-1",
+  "us-east-1",
+  "us-west-2"
+]
+
+chime_messaging_regions = [
+  "eu-central-1",
+  "us-east-1"
+]
+
+chime_voice_regions = [
+  "ap-nottheast-1",
+  "ap-nottheast-2",
+  "ap-southeast-1",
+  "ap-southeast-2",
+  "ca-central-1",
+  "eu-central-1",
+  "eu-west-1",
+  "eu-west-2",
+  "us-east-1",
+  "us-west-2"
+]
+
 %{
   "partitions" => [
     %{
@@ -1507,6 +1556,7 @@
             "us-west-2" => %{}
           }
         },
+        # Deprecated - will not work after 2024-06-29:
         "chime" => %{
           "endpoints" => %{
             "aws-global" => %{
@@ -1517,22 +1567,50 @@
           "isRegionalized" => false,
           "partitionEndpoint" => "aws-global"
         },
+        "chime-sdk-identity" => %{
+          "defaults" => %{"signatureVersions" => ["v4"]},
+          "endpoints" =>
+            Enum.map(
+              chime_identity_regions,
+              &{&1, %{"hostname" => "identity-chime.#{&1}.amazonaws.com"}}
+            )
+            |> Map.new()
+        },
         "chime-sdk-media-pipelines" => %{
           "defaults" => %{"signatureVersions" => ["v4"]},
-          "endpoints" => %{
-            "ap-southeast-1" => %{
-              "hostname" => "media-pipelines-chime.ap-southeast-1.amazonaws.com"
-            },
-            "eu-central-1" => %{
-              "hostname" => "media-pipelines-chime.eu-central-1.amazonaws.com"
-            },
-            "us-east-1" => %{
-              "hostname" => "media-pipelines-chime.us-east-1.amazonaws.com"
-            },
-            "us-west-2" => %{
-              "hostname" => "media-pipelines-chime.us-west-2.amazonaws.com"
-            }
-          }
+          "endpoints" =>
+            Enum.map(
+              chime_media_pipeline_regions,
+              &{&1, %{"hostname" => "media-pipelines-chime.#{&1}.amazonaws.com"}}
+            )
+            |> Map.new()
+        },
+        "chime-sdk-meetings" => %{
+          "defaults" => %{"signatureVersions" => ["v4"]},
+          "endpoints" =>
+            Enum.map(
+              chime_meeting_regions,
+              &{&1, %{"hostname" => "meetings-chime.#{&1}.amazonaws.com"}}
+            )
+            |> Map.new()
+        },
+        "chime-sdk-messaging" => %{
+          "defaults" => %{"signatureVersions" => ["v4"]},
+          "endpoints" =>
+            Enum.map(
+              chime_messaging_regions,
+              &{&1, %{"hostname" => "messaging-chime.#{&1}.amazonaws.com"}}
+            )
+            |> Map.new()
+        },
+        "chime-sdk-voice" => %{
+          "defaults" => %{"signatureVersions" => ["v4"]},
+          "endpoints" =>
+            Enum.map(
+              chime_voice_regions,
+              &{&1, %{"hostname" => "voice-chime.#{&1}.amazonaws.com"}}
+            )
+            |> Map.new()
         },
         "s3" => %{
           "defaults" => %{"protocols" => ["http", "https"], "signatureVersions" => ["s3v4"]},
