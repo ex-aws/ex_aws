@@ -1,3 +1,6 @@
+v2.5.2 (2024-03-19)
+- Endpoint updates
+
 v2.5.1 (2024-01-11)
 - Endpoint updates
 - Documentation updates
