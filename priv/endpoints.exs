@@ -1031,6 +1031,16 @@ chime_voice_regions = [
           "isRegionalized" => false,
           "partitionEndpoint" => "aws-global"
         },
+        "bcm-data-exports" => %{
+          "endpoints" => %{
+            "aws-global" => %{
+              "credentialScope" => %{"region" => "us-east-1"},
+              "hostname" => "bcm-data-exports.us-east-1.api.aws"
+            }
+          },
+          "isRegionalized" => false,
+          "partitionEndpoint" => "aws-global"
+        },
         "ds" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
