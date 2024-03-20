@@ -82,7 +82,13 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:geo))
   end
 
-  def defaults(:"chime-sdk-media-pipelines") do
+  def defaults(chime_service)
+      when chime_service in [
+             :"chime-sdk-media-pipelines",
+             :"chime-sdk-identity",
+             :"chime-sdk-meetings",
+             :"chime-sdk-voice"
+           ] do
     %{service_override: :chime}
     |> Map.merge(defaults(:chime))
   end
