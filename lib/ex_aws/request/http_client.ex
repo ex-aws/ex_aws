@@ -82,5 +82,6 @@ defmodule ExAws.Request.HttpClient do
             ) ::
               {:ok, %{status_code: pos_integer, headers: any}}
               | {:ok, %{status_code: pos_integer, headers: any, body: binary}}
+              | {:ok, %{status_code: pos_integer, headers: any, stream: Enumerable.t()}}
               | {:error, %{reason: any}}
 end

@@ -18,8 +18,8 @@ defmodule ExAws.Behaviour do
   @callback request!(ExAws.Operation.t(), Keyword.t()) :: term | no_return
 
   @doc "See `ExAws.stream!/2`."
-  @callback stream!(ExAws.Operation.t()) :: Enumerable.t()
+  @callback stream!(ExAws.Operation.t()) :: Enumerable.t() | {:ok, term} | {:error, term}
 
   @doc "See `ExAws.stream!/2`."
-  @callback stream!(ExAws.Operation.t(), Keyword.t()) :: Enumerable.t()
+  @callback stream!(ExAws.Operation.t(), Keyword.t()) :: Enumerable.t() | {:ok, term} | {:error, term}
 end
