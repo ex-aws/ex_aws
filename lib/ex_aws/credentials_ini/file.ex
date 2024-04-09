@@ -9,9 +9,7 @@ if Code.ensure_loaded?(ConfigParser) do
       sso_start_url sso_region sso_account_id sso_role_name
     )
 
-    @special_merge_keys ~w(
-      sso_session services
-    )
+    @special_merge_keys ~w(sso_session)
 
     def security_credentials(profile_name) do
       config_credentials = profile_from_config(profile_name)
