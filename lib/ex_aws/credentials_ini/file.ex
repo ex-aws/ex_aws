@@ -9,6 +9,10 @@ if Code.ensure_loaded?(ConfigParser) do
       sso_start_url sso_region sso_account_id sso_role_name
     )
 
+    @special_merge_keys ~w(
+      sso_session services
+    )
+
     def security_credentials(profile_name) do
       config_credentials = profile_from_config(profile_name)
       shared_credentials = profile_from_shared_credentials(profile_name)
@@ -227,8 +231,9 @@ if Code.ensure_loaded?(ConfigParser) do
       contents
       |> ConfigParser.parse_string()
       |> case do
-        {:ok, %{^profile_name => config}} ->
-          strip_key_prefix(config)
+        {:ok, %{^profile_name => config} = full} ->
+          merge_special_keys(full, config)
+          |> strip_key_prefix()
 
         {:ok, %{}} ->
           %{}
@@ -239,6 +244,23 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     def parse_ini_file(_, _), do: %{}
+
+    def merge_special_keys(full_config, credentials) do
+      credentials
+      |> Map.take(@special_merge_keys)
+      |> Enum.reduce(credentials, fn {key, val}, acc ->
+        merge_section = "#{String.replace(key, "_", "-")} #{val}"
+
+        case full_config do
+          %{^merge_section => config} ->
+            Map.merge(config, acc)
+            |> Map.delete(key)
+
+          _ ->
+            acc
+        end
+      end)
+    end
 
     def strip_key_prefix(credentials) do
       credentials
