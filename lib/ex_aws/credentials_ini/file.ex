@@ -6,7 +6,7 @@ if Code.ensure_loaded?(ConfigParser) do
     @valid_config_keys ~w(
       aws_access_key_id aws_secret_access_key aws_session_token region
       role_arn source_profile credential_source external_id mfa_serial role_session_name credential_process
-      sso_start_url sso_region sso_account_id sso_role_name
+      sso_start_url sso_region sso_account_id sso_role_name sso_session
     )
 
     @special_merge_keys ~w(sso_session)
@@ -21,9 +21,10 @@ if Code.ensure_loaded?(ConfigParser) do
           sso_account_id: sso_account_id,
           sso_role_name: sso_role_name
         } ->
+          sso_lookup_key = Map.get(config_credentials, :sso_session, sso_start_url)
           config = ExAws.Config.http_config(:sso)
 
-          case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name, config) do
+          case get_sso_role_credentials(sso_lookup_key, sso_account_id, sso_role_name, config) do
             {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, shared_credentials)}
             {:error, _} = err -> err
           end
@@ -41,9 +42,9 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name, config) do
+    defp get_sso_role_credentials(sso_lookup_key, sso_account_id, sso_role_name, config) do
       with {_, {:ok, sso_cache_content}} <-
-             {:read, File.read(get_sso_cache_file(sso_start_url))},
+             {:read, File.read(get_sso_cache_file(sso_lookup_key))},
            {_,
             {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
              {:decode, config[:json_codec].decode(sso_cache_content)},
@@ -70,8 +71,8 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp get_sso_cache_file(sso_start_url) do
-      hash = :crypto.hash(:sha, sso_start_url) |> Base.encode16() |> String.downcase()
+    defp get_sso_cache_file(sso_lookup_key) do
+      hash = :crypto.hash(:sha, sso_lookup_key) |> Base.encode16() |> String.downcase()
 
       System.user_home()
       |> Path.join(".aws/sso/cache/#{hash}.json")
@@ -252,7 +253,6 @@ if Code.ensure_loaded?(ConfigParser) do
         case full_config do
           %{^merge_section => config} ->
             Map.merge(config, acc)
-            |> Map.delete(key)
 
           _ ->
             acc

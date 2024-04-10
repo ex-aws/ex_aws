@@ -53,6 +53,7 @@ defmodule ExAws.CredentialsIni.File.FileTest do
 
     config = ExAws.CredentialsIni.File.parse_ini_file({:ok, example_config}, "default")
 
+    assert config.sso_session == "somecompany"
     assert config.sso_start_url == "https://start.us-gov-home.awsapps.com/directory/somecompany"
     assert config.sso_region == "us-gov-west-1"
     assert config.sso_account_id == "123456789101"
