@@ -21,10 +21,10 @@ if Code.ensure_loaded?(ConfigParser) do
           sso_account_id: sso_account_id,
           sso_role_name: sso_role_name
         } ->
-          sso_lookup_key = Map.get(config_credentials, :sso_session, sso_start_url)
+          sso_cache_key = Map.get(config_credentials, :sso_session, sso_start_url)
           config = ExAws.Config.http_config(:sso)
 
-          case get_sso_role_credentials(sso_lookup_key, sso_account_id, sso_role_name, config) do
+          case get_sso_role_credentials(sso_cache_key, sso_account_id, sso_role_name, config) do
             {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, shared_credentials)}
             {:error, _} = err -> err
           end
@@ -42,9 +42,9 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp get_sso_role_credentials(sso_lookup_key, sso_account_id, sso_role_name, config) do
+    defp get_sso_role_credentials(sso_cache_key, sso_account_id, sso_role_name, config) do
       with {_, {:ok, sso_cache_content}} <-
-             {:read, File.read(get_sso_cache_file(sso_lookup_key))},
+             {:read, File.read(get_sso_cache_file(sso_cache_key))},
            {_,
             {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
              {:decode, config[:json_codec].decode(sso_cache_content)},
@@ -71,8 +71,8 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp get_sso_cache_file(sso_lookup_key) do
-      hash = :crypto.hash(:sha, sso_lookup_key) |> Base.encode16() |> String.downcase()
+    defp get_sso_cache_file(sso_cache_key) do
+      hash = :crypto.hash(:sha, sso_cache_key) |> Base.encode16() |> String.downcase()
 
       System.user_home()
       |> Path.join(".aws/sso/cache/#{hash}.json")
