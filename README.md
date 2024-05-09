@@ -263,7 +263,7 @@ If you want to run `mix test`, you'll need to have a local `dynamodb` running
 on port 8000:
 
 ```console
-docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000
+docker run --rm -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000
 ```
 
 For more info please see [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
