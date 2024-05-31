@@ -249,9 +249,62 @@ chime_voice_regions = [
             "us-west-2" => %{}
           }
         },
+        "mobiletargeting" => %{
+          "endpoints" => %{
+            "us-east-1" => %{
+              "hostname" => "pinpoint.us-east-1.amazonaws.com"
+            },
+            "us-east-2" => %{
+              "hostname" => "pinpoint.us-east-2.amazonaws.com"
+            },
+            "us-west-2" => %{
+              "hostname" => "pinpoint.us-west-1.amazonaws.com"
+            },
+            "ap-south-1" => %{
+              "hostname" => "pinpoint.ap-south-1.amazonaws.com"
+            },
+            "ap-northeast-1" => %{
+              "hostname" => "pinpoint.ap-northeast-1.amazonaws.com"
+            },
+            "ap-northeast-2" => %{
+              "hostname" => "pinpoint.ap-northeast-2.amazonaws.com"
+            },
+            "ap-southeast-1" => %{
+              "hostname" => "pinpoint.ap-southeast-1.amazonaws.com"
+            },
+            "ap-southeast-2" => %{
+              "hostname" => "pinpoint.ap-southeast-2.amazonaws.com"
+            },
+            "ca-central-1" => %{
+              "hostname" => "pinpoint.ca-central-1.amazonaws.com"
+            },
+            "eu-central-1" => %{
+              "hostname" => "pinpoint.eu-central-1.amazonaws.com"
+            },
+            "eu-west-1" => %{
+              "hostname" => "pinpoint.eu-west-1.amazonaws.com"
+            },
+            "eu-west-2" => %{
+              "hostname" => "pinpoint.eu-west-2.amazonaws.com"
+            }
+          }
+        },
         "pinpoint" => %{
           "defaults" => %{"credentialScope" => %{"service" => "mobiletargeting"}},
-          "endpoints" => %{"us-east-1" => %{}}
+          "endpoints" => %{
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{},
+            "ap-south-1" => %{},
+            "ap-northeast-1" => %{},
+            "ap-northeast-2" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "eu-west-2" => %{}
+          }
         },
         "iam" => %{
           "endpoints" => %{
