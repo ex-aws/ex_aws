@@ -2542,65 +2542,90 @@ chime_voice_regions = [
           "endpoints" => %{
             "us-east-1" => %{},
             "us-east-2" => %{},
-            "us-west-1" => %{},
+            "us-west-2" => %{},
             "eu-north-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{},
+            "eu-west-2" => %{},
             "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
             "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{}
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "sa-east-1" => %{},
+            "us-gov-west-1" => %{}
           }
         },
         "maps.geo" => %{
           "endpoints" => %{
             "us-east-1" => %{},
             "us-east-2" => %{},
-            "us-west-1" => %{},
+            "us-west-2" => %{},
             "eu-north-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{},
+            "eu-west-2" => %{},
             "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
             "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{}
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "sa-east-1" => %{},
+            "us-gov-west-1" => %{}
           }
         },
         "geofencing.geo" => %{
           "endpoints" => %{
             "us-east-1" => %{},
             "us-east-2" => %{},
-            "us-west-1" => %{},
+            "us-west-2" => %{},
             "eu-north-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{},
+            "eu-west-2" => %{},
             "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
             "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{}
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "sa-east-1" => %{},
+            "us-gov-west-1" => %{}
           }
         },
         "tracking.geo" => %{
           "endpoints" => %{
             "us-east-1" => %{},
             "us-east-2" => %{},
-            "us-west-1" => %{},
+            "us-west-2" => %{},
             "eu-north-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{},
+            "eu-west-2" => %{},
             "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
             "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{}
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "sa-east-1" => %{},
+            "us-gov-west-1" => %{}
           }
         },
         "routes.geo" => %{
           "endpoints" => %{
             "us-east-1" => %{},
             "us-east-2" => %{},
-            "us-west-1" => %{},
+            "us-west-2" => %{},
             "eu-north-1" => %{},
             "eu-central-1" => %{},
             "eu-west-1" => %{},
+            "eu-west-2" => %{},
             "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
             "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{}
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "sa-east-1" => %{},
+            "us-gov-west-1" => %{}
           }
         },
         "sso" => %{
