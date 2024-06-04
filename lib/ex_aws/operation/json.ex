@@ -50,7 +50,7 @@ defimpl ExAws.Operation, for: ExAws.Operation.JSON do
     ExAws.Request.request(
       operation.http_method,
       url,
-      operation.data,
+      config[:json_codec].encode!(operation.data),
       headers,
       config,
       operation.service
