@@ -1,4 +1,4 @@
-v2.5.3 (2024-06-04)
+v2.5.4 (2024-06-04)
 - Endpoint and region updates
 - Add support for Elixir 1.16
 - Drop support for Elixir 1.11
@@ -7,6 +7,9 @@ v2.5.3 (2024-06-04)
 - Add support for Pinpoint Mobiletargeting service
 - Add docs for running DynamoDB locally
 - Allow iodata body in s3 requests
+
+v2.5.3 (2024-03-20)
+- Add mappings for Chime
 
 v2.5.2 (2024-03-19)
 - Endpoint updates
