@@ -2,7 +2,7 @@ defmodule ExAws.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ex-aws/ex_aws"
-  @version "2.5.2"
+  @version "2.5.3"
 
   def project do
     [
@@ -59,6 +59,7 @@ defmodule ExAws.Mixfile do
     [
       description: description(),
       files: ["priv", "lib", "config", "mix.exs", "CHANGELOG.md", "README*", "LICENSE"],
+      exclude_patterns: ["_build", "deps", "test", "*~"],
       maintainers: ["Bernard Duggan", "Ben Wilson"],
       licenses: ["MIT"],
       links: %{
