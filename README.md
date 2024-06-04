@@ -260,7 +260,13 @@ config :ex_aws, :retries,
 ## Testing
 
 If you want to run `mix test`, you'll need to have a local `dynamodb` running
-on port 8000.  See [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
+on port 8000:
+
+```console
+docker run --rm -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000
+```
+
+For more info please see [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
 
 The redirect test will intentionally cause a warning to be issued.
 
