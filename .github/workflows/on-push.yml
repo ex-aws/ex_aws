@@ -14,10 +14,10 @@ jobs:
           - pair:
               otp: 26.x
               elixir: 1.16.x
+              lint: lint
           - pair:
               otp: 26.x
               elixir: 1.15.x
-            lint: lint
           - pair:
               otp: 25.x
               elixir: 1.15.x
