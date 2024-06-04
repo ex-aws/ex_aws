@@ -47,7 +47,7 @@ defmodule ExAws.Operation.S3 do
     defp put_content_length_header(headers, "", :get), do: headers
 
     defp put_content_length_header(headers, body, _) do
-      Map.put(headers, "content-length", byte_size(body) |> Integer.to_string())
+      Map.put(headers, "content-length", IO.iodata_length(body) |> Integer.to_string())
     end
 
     @spec add_bucket_to_path(operation :: ExAws.Operation.S3.t(), config :: map) ::
