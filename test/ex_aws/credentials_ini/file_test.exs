@@ -37,6 +37,29 @@ defmodule ExAws.CredentialsIni.File.FileTest do
     assert config.sso_role_name == "SomeRole"
   end
 
+  test "config file is parsed with sso config that uses sso_session" do
+    example_config = """
+    [sso-session somecompany]
+    sso_start_url = https://start.us-gov-home.awsapps.com/directory/somecompany
+    sso_region = us-gov-west-1
+
+    [default]
+    sso_session = somecompany
+    sso_account_id = 123456789101
+    sso_role_name = SomeRole
+    region = us-gov-west-1
+    output = json
+    """
+
+    config = ExAws.CredentialsIni.File.parse_ini_file({:ok, example_config}, "default")
+
+    assert config.sso_session == "somecompany"
+    assert config.sso_start_url == "https://start.us-gov-home.awsapps.com/directory/somecompany"
+    assert config.sso_region == "us-gov-west-1"
+    assert config.sso_account_id == "123456789101"
+    assert config.sso_role_name == "SomeRole"
+  end
+
   test "{:system} in profile name gets dynamic profile name" do
     System.put_env("AWS_PROFILE", "custom-profile")
 

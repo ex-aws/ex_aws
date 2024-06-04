@@ -6,8 +6,10 @@ if Code.ensure_loaded?(ConfigParser) do
     @valid_config_keys ~w(
       aws_access_key_id aws_secret_access_key aws_session_token region
       role_arn source_profile credential_source external_id mfa_serial role_session_name credential_process
-      sso_start_url sso_region sso_account_id sso_role_name
+      sso_start_url sso_region sso_account_id sso_role_name sso_session
     )
+
+    @special_merge_keys ~w(sso_session)
 
     def security_credentials(profile_name) do
       config_credentials = profile_from_config(profile_name)
@@ -19,9 +21,10 @@ if Code.ensure_loaded?(ConfigParser) do
           sso_account_id: sso_account_id,
           sso_role_name: sso_role_name
         } ->
+          sso_cache_key = Map.get(config_credentials, :sso_session, sso_start_url)
           config = ExAws.Config.http_config(:sso)
 
-          case get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name, config) do
+          case get_sso_role_credentials(sso_cache_key, sso_account_id, sso_role_name, config) do
             {:ok, sso_creds} -> {:ok, Map.merge(sso_creds, shared_credentials)}
             {:error, _} = err -> err
           end
@@ -39,9 +42,9 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp get_sso_role_credentials(sso_start_url, sso_account_id, sso_role_name, config) do
+    defp get_sso_role_credentials(sso_cache_key, sso_account_id, sso_role_name, config) do
       with {_, {:ok, sso_cache_content}} <-
-             {:read, File.read(get_sso_cache_file(sso_start_url))},
+             {:read, File.read(get_sso_cache_file(sso_cache_key))},
            {_,
             {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
              {:decode, config[:json_codec].decode(sso_cache_content)},
@@ -68,8 +71,8 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp get_sso_cache_file(sso_start_url) do
-      hash = :crypto.hash(:sha, sso_start_url) |> Base.encode16() |> String.downcase()
+    defp get_sso_cache_file(sso_cache_key) do
+      hash = :crypto.hash(:sha, sso_cache_key) |> Base.encode16() |> String.downcase()
 
       System.user_home()
       |> Path.join(".aws/sso/cache/#{hash}.json")
@@ -227,8 +230,9 @@ if Code.ensure_loaded?(ConfigParser) do
       contents
       |> ConfigParser.parse_string()
       |> case do
-        {:ok, %{^profile_name => config}} ->
-          strip_key_prefix(config)
+        {:ok, %{^profile_name => config} = full} ->
+          merge_special_keys(full, config)
+          |> strip_key_prefix()
 
         {:ok, %{}} ->
           %{}
@@ -239,6 +243,22 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     def parse_ini_file(_, _), do: %{}
+
+    def merge_special_keys(full_config, credentials) do
+      credentials
+      |> Map.take(@special_merge_keys)
+      |> Enum.reduce(credentials, fn {key, val}, acc ->
+        merge_section = "#{String.replace(key, "_", "-")} #{val}"
+
+        case full_config do
+          %{^merge_section => config} ->
+            Map.merge(config, acc)
+
+          _ ->
+            acc
+        end
+      end)
+    end
 
     def strip_key_prefix(credentials) do
       credentials
