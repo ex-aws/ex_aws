@@ -18,6 +18,26 @@ defmodule ExAws.Operation.S3 do
 
   defimpl ExAws.Operation do
     def perform(operation, config) do
+      {operation, config, url, body, headers, http_method} =
+        build_request_params(operation, config)
+
+      ExAws.Request.request(http_method, url, body, headers, config, operation.service)
+      |> ExAws.Request.default_aws_error()
+      |> operation.parser.()
+    end
+
+    def stream!(%{stream_builder: :octet_stream} = operation, config) do
+      {operation, config, url, body, headers, http_method} =
+        build_request_params(operation, config)
+
+      ExAws.Request.request(http_method, url, body, headers, config, operation.service, true)
+      |> ExAws.Request.default_aws_error()
+      |> operation.parser.()
+    end
+
+    def stream!(%{stream_builder: fun}, config), do: fun.(config)
+
+    def build_request_params(operation, config) do
       body = operation.body
       headers = operation.headers
       http_method = operation.http_method
@@ -37,12 +57,8 @@ defmodule ExAws.Operation.S3 do
         |> put_content_length_header(body, http_method)
         |> Map.to_list()
 
-      ExAws.Request.request(http_method, url, body, headers, config, operation.service)
-      |> ExAws.Request.default_aws_error()
-      |> operation.parser.()
+      {operation, config, url, body, headers, http_method}
     end
-
-    def stream!(%{stream_builder: fun}, config), do: fun.(config)
 
     defp put_content_length_header(headers, "", :get), do: headers
 
