@@ -46,6 +46,10 @@ defmodule ExAws.Operation.S3 do
 
     defp put_content_length_header(headers, "", :get), do: headers
 
+    defp put_content_length_header(headers, "", :head), do: headers
+
+    defp put_content_length_header(headers, "", :delete), do: headers
+
     defp put_content_length_header(headers, body, _) do
       Map.put(headers, "content-length", IO.iodata_length(body) |> Integer.to_string())
     end
