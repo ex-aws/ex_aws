@@ -12,21 +12,36 @@ jobs:
       matrix:
         include:
           - pair:
+              otp: 27.x
+              elixir: 1.17.x
+              lint: lint
+
+          - pair:
+              otp: 26.x
+              elixir: 1.17.x
+          - pair:
               otp: 26.x
               elixir: 1.16.x
-              lint: lint
           - pair:
               otp: 26.x
               elixir: 1.15.x
+
+          - pair:
+              otp: 25.x
+              elixir: 1.17.x
+          - pair:
+              otp: 25.x
+              elixir: 1.16.x
           - pair:
               otp: 25.x
               elixir: 1.15.x
           - pair:
               otp: 25.x
               elixir: 1.14.x
+
           - pair:
-              otp: 25.x
-              elixir: 1.13.x
+              otp: 24.x
+              elixir: 1.16.x
           - pair:
               otp: 24.x
               elixir: 1.15.x
@@ -36,18 +51,13 @@ jobs:
           - pair:
               otp: 24.x
               elixir: 1.13.x
-          - pair:
-              otp: 24.x
-              elixir: 1.12.x
+
           - pair:
               otp: 23.x
               elixir: 1.14.x
           - pair:
               otp: 23.x
               elixir: 1.13.x
-          - pair:
-              otp: 23.x
-              elixir: 1.12.x
 
     steps:
       - uses: actions/checkout@v4
