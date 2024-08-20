@@ -60,6 +60,29 @@ defmodule ExAws.CredentialsIni.File.FileTest do
     assert config.sso_role_name == "SomeRole"
   end
 
+  test "config file is parsed with non-default sso config profile that uses sso_session" do
+    example_config = """
+    [sso-session somecompany]
+    sso_start_url = https://start.us-gov-home.awsapps.com/directory/somecompany
+    sso_region = us-gov-west-1
+
+    [profile somecompany]
+    sso_session = somecompany
+    sso_account_id = 123456789101
+    sso_role_name = SomeRole
+    region = us-gov-west-1
+    output = json
+    """
+
+    config = ExAws.CredentialsIni.File.parse_ini_file({:ok, example_config}, "somecompany")
+
+    assert config.sso_session == "somecompany"
+    assert config.sso_start_url == "https://start.us-gov-home.awsapps.com/directory/somecompany"
+    assert config.sso_region == "us-gov-west-1"
+    assert config.sso_account_id == "123456789101"
+    assert config.sso_role_name == "SomeRole"
+  end
+
   test "{:system} in profile name gets dynamic profile name" do
     System.put_env("AWS_PROFILE", "custom-profile")
 
@@ -77,6 +100,36 @@ defmodule ExAws.CredentialsIni.File.FileTest do
     assert credentials.access_key_id == "TESTKEYID"
     assert credentials.secret_access_key == "TESTSECRET"
     assert credentials.security_token == "TESTTOKEN"
+  end
+
+  test "{:system} in profile name gets dynamic profile name using sso config" do
+    System.put_env("AWS_PROFILE", "custom-profile")
+
+    example_credentials = """
+    [sso-session somecompany]
+    sso_start_url = https://start.us-gov-home.awsapps.com/directory/somecompany
+    sso_region = us-gov-west-1
+
+    [profile custom-profile]
+    sso_session = somecompany
+    sso_account_id = 123456789101
+    sso_role_name = SomeRole
+    region = us-gov-west-1
+    output = json
+    """
+
+    credentials =
+      ExAws.CredentialsIni.File.parse_ini_file({:ok, example_credentials}, :system)
+      |> ExAws.CredentialsIni.File.replace_token_key()
+
+    assert credentials.sso_session == "somecompany"
+
+    assert credentials.sso_start_url ==
+             "https://start.us-gov-home.awsapps.com/directory/somecompany"
+
+    assert credentials.sso_region == "us-gov-west-1"
+    assert credentials.sso_account_id == "123456789101"
+    assert credentials.sso_role_name == "SomeRole"
   end
 
   test "config file is parsed" do
