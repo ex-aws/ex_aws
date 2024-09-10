@@ -2313,7 +2313,6 @@ chime_voice_regions = [
             "us-west-2" => %{},
             "af-south-1" => %{},
             "ap-east-1" => %{},
-            "ap-south-2" => %{},
             "ap-southeast-3" => %{},
             "ap-south-1" => %{},
             "ap-south-2" => %{},
