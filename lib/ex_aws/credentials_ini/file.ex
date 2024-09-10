@@ -227,10 +227,16 @@ if Code.ensure_loaded?(ConfigParser) do
     end
 
     def parse_ini_file({:ok, contents}, profile_name) do
+      composite_key = "profile " <> profile_name
+
       contents
       |> ConfigParser.parse_string()
       |> case do
         {:ok, %{^profile_name => config} = full} ->
+          merge_special_keys(full, config)
+          |> strip_key_prefix()
+
+        {:ok, %{^composite_key => config} = full} ->
           merge_special_keys(full, config)
           |> strip_key_prefix()
 
