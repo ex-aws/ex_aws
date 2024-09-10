@@ -765,6 +765,7 @@ chime_voice_regions = [
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
+            "eu-south-1" => %{},
             "local" => %{
               "credentialScope" => %{"region" => "us-east-1"},
               "hostname" => "localhost:8000",
