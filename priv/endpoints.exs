@@ -78,6 +78,7 @@ chime_voice_regions = [
         "eu-west-3" => %{"description" => "EU (Paris)"},
         "eu-north-1" => %{"description" => "EU (Stockholm)"},
         "eu-south-1" => %{"description" => "EU (Milan)"},
+        "eu-south-2" => %{"description" => "EU (Spain)"},
         "me-south-1" => %{"description" => "Middle East (Bahrain)"},
         "sa-east-1" => %{"description" => "South America (Sao Paulo)"},
         "us-east-1" => %{"description" => "US East (N. Virginia)"},
@@ -1811,6 +1812,10 @@ chime_voice_regions = [
               "signatureVersions" => ["s3", "s3v4"]
             },
             "eu-south-1" => %{},
+            "eu-south-2" => %{
+              "hostname" => "s3.eu-south-2.amazonaws.com",
+              "signatureVersions" => ["s3", "s3v4"]
+            },
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
