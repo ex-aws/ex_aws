@@ -1,3 +1,12 @@
+v2.5.5 (2024-09-10)
+- Endpoint updates
+- Drop support for Elixir 1.12
+- Add support for Elixir 1.17
+- Add Req request backend
+- Stop sending `content-length` header for DELETE and HEAD requests
+- Fix handling of `[profile <name>]` blocks in config file
+- Update test platform to Ubuntu 24.04
+
 v2.5.4 (2024-06-04)
 - Endpoint and region updates
 - Add support for Elixir 1.16
