@@ -3126,7 +3126,10 @@ chime_voice_regions = [
               "hostname" => "kms-fips.us-gov-east-1.amazonaws.com",
               "credentialScope" => %{"region" => "us-gov-east-1"}
             },
-            "us-gov-west-1" => %{}
+            "us-gov-west-1" => %{
+              "hostname" => "kms-fips.us-gov-west-1.amazonaws.com",
+              "credentialScope" => %{"region" => "us-gov-west-1"}
+            }
           }
         },
         "sms" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
