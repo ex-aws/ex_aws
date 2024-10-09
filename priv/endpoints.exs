@@ -1820,6 +1820,7 @@ chime_voice_regions = [
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "eu-north-1" => %{},
+            "il-central-1" => %{},
             "me-central-1" => %{},
             "me-south-1" => %{},
             "s3-external-1" => %{
@@ -2049,6 +2050,7 @@ chime_voice_regions = [
             "ca-central-1" => %{},
             "ap-southeast-1" => %{},
             "ap-southeast-2" => %{},
+            "eu-central-1" => %{},
             "eu-west-1" => %{},
             "eu-west-2" => %{}
           }
