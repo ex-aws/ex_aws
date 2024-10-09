@@ -64,6 +64,7 @@ defmodule ExAws.InstanceMeta do
   end
 
   def instance_role(config) do
+    IO.inspect "HERE"
     ExAws.InstanceMeta.request(config, @meta_path_root <> "/iam/security-credentials/")
   end
 

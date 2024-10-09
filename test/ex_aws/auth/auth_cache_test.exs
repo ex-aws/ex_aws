@@ -38,26 +38,13 @@ defmodule ExAws.AuthCacheTest do
   test "using adapter does not leak dirty cache" do
     parent = self()
 
-    op = %ExAws.Operation.S3{
-      body: "",
-      bucket: "",
-      headers: %{},
-      http_method: :get,
-      params: [],
-      parser: & &1,
-      path: "/",
-      resource: "",
-      service: :s3,
-      stream_builder: nil
-    }
-
     spawn(fn ->
       ExAws.Request.HttpMock
       |> expect(:request, fn _method, _url, _body, _headers, _opts ->
         @response
       end)
 
-      result = ExAws.request(op, @config)
+      result = ExAws.request(op(), @config)
       send(parent, result)
     end)
 
@@ -67,9 +54,54 @@ defmodule ExAws.AuthCacheTest do
     end)
 
     Process.sleep(100)
-    assert ExAws.request(op, @config) == @response
+    assert ExAws.request(op(), @config) == @response
 
     assert_receive @response, 1000
+  end
+
+  test "overriding refresh lead time" do
+    defmodule RandomAdapter do
+      @moduledoc false
+
+      @behaviour ExAws.Config.AuthCache.AuthConfigAdapter
+
+      def adapt_auth_config(_config, _profile, _expiration) do
+        %{
+          access_key_id: Base.encode64(:crypto.strong_rand_bytes(20)),
+          secret_access_key: Base.encode64(:crypto.strong_rand_bytes(20))
+        }
+      end
+    end
+
+    config = [
+      http_client: ExAws.Request.HttpMock,
+      access_key_id: :instance_role,
+      secret_access_key: :instance_role
+    ]
+
+    Application.put_env(:ex_aws, :awscli_auth_adapter, RandomAdapter)
+
+    parent = self()
+
+    ExAws.Request.HttpMock
+    |> expect(:request, 5,
+      fn :get, "http://169.254.169.254/latest/meta-data/iam/security-credentials/", _body, _headers, _opts ->
+          {:ok, %{status_code: 200, body: "dummy-role"}}
+        :get, _url, _body, headers, _opts ->
+          send(parent, headers)
+          @response
+      end)
+
+    assert ExAws.request(op(), config) == @response
+    assert ExAws.request(op(), config) == @response
+    assert ExAws.request(op(), [{:auth_cache_refresh_lead_time, 1_000_000_000_000} | config]) == @response
+    assert_receive headers1, 1000
+    assert_receive headers2, 1000
+    assert_receive headers3, 1000
+
+    IO.inspect(headers1)
+    IO.inspect(headers2)
+    IO.inspect(headers3)
   end
 
   test "using adapter retries when there is an error" do
@@ -108,25 +140,28 @@ defmodule ExAws.AuthCacheTest do
     FlakyAdapter.init()
     Application.put_env(:ex_aws, :awscli_auth_adapter, FlakyAdapter)
 
-    op = %ExAws.Operation.S3{
-      body: "",
-      bucket: "",
-      headers: %{},
-      http_method: :get,
-      params: [],
-      parser: & &1,
-      path: "/",
-      resource: "",
-      service: :s3,
-      stream_builder: nil
-    }
-
     ExAws.Request.HttpMock
     |> expect(:request, fn _method, _url, _body, _headers, _opts ->
       @response
     end)
 
     Process.sleep(100)
-    assert ExAws.request(op, @config) == @response
+    assert ExAws.request(op(), @config) == @response
   end
+
+  defp op do
+  %ExAws.Operation.S3{
+      body: "",
+      bucket: "",
+      headers: %{},
+      http_method: :get,
+      params: [],
+      parser: fn x -> x end,
+      path: "/",
+      resource: "",
+      service: :s3,
+      stream_builder: nil
+    }
+  end
+
 end

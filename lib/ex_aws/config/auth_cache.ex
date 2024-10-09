@@ -5,7 +5,7 @@ defmodule ExAws.Config.AuthCache do
 
   # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
 
-  @refresh_lead_time 300_000
+  @default_refresh_lead_time 300_000
   @instance_auth_key :aws_instance_auth
 
   defmodule AuthConfigAdapter do
@@ -33,6 +33,8 @@ defmodule ExAws.Config.AuthCache do
         GenServer.call(__MODULE__, {:refresh_awscli_config, profile, expiration}, 30_000)
     end
   end
+
+  def default_refresh_lead_time(), do: @default_refresh_lead_time
 
   ## Callbacks
 
@@ -101,7 +103,7 @@ defmodule ExAws.Config.AuthCache do
   end
 
   defp refresh_auth_if_required([{_key, cached_auth}], config) do
-    if next_refresh_in(cached_auth) > 0 do
+    if next_refresh_in(cached_auth, config) > 0 do
       cached_auth
     else
       GenServer.call(__MODULE__, {:refresh_auth, config}, 30_000)
@@ -118,7 +120,9 @@ defmodule ExAws.Config.AuthCache do
   end
 
   defp refresh_auth_if_stale([{_key, cached_auth}], config, ets) do
-    if next_refresh_in(cached_auth) > @refresh_lead_time do
+    IO.inspect config
+    IO.inspect next_refresh_in(cached_auth, config)
+    if next_refresh_in(cached_auth, config) > config.auth_cache_refresh_lead_time do
       # we still have a valid auth token, so simply return that
       cached_auth
     else
@@ -131,11 +135,11 @@ defmodule ExAws.Config.AuthCache do
   defp refresh_auth_now(config, ets) do
     auth = ExAws.InstanceMeta.security_credentials(config)
     :ets.insert(ets, {@instance_auth_key, auth})
-    Process.send_after(__MODULE__, {:refresh_auth, config}, next_refresh_in(auth))
+    Process.send_after(__MODULE__, {:refresh_auth, config}, next_refresh_in(auth, config))
     auth
   end
 
-  defp next_refresh_in(%{expiration: expiration}) do
+  defp next_refresh_in(%{expiration: expiration}, config) do
     try do
       expires_in_ms =
         expiration
@@ -144,11 +148,11 @@ defmodule ExAws.Config.AuthCache do
 
       # refresh lead_time before auth expires, unless the time has passed
       # otherwise refresh needed now
-      max(0, expires_in_ms - @refresh_lead_time)
+      max(0, expires_in_ms - config.auth_cache_refresh_lead_time)
     rescue
       _e -> 0
     end
   end
 
-  defp next_refresh_in(_), do: 0
+  defp next_refresh_in(_, _config), do: 0
 end

@@ -19,6 +19,7 @@ defmodule ExAws.Config do
   # TODO: Add proper documentation?
 
   @common_config [
+    :auth_cache_refresh_lead_time,
     :http_client,
     :http_opts,
     :json_codec,
