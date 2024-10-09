@@ -2,7 +2,7 @@ defmodule ExAws.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ex-aws/ex_aws"
-  @version "2.5.5"
+  @version "2.5.6"
 
   def project do
     [
