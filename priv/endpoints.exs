@@ -288,8 +288,11 @@ chime_voice_regions = [
             "us-east-2" => %{
               "hostname" => "pinpoint.us-east-2.amazonaws.com"
             },
-            "us-west-2" => %{
+            "us-west-1" => %{
               "hostname" => "pinpoint.us-west-1.amazonaws.com"
+            },
+            "us-west-2" => %{
+              "hostname" => "pinpoint.us-west-2.amazonaws.com"
             },
             "ap-south-1" => %{
               "hostname" => "pinpoint.ap-south-1.amazonaws.com"

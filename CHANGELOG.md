@@ -1,3 +1,6 @@
+v2.5.6 (2024-10-21)
+- Fix Pinpoint Endpoints
+
 v2.5.5 (2024-09-10)
 - Endpoint updates
 - Drop support for Elixir 1.12
