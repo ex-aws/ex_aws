@@ -53,7 +53,7 @@ defmodule ExAws.Request do
                 config,
                 headers,
                 req_body,
-                attempt_again?(attempt, reason, config)
+                attempt_again?(attempt, reason, :client, config)
               )
 
             {:error, reason} ->
@@ -71,7 +71,7 @@ defmodule ExAws.Request do
             config,
             headers,
             req_body,
-            attempt_again?(attempt, reason, config)
+            attempt_again?(attempt, reason, :server, config)
           )
 
         {:error, reason_struct} ->
@@ -92,7 +92,7 @@ defmodule ExAws.Request do
             config,
             headers,
             req_body,
-            attempt_again?(attempt, reason, config)
+            attempt_again?(attempt, reason, :other, config)
           )
       end
     end
@@ -200,8 +200,14 @@ defmodule ExAws.Request do
     end
   end
 
-  def attempt_again?(attempt, reason, config) do
-    if attempt >= config[:retries][:max_attempts] do
+  def attempt_again?(attempt, reason, error_type, config) do
+    max_attempts =
+      case error_type do
+        :client -> config[:retries][:client_error_max_attempts] || config[:retries][:max_attempts]
+        _ -> config[:retries][:max_attempts]
+      end
+
+    if attempt >= max_attempts do
       {:error, reason}
     else
       attempt |> backoff(config)
