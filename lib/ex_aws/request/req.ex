@@ -16,6 +16,8 @@ defmodule ExAws.Request.Req do
 
   @impl true
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
+    http_opts = rename_follow_redirect(http_opts)
+
     [method: method, url: url, body: body, headers: headers, decode_body: false]
     |> Keyword.merge(Application.get_env(:ex_aws, :req_opts, @default_opts))
     |> Keyword.merge(http_opts)
@@ -27,5 +29,13 @@ defmodule ExAws.Request.Req do
       {:error, reason} ->
         {:error, %{reason: reason}}
     end
+  end
+
+  # Req uses :follow_redirects, but some clients pass the :hackney option
+  # :follow_redirect. Rename the option for Req to use.
+  defp rename_follow_redirect(opts) do
+    {follow, opts} = Keyword.pop(opts, :follow_redirect, false)
+
+    Keyword.put(opts, :follow_redirects, follow)
   end
 end
