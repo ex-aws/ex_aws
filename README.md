@@ -254,6 +254,7 @@ config :ex_aws, :retries,
 ```
 
 * `max_attempts` is the maximum number of possible attempts with backoffs in between each one
+* `max_attempts_client` may be set to a different value for client errors (4xx) (default is `max_attempts`)
 * `base_backoff_in_ms` corresponds to the `base` value described in the blog post
 * `max_backoff_in_ms` corresponds to the `cap` value described in the blog post
 

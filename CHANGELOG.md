@@ -1,3 +1,8 @@
+v2.5.7 (2024-10-31)
+- Endpoint updates
+- Configurable max attempts for client-specific errors (4xx) using `max_attempts_client` in `retries` config
+- Fix `follow_redirect` option handling for `req` client
+
 v2.5.6 (2024-10-09)
 - Endpoint updates
 
