@@ -156,6 +156,40 @@ chime_voice_regions = [
             "us-west-2" => %{}
           }
         },
+        "bedrock-agent" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock"}},
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "eu-west-2" => %{},
+            "eu-west-3" => %{},
+            "sa-east-1" => %{},
+            "us-east-1" => %{},
+            "us-west-2" => %{}
+          }
+        },
+        "bedrock-agent-runtime" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock"}},
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "eu-west-2" => %{},
+            "eu-west-3" => %{},
+            "sa-east-1" => %{},
+            "us-east-1" => %{},
+            "us-west-2" => %{}
+          }
+        },
         "connect" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
