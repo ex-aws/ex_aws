@@ -1,3 +1,7 @@
+v2.5.8 (2024-12-13)
+- Fix Req :follow_redirects deprecation warning
+- Add exclude_patterns to filter out temporary files
+
 v2.5.7 (2024-10-31)
 - Endpoint updates
 - Configurable max attempts for client-specific errors (4xx) using `max_attempts_client` in `retries` config

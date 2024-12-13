@@ -2,7 +2,7 @@ defmodule ExAws.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ex-aws/ex_aws"
-  @version "2.5.7"
+  @version "2.5.8"
 
   def project do
     [
@@ -64,7 +64,8 @@ defmodule ExAws.Mixfile do
       links: %{
         Changelog: "#{@source_url}/blob/master/CHANGELOG.md",
         GitHub: @source_url
-      }
+      },
+      exclude_patterns: [~r/.*~/]
     ]
   end
 

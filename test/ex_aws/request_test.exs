@@ -283,5 +283,4 @@ defmodule ExAws.RequestTest do
 
     success
   end
-
 end
