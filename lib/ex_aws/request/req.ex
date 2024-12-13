@@ -36,6 +36,6 @@ defmodule ExAws.Request.Req do
   defp rename_follow_redirect(opts) do
     {follow, opts} = Keyword.pop(opts, :follow_redirect, false)
 
-    Keyword.put(opts, :follow_redirects, follow)
+    Keyword.put(opts, :redirect, follow)
   end
 end
