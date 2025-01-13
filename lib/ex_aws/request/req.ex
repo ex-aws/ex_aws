@@ -4,6 +4,8 @@ defmodule ExAws.Request.Req do
   @moduledoc """
   Configuration for `m:Req`.
 
+  The minimum recommended `req` version is `0.4.0`.
+
   Options can be set for `m:Req` with the following config:
 
       config :ex_aws, :req_opts,
@@ -31,7 +33,7 @@ defmodule ExAws.Request.Req do
     end
   end
 
-  # Req uses :follow_redirects, but some clients pass the :hackney option
+  # Req >= 0.4.0 uses :redirect, but some clients pass the :hackney option
   # :follow_redirect. Rename the option for Req to use.
   defp rename_follow_redirect(opts) do
     {follow, opts} = Keyword.pop(opts, :follow_redirect, false)
