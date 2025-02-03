@@ -825,6 +825,7 @@ chime_voice_regions = [
               "hostname" => "localhost:8000",
               "protocols" => ["http"]
             },
+            "me-central-1" => %{},
             "sa-east-1" => %{},
             "us-east-1" => %{},
             "us-east-2" => %{},
