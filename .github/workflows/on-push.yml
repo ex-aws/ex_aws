@@ -12,45 +12,48 @@ jobs:
       matrix:
         include:
           - pair:
-              otp: 27.x
-              elixir: 1.17.x
+              otp: "27"
+              elixir: "1.18"
               lint: lint
+          - pair:
+              otp: "27"
+              elixir: "1.17"
 
           - pair:
-              otp: 26.x
-              elixir: 1.17.x
+              otp: "26"
+              elixir: "1.17"
           - pair:
-              otp: 26.x
-              elixir: 1.16.x
+              otp: "26"
+              elixir: "1.16"
           - pair:
-              otp: 26.x
-              elixir: 1.15.x
+              otp: "26"
+              elixir: "1.15"
 
           - pair:
-              otp: 25.x
-              elixir: 1.17.x
+              otp: "25"
+              elixir: "1.17"
           - pair:
-              otp: 25.x
-              elixir: 1.16.x
+              otp: "25"
+              elixir: "1.16"
           - pair:
-              otp: 25.x
-              elixir: 1.15.x
+              otp: "25"
+              elixir: "1.15"
           - pair:
-              otp: 25.x
-              elixir: 1.14.x
+              otp: "25"
+              elixir: "1.14"
 
           - pair:
-              otp: 24.x
-              elixir: 1.16.x
+              otp: "24"
+              elixir: "1.16"
           - pair:
-              otp: 24.x
-              elixir: 1.15.x
+              otp: "24"
+              elixir: "1.15"
           - pair:
-              otp: 24.x
-              elixir: 1.14.x
+              otp: "24"
+              elixir: "1.14"
           - pair:
-              otp: 24.x
-              elixir: 1.13.x
+              otp: "24"
+              elixir: "1.13"
 
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +65,7 @@ jobs:
         with:
           port: 8000
           cors: "*"
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             deps
@@ -70,12 +73,18 @@ jobs:
           key: ${{ runner.os }}-mix-${{matrix.pair.otp}}-${{matrix.pair.elixir}}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-mix-${{matrix.pair.otp}}-${{matrix.pair.elixir}}-
+
       - run: mix deps.get
+
       - run: mix compile
+
       - run: mix deps.unlock --check-unused
-        if: ${{matrix.lint}} # Only check formatting with the latest verison
+        if: ${{matrix.lint}}
+
       - run: mix format --check-formatted
         if: ${{matrix.lint}}
+
       - run: mix dialyzer
         if: ${{matrix.lint}}
+
       - run: mix test
