@@ -1,5 +1,5 @@
 defmodule ExAws.Request.HttpClient do
-  @moduledoc """
+  @moduledoc ~S'''
   Specifies expected behaviour of an HTTP client.
 
   ExAws allows you to use your HTTP client of choice, provided that
@@ -15,32 +15,29 @@ defmodule ExAws.Request.HttpClient do
 
   ```
   defmodule ExAws.Request.Req do
-    @moduledoc \"""
+    @moduledoc """
     ExAws HTTP client implementation for Req.
-    \"""
+    """
+
     @behaviour ExAws.Request.HttpClient
 
     @impl ExAws.Request.HttpClient
     def request(method, url, body, headers, _http_opts) do
-      case Req.request(method: method, url: url, body: body, headers: headers, decode_body: false) do
-        {:ok, response} -> {:ok, adapt_response(response)}
-        {:error, reason} -> {:error, %{reason: reason}}
+      request = Req.new(decode_body: false, retry: false)
+
+      case Req.request(request, method: method, url: url, body: body, headers: headers) do
+        {:ok, response} ->
+          response = %{
+            status_code: response.status,
+            headers: Req.get_headers_list(response),
+            body: response.body,
+          }
+
+          {:ok, response}
+
+        {:error, reason} ->
+          {:error, %{reason: reason}}
       end
-    end
-
-    defp adapt_response(response) do
-      # adapt the response to fit the shape expected by ExAWS
-      flat_headers =
-        Enum.flat_map(response.headers, fn
-          {name, vals} when is_list(vals) -> Enum.map(vals, &{name, &1})
-          {name, val} -> {name, val}
-        end)
-
-      %{
-        body: response.body,
-        status_code: response.status,
-        headers: flat_headers
-      }
     end
   end
   ```
@@ -70,7 +67,7 @@ defmodule ExAws.Request.HttpClient do
         Mojito.request(method, url, headers, body, http_opts)
       end
 
-  """
+  '''
 
   @type http_method :: :get | :post | :put | :delete | :options | :head
   @callback request(

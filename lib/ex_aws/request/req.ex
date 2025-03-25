@@ -4,8 +4,6 @@ defmodule ExAws.Request.Req do
   @moduledoc """
   Configuration for `m:Req`.
 
-  The minimum recommended `req` version is `0.4.0`.
-
   Options can be set for `m:Req` with the following config:
 
       config :ex_aws, :req_opts,
@@ -20,13 +18,13 @@ defmodule ExAws.Request.Req do
   def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
     http_opts = rename_follow_redirect(http_opts)
 
-    [method: method, url: url, body: body, headers: headers, decode_body: false]
+    [method: method, url: url, body: body, headers: headers, decode_body: false, retry: false]
     |> Keyword.merge(Application.get_env(:ex_aws, :req_opts, @default_opts))
     |> Keyword.merge(http_opts)
     |> Req.request()
     |> case do
-      {:ok, %{status: status, headers: headers, body: body}} ->
-        {:ok, %{status_code: status, headers: headers, body: body}}
+      {:ok, resp} ->
+        {:ok, %{status_code: resp.status, headers: Req.get_headers_list(resp), body: resp.body}}
 
       {:error, reason} ->
         {:error, %{reason: reason}}
