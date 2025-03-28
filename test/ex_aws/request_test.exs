@@ -266,12 +266,61 @@ defmodule ExAws.RequestTest do
              )
   end
 
+  test "TooManyRequestsException is retried", context do
+    TelemetryHelper.attach_telemetry([:ex_aws, :request])
+    success = mock_too_many_requests_exception(3)
+
+    http_method = :post
+    url = "https://cognito-idp.eu-west-1.amazonaws.com"
+    service = :"cognito-idp"
+
+    request_body =
+      "{\"MessageAction\":\"SUPPRESS\",\"UserAttributes\":[{\"Name\":\"email_verified\",\"Value\":\"False\"},{\"Name\":\"email\",\"Value\":\"user-email@test.com\"}],\"UserPoolId\":\" eu-west-1_abc1dEFGH\",\"Username\":\"user-email@test.com\"}"
+
+    assert {:ok, %{body: success, status_code: 200}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 1}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 1, result: :error}}
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 2}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 2, result: :error}}
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 3}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 3, result: :error}}
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 4}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 4, result: :ok}}
+  end
+
   defp mock_provisioned_throughput_response(success_after_retries) do
     exception =
       "{\"__type\": \"ProvisionedThroughputExceededException\", \"message\": \"Rate exceeded for shard shardId-000000000005 in stream my_stream under account 1234567890.\"}"
 
     success =
       "{\"SequenceNumber\":\"49592207023850419758877078054930583111417627497740632066\",\"ShardId\":\"shardId-000000000000\"}"
+
+    ExAws.Request.HttpMock
+    |> expect(:request, success_after_retries, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 400, body: exception}}
+    end)
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 200, body: success}}
+    end)
+
+    success
+  end
+
+  def mock_too_many_requests_exception(success_after_retries) do
+    exception = "{\"__type\":\"TooManyRequestsException\",\"message\":\"Too many requests\"}"
+
+    success =
+      "{\"User\":{\"Attributes\":[{\"Name\":\"email\",\"Value\":\"user-email@test.com\"}],\"Enabled\":true,\"UserCreateDate\":1.743179259439E9,\"UserLastModifiedDate\":1.743179259439E9,\"UserStatus\":\"FORCE_CHANGE_PASSWORD\",\"Username\":\"f52064a4-3061-7030-581b-ae8392e97edd\"}}"
 
     ExAws.Request.HttpMock
     |> expect(:request, success_after_retries, fn _method, _url, _body, _headers, _opts ->
