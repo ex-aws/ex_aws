@@ -172,6 +172,10 @@ defmodule ExAws.Request do
     {:retry, {type, message}}
   end
 
+  def handle_aws_error({"TooManyRequestsException" = type, message, _}) do
+    {:retry, {type, message}}
+  end
+
   def handle_aws_error({type, message, %{"expectedSequenceToken" => expected_sequence_token}}) do
     {:error, {type, message, expected_sequence_token}}
   end
