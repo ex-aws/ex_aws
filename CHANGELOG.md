@@ -1,3 +1,10 @@
+v2.5.9 (2025-04-15)
+- Endpoint updates
+- Fixes for Req support, update minimum version to 0.5.10
+- Do not warn when optional deps are not available
+- Implement retries for TooManyRequestsException
+- Move regexes out of module attributes to fix compatibility with OTP 28
+
 v2.5.8 (2024-12-13)
 - Fix Req :follow_redirects deprecation warning
 - Add exclude_patterns to filter out temporary files
