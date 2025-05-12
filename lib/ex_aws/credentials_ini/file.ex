@@ -111,7 +111,7 @@ if Code.ensure_loaded?(ConfigParser) do
         {:ok, body}
       else
         {:request, {_, %{status_code: status_code} = resp}} ->
-          {:error, "SSO role credentials request responded with #{status_code}: #{resp}"}
+          {:error, "SSO role credentials request responded with #{status_code}: #{inspect(resp)}"}
 
         {:decode, err} ->
           {:error, "Could not decode SSO role credentials response: #{err}"}
