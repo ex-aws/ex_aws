@@ -2,7 +2,7 @@
 
 <!-- MDOC !-->
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ex-aws/ex_aws/on-push)
+[![GitHub Workflow Status](https://github.com/ex-aws/ex_aws/actions/workflows/on-push.yml/badge.svg)](https://github.com/ex-aws/ex_aws/actions/workflows/on-push.yml)
 [![hex.pm](https://img.shields.io/hexpm/v/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/dt/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/l/ex_aws.svg)](https://hex.pm/packages/ex_aws)
