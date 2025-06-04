@@ -112,8 +112,8 @@ defmodule ExAws.Config.Defaults do
 
   def host(service, region) do
     partition =
-      Enum.find(partitions(), fn {regex, _} ->
-        Regex.run(regex, region)
+      Enum.find(partitions(), fn {pattern, _} ->
+        Regex.run(~r/#{pattern}/, region)
       end)
 
     with {_, partition} <- partition do
@@ -123,9 +123,9 @@ defmodule ExAws.Config.Defaults do
 
   defp partitions(),
     do: [
-      {~r/^(us|eu|af|ap|sa|ca|me)\-\w+-\d?-?\w+$/, "aws"},
-      {~r/^cn\-\w+\-\d+$/, "aws-cn"},
-      {~r/^us\-gov\-\w+\-\d+$/, "aws-us-gov"}
+      {"^(us|eu|af|ap|sa|ca|me)\\-\\w+\\-\\d?\\-?\\w+$", "aws"},
+      {"^cn\\-\\w+\\-\\d+$", "aws-cn"},
+      {"^us\\-gov\\-\\w+\\-\\d+$", "aws-us-gov"}
     ]
 
   defp service_map(:ses), do: "email"
