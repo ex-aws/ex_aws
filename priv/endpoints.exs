@@ -3122,6 +3122,65 @@ chime_voice_regions = [
         "us-gov-west-1" => %{"description" => "AWS GovCloud (US-West)"}
       },
       "services" => %{
+        "bedrock" => %{
+          "endpoints" => %{
+            "us-gov-east-1" => %{},
+            "us-gov-east-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-east-1"},
+              "hostname" => "bedrock-fips.us-gov-east-1.amazonaws.com"
+            },
+            "us-gov-west-1" => %{},
+            "us-gov-west-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-west-1"},
+              "hostname" => "bedrock-fips.us-gov-west-1.amazonaws.com"
+            }
+          }
+        },
+        "bedrock-runtime" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock"}},
+          "endpoints" => %{
+            "us-gov-east-1" => %{},
+            "us-gov-east-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-east-1"},
+              "hostname" => "bedrock-runtime-fips.us-gov-east-1.amazonaws.com"
+            },
+            "us-gov-west-1" => %{},
+            "us-gov-west-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-west-1"},
+              "hostname" => "bedrock-runtime-fips.us-gov-west-1.amazonaws.com"
+            }
+          }
+        },
+        "bedrock-agent" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock"}},
+          "endpoints" => %{
+            "us-gov-east-1" => %{},
+            "us-gov-east-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-east-1"},
+              "hostname" => "bedrock-agent-fips.us-gov-east-1.amazonaws.com"
+            },
+            "us-gov-west-1" => %{},
+            "us-gov-west-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-west-1"},
+              "hostname" => "bedrock-agent-fips.us-gov-west-1.amazonaws.com"
+            }
+          }
+        },
+        "bedrock-agent-runtime" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock"}},
+          "endpoints" => %{
+            "us-gov-east-1" => %{},
+            "us-gov-east-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-east-1"},
+              "hostname" => "bedrock-agent-runtime-fips.us-gov-east-1.amazonaws.com"
+            },
+            "us-gov-west-1" => %{},
+            "us-gov-west-1-fips" => %{
+              "credentialScope" => %{"region" => "us-gov-west-1"},
+              "hostname" => "bedrock-agent-runtime-fips.us-gov-west-1.amazonaws.com"
+            }
+          }
+        },
         "elasticache" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "fsx" => %{
           "endpoints" => %{
