@@ -46,15 +46,14 @@ if Code.ensure_loaded?(ConfigParser) do
       with {_, {:ok, sso_cache_content}} <-
              {:read, File.read(get_sso_cache_file(sso_cache_key))},
            {_,
-            {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
+            {:ok, %{"expiresAt" => expires_at} = sso_cache}} <-
              {:decode, config[:json_codec].decode(sso_cache_content)},
            {_, :ok} <-
              {:expiration, check_sso_expiration(expires_at)},
            {_, {:ok, sso_creds}} <-
              {:sso_creds,
               request_sso_role_credentials(
-                access_token,
-                region,
+                sso_cache,
                 sso_account_id,
                 sso_role_name,
                 config
@@ -65,6 +64,15 @@ if Code.ensure_loaded?(ConfigParser) do
       else
         {:read, {:error, error}} -> {:error, "Could not read SSO cache file: #{error}"}
         {:decode, _} -> {:error, "SSO cache file contains invalid json"}
+        {:expiration, {:error, :expired_token}} ->
+          case get_sso_cache_with_refresh(sso_cache_key, sso_account_id, sso_role_name, config) do
+            {:ok, sso_creds} ->
+              case rename_sso_credential_keys(sso_creds) do
+                {:ok, reformatted_creds} -> {:ok, reformatted_creds}
+                {:error, error} -> {:error, error}
+              end
+            {:error, error} -> {:error, error}
+          end
         {:expiration, error} -> error
         {:sso_creds, error} -> error
         {:rename, error} -> error
@@ -78,6 +86,25 @@ if Code.ensure_loaded?(ConfigParser) do
       |> Path.join(".aws/sso/cache/#{hash}.json")
     end
 
+    defp get_sso_cache_with_refresh(sso_cache_key, sso_account_id, sso_role_name, config) do
+      with {_, {:ok, sso_cache_content}} <-
+             {:read, File.read(get_sso_cache_file(sso_cache_key))},
+           {_, {:ok, sso_cache}} <-
+             {:decode, config[:json_codec].decode(sso_cache_content)},
+           {_, {:ok, new_access_token}} <-
+             {:refresh, refresh_access_token(sso_cache, sso_cache["region"], config)},
+           {_, {:ok, sso_creds}} <-
+             {:sso_creds,
+              make_sso_request(new_access_token, sso_cache["region"], sso_account_id, sso_role_name, config)} do
+        {:ok, sso_creds}
+      else
+        {:read, {:error, error}} -> {:error, "Could not read SSO cache file: #{error}"}
+        {:decode, _} -> {:error, "SSO cache file contains invalid json"}
+        {:refresh, {:error, error}} -> {:error, "Failed to refresh access token: #{error}"}
+        {:sso_creds, error} -> error
+      end
+    end
+
     defp check_sso_expiration(expires_at_str) do
       with {:ok, _} <- check_expiration(expires_at_str) do
         :ok
@@ -86,17 +113,40 @@ if Code.ensure_loaded?(ConfigParser) do
           {:error, "SSO cache file has invalid expiration format: #{err}"}
 
         {:expires, _} ->
-          {:error, "SSO access token is expired, refresh the token with `aws sso login`"}
+          {:error, :expired_token}
       end
     end
 
     defp request_sso_role_credentials(
-           access_token,
-           region,
+           sso_cache,
            account_id,
            role_name,
            config
          ) do
+      %{
+        "accessToken" => access_token,
+        "region" => region
+      } = sso_cache
+
+      case make_sso_request(access_token, region, account_id, role_name, config) do
+        {:ok, result} ->
+          {:ok, result}
+
+        {:error, :expired_token} ->
+          case refresh_access_token(sso_cache, region, config) do
+            {:ok, new_access_token} ->
+              make_sso_request(new_access_token, region, account_id, role_name, config)
+
+            {:error, refresh_error} ->
+              {:error, "Failed to refresh access token: #{refresh_error}"}
+          end
+
+        {:error, other_error} ->
+          {:error, other_error}
+      end
+    end
+
+    defp make_sso_request(access_token, region, account_id, role_name, config) do
       with {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
              {:request,
               config[:http_client].request(
@@ -110,11 +160,58 @@ if Code.ensure_loaded?(ConfigParser) do
            {_, {:ok, body}} <- {:decode, config[:json_codec].decode(body_raw)} do
         {:ok, body}
       else
+        {:request, {_, %{body: body, status_code: 401}} = resp} ->
+          case config[:json_codec].decode(body) do
+            {:ok, %{"message" => "Session token not found or invalid"}} ->
+              {:error, :expired_token}
+
+            _ ->
+              {:error, "SSO role credentials request responded with 401: #{inspect(resp)}"}
+          end
+
         {:request, {_, %{status_code: status_code} = resp}} ->
-          {:error, "SSO role credentials request responded with #{status_code}: #{resp}"}
+          {:error, "SSO role credentials request responded with #{status_code}: #{inspect(resp)}"}
 
         {:decode, err} ->
           {:error, "Could not decode SSO role credentials response: #{err}"}
+      end
+    end
+
+    defp refresh_access_token(sso_cache, region, config) do
+      body_map = %{
+        "grantType" => "refresh_token",
+        "clientId" => sso_cache["clientId"],
+        "clientSecret" => sso_cache["clientSecret"],
+        "refreshToken" => sso_cache["refreshToken"]
+      }
+
+      headers = [
+        {"Content-Type", "application/json"}
+      ]
+
+      {:ok, body} = config[:json_codec].encode(body_map)
+
+      with {:ok, %{status_code: 200, body: body_raw}} <-
+             config[:http_client].request(
+               :post,
+               "https://oidc.#{region}.amazonaws.com/token",
+               body,
+               headers,
+               Map.get(config, :http_opts, [])
+             )
+             |> ExAws.Request.maybe_transform_response(),
+           {:ok, %{"accessToken" => new_access_token}} <-
+             config[:json_codec].decode(body_raw) do
+        {:ok, new_access_token}
+      else
+        {:error, _} = error ->
+          error
+
+        {_, %{status_code: status_code, body: body}} ->
+          {:error, "Token refresh failed with status #{status_code}: #{body}"}
+
+        {_, _} ->
+          {:error, "Failed to parse refresh token response"}
       end
     end
 
