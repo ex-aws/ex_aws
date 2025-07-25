@@ -157,7 +157,7 @@ defmodule ExAws.Operation.S3Test do
       :request,
       fn _method, url, _body, _headers, _opts ->
         assert url ==
-                 "https://examplebucket.s3.amazonaws.com/test%20hello%20%233.txt%3Facl%3D21?version-id=v1"
+                 "https://examplebucket.s3.amazonaws.com/test%20hello%20%233.txt%3Facl%3D21?versionId=v1"
 
         {:ok, %{status_code: 200}}
       end
@@ -168,7 +168,7 @@ defmodule ExAws.Operation.S3Test do
       | path: "test hello #3.txt?acl=21",
         headers: headers,
         bucket: "examplebucket",
-        params: %{"version-id" => "v1"}
+        params: %{"versionId" => "v1"}
     }
 
     assert {:ok, %{status_code: 200}} == S3.perform(operation, config)
