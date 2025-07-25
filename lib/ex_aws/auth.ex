@@ -157,7 +157,7 @@ defmodule ExAws.Auth do
   end
 
   defp signature(http_method, url, query, headers, body, service, datetime, config) do
-    path = url |> Url.get_path(service) |> Url.uri_encode()
+    path = url |> Url.get_path(service)
     request = build_canonical_request(http_method, path, query, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
     Signatures.generate_signature_v4(service, config, datetime, string_to_sign)

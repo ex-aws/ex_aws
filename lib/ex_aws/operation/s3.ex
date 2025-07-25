@@ -28,6 +28,7 @@ defmodule ExAws.Operation.S3 do
         operation
         |> add_resource_to_params()
         |> ExAws.Request.Url.build(config)
+        |> encode_path_query_fragment_into_path()
 
       hashed_payload = ExAws.Auth.Utils.hash_sha256(body)
 
@@ -40,6 +41,17 @@ defmodule ExAws.Operation.S3 do
       ExAws.Request.request(http_method, url, body, headers, config, operation.service)
       |> ExAws.Request.default_aws_error()
       |> operation.parser.()
+    end
+
+    def encode_path_query_fragment_into_path(url) do
+      %URI{path: path, query: query, fragment: fragment} = uri = URI.parse(url)
+
+      new_path =
+        "#{path}#{if query, do: "?#{query}"}#{if fragment, do: "##{fragment}"}"
+        |> ExAws.Request.Url.uri_encode()
+
+      %URI{uri | path: new_path, query: nil, fragment: nil}
+      |> to_string()
     end
 
     def stream!(%{stream_builder: fun}, config), do: fun.(config)

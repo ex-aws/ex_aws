@@ -14,7 +14,7 @@ defmodule ExAws.Request.Url do
     |> convert_port_to_integer
     |> (&struct(URI, &1)).()
     |> URI.to_string()
-    |> String.trim_trailing("?")
+    |> String.replace_suffix("?", "")
   end
 
   defp query(operation) do
@@ -52,7 +52,6 @@ defmodule ExAws.Request.Url do
       url
       |> get_path(service)
       |> String.replace_prefix("/", "")
-      |> uri_encode()
 
     query =
       case String.split(url, "?", parts: 2) do

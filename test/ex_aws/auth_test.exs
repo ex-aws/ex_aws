@@ -81,7 +81,7 @@ defmodule ExAws.AuthTest do
         "&X-Amz-Date=20130524T000000Z" <>
         "&X-Amz-Expires=86400" <>
         "&X-Amz-SignedHeaders=host" <>
-        "&X-Amz-Signature=d1892eeaf3110a6c1a805d8ad7a0c825a72a4255c7f48908922be55a7c4ae753"
+        "&X-Amz-Signature=a515d441eea0607e063a287d32c9070d5d473bc5e47f4e8d61701e0a1aec84bc"
 
     assert {:ok, expected} == actual
   end
