@@ -2227,6 +2227,29 @@ chime_voice_regions = [
             "us-west-2" => %{}
           }
         },
+        "redshift-data" => %{
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "ap-northeast-2" => %{},
+            "ap-east-1" => %{},
+            "ap-south-1" => %{},
+            "ap-south-2" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "ca-central-1" => %{},
+            "ca-west-1" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "eu-west-2" => %{},
+            "eu-west-3" => %{},
+            "eu-north-1" => %{},
+            "sa-east-1" => %{},
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-1" => %{},
+            "us-west-2" => %{}
+          }
+        },
         "email" => %{
           "endpoints" => %{
             "af-south-1" => %{},
@@ -3087,6 +3110,7 @@ chime_voice_regions = [
         },
         "tagging" => %{"endpoints" => %{"cn-north-1" => %{}, "cn-northwest-1" => %{}}},
         "redshift" => %{"endpoints" => %{"cn-north-1" => %{}, "cn-northwest-1" => %{}}},
+        "redshift-data" => %{"endpoints" => %{"cn-north-1" => %{}, "cn-northwest-1" => %{}}},
         "storagegateway" => %{"endpoints" => %{"cn-north-1" => %{}}},
         "autoscaling" => %{
           "defaults" => %{"protocols" => ["http", "https"]},
@@ -3344,6 +3368,7 @@ chime_voice_regions = [
         },
         "tagging" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "redshift" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
+        "redshift-data" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "storagegateway" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "autoscaling" => %{
           "endpoints" => %{
