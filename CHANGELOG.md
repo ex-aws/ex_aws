@@ -1,3 +1,6 @@
+v2.5.11 (2025-08-12)
+- Endpoint updates
+
 v2.5.10 (2025-06-16)
 - Fix crash on SSO credentials error
 - Fix type error on `ExAws.Operation.RestQuery.stream!2`
