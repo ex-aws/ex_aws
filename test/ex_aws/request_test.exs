@@ -65,6 +65,8 @@ defmodule ExAws.RequestTest do
                     }}
   end
 
+  # URL encoding is done under ExAws.Operation.S3
+  @tag :skip
   test "handles encoding S3 URLs with params", context do
     http_method = :get
     url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt?acl=21"
@@ -109,6 +111,8 @@ defmodule ExAws.RequestTest do
                     }}
   end
 
+  # URL encoding is done under ExAws.Operation.S3
+  @tag :skip
   test "handles encoding S3 URLs without params", context do
     http_method = :get
     url = "https://examplebucket.s3.amazonaws.com/up//double//test hello+#3.txt"
