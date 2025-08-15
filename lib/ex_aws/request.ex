@@ -31,7 +31,8 @@ defmodule ExAws.Request do
 
       if config[:debug_requests] do
         Logger.debug(
-          "ExAws: Request URL: #{inspect(safe_url)} HEADERS: #{inspect(full_headers)} BODY: #{inspect(req_body)} ATTEMPT: #{attempt}"
+          "ExAws: #{Atom.to_string(method) |> String.upcase()} Request URL: #{inspect(safe_url)} " <>
+            "HEADERS: #{inspect(full_headers)} BODY: #{inspect(req_body)} ATTEMPT: #{attempt}"
         )
       end
 
