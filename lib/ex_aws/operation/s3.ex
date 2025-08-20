@@ -62,6 +62,12 @@ defmodule ExAws.Operation.S3 do
       raise "#{__MODULE__}.perform/2 cannot perform operation on `nil` bucket"
     end
 
+    def add_bucket_to_path(operation, %{virtual_host: true, bucket_as_host: true} = config) do
+      # When bucket_as_host is true, use the bucket name as the full hostname
+      {put_in(operation.path, ensure_absolute(operation.path)),
+       Map.put(config, :host, operation.bucket)}
+    end
+
     def add_bucket_to_path(operation, %{virtual_host: true, host: base_host} = config) do
       vhost_domain = "#{operation.bucket}.#{base_host}"
 
