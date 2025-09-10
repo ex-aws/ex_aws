@@ -3170,7 +3170,12 @@ chime_voice_regions = [
           }
         },
         "polly" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
-        "lambda" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
+        "lambda" => %{
+          "endpoints" => %{
+            "us-gov-east-1" => %{"hostname" => "lambda-fips.us-gov-east-1.amazonaws.com"},
+            "us-gov-west-1" => %{"hostname" => "lambda-fips.us-gov-west-1.amazonaws.com"}
+          }
+        },
         "dynamodb" => %{
           "endpoints" => %{
             "us-gov-east-1-fips" => %{
