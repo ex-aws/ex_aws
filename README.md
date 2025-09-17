@@ -258,7 +258,7 @@ config :ex_aws, :retries,
 * `base_backoff_in_ms` corresponds to the `base` value described in the blog post
 * `max_backoff_in_ms` corresponds to the `cap` value described in the blog post
 
-## Testing
+## Testing ExAws
 
 If you want to run `mix test`, you'll need to have a local `dynamodb` running
 on port 8000:
@@ -268,8 +268,6 @@ docker run --rm -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -po
 ```
 
 For more info please see [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
-
-The redirect test will intentionally cause a warning to be issued.
 
 ## License
 
