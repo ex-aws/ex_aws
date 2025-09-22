@@ -79,17 +79,27 @@ defmodule ExAws.Config.Defaults do
 
   def defaults(:places) do
     %{service_override: :"geo-places"}
-    |> Map.merge(defaults(:geo))
+    |> Map.merge(defaults(:"geo-places"))
   end
 
   def defaults(:routes) do
     %{service_override: :"geo-routes"}
-    |> Map.merge(defaults(:geo))
+    |> Map.merge(defaults(:"geo-routes"))
   end
 
-  def defaults(service) when service in [:maps, :geofencing, :tracking] do
-    %{service_override: :geo}
-    |> Map.merge(defaults(:geo))
+  def defaults(:maps) do
+    %{service_override: :"geo-maps"}
+    |> Map.merge(defaults(:"geo-maps"))
+  end
+
+  def defaults(:geofencing) do
+    %{service_override: :"geo-geofencing"}
+    |> Map.merge(defaults(:"geo-geofencing"))
+  end
+
+  def defaults(:tracking) do
+    %{service_override: :"geo-tracking"}
+    |> Map.merge(defaults(:"geo-tracking"))
   end
 
   def defaults(chime_service)
