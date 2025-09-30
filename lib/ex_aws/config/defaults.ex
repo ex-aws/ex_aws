@@ -77,29 +77,19 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:timestream))
   end
 
-  def defaults(:places) do
+  def defaults(service) when service in [:places, :maps, :geofencing, :tracking, :routes] do
+    %{service_override: :geo}
+    |> Map.merge(defaults(:geo))
+  end
+
+  def defaults(:places_v2) do
     %{service_override: :"geo-places"}
     |> Map.merge(defaults(:"geo-places"))
   end
 
-  def defaults(:routes) do
+  def defaults(:routes_v2) do
     %{service_override: :"geo-routes"}
     |> Map.merge(defaults(:"geo-routes"))
-  end
-
-  def defaults(:maps) do
-    %{service_override: :"geo-maps"}
-    |> Map.merge(defaults(:"geo-maps"))
-  end
-
-  def defaults(:geofencing) do
-    %{service_override: :"geo-geofencing"}
-    |> Map.merge(defaults(:"geo-geofencing"))
-  end
-
-  def defaults(:tracking) do
-    %{service_override: :"geo-tracking"}
-    |> Map.merge(defaults(:"geo-tracking"))
   end
 
   def defaults(chime_service)
@@ -157,11 +147,11 @@ defmodule ExAws.Config.Defaults do
   defp service_map(:iot_data), do: "data.iot"
   defp service_map(:ingest_timestream), do: "ingest.timestream"
   defp service_map(:query_timestream), do: "query.timestream"
-  defp service_map(:places), do: "places.geo"
+  defp service_map(place_service) when place_service in [:places, :places_v2], do: "places.geo"
   defp service_map(:maps), do: "maps.geo"
   defp service_map(:geofencing), do: "geofencing.geo"
   defp service_map(:tracking), do: "tracking.geo"
-  defp service_map(:routes), do: "routes.geo"
+  defp service_map(route_service) when route_service in [:routes, :routes_v2], do: "routes.geo"
 
   defp service_map(service) do
     service
