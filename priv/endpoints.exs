@@ -3405,6 +3405,11 @@ chime_voice_regions = [
             "us-gov-west-1" => %{}
           }
         },
+        "routes.geo" => %{
+          "endpoints" => %{
+            "us-gov-west-1" => %{}
+          }
+        },
         "sso" => %{
           "endpoints" => %{
             "us-gov-east-1" => %{},
