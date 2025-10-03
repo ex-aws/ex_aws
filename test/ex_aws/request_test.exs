@@ -220,6 +220,7 @@ defmodule ExAws.RequestTest do
              )
   end
 
+  @tag capture_log: true
   test "Retries on errors, when the error reason is a map", context do
     ExAws.Request.HttpMock
     |> expect(:request, fn _method, _url, _body, _headers, _opts ->
@@ -243,6 +244,7 @@ defmodule ExAws.RequestTest do
              )
   end
 
+  @tag capture_log: true
   test "Retries on errors, when the error reason is a keyword list", context do
     ExAws.Request.HttpMock
     |> expect(:request, fn _method, _url, _body, _headers, _opts ->
