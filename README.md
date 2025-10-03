@@ -55,13 +55,14 @@ the equivalent of:
 
 ```elixir
 config :ex_aws,
-  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :pod_identity, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :pod_identity, :instance_role]
 ```
 
 This means it will try to resolve credentials in order:
 
 * Look for the AWS standard `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables
+* Try to use [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) if running on EKS with Pod Identity configured
 * Resolve credentials with IAM
   * If running inside ECS and a [task role](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html) has been assigned it will use it
   * Otherwise it will fall back to the [instance role](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
@@ -80,9 +81,18 @@ variable, you can use that with `{:awscli, :system, timeout}`
 
 ```elixir
 config :ex_aws,
-  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role]
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :pod_identity, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :pod_identity, :instance_role]
 ```
+
+### EKS Pod Identity configuration
+
+For applications running on Amazon EKS, ExAws supports [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) for credential resolution. Pod Identity automatically injects the required environment variables into your pods when properly configured:
+
+* `AWS_CONTAINER_CREDENTIALS_FULL_URI` - The endpoint URL for credential retrieval
+* `AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE` - Path to the JWT token file
+
+No additional configuration is required in ExAws - it will automatically detect and use Pod Identity credentials when these environment variables are present. Pod Identity provides improved security and isolation compared to instance roles by providing pod-level credential scoping.
 
 For role based authentication via `role_arn` and `source_profile` an additional
 dependency is required:

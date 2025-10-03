@@ -50,6 +50,12 @@ defmodule ExAws.Config do
     :external_id
   ]
 
+  @pod_identity_config [
+    :access_key_id,
+    :secret_access_key,
+    :security_token
+  ]
+
   @type t :: %{} | Keyword.t()
 
   @doc """
@@ -107,6 +113,7 @@ defmodule ExAws.Config do
         Enum.reduce(refreshable, overrides, fn
           :awscli, overrides -> Map.drop(overrides, @awscli_config)
           :instance_role, overrides -> Map.drop(overrides, @instance_role_config)
+          :pod_identity, overrides -> Map.drop(overrides, @pod_identity_config)
         end)
       else
         overrides
@@ -115,7 +122,7 @@ defmodule ExAws.Config do
     Map.merge(config, overrides)
   end
 
-  # :awscli and :instance_role both read creds from ExAws.Config.AuthCache which
+  # :awscli, :instance_role, and :pod_identity all read creds from ExAws.Config.AuthCache which
   # is "refreshable". This is useful for long running streams where the creds can
   # change while the stream is still running.
   defp add_refreshable_metadata(config, %{refreshable: true}) do
@@ -124,6 +131,7 @@ defmodule ExAws.Config do
       |> Enum.reduce([], fn
         {:awscli, _, _}, acc -> [:awscli | acc]
         :instance_role, acc -> [:instance_role | acc]
+        :pod_identity, acc -> [:pod_identity | acc]
         _, acc -> acc
       end)
       |> Enum.uniq()
@@ -178,6 +186,12 @@ defmodule ExAws.Config do
     config
     |> ExAws.Config.AuthCache.get()
     |> Map.take(@instance_role_config)
+    |> valid_map_or_nil
+  end
+
+  def retrieve_runtime_value(:pod_identity, config) do
+    ExAws.Config.AuthCache.get(:pod_identity, config)
+    |> Map.take(@pod_identity_config)
     |> valid_map_or_nil
   end
 
