@@ -3407,6 +3407,16 @@ chime_voice_regions = [
         "cloudformation" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "swf" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "sagemaker" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "places.geo" => %{
+          "endpoints" => %{
+            "us-gov-west-1" => %{}
+          }
+        },
+        "routes.geo" => %{
+          "endpoints" => %{
+            "us-gov-west-1" => %{}
+          }
+        },
         "sso" => %{
           "endpoints" => %{
             "us-gov-east-1" => %{},
