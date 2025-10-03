@@ -1,3 +1,12 @@
+v2.6.0 (2025-10-03)
+- Endpoint updates
+- Update to support OTP 28
+- Fix geo operations for geo-places and geo-routes services
+- Hide warning while running tests
+- Fix bucket_as_host with virtual_host causing double bucket in URLs
+- Add HTTP method to debug log for requests
+- Add EKS pod identity credential provider
+
 v2.5.11 (2025-08-12)
 - Endpoint updates
 
