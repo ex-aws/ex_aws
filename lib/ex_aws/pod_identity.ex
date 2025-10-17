@@ -61,7 +61,7 @@ defmodule ExAws.PodIdentity do
       credentials_uri ->
         headers = [{"Authorization", token}]
 
-        case config.http_client.request(:get, credentials_uri, "", headers, http_opts())
+        case config.http_client.request(:get, credentials_uri, "", headers)
              |> ExAws.Request.maybe_transform_response() do
           {:ok, %{status_code: 200, body: body}} ->
             case config.json_codec.decode(body) do
@@ -85,15 +85,5 @@ defmodule ExAws.PodIdentity do
       security_token: credentials["Token"],
       expiration: credentials["Expiration"]
     }
-  end
-
-  defp http_opts do
-    defaults = [follow_redirect: false, recv_timeout: 5_000]
-
-    overrides =
-      Application.get_env(:ex_aws, :pod_identity, [])
-      |> Keyword.get(:http_opts, [])
-
-    Keyword.merge(defaults, overrides)
   end
 end
