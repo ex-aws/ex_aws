@@ -115,6 +115,17 @@ config :ex_aws,
   secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"}
 ```
 
+**Important:** When using instance roles, you must include both the environment variable and `:instance_role` in the `security_token` configuration, as instance roles also generate session tokens:
+
+```elixir
+config :ex_aws,
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
+  security_token: [{:system, "AWS_SESSION_TOKEN"}, :instance_role]
+```
+
+Without this configuration, instance role authentication may fail silently or produce authentication errors.
+
 ### Hackney configuration
 
 ExAws by default uses [hackney](https://github.com/benoitc/hackney) to make
