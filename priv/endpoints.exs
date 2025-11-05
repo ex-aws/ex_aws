@@ -1893,6 +1893,14 @@ chime_voice_regions = [
               "hostname" => "s3.ap-southeast-3.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
             },
+            "ap-southeast-4" => %{
+              "hostname" => "s3.ap-southeast-4.amazonaws.com",
+              "signatureVersions" => ["s3", "s3v4"]
+            },
+            "ap-southeast-5" => %{
+              "hostname" => "s3.ap-southeast-5.amazonaws.com",
+              "signatureVersions" => ["s3", "s3v4"]
+            },
             "af-south-1" => %{
               "hostname" => "s3.af-south-1.amazonaws.com",
               "signatureVersions" => ["s3", "s3v4"]
