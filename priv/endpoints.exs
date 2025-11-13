@@ -263,6 +263,7 @@ chime_voice_regions = [
             "eu-west-2" => %{},
             "eu-west-3" => %{},
             "me-central-1" => %{},
+            "sa-east-1" => %{},
             "us-east-1" => %{},
             "us-east-2" => %{},
             "us-west-1" => %{},
