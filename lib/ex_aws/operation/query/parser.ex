@@ -1,6 +1,8 @@
 if Code.ensure_loaded?(SweetXml) do
   # TODO: Extract this.
   defmodule ExAws.Operation.Query.Parser do
+    @moduledoc false
+
     defmacro __using__(_opts) do
       quote do
         import SweetXml, only: [sigil_x: 2]
@@ -8,6 +10,7 @@ if Code.ensure_loaded?(SweetXml) do
         def parse({:error, {type, http_status_code, %{body: xml}}}, _) do
           parsed_body =
             xml
+            |> SweetXml.parse(dtd: :none)
             |> SweetXml.xpath(
               ~x"//ErrorResponse",
               request_id: ~x"./RequestId/text()"s,

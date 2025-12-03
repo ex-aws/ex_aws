@@ -15,3 +15,4 @@ erl_crash.dump
 /.idea
 /exaws.iml
 .elixir_ls
+*~

@@ -2,7 +2,7 @@
 
 <!-- MDOC !-->
 
-[![travis-ci.org](https://travis-ci.org/ex-aws/ex_aws.svg?branch=master)](https://travis-ci.org/ex-aws/ex_aws)
+[![GitHub Workflow Status](https://github.com/ex-aws/ex_aws/actions/workflows/on-push.yml/badge.svg)](https://github.com/ex-aws/ex_aws/actions/workflows/on-push.yml)
 [![hex.pm](https://img.shields.io/hexpm/v/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/dt/ex_aws.svg)](https://hex.pm/packages/ex_aws)
 [![hex.pm](https://img.shields.io/hexpm/l/ex_aws.svg)](https://hex.pm/packages/ex_aws)
@@ -12,13 +12,6 @@
 A flexible easy to use set of AWS APIs.
 
 Available Services: https://github.com/ex-aws?q=service&type=&language=
-
-## Un-Deprecation Notice
-
-ExAws is now actively maintained again :). It's going to take me a while to work through
-all the outstanding issues and PRs, so please bear with me.
-
-- Bernard
 
 ## Getting Started
 
@@ -62,13 +55,14 @@ the equivalent of:
 
 ```elixir
 config :ex_aws,
-  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :pod_identity, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :pod_identity, :instance_role]
 ```
 
 This means it will try to resolve credentials in order:
 
 * Look for the AWS standard `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables
+* Try to use [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) if running on EKS with Pod Identity configured
 * Resolve credentials with IAM
   * If running inside ECS and a [task role](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html) has been assigned it will use it
   * Otherwise it will fall back to the [instance role](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
@@ -76,17 +70,29 @@ This means it will try to resolve credentials in order:
 AWS CLI config files are supported, but require an additional dependency:
 
 ```elixir
-{:configparser_ex, "~> 2.0"}
+{:configparser_ex, "~> 4.0"}
 ```
 
 You can then add `{:awscli, "profile_name", timeout}` to the above config and
 it will pull information from `~/.aws/config` and `~/.aws/credentials`
 
+Alternatively, if you already have a profile name set in the `AWS_PROFILE` environment
+variable, you can use that with `{:awscli, :system, timeout}`
+
 ```elixir
 config :ex_aws,
-  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :instance_role],
-  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :instance_role]
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, {:awscli, "default", 30}, :pod_identity, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, {:awscli, "default", 30}, :pod_identity, :instance_role]
 ```
+
+### EKS Pod Identity configuration
+
+For applications running on Amazon EKS, ExAws supports [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) for credential resolution. Pod Identity automatically injects the required environment variables into your pods when properly configured:
+
+* `AWS_CONTAINER_CREDENTIALS_FULL_URI` - The endpoint URL for credential retrieval
+* `AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE` - Path to the JWT token file
+
+No additional configuration is required in ExAws - it will automatically detect and use Pod Identity credentials when these environment variables are present. Pod Identity provides improved security and isolation compared to instance roles by providing pod-level credential scoping.
 
 For role based authentication via `role_arn` and `source_profile` an additional
 dependency is required:
@@ -96,6 +102,18 @@ dependency is required:
 ```
 
 Further information on role based authentication is provided in said dependency.
+
+#### Session token configuration
+
+Alternatively, you can also provide `AWS_SESSION_TOKEN` to `security_token` to authenticate
+with session token:
+
+```elixir
+config :ex_aws,
+  access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+  security_token: {:system, "AWS_SESSION_TOKEN"},
+  secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"}
+```
 
 ### Hackney configuration
 
@@ -126,11 +144,11 @@ config :ex_aws,
 
 ### JSON Codec Configuration
 
-The default JSON codec is Poison.  You can choose a different one:
+The default JSON codec is Jason.  You can choose a different one:
 
 ```elixir
 config :ex_aws,
-  json_codec: Jason
+  json_codec: Poison
 ```
 
 ### Path Normalization
@@ -220,8 +238,6 @@ ExAws.request(operation)
 - Minimal dependencies. Choose your favorite JSON codec and HTTP client.
 - Elixir streams to automatically retrieve paginated resources.
 - Elixir protocols allow easy customization of Dynamo encoding / decoding.
-- `mix aws.kinesis.tail your-stream-name` task for easily watching the contents
-  of a kinesis stream.
 - Simple. ExAws aims to provide a clear and consistent elixir wrapping around
   AWS APIs, not abstract them away entirely. For every action in a given AWS
   API there is a corresponding function within the appropriate module. Higher
@@ -248,15 +264,20 @@ config :ex_aws, :retries,
 ```
 
 * `max_attempts` is the maximum number of possible attempts with backoffs in between each one
+* `max_attempts_client` may be set to a different value for client errors (4xx) (default is `max_attempts`)
 * `base_backoff_in_ms` corresponds to the `base` value described in the blog post
 * `max_backoff_in_ms` corresponds to the `cap` value described in the blog post
 
-## Testing
+## Testing ExAws
 
 If you want to run `mix test`, you'll need to have a local `dynamodb` running
-on port 8000.  See [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
+on port 8000:
 
-The redirect test will intentionally cause a warning to be issued.
+```console
+docker run --rm -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000
+```
+
+For more info please see [Setting up DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
 
 ## License
 

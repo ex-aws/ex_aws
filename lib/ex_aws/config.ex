@@ -1,13 +1,26 @@
 defmodule ExAws.Config do
-  @moduledoc false
+  @moduledoc """
+  Generates the configuration for a service.
 
-  # Generates the configuration for a service.
-  # It starts with the defaults for a given environment
-  # and then merges in the common config from the ex_aws config root,
-  # and then finally any config specified for the particular service
+  It starts with the defaults for a given environment and then merges in the
+  common config from the ex_aws config root, and then finally any config
+  specified for the particular service.
+
+  ## Refreshable fields
+
+  Some fields are marked as refreshable. These fields will be fetched through
+  the auth cache even if they are passed in as overrides. This is so stale
+  credentials aren't used, for example, with long running streams.
+
+  This behaviour must be explicitly enabled by passing `refreshable: true` as an option
+  to Config.new/2
+  """
+
+  # TODO: Add proper documentation?
 
   @common_config [
     :http_client,
+    :http_opts,
     :json_codec,
     :access_key_id,
     :secret_access_key,
@@ -15,7 +28,32 @@ defmodule ExAws.Config do
     :region,
     :security_token,
     :retries,
-    :normalize_path
+    :normalize_path,
+    :telemetry_event,
+    :telemetry_options
+  ]
+
+  @instance_role_config [
+    :access_key_id,
+    :secret_access_key,
+    :security_token
+  ]
+
+  @awscli_config [
+    :source_profile,
+    :role_arn,
+    :access_key_id,
+    :secret_access_key,
+    :region,
+    :security_token,
+    :role_session_name,
+    :external_id
+  ]
+
+  @pod_identity_config [
+    :access_key_id,
+    :secret_access_key,
+    :security_token
   ]
 
   @type t :: %{} | Keyword.t()
@@ -23,18 +61,31 @@ defmodule ExAws.Config do
   @doc """
   Builds a complete set of config for an operation.
 
-  1) Defaults are pulled from `ExAws.Config.Defaults`
-  2) Common values set via e.g `config :ex_aws` are merged in.
-  3) Keys set on the individual service e.g `config :ex_aws, :s3` are merged in
-  4) Finally, any configuration overrides are merged in
+    1. Defaults are pulled from `ExAws.Config.Defaults`
+    2. Common values set via e.g `config :ex_aws` are merged in.
+    3. Keys set on the individual service e.g `config :ex_aws, :s3` are merged in
+    4. Finally, any configuration overrides are merged in
+
   """
+  @spec new(atom, keyword) :: map()
   def new(service, opts \\ []) do
     overrides = Map.new(opts)
 
     service
     |> build_base(overrides)
+    |> retrieve_runtime_config()
+    |> parse_host_for_region()
+  end
+
+  @doc """
+  Builds a minimal HTTP configuration.
+  """
+  def http_config(service, opts \\ []) do
+    overrides = Map.new(opts)
+
+    build_base(service, overrides)
+    |> Map.take([:http_client, :http_opts, :json_codec])
     |> retrieve_runtime_config
-    |> parse_host_for_region
   end
 
   def build_base(service, overrides \\ %{}) do
@@ -42,18 +93,58 @@ defmodule ExAws.Config do
     service_config = Application.get_env(:ex_aws, service, []) |> Map.new()
 
     region =
-      (Map.get(overrides, :region)
-        || Map.get(service_config, :region)
-        || Map.get(common_config, :region)
-        || "us-east-1")
+      (Map.get(overrides, :region) ||
+         Map.get(service_config, :region) ||
+         Map.get(common_config, :region) ||
+         "us-east-1")
       |> retrieve_runtime_value(%{})
 
     defaults = ExAws.Config.Defaults.get(service, region)
 
-    defaults
-    |> Map.merge(common_config)
-    |> Map.merge(service_config)
-    |> Map.merge(overrides)
+    config =
+      defaults
+      |> Map.merge(common_config)
+      |> Map.merge(service_config)
+      |> add_refreshable_metadata(overrides)
+
+    # (Maybe) do not allow overrides for refreshable config.
+    overrides =
+      if refreshable = config[:refreshable] do
+        Enum.reduce(refreshable, overrides, fn
+          :awscli, overrides -> Map.drop(overrides, @awscli_config)
+          :instance_role, overrides -> Map.drop(overrides, @instance_role_config)
+          :pod_identity, overrides -> Map.drop(overrides, @pod_identity_config)
+        end)
+      else
+        overrides
+      end
+
+    Map.merge(config, overrides)
+  end
+
+  # :awscli, :instance_role, and :pod_identity all read creds from ExAws.Config.AuthCache which
+  # is "refreshable". This is useful for long running streams where the creds can
+  # change while the stream is still running.
+  defp add_refreshable_metadata(config, %{refreshable: true}) do
+    refreshable =
+      Enum.flat_map(config, fn {_k, v} -> List.wrap(v) end)
+      |> Enum.reduce([], fn
+        {:awscli, _, _}, acc -> [:awscli | acc]
+        :instance_role, acc -> [:instance_role | acc]
+        :pod_identity, acc -> [:pod_identity | acc]
+        _, acc -> acc
+      end)
+      |> Enum.uniq()
+
+    if refreshable != [] do
+      Map.put(config, :refreshable, refreshable)
+    else
+      config
+    end
+  end
+
+  defp add_refreshable_metadata(config, _overrides) do
+    config
   end
 
   def retrieve_runtime_config(config) do
@@ -66,6 +157,18 @@ defmodule ExAws.Config do
 
       {:http_opts, http_opts}, config ->
         Map.put(config, :http_opts, http_opts)
+
+      {:telemetry_event, telemetry_event}, config ->
+        Map.put(config, :telemetry_event, telemetry_event)
+
+      {:telemetry_options, telemetry_options}, config ->
+        Map.put(config, :telemetry_options, telemetry_options)
+
+      {:headers, headers}, config ->
+        Map.put(config, :headers, headers)
+
+      {:refreshable, refreshable}, config ->
+        Map.put(config, :refreshable, refreshable)
 
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
@@ -82,22 +185,19 @@ defmodule ExAws.Config do
   def retrieve_runtime_value(:instance_role, config) do
     config
     |> ExAws.Config.AuthCache.get()
-    |> Map.take([:access_key_id, :secret_access_key, :security_token])
+    |> Map.take(@instance_role_config)
+    |> valid_map_or_nil
+  end
+
+  def retrieve_runtime_value(:pod_identity, config) do
+    ExAws.Config.AuthCache.get(:pod_identity, config)
+    |> Map.take(@pod_identity_config)
     |> valid_map_or_nil
   end
 
   def retrieve_runtime_value({:awscli, profile, expiration}, _) do
     ExAws.Config.AuthCache.get(profile, expiration * 1000)
-    |> Map.take([
-      :source_profile,
-      :role_arn,
-      :access_key_id,
-      :secret_access_key,
-      :region,
-      :security_token,
-      :role_session_name,
-      :external_id
-    ])
+    |> Map.take(@awscli_config)
     |> valid_map_or_nil
   end
 
@@ -122,8 +222,22 @@ defmodule ExAws.Config do
 
   def parse_host_for_region(config), do: config
 
-  def awscli_auth_adapter do
-    Application.get_env(:ex_aws, :awscli_auth_adapter, nil)
+  def awscli_auth_adapter, do: Application.get_env(:ex_aws, :awscli_auth_adapter, nil)
+
+  def awscli_auth_credentials(profile, credentials_ini_provider \\ ExAws.CredentialsIni.File) do
+    case Application.get_env(:ex_aws, :awscli_credentials, nil) do
+      nil ->
+        case credentials_ini_provider.security_credentials(profile) do
+          {:ok, creds} -> creds
+          {:error, err} -> raise "Recieved error while retrieving security credentials: #{err}"
+        end
+
+      %{^profile => profile_credentials} ->
+        profile_credentials
+
+      _otherwise ->
+        raise("Missing #{profile} in provided credentials.")
+    end
   end
 
   defp valid_map_or_nil(map) when map == %{}, do: nil

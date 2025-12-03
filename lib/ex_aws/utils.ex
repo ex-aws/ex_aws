@@ -1,8 +1,6 @@
 defmodule ExAws.Utils do
   @moduledoc false
 
-  def identity(x), do: x
-
   def identity(x, _), do: x
 
   # This isn't tail recursive. However, given that the structures
@@ -43,7 +41,7 @@ defmodule ExAws.Utils do
   def camelize(string) do
     string
     |> to_charlist
-    |> Enum.reduce({true, ''}, fn
+    |> Enum.reduce({true, ~c""}, fn
       ?_, {_, acc} -> {true, acc}
       ?/, {_, acc} -> {false, [?. | acc]}
       char, {false, acc} -> {false, [char | acc]}
@@ -59,33 +57,6 @@ defmodule ExAws.Utils do
   def upcase(value) when is_atom(value), do: value |> Atom.to_string() |> String.upcase()
   def upcase(value) when is_binary(value), do: String.upcase(value)
   def upcase(char), do: :string.to_upper(char)
-
-  @seconds_0_to_1970 :calendar.datetime_to_gregorian_seconds({{1970, 1, 1}, {0, 0, 0}})
-
-  def iso_z_to_secs(<<date::binary-10, "T", time::binary-8, "Z">> <> _) do
-    [year, mon, day] =
-      date
-      |> String.split("-")
-      |> Enum.map(&String.to_integer/1)
-
-    [hour, min, sec] =
-      time
-      |> String.split(":")
-      |> Enum.map(&String.to_integer/1)
-
-    # Seriously? Gregorian seconds but not epoch seconds?
-    greg_secs = :calendar.datetime_to_gregorian_seconds({{year, mon, day}, {hour, min, sec}})
-    greg_secs - @seconds_0_to_1970
-  end
-
-  def now_in_seconds do
-    greg_secs =
-      :os.timestamp()
-      |> :calendar.now_to_universal_time()
-      |> :calendar.datetime_to_gregorian_seconds()
-
-    greg_secs - @seconds_0_to_1970
-  end
 
   def uuid, do: DateTime.utc_now() |> :erlang.phash2()
 

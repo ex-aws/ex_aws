@@ -10,6 +10,9 @@ defmodule ExAws.Auth do
   @unsignable_headers ["x-amzn-trace-id"]
   @unsignable_headers_multi_case ["x-amzn-trace-id", "X-Amzn-Trace-Id"]
 
+  def validate_config(%{disable_headers_signature: true} = config),
+    do: {:ok, config}
+
   def validate_config(config) do
     with :ok <- get_key(config, :secret_access_key),
          :ok <- get_key(config, :access_key_id) do
@@ -32,6 +35,9 @@ defmodule ExAws.Auth do
         {:error, "Required key: #{inspect(key)} must be a string, but instead is #{inspect(val)}"}
     end
   end
+
+  def headers(_http_method, _url, _service, %{disable_headers_signature: true}, headers, _body),
+    do: {:ok, headers}
 
   def headers(http_method, url, service, config, headers, body) do
     with {:ok, config} <- validate_config(config) do
@@ -75,28 +81,27 @@ defmodule ExAws.Auth do
       service = service_name(service)
       signed_headers = presigned_url_headers(url, headers)
 
-      org_query_params = query_params |> Enum.map(fn {k, v} -> {to_string(k), v} end)
+      uri = URI.parse(url)
+      uri_query = query_from_parsed_uri(uri)
+
+      org_query_params =
+        Enum.reduce(query_params, uri_query, fn {k, v}, acc -> [{to_string(k), v} | acc] end)
 
       amz_query_params =
         build_amz_query_params(service, datetime, config, expires, signed_headers)
 
-      [org_query, amz_query] =
-        [org_query_params, amz_query_params] |> Enum.map(&canonical_query_params/1)
+      query_to_sign = (org_query_params ++ amz_query_params) |> canonical_query_params()
 
-      query_to_sign = (org_query_params ++ amz_query_params) |> canonical_query_params
+      amz_query_string = canonical_query_params(amz_query_params)
 
       query_for_url =
-        if Enum.any?(org_query_params), do: org_query <> "&" <> amz_query, else: amz_query
-
-      uri = URI.parse(url)
-
-      path = url |> Url.get_path(service) |> Url.uri_encode
-      path =
-        if uri.query do
-          path <> "?" <> uri.query
+        if Enum.any?(org_query_params) do
+          canonical_query_params(org_query_params) <> "&" <> amz_query_string
         else
-          path
+          amz_query_string
         end
+
+      path = url |> Url.get_path(service) |> Url.uri_encode()
 
       signature =
         signature(
@@ -122,11 +127,11 @@ defmodule ExAws.Auth do
   defp handle_temp_credentials(headers, _), do: headers
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
-    uri = URI.parse(url)
     query =
-      if uri.query,
-        do: uri.query |> URI.decode_query() |> Enum.to_list() |> canonical_query_params,
-        else: ""
+      url
+      |> URI.parse()
+      |> query_from_parsed_uri()
+      |> canonical_query_params()
 
     signature = signature(http_method, url, query, headers, body, service, datetime, config)
 
@@ -141,6 +146,14 @@ defmodule ExAws.Auth do
       signature
     ]
     |> IO.iodata_to_binary()
+  end
+
+  defp query_from_parsed_uri(%{query: nil}), do: []
+
+  defp query_from_parsed_uri(%{query: query_string}) do
+    query_string
+    |> URI.decode_query()
+    |> Enum.to_list()
   end
 
   defp signature(http_method, url, query, headers, body, service, datetime, config) do
@@ -185,12 +198,11 @@ defmodule ExAws.Auth do
     |> IO.iodata_to_binary()
   end
 
-  defp remove_dup_spaces(""), do: ""
-  defp remove_dup_spaces("  " <> rest), do: remove_dup_spaces(" " <> rest)
+  defp remove_dup_spaces(str), do: remove_dup_spaces(str, "")
+  defp remove_dup_spaces(str, str), do: str
 
-  defp remove_dup_spaces(<<char::binary-1, rest::binary>>) do
-    char <> remove_dup_spaces(rest)
-  end
+  defp remove_dup_spaces(str, _last),
+    do: str |> String.replace("  ", " ") |> remove_dup_spaces(str)
 
   defp string_to_sign(request, service, datetime, config) do
     request = hash_sha256(request)
@@ -212,13 +224,14 @@ defmodule ExAws.Auth do
     |> Enum.join(";")
   end
 
-  defp canonical_query_params(nil), do: ""
-
   defp canonical_query_params(params) do
     params
-    |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
+    |> Enum.sort(&compare_query_params/2)
     |> Enum.map_join("&", &pair/1)
   end
+
+  defp compare_query_params({key, value1}, {key, value2}), do: value1 < value2
+  defp compare_query_params({key_1, _}, {key_2, _}), do: key_1 < key_2
 
   defp pair({k, _}) when is_list(k) do
     raise ArgumentError, "encode_query/1 keys cannot be lists, got: #{inspect(k)}"

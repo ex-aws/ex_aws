@@ -1,0 +1,94 @@
+name: on-push
+on: [push, pull_request]
+env:
+  MIX_ENV: test
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    # See https://hexdocs.pm/elixir/compatibility-and-deprecations.html#compatibility-between-elixir-and-erlang-otp
+    strategy:
+      matrix:
+        include:
+          - pair:
+              otp: "28"
+              elixir: "1.18"
+              lint: lint
+
+          - pair:
+              otp: "27"
+              elixir: "1.18"
+          - pair:
+              otp: "27"
+              elixir: "1.17"
+
+          - pair:
+              otp: "26"
+              elixir: "1.17"
+          - pair:
+              otp: "26"
+              elixir: "1.16"
+          - pair:
+              otp: "26"
+              elixir: "1.15"
+
+          - pair:
+              otp: "25"
+              elixir: "1.17"
+          - pair:
+              otp: "25"
+              elixir: "1.16"
+          - pair:
+              otp: "25"
+              elixir: "1.15"
+          - pair:
+              otp: "25"
+              elixir: "1.14"
+
+          - pair:
+              otp: "24"
+              elixir: "1.16"
+          - pair:
+              otp: "24"
+              elixir: "1.15"
+          - pair:
+              otp: "24"
+              elixir: "1.14"
+          - pair:
+              otp: "24"
+              elixir: "1.13"
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.pair.otp}}
+          elixir-version: ${{matrix.pair.elixir}}
+      - uses: rrainn/dynamodb-action@v3.0.0
+        with:
+          port: 8000
+          cors: "*"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{matrix.pair.otp}}-${{matrix.pair.elixir}}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{matrix.pair.otp}}-${{matrix.pair.elixir}}-
+
+      - run: mix deps.get
+
+      - run: mix compile
+
+      - run: mix deps.unlock --check-unused
+        if: ${{matrix.lint}}
+
+      - run: mix format --check-formatted
+        if: ${{matrix.lint}}
+
+      - run: mix dialyzer
+        if: ${{matrix.lint}}
+
+      - run: mix test

@@ -11,19 +11,17 @@ defmodule ExAws.InstanceMeta do
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
   @task_role_root "http://169.254.170.2"
 
-  def request(config, url) do
-    # Certain solutions like kube2iam will redirect instance meta requests,
-    # we need to follow those redirects.
-    case config.http_client.request(:get, url, "", [], follow_redirect: true) do
+  def request(config, url, fallback \\ false) do
+    # If we're using IMDSv2, we will need to pass in session token headers.
+    headers = get_request_headers(config, fallback)
+
+    case config.http_client.request(:get, url, "", headers, http_opts())
+         |> ExAws.Request.maybe_transform_response() do
       {:ok, %{status_code: 200, body: body}} ->
         body
 
       {:ok, %{status_code: status_code}} ->
-        raise """
-        Instance Meta Error: HTTP response status code #{inspect(status_code)}
-
-        Please check AWS EC2 IAM role.
-        """
+        retry_or_raise(config, url, status_code, fallback)
 
       error ->
         raise """
@@ -42,6 +40,26 @@ defmodule ExAws.InstanceMeta do
         ExAws.Config.new(:dynamodb)
         ```
         """
+    end
+  end
+
+  defp retry_or_raise(config, url, 401, false) do
+    request(config, url, true)
+  end
+
+  defp retry_or_raise(_config, _url, status_code, _fallback) do
+    raise """
+    Instance Meta Error: HTTP response status code #{inspect(status_code)}
+
+    Please check AWS EC2 IAM role.
+    """
+  end
+
+  def get_request_headers(config, fallback) do
+    if fallback || Map.get(config, :require_imds_v2) do
+      ExAws.InstanceMetaTokenProvider.get_headers(config)
+    else
+      []
     end
   end
 
@@ -81,5 +99,17 @@ defmodule ExAws.InstanceMeta do
       security_token: result["Token"],
       expiration: result["Expiration"]
     }
+  end
+
+  defp http_opts do
+    # Certain solutions like kube2iam will redirect instance meta requests,
+    # we need to follow those redirects.
+    defaults = [follow_redirect: true]
+
+    overrides =
+      Application.get_env(:ex_aws, :metadata, [])
+      |> Keyword.get(:http_opts, [])
+
+    Keyword.merge(defaults, overrides)
   end
 end
