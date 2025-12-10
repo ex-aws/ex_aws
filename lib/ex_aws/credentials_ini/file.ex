@@ -45,16 +45,15 @@ if Code.ensure_loaded?(ConfigParser) do
     defp get_sso_role_credentials(sso_cache_key, sso_account_id, sso_role_name, config) do
       with {_, {:ok, sso_cache_content}} <-
              {:read, File.read(get_sso_cache_file(sso_cache_key))},
-           {_,
-            {:ok, %{"expiresAt" => expires_at, "accessToken" => access_token, "region" => region}}} <-
+           {_, {:ok, %{"expiresAt" => expires_at} = sso_cache}} <-
              {:decode, config[:json_codec].decode(sso_cache_content)},
            {_, :ok} <-
              {:expiration, check_sso_expiration(expires_at)},
            {_, {:ok, sso_creds}} <-
              {:sso_creds,
               request_sso_role_credentials(
-                access_token,
-                region,
+                sso_cache_key,
+                sso_cache,
                 sso_account_id,
                 sso_role_name,
                 config
@@ -63,11 +62,37 @@ if Code.ensure_loaded?(ConfigParser) do
              {:rename, rename_sso_credential_keys(sso_creds)} do
         {:ok, reformatted_creds}
       else
-        {:read, {:error, error}} -> {:error, "Could not read SSO cache file: #{error}"}
-        {:decode, _} -> {:error, "SSO cache file contains invalid json"}
-        {:expiration, error} -> error
-        {:sso_creds, error} -> error
-        {:rename, error} -> error
+        {:read, {:error, error}} ->
+          {:error, "Could not read SSO cache file: #{error}"}
+
+        {:decode, _} ->
+          {:error, "SSO cache file contains invalid json"}
+
+        {:expiration, {:error, :expired_token}} ->
+          case get_sso_cache_with_refresh(
+                 sso_cache_key,
+                 sso_account_id,
+                 sso_role_name,
+                 config
+               ) do
+            {:ok, sso_creds} ->
+              case rename_sso_credential_keys(sso_creds) do
+                {:ok, reformatted_creds} -> {:ok, reformatted_creds}
+                {:error, error} -> {:error, error}
+              end
+
+            {:error, error} ->
+              {:error, error}
+          end
+
+        {:expiration, error} ->
+          error
+
+        {:sso_creds, error} ->
+          error
+
+        {:rename, error} ->
+          error
       end
     end
 
@@ -78,6 +103,31 @@ if Code.ensure_loaded?(ConfigParser) do
       |> Path.join(".aws/sso/cache/#{hash}.json")
     end
 
+    defp get_sso_cache_with_refresh(sso_cache_key, sso_account_id, sso_role_name, config) do
+      with {_, {:ok, sso_cache_content}} <-
+             {:read, File.read(get_sso_cache_file(sso_cache_key))},
+           {_, {:ok, sso_cache}} <-
+             {:decode, config[:json_codec].decode(sso_cache_content)},
+           {_, {:ok, new_access_token}} <-
+             {:refresh, refresh_access_token(sso_cache, sso_cache_key, config)},
+           {_, {:ok, sso_creds}} <-
+             {:sso_creds,
+              make_sso_request(
+                new_access_token,
+                sso_cache["region"],
+                sso_account_id,
+                sso_role_name,
+                config
+              )} do
+        {:ok, sso_creds}
+      else
+        {:read, {:error, error}} -> {:error, "Could not read SSO cache file: #{error}"}
+        {:decode, _} -> {:error, "SSO cache file contains invalid json"}
+        {:refresh, {:error, error}} -> {:error, "Failed to refresh access token: #{error}"}
+        {:sso_creds, error} -> error
+      end
+    end
+
     defp check_sso_expiration(expires_at_str) do
       with {:ok, _} <- check_expiration(expires_at_str) do
         :ok
@@ -86,17 +136,52 @@ if Code.ensure_loaded?(ConfigParser) do
           {:error, "SSO cache file has invalid expiration format: #{err}"}
 
         {:expires, _} ->
-          {:error, "SSO access token is expired, refresh the token with `aws sso login`"}
+          {:error, :expired_token}
       end
     end
 
+
+
+    # Overloaded version to handle the case where we don't have the key easily or just want to fail?
+    # Actually, let's fix the call site in `get_sso_role_credentials` above to pass sso_cache_key.
+    # And update `request_sso_role_credentials` definition below.
+
     defp request_sso_role_credentials(
-           access_token,
-           region,
+           sso_cache_key,
+           sso_cache,
            account_id,
            role_name,
            config
          ) do
+      %{
+        "region" => region
+      } = sso_cache
+
+      access_token = sso_cache["accessToken"]
+
+      case make_sso_request(access_token, region, account_id, role_name, config) do
+        {:ok, result} ->
+          {:ok, result}
+
+        {:error, :expired_token} ->
+          case refresh_access_token(sso_cache, sso_cache_key, config) do
+            {:ok, new_access_token} ->
+              make_sso_request(new_access_token, region, account_id, role_name, config)
+
+            {:error, refresh_error} ->
+              {:error, "Failed to refresh access token: #{refresh_error}"}
+          end
+
+        {:error, other_error} ->
+          {:error, other_error}
+      end
+    end
+
+    defp make_sso_request(access_token, region, account_id, role_name, config) do
+      http_opts = Map.get(config, :http_opts, [])
+      # Disable pooling for auth requests to avoid starvation
+      http_opts = Keyword.merge(http_opts, [pool: false])
+
       with {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
              {:request,
               config[:http_client].request(
@@ -104,18 +189,111 @@ if Code.ensure_loaded?(ConfigParser) do
                 "https://portal.sso.#{region}.amazonaws.com/federation/credentials?account_id=#{account_id}&role_name=#{role_name}",
                 "",
                 [{"x-amz-sso_bearer_token", access_token}],
-                Map.get(config, :http_opts, [])
+                http_opts
               )
               |> ExAws.Request.maybe_transform_response()},
            {_, {:ok, body}} <- {:decode, config[:json_codec].decode(body_raw)} do
         {:ok, body}
       else
+        {:request, {_, %{body: body, status_code: 401}} = resp} ->
+          case config[:json_codec].decode(body) do
+            {:ok, %{"message" => "Session token not found or invalid"}} ->
+              {:error, :expired_token}
+
+            _ ->
+              {:error, "SSO role credentials request responded with 401: #{inspect(resp)}"}
+          end
+
         {:request, {_, %{status_code: status_code} = resp}} ->
           {:error, "SSO role credentials request responded with #{status_code}: #{inspect(resp)}"}
 
+        {:request, {:error, reason}} ->
+          {:error, "SSO role credentials request failed: #{inspect(reason)}"}
+
         {:decode, err} ->
           {:error, "Could not decode SSO role credentials response: #{err}"}
+
+        error ->
+          error
       end
+    end
+
+    defp refresh_access_token(sso_cache, sso_cache_key, config) do
+      body_map = %{
+        "grantType" => "refresh_token",
+        "clientId" => sso_cache["clientId"],
+        "clientSecret" => sso_cache["clientSecret"],
+        "refreshToken" => sso_cache["refreshToken"]
+      }
+
+      headers = [
+        {"Content-Type", "application/json"}
+      ]
+
+      body = config[:json_codec].encode!(body_map)
+      region = sso_cache["region"]
+      
+      http_opts = Map.get(config, :http_opts, [])
+      # Disable pooling for auth requests to avoid starvation
+      http_opts = Keyword.merge(http_opts, [pool: false])
+
+      with {:ok, %{status_code: 200, body: body_raw}} <-
+             config[:http_client].request(
+               :post,
+               "https://oidc.#{region}.amazonaws.com/token",
+               body,
+               headers,
+               http_opts
+             )
+             |> ExAws.Request.maybe_transform_response(),
+           {:ok, %{"accessToken" => new_access_token} = token_response} <-
+             config[:json_codec].decode(body_raw) do
+        # Write back to cache
+        update_sso_cache_file(sso_cache_key, sso_cache, token_response, config)
+
+        {:ok, new_access_token}
+      else
+        {:error, _} = error ->
+          error
+
+        {_, %{status_code: status_code, body: body}} ->
+          {:error, "Token refresh failed with status #{status_code}: #{body}"}
+
+        {_, _} ->
+          {:error, "Failed to parse refresh token response"}
+      end
+    end
+
+    defp update_sso_cache_file(sso_cache_key, old_cache, token_response, config) do
+      expires_in = Map.get(token_response, "expiresIn", 0)
+
+      # Use DateTime to calculate new expiration
+      # UTC ISO 8601 format: 2023-10-26T12:00:00Z
+      new_expires_at =
+        DateTime.utc_now()
+        |> DateTime.add(expires_in, :second)
+        # Remove microseconds to be cleaner/closer to AWS format
+        |> DateTime.truncate(:second)
+        |> DateTime.to_iso8601()
+        # Ensure Z suffix if not present
+        |> (fn s -> if String.ends_with?(s, "Z"), do: s, else: s <> "Z" end).()
+
+      updated_cache =
+        old_cache
+        |> Map.put("accessToken", token_response["accessToken"])
+        |> Map.put("expiresAt", new_expires_at)
+
+      updated_cache =
+        if token_response["refreshToken"] do
+          Map.put(updated_cache, "refreshToken", token_response["refreshToken"])
+        else
+          updated_cache
+        end
+
+      file_path = get_sso_cache_file(sso_cache_key)
+
+      json = config[:json_codec].encode!(updated_cache)
+      File.write(file_path, json)
     end
 
     defp rename_sso_credential_keys(%{"roleCredentials" => role_credentials}) do
