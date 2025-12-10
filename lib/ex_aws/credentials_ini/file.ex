@@ -140,8 +140,6 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-
-
     # Overloaded version to handle the case where we don't have the key easily or just want to fail?
     # Actually, let's fix the call site in `get_sso_role_credentials` above to pass sso_cache_key.
     # And update `request_sso_role_credentials` definition below.
@@ -180,7 +178,7 @@ if Code.ensure_loaded?(ConfigParser) do
     defp make_sso_request(access_token, region, account_id, role_name, config) do
       http_opts = Map.get(config, :http_opts, [])
       # Disable pooling for auth requests to avoid starvation
-      http_opts = Keyword.merge(http_opts, [pool: false])
+      http_opts = Keyword.merge(http_opts, pool: false)
 
       with {_, {:ok, %{status_code: 200, headers: _headers, body: body_raw}}} <-
              {:request,
@@ -232,10 +230,10 @@ if Code.ensure_loaded?(ConfigParser) do
 
       body = config[:json_codec].encode!(body_map)
       region = sso_cache["region"]
-      
+
       http_opts = Map.get(config, :http_opts, [])
       # Disable pooling for auth requests to avoid starvation
-      http_opts = Keyword.merge(http_opts, [pool: false])
+      http_opts = Keyword.merge(http_opts, pool: false)
 
       with {:ok, %{status_code: 200, body: body_raw}} <-
              config[:http_client].request(
