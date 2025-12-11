@@ -1,3 +1,6 @@
+vX.X.X (Next)
+- Correctly handle pod identity authorization when using Req adapter
+
 v2.6.1 (2025-12-09)
 - Endpoint updates
 - Document security_token configuration requirement for instance roles
