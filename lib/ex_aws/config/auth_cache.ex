@@ -58,8 +58,14 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def handle_call({:refresh_awscli_config, profile, expiration}, _from, ets) do
-    auth = refresh_awscli_config(profile, expiration, ets)
-    {:reply, auth, ets}
+    case :ets.lookup(ets, {:awscli, profile}) do
+      [{{:awscli, ^profile}, auth}] ->
+        {:reply, auth, ets}
+
+      [] ->
+        auth = refresh_awscli_config(profile, expiration, ets)
+        {:reply, auth, ets}
+    end
   end
 
   def handle_info({:refresh_auth, config}, ets) do
