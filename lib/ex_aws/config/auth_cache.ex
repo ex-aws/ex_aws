@@ -109,7 +109,13 @@ defmodule ExAws.Config.AuthCache do
 
     refresh_interval =
       if auth && Map.get(auth, :expiration) do
-        next_refresh_in(auth)
+        interval = next_refresh_in(auth)
+
+        if interval > 0 do
+          max(interval, expiration)
+        else
+          expiration
+        end
       else
         expiration
       end
@@ -223,7 +229,19 @@ defmodule ExAws.Config.AuthCache do
     end
   end
 
-  defp next_refresh_in(%{expiration: expiration}) do
+  defp next_refresh_in(%{expiration: expiration}) when is_integer(expiration) do
+    try do
+      expires_in_ms = (expiration - System.os_time(:second)) * 1000
+
+      # refresh lead_time before auth expires, unless the time has passed
+      # otherwise refresh needed now
+      max(0, expires_in_ms - @refresh_lead_time)
+    rescue
+      _e -> 0
+    end
+  end
+
+  defp next_refresh_in(%{expiration: expiration}) when is_binary(expiration) do
     try do
       expires_in_ms =
         expiration

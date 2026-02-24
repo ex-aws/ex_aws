@@ -45,10 +45,10 @@ if Code.ensure_loaded?(ConfigParser) do
     defp get_sso_role_credentials(sso_cache_key, sso_account_id, sso_role_name, config) do
       with {_, {:ok, sso_cache_content}} <-
              {:read, File.read(get_sso_cache_file(sso_cache_key))},
-           {_, {:ok, %{"expiresAt" => expires_at} = sso_cache}} <-
+           {_, {:ok, %{"expiresAt" => expires_at, "accessToken" => _, "region" => _} = sso_cache}} <-
              {:decode, config[:json_codec].decode(sso_cache_content)},
-           {_, :ok} <-
-             {:expiration, check_sso_expiration(expires_at)},
+           {_, :ok, _sso_cache} <-
+             {:expiration, check_sso_expiration(expires_at), sso_cache},
            {_, {:ok, sso_creds}} <-
              {:sso_creds,
               request_sso_role_credentials(
@@ -68,8 +68,9 @@ if Code.ensure_loaded?(ConfigParser) do
         {:decode, _} ->
           {:error, "SSO cache file contains invalid json"}
 
-        {:expiration, {:error, :expired_token}} ->
+        {:expiration, {:error, :expired_token}, sso_cache} ->
           case get_sso_cache_with_refresh(
+                 sso_cache,
                  sso_cache_key,
                  sso_account_id,
                  sso_role_name,
@@ -85,7 +86,7 @@ if Code.ensure_loaded?(ConfigParser) do
               {:error, error}
           end
 
-        {:expiration, error} ->
+        {:expiration, error, _sso_cache} ->
           error
 
         {:sso_creds, error} ->
@@ -103,12 +104,14 @@ if Code.ensure_loaded?(ConfigParser) do
       |> Path.join(".aws/sso/cache/#{hash}.json")
     end
 
-    defp get_sso_cache_with_refresh(sso_cache_key, sso_account_id, sso_role_name, config) do
-      with {_, {:ok, sso_cache_content}} <-
-             {:read, File.read(get_sso_cache_file(sso_cache_key))},
-           {_, {:ok, sso_cache}} <-
-             {:decode, config[:json_codec].decode(sso_cache_content)},
-           {_, {:ok, new_access_token}} <-
+    defp get_sso_cache_with_refresh(
+           sso_cache,
+           sso_cache_key,
+           sso_account_id,
+           sso_role_name,
+           config
+         ) do
+      with {_, {:ok, new_access_token}} <-
              {:refresh, refresh_access_token(sso_cache, sso_cache_key, config)},
            {_, {:ok, sso_creds}} <-
              {:sso_creds,
@@ -121,8 +124,6 @@ if Code.ensure_loaded?(ConfigParser) do
               )} do
         {:ok, sso_creds}
       else
-        {:read, {:error, error}} -> {:error, "Could not read SSO cache file: #{error}"}
-        {:decode, _} -> {:error, "SSO cache file contains invalid json"}
         {:refresh, {:error, error}} -> {:error, "Failed to refresh access token: #{error}"}
         {:sso_creds, error} -> error
       end
@@ -291,7 +292,15 @@ if Code.ensure_loaded?(ConfigParser) do
       file_path = get_sso_cache_file(sso_cache_key)
 
       json = config[:json_codec].encode!(updated_cache)
-      File.write(file_path, json)
+
+      case File.write(file_path, json) do
+        :ok ->
+          :ok
+
+        {:error, reason} ->
+          require Logger
+          Logger.warning("Failed to write SSO cache file: #{inspect(reason)}")
+      end
     end
 
     defp rename_sso_credential_keys(%{"roleCredentials" => role_credentials}) do
