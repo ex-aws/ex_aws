@@ -231,7 +231,15 @@ defmodule ExAws.Config.AuthCache do
 
   defp next_refresh_in(%{expiration: expiration}) when is_integer(expiration) do
     try do
-      expires_in_ms = (expiration - System.os_time(:second)) * 1000
+      # If expiration is larger than 10^11, it's in milliseconds.
+      expiration_sec =
+        if expiration > 99_999_999_999 do
+          div(expiration, 1000)
+        else
+          expiration
+        end
+
+      expires_in_ms = (expiration_sec - System.os_time(:second)) * 1000
 
       # refresh lead_time before auth expires, unless the time has passed
       # otherwise refresh needed now
