@@ -194,14 +194,8 @@ if Code.ensure_loaded?(ConfigParser) do
            {_, {:ok, body}} <- {:decode, config[:json_codec].decode(body_raw)} do
         {:ok, body}
       else
-        {:request, {_, %{body: body, status_code: 401}} = resp} ->
-          case config[:json_codec].decode(body) do
-            {:ok, %{"message" => "Session token not found or invalid"}} ->
-              {:error, :expired_token}
-
-            _ ->
-              {:error, "SSO role credentials request responded with 401: #{inspect(resp)}"}
-          end
+        {:request, {_, %{status_code: 401}}} ->
+          {:error, :expired_token}
 
         {:request, {_, %{status_code: status_code} = resp}} ->
           {:error, "SSO role credentials request responded with #{status_code}: #{inspect(resp)}"}
@@ -274,8 +268,6 @@ if Code.ensure_loaded?(ConfigParser) do
         # Remove microseconds to be cleaner/closer to AWS format
         |> DateTime.truncate(:second)
         |> DateTime.to_iso8601()
-        # Ensure Z suffix if not present
-        |> (fn s -> if String.ends_with?(s, "Z"), do: s, else: s <> "Z" end).()
 
       updated_cache =
         old_cache
@@ -290,13 +282,14 @@ if Code.ensure_loaded?(ConfigParser) do
         end
 
       file_path = get_sso_cache_file(sso_cache_key)
+      tmp_path = file_path <> ".tmp"
 
       json = config[:json_codec].encode!(updated_cache)
 
-      case File.write(file_path, json) do
-        :ok ->
-          :ok
-
+      with :ok <- File.write(tmp_path, json),
+           :ok <- File.rename(tmp_path, file_path) do
+        :ok
+      else
         {:error, reason} ->
           require Logger
           Logger.warning("Failed to write SSO cache file: #{inspect(reason)}")
@@ -314,6 +307,9 @@ if Code.ensure_loaded?(ConfigParser) do
              {:sessionToken, Map.get(role_credentials, "sessionToken")} do
         # AWS SSO returns expiration as an integer in milliseconds,
         # but ex_aws auth cache expects it in seconds.
+        # We use 99_999_999_999 (the year 5138 in seconds) as a heuristic
+        # to differentiate between seconds and milliseconds since AWS responses
+        # can be inconsistent between different identity endpoints.
         expiration_sec =
           if is_integer(expiration) and expiration > 99_999_999_999 do
             div(expiration, 1000)

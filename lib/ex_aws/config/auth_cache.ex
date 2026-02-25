@@ -90,7 +90,11 @@ defmodule ExAws.Config.AuthCache do
       rescue
         e ->
           require Logger
-          Logger.error("Failed to refresh AWS CLI config for profile #{profile}: #{inspect(e)}")
+
+          Logger.error(
+            "Failed to refresh AWS CLI config for profile #{profile}: #{Exception.format(:error, e, __STACKTRACE__)}"
+          )
+
           nil
       end
 
