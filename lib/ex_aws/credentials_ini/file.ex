@@ -303,7 +303,7 @@ if Code.ensure_loaded?(ConfigParser) do
       end
     end
 
-    defp rename_sso_credential_keys(%{"roleCredentials" => role_credentials}) do
+    def rename_sso_credential_keys(%{"roleCredentials" => role_credentials}) do
       with {_, access_key} when not is_nil(access_key) <-
              {:accessKey, Map.get(role_credentials, "accessKeyId")},
            {_, expiration} when not is_nil(expiration) <-
@@ -312,10 +312,20 @@ if Code.ensure_loaded?(ConfigParser) do
              {:secretAccess, Map.get(role_credentials, "secretAccessKey")},
            {_, session_token} when not is_nil(session_token) <-
              {:sessionToken, Map.get(role_credentials, "sessionToken")} do
+        
+        # AWS SSO returns expiration as an integer in milliseconds,
+        # but ex_aws auth cache expects it in seconds.
+        expiration_sec =
+          if is_integer(expiration) and expiration > 99_999_999_999 do
+            div(expiration, 1000)
+          else
+            expiration
+          end
+
         {:ok,
          %{
            access_key_id: access_key,
-           expiration: expiration,
+           expiration: expiration_sec,
            secret_access_key: secret_access_key,
            security_token: session_token
          }}
