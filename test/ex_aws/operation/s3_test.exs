@@ -82,7 +82,9 @@ defmodule ExAws.Operation.S3Test do
   end
 
   test "S3 uses bucket as host when both virtual_host and bucket_as_host are true" do
-    config = ExAws.Config.new(:s3) |> Map.put(:virtual_host, true) |> Map.put(:bucket_as_host, true)
+    config =
+      ExAws.Config.new(:s3) |> Map.put(:virtual_host, true) |> Map.put(:bucket_as_host, true)
+
     operation = s3_operation("my-custom-domain.com")
 
     {processed_operation, processed_config} = S3.add_bucket_to_path(operation, config)
@@ -92,7 +94,9 @@ defmodule ExAws.Operation.S3Test do
   end
 
   test "S3 uses standard virtual host when virtual_host is true but bucket_as_host is false" do
-    config = ExAws.Config.new(:s3) |> Map.put(:virtual_host, true) |> Map.put(:bucket_as_host, false)
+    config =
+      ExAws.Config.new(:s3) |> Map.put(:virtual_host, true) |> Map.put(:bucket_as_host, false)
+
     operation = s3_operation()
 
     {processed_operation, processed_config} = S3.add_bucket_to_path(operation, config)

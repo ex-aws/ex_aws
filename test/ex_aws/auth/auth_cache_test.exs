@@ -129,4 +129,75 @@ defmodule ExAws.AuthCacheTest do
     Process.sleep(100)
     assert ExAws.request(op, @config) == @response
   end
+
+  test "using adapter caches the credentials until TTL" do
+    defmodule CacheAdapter do
+      @moduledoc false
+
+      @behaviour ExAws.Config.AuthCache.AuthConfigAdapter
+
+      @config %{
+        access_key_id: "AKIAIOSFODNN7EXAMPLE",
+        secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        region: "us-east-1",
+        expiration: System.os_time(:second) + 3600
+      }
+
+      def init do
+        :ets.new(__MODULE__, [:named_table, :set, :public, read_concurrency: true])
+        :ets.insert(__MODULE__, {:count, 0})
+      end
+
+      @impl true
+      def adapt_auth_config(_config, _profile, _expiration) do
+        [count: count] = :ets.lookup(__MODULE__, :count)
+        :ets.insert(__MODULE__, {:count, count + 1})
+        @config
+      end
+
+      def get_count do
+        [count: count] = :ets.lookup(__MODULE__, :count)
+        count
+      end
+    end
+
+    CacheAdapter.init()
+    Application.put_env(:ex_aws, :awscli_auth_adapter, CacheAdapter)
+
+    config_unique = [
+      http_client: ExAws.Request.HttpMock,
+      access_key_id: [{:awscli, "unique_profile", 1}],
+      secret_access_key: [{:awscli, "unique_profile", 1}]
+    ]
+
+    op = %ExAws.Operation.S3{
+      body: "",
+      bucket: "",
+      headers: %{},
+      http_method: :get,
+      params: [],
+      parser: & &1,
+      path: "/",
+      resource: "",
+      service: :s3,
+      stream_builder: nil
+    }
+
+    ExAws.Request.HttpMock
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      @response
+    end)
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      @response
+    end)
+
+    Process.sleep(100)
+    assert ExAws.request(op, config_unique) == @response
+
+    assert ExAws.request(op, config_unique) == @response
+
+    Process.sleep(100)
+
+    assert CacheAdapter.get_count() == 1
+  end
 end
