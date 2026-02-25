@@ -312,7 +312,6 @@ if Code.ensure_loaded?(ConfigParser) do
              {:secretAccess, Map.get(role_credentials, "secretAccessKey")},
            {_, session_token} when not is_nil(session_token) <-
              {:sessionToken, Map.get(role_credentials, "sessionToken")} do
-        
         # AWS SSO returns expiration as an integer in milliseconds,
         # but ex_aws auth cache expects it in seconds.
         expiration_sec =

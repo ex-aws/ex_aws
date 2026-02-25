@@ -151,7 +151,7 @@ defmodule ExAws.CredentialsIni.File.FileTest do
         "accessKeyId" => "ASIAIOSFODNN7EXAMPLE",
         "secretAccessKey" => "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
         "sessionToken" => "IQoJb3JpZ2luX2VjEBs...",
-        "expiration" => 1770246973949
+        "expiration" => 1_770_246_973_949
       }
     }
 
@@ -161,6 +161,6 @@ defmodule ExAws.CredentialsIni.File.FileTest do
     assert credentials.secret_access_key == "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
     assert credentials.security_token == "IQoJb3JpZ2luX2VjEBs..."
     # 1770246973949 ms / 1000 = 1770246973 seconds
-    assert credentials.expiration == 1770246973
+    assert credentials.expiration == 1_770_246_973
   end
 end
