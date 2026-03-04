@@ -1,3 +1,6 @@
+v2.7.0 (2026-03-04)
+- Upgrade hackney to 3.x
+
 v2.6.1 (2025-12-09)
 - Endpoint updates
 - Document security_token configuration requirement for instance roles
