@@ -13,9 +13,15 @@ jobs:
         include:
           - pair:
               otp: "28"
-              elixir: "1.18"
+              elixir: "1.19"
               lint: lint
+          - pair:
+              otp: "27"
+              elixir: "1.19"
 
+          - pair:
+              otp: "28"
+              elixir: "1.18"
           - pair:
               otp: "27"
               elixir: "1.18"
@@ -60,16 +66,16 @@ jobs:
               elixir: "1.13"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.pair.otp}}
           elixir-version: ${{matrix.pair.elixir}}
-      - uses: rrainn/dynamodb-action@v3.0.0
+      - uses: rrainn/dynamodb-action@v4.0.0
         with:
           port: 8000
           cors: "*"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             deps
