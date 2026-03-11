@@ -8,13 +8,23 @@ defmodule ExAws.Request.Url do
     config
     |> Map.take([:scheme, :host, :port])
     |> Map.put(:query, query(operation))
-    |> Map.put(:path, operation.path)
+    |> Map.put(:path, build_path(operation.path, config[:base_path]))
     |> normalize_scheme
     |> normalize_path(config.normalize_path)
     |> convert_port_to_integer
     |> (&struct(URI, &1)).()
     |> URI.to_string()
     |> String.trim_trailing("?")
+  end
+
+  defp build_path(path, nil), do: path
+  defp build_path(path, ""), do: path
+
+  defp build_path(path, base_path) do
+    base_path
+    |> String.trim_leading("/")
+    |> then(&("/" <> &1))
+    |> Path.join(path)
   end
 
   defp query(operation) do
