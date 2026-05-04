@@ -78,6 +78,50 @@ defmodule ExAws.Request.UrlTest do
       query = query |> Map.put(:params, %{"foo" => "bar", nil => 1})
       assert Url.build(query, config) == "https://example.com/path?foo=bar"
     end
+
+    test "it prepends base_path when set", %{query: query, config: config} do
+      config = config |> Map.put(:base_path, "/minio")
+      assert Url.build(query, config) == "https://example.com/minio/path?foo=bar"
+    end
+
+    test "it handles base_path with trailing slash", %{query: query, config: config} do
+      config = config |> Map.put(:base_path, "/minio/")
+      assert Url.build(query, config) == "https://example.com/minio/path?foo=bar"
+    end
+
+    test "it handles base_path when operation path has no leading slash", %{
+      query: query,
+      config: config
+    } do
+      query = query |> Map.put(:path, "path")
+      config = config |> Map.put(:base_path, "/minio")
+      assert Url.build(query, config) == "https://example.com/minio/path?foo=bar"
+    end
+
+    test "it does not change path when base_path is nil", %{query: query, config: config} do
+      assert Url.build(query, config) == "https://example.com/path?foo=bar"
+    end
+
+    test "it does not change path when base_path is empty string", %{query: query, config: config} do
+      config = config |> Map.put(:base_path, "")
+      assert Url.build(query, config) == "https://example.com/path?foo=bar"
+    end
+
+    test "it handles base_path without leading slash", %{query: query, config: config} do
+      config = config |> Map.put(:base_path, "minio")
+      assert Url.build(query, config) == "https://example.com/minio/path?foo=bar"
+    end
+
+    test "it handles multi-segment base_path", %{query: query, config: config} do
+      config = config |> Map.put(:base_path, "/minio/api/v1")
+      assert Url.build(query, config) == "https://example.com/minio/api/v1/path?foo=bar"
+    end
+
+    test "it handles root operation path with base_path", %{query: query, config: config} do
+      query = query |> Map.put(:path, "/") |> Map.put(:params, %{})
+      config = config |> Map.put(:base_path, "/minio")
+      assert Url.build(query, config) == "https://example.com/minio"
+    end
   end
 
   describe "get_path" do
