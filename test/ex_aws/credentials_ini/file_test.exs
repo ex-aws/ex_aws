@@ -142,4 +142,25 @@ defmodule ExAws.CredentialsIni.File.FileTest do
 
     assert config.region == "eu-west-1"
   end
+
+  test "rename_sso_credential_keys converts millisecond expiration to seconds" do
+    # This matches the real AWS SSO GetRoleCredentials API response where expiration is an integer in milliseconds.
+    # See: https://docs.aws.amazon.com/singlesignon/latest/PortalAPIReference/API_GetRoleCredentials.html
+    payload = %{
+      "roleCredentials" => %{
+        "accessKeyId" => "ASIAIOSFODNN7EXAMPLE",
+        "secretAccessKey" => "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "sessionToken" => "IQoJb3JpZ2luX2VjEBs...",
+        "expiration" => 1_770_246_973_949
+      }
+    }
+
+    assert {:ok, credentials} = ExAws.CredentialsIni.File.rename_sso_credential_keys(payload)
+
+    assert credentials.access_key_id == "ASIAIOSFODNN7EXAMPLE"
+    assert credentials.secret_access_key == "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    assert credentials.security_token == "IQoJb3JpZ2luX2VjEBs..."
+    # 1770246973949 ms / 1000 = 1770246973 seconds
+    assert credentials.expiration == 1_770_246_973
+  end
 end

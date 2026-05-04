@@ -58,8 +58,14 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def handle_call({:refresh_awscli_config, profile, expiration}, _from, ets) do
-    auth = refresh_awscli_config(profile, expiration, ets)
-    {:reply, auth, ets}
+    case :ets.lookup(ets, {:awscli, profile}) do
+      [{{:awscli, ^profile}, auth}] ->
+        {:reply, auth, ets}
+
+      [] ->
+        auth = refresh_awscli_config(profile, expiration, ets)
+        {:reply, auth, ets}
+    end
   end
 
   def handle_info({:refresh_auth, config}, ets) do
@@ -78,19 +84,51 @@ defmodule ExAws.Config.AuthCache do
   end
 
   def refresh_awscli_config(profile, expiration, ets) do
-    auth = ExAws.Config.awscli_auth_credentials(profile)
-
     auth =
-      case ExAws.Config.awscli_auth_adapter() do
-        nil ->
-          auth
+      try do
+        ExAws.Config.awscli_auth_credentials(profile)
+      rescue
+        e ->
+          require Logger
 
-        adapter ->
-          attempt_credentials_refresh(adapter, auth, profile, expiration)
+          Logger.error(
+            "Failed to refresh AWS CLI config for profile #{profile}: #{Exception.format(:error, e, __STACKTRACE__)}"
+          )
+
+          nil
       end
 
-    Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
-    :ets.insert(ets, {{:awscli, profile}, auth})
+    auth =
+      if auth do
+        case ExAws.Config.awscli_auth_adapter() do
+          nil ->
+            auth
+
+          adapter ->
+            attempt_credentials_refresh(adapter, auth, profile, expiration)
+        end
+      else
+        nil
+      end
+
+    refresh_interval =
+      if auth && Map.get(auth, :expiration) do
+        interval = next_refresh_in(auth)
+
+        if interval > 0 do
+          max(interval, expiration)
+        else
+          expiration
+        end
+      else
+        expiration
+      end
+
+    Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, refresh_interval)
+
+    if auth do
+      :ets.insert(ets, {{:awscli, profile}, auth})
+    end
 
     auth
   end
@@ -195,7 +233,19 @@ defmodule ExAws.Config.AuthCache do
     end
   end
 
-  defp next_refresh_in(%{expiration: expiration}) do
+  defp next_refresh_in(%{expiration: expiration}) when is_integer(expiration) do
+    try do
+      expires_in_ms = (expiration - System.os_time(:second)) * 1000
+
+      # refresh lead_time before auth expires, unless the time has passed
+      # otherwise refresh needed now
+      max(0, expires_in_ms - @refresh_lead_time)
+    rescue
+      _e -> 0
+    end
+  end
+
+  defp next_refresh_in(%{expiration: expiration}) when is_binary(expiration) do
     try do
       expires_in_ms =
         expiration
