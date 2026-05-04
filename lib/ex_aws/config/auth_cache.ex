@@ -5,7 +5,7 @@ defmodule ExAws.Config.AuthCache do
 
   # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
 
-  @refresh_lead_time 300_000
+  @refresh_lead_time Application.compile_env(:ex_aws, :auth_refresh_lead_time, 300_000)
   @instance_auth_key :aws_instance_auth
   @pod_identity_auth_key :aws_pod_identity_auth
 
