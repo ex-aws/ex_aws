@@ -48,9 +48,6 @@ jobs:
           - pair:
               otp: "25"
               elixir: "1.15"
-          - pair:
-              otp: "25"
-              elixir: "1.14"
 
           - pair:
               otp: "24"
@@ -58,12 +55,6 @@ jobs:
           - pair:
               otp: "24"
               elixir: "1.15"
-          - pair:
-              otp: "24"
-              elixir: "1.14"
-          - pair:
-              otp: "24"
-              elixir: "1.13"
 
     steps:
       - uses: actions/checkout@v6
