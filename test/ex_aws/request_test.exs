@@ -268,6 +268,97 @@ defmodule ExAws.RequestTest do
              )
   end
 
+  test "operation_parser triggers retry when it returns a retryable XML code", context do
+    TelemetryHelper.attach_telemetry([:ex_aws, :request])
+    success = mock_xml_throttling_response(2)
+
+    parser = fn
+      {:error, {:http_error, status, %{body: body}}} ->
+        code =
+          if String.contains?(body, "<Code>Throttling</Code>"),
+            do: "Throttling",
+            else: "Unknown"
+
+        {:error, {:http_error, status, %{code: code, message: "parsed"}}}
+
+      other ->
+        other
+    end
+
+    assert {:ok, %{body: ^success, status_code: 200}} =
+             ExAws.Request.request_and_retry(
+               :post,
+               "https://email.us-east-1.amazonaws.com/",
+               :ses,
+               context[:config],
+               context[:headers],
+               "",
+               {:attempt, 1},
+               operation_parser: parser
+             )
+
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 1}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 1, result: :error}}
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 2}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 2, result: :error}}
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 3}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 3, result: :ok}}
+  end
+
+  test "operation_parser does not trigger retry for non-retryable XML codes", context do
+    TelemetryHelper.attach_telemetry([:ex_aws, :request])
+
+    xml =
+      "<ErrorResponse><Error><Type>Sender</Type><Code>InvalidParameterValue</Code><Message>bad</Message></Error></ErrorResponse>"
+
+    ExAws.Request.HttpMock
+    |> expect(:request, 1, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 400, body: xml}}
+    end)
+
+    parser = fn {:error, {:http_error, status, _}} ->
+      {:error, {:http_error, status, %{code: "InvalidParameterValue", message: "bad"}}}
+    end
+
+    assert {:error, {:http_error, 400, %{body: ^xml, status_code: 400}}} =
+             ExAws.Request.request_and_retry(
+               :post,
+               "https://email.us-east-1.amazonaws.com/",
+               :ses,
+               context[:config],
+               context[:headers],
+               "",
+               {:attempt, 1},
+               operation_parser: parser
+             )
+
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 1}}
+    refute_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 2}}
+  end
+
+  test "operation_parser that crashes falls back to a non-retry error", context do
+    xml = "<not-actually-xml-error/>"
+
+    ExAws.Request.HttpMock
+    |> expect(:request, 1, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 400, body: xml}}
+    end)
+
+    parser = fn _ -> raise "boom" end
+
+    assert {:error, {:http_error, 400, %{body: ^xml, status_code: 400}}} =
+             ExAws.Request.request_and_retry(
+               :post,
+               "https://email.us-east-1.amazonaws.com/",
+               :ses,
+               context[:config],
+               context[:headers],
+               "",
+               {:attempt, 1},
+               operation_parser: parser
+             )
+  end
+
   test "TooManyRequestsException is retried", context do
     TelemetryHelper.attach_telemetry([:ex_aws, :request])
     success = mock_too_many_requests_exception(3)
@@ -318,7 +409,37 @@ defmodule ExAws.RequestTest do
     success
   end
 
-  def mock_too_many_requests_exception(success_after_retries) do
+  defp mock_xml_throttling_response(success_after_retries) do
+    exception = """
+    <ErrorResponse>
+      <Error>
+        <Type>Sender</Type>
+        <Code>Throttling</Code>
+        <Message>Rate exceeded</Message>
+      </Error>
+    </ErrorResponse>
+    """
+
+    success = """
+    <SendCustomVerificationEmailResponse>
+      <SendCustomVerificationEmailResult>
+        <MessageId>abc123</MessageId>
+      </SendCustomVerificationEmailResult>
+    </SendCustomVerificationEmailResponse>
+    """
+
+    ExAws.Request.HttpMock
+    |> expect(:request, success_after_retries, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 400, body: exception}}
+    end)
+    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      {:ok, %{status_code: 200, body: success}}
+    end)
+
+    success
+  end
+
+  defp mock_too_many_requests_exception(success_after_retries) do
     exception = "{\"__type\":\"TooManyRequestsException\",\"message\":\"Too many requests\"}"
 
     success =
