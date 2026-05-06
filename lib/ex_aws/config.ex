@@ -233,7 +233,6 @@ defmodule ExAws.Config do
 
           {:error, err} ->
             raise "Received error while retrieving security credentials: #{inspect(err)}"
-
         end
 
       %{^profile => profile_credentials} ->

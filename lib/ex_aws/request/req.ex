@@ -17,7 +17,7 @@ if Code.ensure_loaded?(Req) do
 
     @impl true
     def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
-      http_opts = rename_follow_redirect(http_opts)
+      http_opts = http_opts |> rename_follow_redirect() |> rename_recv_timeout()
 
       [method: method, url: url, body: body, headers: headers, decode_body: false, retry: false]
       |> Keyword.merge(Application.get_env(:ex_aws, :req_opts, @default_opts))
@@ -38,6 +38,13 @@ if Code.ensure_loaded?(Req) do
       {follow, opts} = Keyword.pop(opts, :follow_redirect, false)
 
       Keyword.put(opts, :redirect, follow)
+    end
+
+    # Rename :recv_timeout to :receive_timeout for Req to use.
+    defp rename_recv_timeout(opts) do
+      {recv_timeout, opts} = Keyword.pop(opts, :recv_timeout, 30_000)
+
+      Keyword.put(opts, :receive_timeout, recv_timeout)
     end
   end
 end
