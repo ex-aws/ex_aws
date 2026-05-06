@@ -1,6 +1,10 @@
-v2.7.0 (2026-03-04)
+v2.7.0 (2026-05-06)
+- Increase mimimum Elixir version 1.15
 - Upgrade hackney to 3.x
 - Correctly handle pod identity authorization when using Req adapter
+- Fix compilation warning when Req is not present
+- Make auth_refresh_lead_time a configurable value
+- Endpoint updates
 
 v2.6.1 (2025-12-09)
 - Endpoint updates
