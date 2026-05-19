@@ -38,23 +38,23 @@ defimpl ExAws.Operation, for: ExAws.Operation.Query do
       {"content-encoding", operation.content_encoding}
     ]
 
-    result =
-      ExAws.Request.request(:post, url, data, headers, config, operation.service)
-      |> ExAws.Request.default_aws_error()
+    parser = wrap_parser(operation.parser, operation.action, config)
 
-    parser = operation.parser
-
-    cond do
-      is_function(parser, 2) ->
-        parser.(result, operation.action)
-
-      is_function(parser, 3) ->
-        parser.(result, operation.action, config)
-
-      true ->
-        result
-    end
+    ExAws.Request.request(:post, url, data, headers, config, operation.service,
+      operation_parser: parser
+    )
+    |> ExAws.Request.default_aws_error()
+    |> parser.()
   end
 
   def stream!(_, _), do: nil
+
+  defp wrap_parser(parser, _action, _config) when is_function(parser, 1),
+    do: parser
+
+  defp wrap_parser(parser, action, _config) when is_function(parser, 2),
+    do: fn result -> parser.(result, action) end
+
+  defp wrap_parser(parser, action, config) when is_function(parser, 3),
+    do: fn result -> parser.(result, action, config) end
 end
