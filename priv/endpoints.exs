@@ -224,6 +224,34 @@ chime_voice_regions = [
             "us-west-2" => %{}
           }
         },
+        "bedrock-agentcore" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock-agentcore"}},
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{}
+          }
+        },
+        "bedrock-agentcore-control" => %{
+          "defaults" => %{"credentialScope" => %{"service" => "bedrock-agentcore"}},
+          "endpoints" => %{
+            "ap-northeast-1" => %{},
+            "ap-south-1" => %{},
+            "ap-southeast-1" => %{},
+            "ap-southeast-2" => %{},
+            "eu-central-1" => %{},
+            "eu-west-1" => %{},
+            "us-east-1" => %{},
+            "us-east-2" => %{},
+            "us-west-2" => %{}
+          }
+        },
         "connect" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
