@@ -118,5 +118,39 @@ defmodule ExAws.InstanceMetaTest do
 
       assert ExAws.InstanceMeta.instance_role(config) == role_name
     end
+
+    test "token request targets the EC2 metadata endpoint even when running in ECS" do
+      # ECS sets AWS_CONTAINER_CREDENTIALS_RELATIVE_URI in every task. The
+      # task-role credentials endpoint (169.254.170.2) does not issue IMDSv2
+      # tokens, so the token PUT must still go to 169.254.169.254 — otherwise
+      # the credentials-endpoint response body is used as a bogus token and
+      # all subsequent metadata requests fail with a 401.
+      System.put_env("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI", "/v2/credentials/dummy-id")
+      on_exit(fn -> System.delete_env("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") end)
+
+      role_name = "dummy-role-ecs"
+
+      ExAws.Request.HttpMock
+      |> expect(:request, fn :put, url, _body, _headers, _opts ->
+        assert url == "http://169.254.169.254/latest/api/token"
+        {:ok, %{status_code: 200, body: "dummy-token"}}
+      end)
+      |> expect(:request, fn :get, _url, _body, headers, _opts ->
+        assert Enum.member?(headers, {"x-aws-ec2-metadata-token", "dummy-token"})
+        {:ok, %{status_code: 200, body: role_name}}
+      end)
+
+      config =
+        ExAws.Config.new(:s3,
+          http_client: ExAws.Request.HttpMock,
+          access_key_id: "dummy",
+          secret_access_key: "dummy",
+          # Don't cache the metadata token, so we can always expect a request to get the token
+          no_metadata_token_cache: true,
+          require_imds_v2: true
+        )
+
+      assert ExAws.InstanceMeta.instance_role(config) == role_name
+    end
   end
 end

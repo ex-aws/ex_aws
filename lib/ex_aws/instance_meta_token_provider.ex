@@ -7,9 +7,6 @@ defmodule ExAws.InstanceMetaTokenProvider do
   @metadata_token_ttl_seconds 6 * 60 * 60
   @genserver_call_timeout_seconds 30
   @metadata_token_api_url "http://169.254.169.254/latest/api/token"
-  # Endpoint for ECS tasks role credentials
-  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
-  @task_role_root "http://169.254.170.2"
   # The header we pass to control the token's time to live
   @metadata_token_ttl_header_name "x-aws-ec2-metadata-token-ttl-seconds"
   # The header we use to pass the token along to all other metadata calls
@@ -105,11 +102,14 @@ defmodule ExAws.InstanceMetaTokenProvider do
     end
   end
 
+  # The IMDSv2 session-token PUT must always target the EC2 Instance Metadata
+  # Service (169.254.169.254). The ECS task-role credentials endpoint
+  # (169.254.170.2, selected via AWS_CONTAINER_CREDENTIALS_RELATIVE_URI) does
+  # not issue IMDSv2 tokens, so routing the token PUT there yields a bogus
+  # "token" and every subsequent IMDS GET is rejected with a 401. See
+  # ExAws.InstanceMeta.request/3, which is hardcoded to hit 169.254.169.254.
   defp metadata_token_api_url do
-    case System.get_env("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") do
-      nil -> @metadata_token_api_url
-      uri -> @task_role_root <> uri
-    end
+    @metadata_token_api_url
   end
 
   defp token_ttl_seconds_headers(_config) do
