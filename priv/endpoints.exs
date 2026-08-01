@@ -1206,6 +1206,7 @@ chime_voice_regions = [
             "ap-south-2" => %{},
             "ap-southeast-1" => %{},
             "ap-southeast-2" => %{},
+            "ap-southeast-5" => %{},
             "ca-central-1" => %{},
             "ca-west-1" => %{},
             "eu-central-1" => %{},
