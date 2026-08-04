@@ -48,4 +48,36 @@ defmodule ExAws.Request.ReqTest do
 
     assert resp.body == ~s|{"attempt":3}|
   end
+
+  test "bodyless GET is not rewritten to POST" do
+    plug = fn conn ->
+      assert conn.method == "GET"
+      Plug.Conn.send_resp(conn, 200, "")
+    end
+
+    assert {:ok, resp} =
+             ExAws.Request.Req.request(:get, "https://test-server", "", [], plug: plug)
+
+    assert resp.status_code == 200
+  end
+
+  test "POST with a payload keeps the body intact" do
+    plug = fn conn ->
+      assert conn.method == "POST"
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      assert body == ~s|{"message":"hello"}|
+      Plug.Conn.send_resp(conn, 200, "")
+    end
+
+    assert {:ok, resp} =
+             ExAws.Request.Req.request(
+               :post,
+               "https://test-server",
+               ~s|{"message":"hello"}|,
+               [],
+               plug: plug
+             )
+
+    assert resp.status_code == 200
+  end
 end
