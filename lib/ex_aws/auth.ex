@@ -82,7 +82,7 @@ defmodule ExAws.Auth do
       signed_headers = presigned_url_headers(url, headers)
 
       uri = URI.parse(url)
-      uri_query = query_from_parsed_uri(uri)
+      uri_query = query_from_url(url, service)
 
       org_query_params =
         Enum.reduce(query_params, uri_query, fn {k, v}, acc -> [{to_string(k), v} | acc] end)
@@ -129,8 +129,7 @@ defmodule ExAws.Auth do
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
     query =
       url
-      |> URI.parse()
-      |> query_from_parsed_uri()
+      |> query_from_url(service)
       |> canonical_query_params()
 
     signature = signature(http_method, url, query, headers, body, service, datetime, config)
@@ -148,9 +147,15 @@ defmodule ExAws.Auth do
     |> IO.iodata_to_binary()
   end
 
-  defp query_from_parsed_uri(%{query: nil}), do: []
+  defp query_from_url(url, service) do
+    url
+    |> Url.get_query(service)
+    |> query_from_query_string()
+  end
 
-  defp query_from_parsed_uri(%{query: query_string}) do
+  defp query_from_query_string(nil), do: []
+
+  defp query_from_query_string(query_string) do
     query_string
     |> URI.decode_query()
     |> Enum.to_list()

@@ -141,6 +141,23 @@ defmodule ExAws.Request.UrlTest do
     end
   end
 
+  describe "get_query" do
+    test "it uses S3-specific URL parsing to keep a query after a hash in the path" do
+      url = "https://example.com/uploads/who would name# an object| like this.xlsx?uploads=1"
+      assert Url.get_query(url, :s3) == "uploads=1"
+    end
+
+    test "it uses standard URL parsing for the query for non-S3 services" do
+      url = "https://example.com/uploads/report#technically-a-fragment?uploads=1"
+      assert Url.get_query(url) |> is_nil()
+    end
+
+    test "it returns nil when there isn't a query in the URL" do
+      url = "https://example.com/uploads/reasonable.xlsx"
+      assert Url.get_query(url, :s3) |> is_nil()
+    end
+  end
+
   describe "sanitize" do
     setup do
       query = %ExAws.Operation.S3{
