@@ -86,6 +86,27 @@ defmodule ExAws.AuthTest do
     assert {:ok, expected} == actual
   end
 
+  test "presigned url with special characters and existing query string" do
+    http_method = :get
+    url = "https://examplebucket.s3.amazonaws.com/folder-one/test+ #3.txt?uploads=1"
+    service = :s3
+    datetime = {{2013, 5, 24}, {0, 0, 0}}
+    expires = 86400
+    actual = ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires)
+
+    expected =
+      "https://examplebucket.s3.amazonaws.com/folder-one/test%2B%20%233.txt" <>
+        "?uploads=1" <>
+        "&X-Amz-Algorithm=AWS4-HMAC-SHA256" <>
+        "&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request" <>
+        "&X-Amz-Date=20130524T000000Z" <>
+        "&X-Amz-Expires=86400" <>
+        "&X-Amz-SignedHeaders=host" <>
+        "&X-Amz-Signature=5b41f78393e715c09d3dd523f0630796e82a07891826b9d22c2549f1ab1add20"
+
+    assert {:ok, expected} == actual
+  end
+
   test "presigned url with query params" do
     # Data taken from example in:
     # http://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
