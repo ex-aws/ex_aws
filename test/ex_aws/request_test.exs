@@ -192,6 +192,34 @@ defmodule ExAws.RequestTest do
     refute_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 2}}
   end
 
+  test "ProvisionedThroughputExceededException is not retried if max_attempts_client is set to 1",
+       context do
+    TelemetryHelper.attach_telemetry([:ex_aws, :request])
+    mock_provisioned_throughput_response(1)
+
+    http_method = :post
+    url = "https://kinesis.aws.com/"
+    service = :kinesis
+    request_body = ""
+
+    config = context[:config] |> put_in([:retries, :max_attempts_client], 1)
+
+    assert {:error, {"ProvisionedThroughputExceededException", _}} =
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               config,
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+
+    assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 1}}
+    assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 1, result: :error}}
+    refute_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 2}}
+  end
+
   test "Expected sequence token is provided", context do
     exception =
       "{\"__type\": \"InvalidSequenceTokenException\", \"message\": \"The given sequenceToken is invalid. The next expected sequenceToken is: 49616449618992442982853194240983586320797062450229805234\", \"expectedSequenceToken\": \"49616449618992442982853194240983586320797062450229805234\"}"

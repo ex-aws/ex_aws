@@ -208,8 +208,14 @@ defmodule ExAws.Request do
   def attempt_again?(attempt, reason, error_type, config) do
     max_attempts =
       case error_type do
-        :client -> config[:retries][:client_error_max_attempts] || config[:retries][:max_attempts]
-        _ -> config[:retries][:max_attempts]
+        # max_attempts_client is the documented name, client_error_max_attempts predates it
+        :client ->
+          config[:retries][:max_attempts_client] ||
+            config[:retries][:client_error_max_attempts] ||
+            config[:retries][:max_attempts]
+
+        _ ->
+          config[:retries][:max_attempts]
       end
 
     if attempt >= max_attempts do
