@@ -18,6 +18,7 @@ if Code.ensure_loaded?(Req) do
     @impl true
     def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
       http_opts = http_opts |> rename_follow_redirect() |> rename_recv_timeout()
+      body = if body == "", do: nil, else: body
 
       [method: method, url: url, body: body, headers: headers, decode_body: false, retry: false]
       |> Keyword.merge(Application.get_env(:ex_aws, :req_opts, @default_opts))
