@@ -138,7 +138,7 @@ defmodule ExAws.Config.AuthCache do
       {:error, error} when retries == 1 ->
         Process.send_after(self(), {:refresh_awscli_config, profile, expiration}, expiration)
 
-        raise "Could't get credentials from auth adapter after 6 retries, last error was #{inspect(error)}"
+        raise "Couldn't get credentials from auth adapter after 6 retries, last error was #{inspect(error)}"
 
       {:error, _error} ->
         Process.sleep(:rand.uniform(5_000))
