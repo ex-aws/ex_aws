@@ -1,3 +1,7 @@
+v2.8.0
+- Remove functionality which pre-resolves . and .. in s3 paths. S3 already deals with this and
+the way we were doing it can cause security issues.
+
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x
 - Correctly handle pod identity authorization when using Req adapter
