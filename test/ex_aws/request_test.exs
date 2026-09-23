@@ -300,6 +300,79 @@ defmodule ExAws.RequestTest do
     assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 4, result: :ok}}
   end
 
+  test "it handles 200 OK HEAD requests properly by returning an empty body", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn :head, _url, _body, _headers, _opts ->
+      # HEAD request with hackney do not have a body, which makes it spec-compliant.
+      {:ok, %{status_code: 200, headers: [{"content-length", 123}], body: nil}}
+    end)
+
+    http_method = :head
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:ok, %{body: nil, headers: [{"content-length", 123}], status_code: 200}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
+
+  test "it handles 4xx HEAD requests properly", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn :head, _url, _body, _headers, _opts ->
+      # HEAD request with hackney do not have a body, which makes it spec-compliant.
+      {:ok, %{status_code: 429, headers: [{"x-rate-limit", 1_000}], body: nil}}
+    end)
+
+    http_method = :head
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:error,
+            {:http_error, 429, %{body: nil, headers: [{"x-rate-limit", 1000}], status_code: 429}}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
+
+  test "it handles 5xx HEAD requests properly", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, 5, fn :head, _url, _body, _headers, _opts ->
+      # HEAD request with hackney do not have a body, which makes it spec-compliant.
+      {:ok, %{status_code: 500, headers: [{"content-type", "text/plain"}], body: "server error"}}
+    end)
+
+    http_method = :head
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:error, {:http_error, 500, "server error"}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
+
   defp mock_provisioned_throughput_response(success_after_retries) do
     exception =
       "{\"__type\": \"ProvisionedThroughputExceededException\", \"message\": \"Rate exceeded for shard shardId-000000000005 in stream my_stream under account 1234567890.\"}"

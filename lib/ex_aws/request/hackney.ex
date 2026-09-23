@@ -23,6 +23,9 @@ if Code.ensure_loaded?(:hackney) do
         {:ok, status, headers, body} ->
           {:ok, %{status_code: status, headers: headers, body: body}}
 
+        {:ok, status, headers} ->
+          {:ok, %{status_code: status, headers: headers, body: nil}}
+
         {:error, reason} ->
           {:error, %{reason: reason}}
       end

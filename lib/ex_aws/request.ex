@@ -146,6 +146,10 @@ defmodule ExAws.Request do
   defp extract_error({:error, error}), do: error
   defp extract_error(error), do: error
 
+  def client_error(%{status_code: status, body: nil} = error, _json_codec) do
+    {:error, {:http_error, status, error}}
+  end
+
   def client_error(%{status_code: status, body: body} = error, json_codec) do
     case json_codec.decode(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
