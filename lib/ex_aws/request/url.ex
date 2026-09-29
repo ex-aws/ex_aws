@@ -64,12 +64,7 @@ defmodule ExAws.Request.Url do
       |> String.replace_prefix("/", "")
       |> uri_encode()
 
-    query =
-      case String.split(url, "?", parts: 2) do
-        [_] -> nil
-        [_, ""] -> nil
-        [_, q] -> q
-      end
+    query = get_query(url, service)
 
     url
     |> URI.parse()
@@ -114,6 +109,18 @@ defmodule ExAws.Request.Url do
   end
 
   def get_path(url, _), do: URI.parse(url).path || "/"
+
+  def get_query(url, service \\ nil)
+
+  def get_query(url, service) when service in ["s3", :s3] do
+    case String.split(url, "?", parts: 2) do
+      [_] -> nil
+      [_, ""] -> nil
+      [_, q] -> q
+    end
+  end
+
+  def get_query(url, _), do: URI.parse(url).query
 
   def uri_encode(url), do: URI.encode(url, &valid_path_char?/1)
 
