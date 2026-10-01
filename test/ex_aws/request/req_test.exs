@@ -48,4 +48,30 @@ defmodule ExAws.Request.ReqTest do
 
     assert resp.body == ~s|{"attempt":3}|
   end
+
+  test "sends a bodyless GET as GET (req 0.7 must not rewrite it to POST)" do
+    plug = fn conn ->
+      Plug.Conn.send_resp(conn, 200, conn.method)
+    end
+
+    config = %{
+      http_client: ExAws.Request.Req,
+      http_opts: [
+        plug: plug
+      ],
+      retries: [
+        base_backoff_in_ms: 1
+      ],
+      json_codec: Jason,
+      access_key_id: "AKIAIOSFODNN7EXAMPLE",
+      secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+      region: "us-east-1"
+    }
+
+    {:ok, resp} =
+      ExAws.Request.request(:get, "https://test-server", "", [], config, :s3)
+
+    assert resp.status_code == 200
+    assert resp.body == "GET"
+  end
 end

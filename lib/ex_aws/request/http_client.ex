@@ -25,6 +25,10 @@ defmodule ExAws.Request.HttpClient do
     def request(method, url, body, headers, _http_opts) do
       request = Req.new(decode_body: false, retry: false)
 
+      # ExAws uses "" for bodyless requests (e.g. a GET), but Req treats any non-nil body as
+      # a request body and rewrites such a GET into a POST, so send "" as nil to keep the method.
+      body = if body in [nil, ""], do: nil, else: body
+
       case Req.request(request, method: method, url: url, body: body, headers: headers) do
         {:ok, response} ->
           response = %{

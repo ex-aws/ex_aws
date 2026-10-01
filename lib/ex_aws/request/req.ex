@@ -19,7 +19,14 @@ if Code.ensure_loaded?(Req) do
     def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
       http_opts = http_opts |> rename_follow_redirect() |> rename_recv_timeout()
 
-      [method: method, url: url, body: body, headers: headers, decode_body: false, retry: false]
+      [
+        method: method,
+        url: url,
+        body: normalize_body(body),
+        headers: headers,
+        decode_body: false,
+        retry: false
+      ]
       |> Keyword.merge(Application.get_env(:ex_aws, :req_opts, @default_opts))
       |> Keyword.merge(http_opts)
       |> Req.request()
@@ -31,6 +38,12 @@ if Code.ensure_loaded?(Req) do
           {:error, %{reason: reason}}
       end
     end
+
+    # ExAws uses "" for bodyless requests, but Req treats any non-nil body as a request body
+    # and rewrites such a GET into a POST (breaking SigV4 signing). Send "" as nil to keep
+    # the method. See https://github.com/ex-aws/ex_aws/issues/1246.
+    defp normalize_body(body) when body in [nil, ""], do: nil
+    defp normalize_body(body), do: body
 
     # Req >= 0.4.0 uses :redirect, but some clients pass the :hackney option
     # :follow_redirect. Rename the option for Req to use.
