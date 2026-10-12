@@ -9,7 +9,7 @@ defmodule ExAws.Request do
   @type error_t :: {:error, {:http_error, http_status, binary}}
   @type response_t :: success_t | error_t
 
-  def request(http_method, url, data, headers, config, service) do
+  def request(http_method, url, data, headers, config, service, opts \\ []) do
     body =
       case data do
         [] -> "{}"
@@ -17,13 +17,42 @@ defmodule ExAws.Request do
         _ -> config[:json_codec].encode!(data)
       end
 
-    request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1})
+    request_and_retry(http_method, url, service, config, headers, body, {:attempt, 1}, opts)
   end
 
-  def request_and_retry(_method, _url, _service, _config, _headers, _req_body, {:error, reason}),
-    do: {:error, reason}
+  def request_and_retry(
+        method,
+        url,
+        service,
+        config,
+        headers,
+        req_body,
+        attempt_or_error,
+        opts \\ []
+      )
 
-  def request_and_retry(method, url, service, config, headers, req_body, {:attempt, attempt}) do
+  def request_and_retry(
+        _method,
+        _url,
+        _service,
+        _config,
+        _headers,
+        _req_body,
+        {:error, reason},
+        _opts
+      ),
+      do: {:error, reason}
+
+  def request_and_retry(
+        method,
+        url,
+        service,
+        config,
+        headers,
+        req_body,
+        {:attempt, attempt},
+        opts
+      ) do
     full_headers = ExAws.Auth.headers(method, url, service, config, headers, req_body)
 
     with {:ok, full_headers} <- full_headers do
@@ -45,7 +74,7 @@ defmodule ExAws.Request do
           {:error, {:http_error, status, "redirected"}}
 
         {:ok, %{status_code: status} = resp} when status in 400..499 ->
-          case client_error(resp, config[:json_codec]) do
+          case client_error(resp, config[:json_codec], opts) do
             {:retry, reason} ->
               request_and_retry(
                 method,
@@ -54,7 +83,8 @@ defmodule ExAws.Request do
                 config,
                 headers,
                 req_body,
-                attempt_again?(attempt, reason, :client, config)
+                attempt_again?(attempt, reason, :client, config),
+                opts
               )
 
             {:error, reason} ->
@@ -72,7 +102,8 @@ defmodule ExAws.Request do
             config,
             headers,
             req_body,
-            attempt_again?(attempt, reason, :server, config)
+            attempt_again?(attempt, reason, :server, config),
+            opts
           )
 
         {:error, reason_struct} ->
@@ -93,7 +124,8 @@ defmodule ExAws.Request do
             config,
             headers,
             req_body,
-            attempt_again?(attempt, reason, :other, config)
+            attempt_again?(attempt, reason, :other, config),
+            opts
           )
       end
     end
@@ -146,7 +178,9 @@ defmodule ExAws.Request do
   defp extract_error({:error, error}), do: error
   defp extract_error(error), do: error
 
-  def client_error(%{status_code: status, body: body} = error, json_codec) do
+  def client_error(resp, json_codec, opts \\ [])
+
+  def client_error(%{status_code: status, body: body} = error, json_codec, opts) do
     case json_codec.decode(body) do
       {:ok, %{"__type" => error_type, "message" => message} = err} ->
         handle_error(error_type, message, status, err)
@@ -159,11 +193,39 @@ defmodule ExAws.Request do
       _ ->
         {:error, {:http_error, status, error}}
     end
+    |> try_operation_parser_for_retries(opts[:operation_parser])
   end
 
-  def client_error(%{status_code: status} = error, _) do
+  def client_error(%{status_code: status} = error, _, _) do
     {:error, {:http_error, status, error}}
   end
+
+  @retryable_error_codes [
+    "RequestThrottled",
+    "Throttling"
+  ]
+
+  # Some operation parsers are able to detect retryable states even when the
+  # JSON codec based detection above does not work. Running the repsonse
+  # through the parser to check if we can detect a retryable response this way.
+  # The original response is returned in all other cases to avoid affecting the
+  # flow unless a retry opportunity is detected.
+  defp try_operation_parser_for_retries({:error, {:http_error, status, error}} = response, parser)
+       when is_function(parser, 1) do
+    case parser.(response) do
+      {:error, {:http_error, ^status, %{code: code}}} when code in @retryable_error_codes ->
+        {:retry, {:http_error, status, error}}
+
+      _ ->
+        response
+    end
+  rescue
+    _ -> response
+  catch
+    _, _ -> response
+  end
+
+  defp try_operation_parser_for_retries(response, _), do: response
 
   def handle_aws_error({"ProvisionedThroughputExceededException" = type, message, _}) do
     {:retry, {type, message}}
