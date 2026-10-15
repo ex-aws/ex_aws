@@ -51,16 +51,7 @@ defmodule ExAws.Auth do
         ]
         |> handle_temp_credentials(config)
 
-      auth_header =
-        auth_header(
-          http_method,
-          url,
-          headers,
-          body,
-          service |> service_override(config) |> service_name,
-          datetime,
-          config
-        )
+      auth_header = auth_header(http_method, url, headers, body, service, datetime, config)
 
       {:ok, [{"Authorization", auth_header} | headers]}
     end
@@ -106,7 +97,7 @@ defmodule ExAws.Auth do
       signature =
         signature(
           http_method,
-          url,
+          path,
           query_to_sign,
           signed_headers,
           body,
@@ -127,13 +118,16 @@ defmodule ExAws.Auth do
   defp handle_temp_credentials(headers, _), do: headers
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
+    path = canonical_path(url, service)
+
     query =
       url
       |> URI.parse()
       |> query_from_parsed_uri()
       |> canonical_query_params()
 
-    signature = signature(http_method, url, query, headers, body, service, datetime, config)
+    service = service |> service_override(config) |> service_name()
+    signature = signature(http_method, path, query, headers, body, service, datetime, config)
 
     [
       "AWS4-HMAC-SHA256 Credential=",
@@ -156,8 +150,14 @@ defmodule ExAws.Auth do
     |> Enum.to_list()
   end
 
-  defp signature(http_method, url, query, headers, body, service, datetime, config) do
-    path = url |> Url.get_path(service) |> Url.uri_encode()
+  # For S3 the URL was produced by `ExAws.Request.Url.build/2`, which already
+  # percent-encoded the object key, so the path is taken from the URL as-is:
+  # encoding it again would turn every `%` into `%25`. Other services still hand
+  # us an unencoded path that has to be encoded for the canonical request.
+  defp canonical_path(url, service) when service in ["s3", :s3], do: URI.parse(url).path || "/"
+  defp canonical_path(url, service), do: url |> Url.get_path(service) |> Url.uri_encode()
+
+  defp signature(http_method, path, query, headers, body, service, datetime, config) do
     request = build_canonical_request(http_method, path, query, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
     Signatures.generate_signature_v4(service, config, datetime, string_to_sign)

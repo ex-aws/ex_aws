@@ -1,3 +1,6 @@
+Unreleased
+- Percent-encode S3 object keys when building request URLs. A `?` in a key could previously truncate the key and turn the rest into the query string, letting an attacker-controlled key address a different object or inject S3 sub-resource operations into a signed request (GHSA-96q9-mcc7-hqj8)
+
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x
 - Correctly handle pod identity authorization when using Req adapter

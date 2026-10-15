@@ -221,4 +221,82 @@ defmodule ExAws.AuthTest do
       assert String.contains?(auth_header, "x-amz-security-token")
     end
   end
+
+  @s3_config %{
+    access_key_id: "AKIAIOSFODNN7EXAMPLE",
+    secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    region: "us-east-1",
+    scheme: "https://",
+    host: "s3.amazonaws.com",
+    port: 443,
+    normalize_path: true
+  }
+
+  describe "headers/6 for S3 object keys" do
+    test "signs the whole percent-encoded key rather than a key truncated at ?" do
+      operation = %ExAws.Operation.S3{path: "/victim-bucket/export.dump?.txt"}
+      url = ExAws.Request.Url.build(operation, @s3_config)
+      assert url == "https://s3.amazonaws.com/victim-bucket/export.dump%3F.txt"
+
+      assert {:ok, headers} = headers(:get, url, :s3, @s3_config, [], "")
+
+      assert authorization(headers) ==
+               expected_authorization(:get, "/victim-bucket/export.dump%3F.txt", "", headers, "")
+    end
+
+    test "does not encode the key a second time" do
+      operation = %ExAws.Operation.S3{
+        path: "/bucket/dir/a b+c#d%25.txt",
+        params: %{"versionId" => "1"}
+      }
+
+      url = ExAws.Request.Url.build(operation, @s3_config)
+      assert {:ok, headers} = headers(:get, url, :s3, @s3_config, [], "")
+
+      assert authorization(headers) ==
+               expected_authorization(
+                 :get,
+                 "/bucket/dir/a%20b%2Bc%23d%2525.txt",
+                 "versionId=1",
+                 headers,
+                 ""
+               )
+    end
+  end
+
+  defp authorization(headers) do
+    {"Authorization", value} = List.keyfind(headers, "Authorization", 0)
+    value
+  end
+
+  # Recomputes the SigV4 Authorization header from the returned headers, so the
+  # expectation does not depend on the clock. See
+  # https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
+  defp expected_authorization(method, canonical_path, canonical_query, headers, body) do
+    {"x-amz-date", amz_date} = List.keyfind(headers, "x-amz-date", 0)
+
+    <<y::binary-4, mo::binary-2, d::binary-2, "T", h::binary-2, mi::binary-2, sec::binary-2, "Z">> =
+      amz_date
+
+    datetime =
+      {{String.to_integer(y), String.to_integer(mo), String.to_integer(d)},
+       {String.to_integer(h), String.to_integer(mi), String.to_integer(sec)}}
+
+    signed_headers = List.keydelete(headers, "Authorization", 0)
+
+    canonical_request =
+      build_canonical_request(method, canonical_path, canonical_query, signed_headers, body)
+
+    scope = ExAws.Auth.Credentials.generate_credential_scope_v4("s3", @s3_config, datetime)
+
+    string_to_sign =
+      "AWS4-HMAC-SHA256\n#{amz_date}\n#{scope}\n#{ExAws.Auth.Utils.hash_sha256(canonical_request)}"
+
+    signature =
+      ExAws.Auth.Signatures.generate_signature_v4("s3", @s3_config, datetime, string_to_sign)
+
+    credential = ExAws.Auth.Credentials.generate_credential_v4("s3", @s3_config, datetime)
+
+    "AWS4-HMAC-SHA256 Credential=#{credential},SignedHeaders=host;x-amz-date,Signature=#{signature}"
+  end
 end

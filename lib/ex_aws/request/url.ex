@@ -1,6 +1,8 @@
 defmodule ExAws.Request.Url do
   @moduledoc false
 
+  @s3_services ["s3", :s3]
+
   @doc """
   Builds URL for an operation and a config"
   """
@@ -8,13 +10,21 @@ defmodule ExAws.Request.Url do
     config
     |> Map.take([:scheme, :host, :port])
     |> Map.put(:query, query(operation))
-    |> Map.put(:path, build_path(operation.path, config[:base_path]))
+    |> Map.put(:path, build_path(operation_path(operation), config[:base_path]))
     |> normalize_scheme
     |> normalize_path(config.normalize_path)
     |> convert_port_to_integer
     |> (&struct(URI, &1)).()
     |> URI.to_string()
-    |> String.trim_trailing("?")
+  end
+
+  # S3 object keys may contain any UTF-8 character, including ones that are
+  # reserved in URLs such as `?` and `#`. Percent-encode the path here, once, so
+  # that the URL we build is well-formed: nothing in the key can then be mistaken
+  # for the query string or a fragment by the signer, by `sanitize/2` or by the
+  # HTTP client. Paths of other services are inserted verbatim, as before.
+  defp operation_path(%{path: path} = operation) do
+    if Map.get(operation, :service) in @s3_services, do: uri_encode(path), else: path
   end
 
   defp build_path(path, nil), do: path
@@ -27,11 +37,13 @@ defmodule ExAws.Request.Url do
     |> Path.join(path)
   end
 
+  # Returns nil rather than "" when there are no params so that
+  # `URI.to_string/1` does not emit a dangling `?`.
   defp query(operation) do
-    operation
-    |> Map.get(:params, %{})
-    |> normalize_params
-    |> URI.encode_query()
+    case operation |> Map.get(:params, %{}) |> normalize_params() |> URI.encode_query() do
+      "" -> nil
+      query -> query
+    end
   end
 
   defp normalize_scheme(url) do
@@ -57,32 +69,17 @@ defmodule ExAws.Request.Url do
 
   defp normalize_params(params), do: params
 
-  def sanitize(url, service) when service in ["s3", :s3] do
-    new_path =
-      url
-      |> get_path(service)
-      |> String.replace_prefix("/", "")
-      |> uri_encode()
-
-    query =
-      case String.split(url, "?", parts: 2) do
-        [_] -> nil
-        [_, ""] -> nil
-        [_, q] -> q
-      end
-
-    url
-    |> URI.parse()
-    |> Map.put(:fragment, nil)
-    |> Map.put(:path, "/" <> new_path)
-    |> Map.put(:query, query)
-    |> URI.to_string()
-    |> String.replace("+", "%20")
-  end
-
-  def sanitize(url, _), do: String.replace(url, "+", "%20")
+  # The URL handed to `ExAws.Request.request/6` comes from `build/2`, so for S3
+  # its path is already percent-encoded and must not be re-parsed or re-encoded
+  # here. All that is left is to replace the `+` that `URI.encode_query/1` uses
+  # for spaces in the query string with `%20`, which is what the canonical
+  # (signed) query string contains.
+  def sanitize(url, _service), do: String.replace(url, "+", "%20")
 
   def get_path(url, service \\ nil)
+  # Used by `ExAws.Auth.presigned_url/9`, which is handed a URL whose path is
+  # *not* percent-encoded (for example by `ExAws.S3.presigned_url/5`).
+  #
   # Elixir's URI.parse will treat everything after the # sign
   # as a fragment. This is correct, but S3 treats it as part
   # of the path of the object.
@@ -98,7 +95,10 @@ defmodule ExAws.Request.Url do
   #
   # After using `uri_encode` it will be `/my/path/here%2B%20%233.txt`
   #
-  def get_path(url, service) when service in ["s3", :s3] do
+  # Note that because the path is unencoded, a `?` inside the object key cannot
+  # be told apart from the start of the query string. That is why `build/2`
+  # encodes S3 paths up front instead of relying on this function.
+  def get_path(url, service) when service in @s3_services do
     base =
       url
       |> URI.parse()
