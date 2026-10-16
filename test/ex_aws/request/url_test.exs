@@ -163,6 +163,20 @@ defmodule ExAws.Request.UrlTest do
       assert Url.build(operation, config) == "https://example.com/minio/bucket/a%20b.txt"
     end
 
+    test "it percent-encodes base_path as well", %{config: config} do
+      config = config |> Map.put(:base_path, "/my base")
+      operation = s3_operation("/bucket/a b.txt")
+      assert Url.build(operation, config) == "https://example.com/my%20base/bucket/a%20b.txt"
+    end
+
+    test "it does not encode base_path for other services", %{config: config} do
+      config = config |> Map.put(:base_path, "/my base")
+      operation = %{path: "/functions/fn/invocations", service: :lambda}
+
+      assert Url.build(operation, config) ==
+               "https://example.com/my base/functions/fn/invocations"
+    end
+
     test "it leaves the path of other services untouched", %{config: config} do
       operation = %{path: "/functions/arn:aws:lambda:fn/invocations", service: :lambda}
 

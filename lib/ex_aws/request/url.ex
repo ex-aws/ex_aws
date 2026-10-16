@@ -10,7 +10,7 @@ defmodule ExAws.Request.Url do
     config
     |> Map.take([:scheme, :host, :port])
     |> Map.put(:query, query(operation))
-    |> Map.put(:path, build_path(operation_path(operation), config[:base_path]))
+    |> Map.put(:path, path(operation, config[:base_path]))
     |> normalize_scheme
     |> normalize_path(config.normalize_path)
     |> convert_port_to_integer
@@ -19,11 +19,13 @@ defmodule ExAws.Request.Url do
   end
 
   # S3 object keys may contain any UTF-8 character, including ones that are
-  # reserved in URLs such as `?` and `#`. Percent-encode the path here, once, so
-  # that the URL we build is well-formed: nothing in the key can then be mistaken
-  # for the query string or a fragment by the signer, by `sanitize/2` or by the
-  # HTTP client. Paths of other services are inserted verbatim, as before.
-  defp operation_path(%{path: path} = operation) do
+  # reserved in URLs such as `?` and `#`. Percent-encode the whole S3 path
+  # (`base_path` included, as `sanitize/2` used to do) here, once, so that the
+  # URL we build is well-formed: nothing in the key can then be mistaken for the
+  # query string or a fragment by the signer, by `sanitize/2` or by the HTTP
+  # client. Paths of other services are inserted verbatim, as before.
+  defp path(%{path: path} = operation, base_path) do
+    path = build_path(path, base_path)
     if Map.get(operation, :service) in @s3_services, do: uri_encode(path), else: path
   end
 

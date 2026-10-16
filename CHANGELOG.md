@@ -1,5 +1,7 @@
 Unreleased
-- Percent-encode S3 object keys when building request URLs. A `?` in a key could previously truncate the key and turn the rest into the query string, letting an attacker-controlled key address a different object or inject S3 sub-resource operations into a signed request (GHSA-96q9-mcc7-hqj8)
+- Percent-encode the path of S3 request URLs (`base_path` and object key) when building them. A `?` in a key could previously truncate the key and turn the rest into the query string, letting an attacker-controlled key address a different object or inject S3 sub-resource operations into a signed request (GHSA-96q9-mcc7-hqj8)
+- `ExAws.Auth.presigned_url/9` now accepts a `%URI{}` whose `path` is the unencoded request path. Pass one to presign S3 object keys that contain `?` or `#`: with a URL string, a `?` in the key still starts the query string, so presigned URLs are only fixed once `ex_aws_s3` is upgraded to a version that passes a `%URI{}` (GHSA-96q9-mcc7-hqj8)
+- `ExAws.Request.request/6` and `ExAws.Auth.headers/6` now expect S3 URLs whose path is already percent-encoded, as produced by `ExAws.Request.Url.build/2`. Code that calls them directly with a raw URL has to encode the path first (`ExAws.Request.Url.uri_encode/1`), otherwise the request is malformed or its signature does not match
 
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x
