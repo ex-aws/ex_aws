@@ -26,8 +26,8 @@ defmodule ExAws.Mixfile do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      xref: [
-        exclude: [
+      elixirc_options: [
+        no_warn_undefined: [
           :hackney,
           Req
         ]
