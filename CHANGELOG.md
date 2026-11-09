@@ -1,3 +1,6 @@
+Unreleased
+- Security: `ExAws.Operation.S3` now rejects bucket names containing anything other than letters, digits, `.`, `-` and `_` when `virtual_host: true` (with or without `bucket_as_host: true`). Previously the bucket name was interpolated into the request hostname unchecked, so a bucket such as `attacker.example/x?` sent the signed request, including the body and the access key id, to `attacker.example` (GHSA-rcv9-2jx2-63xh)
+
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x
 - Correctly handle pod identity authorization when using Req adapter

@@ -65,11 +65,11 @@ defmodule ExAws.Operation.S3 do
     def add_bucket_to_path(operation, %{virtual_host: true, bucket_as_host: true} = config) do
       # When bucket_as_host is true, use the bucket name as the full hostname
       {put_in(operation.path, ensure_absolute(operation.path)),
-       Map.put(config, :host, operation.bucket)}
+       Map.put(config, :host, validate_host_bucket!(operation.bucket))}
     end
 
     def add_bucket_to_path(operation, %{virtual_host: true, host: base_host} = config) do
-      vhost_domain = "#{operation.bucket}.#{base_host}"
+      vhost_domain = "#{validate_host_bucket!(operation.bucket)}.#{base_host}"
 
       {put_in(operation.path, ensure_absolute(operation.path)),
        Map.put(config, :host, vhost_domain)}
@@ -88,6 +88,34 @@ defmodule ExAws.Operation.S3 do
 
     defp ensure_absolute(<<"/", _rest::binary>> = path), do: path
     defp ensure_absolute(path), do: "/#{path}"
+
+    # When the bucket is used as (part of) the hostname it must only contain
+    # characters that are valid in a DNS name. Anything else (`/`, `?`, `#`,
+    # `@`, `:`, whitespace, control characters, ...) would change which host the
+    # signed request is sent to: with the bucket "attacker.example/x?" the URL
+    # becomes https://attacker.example/x?.s3.amazonaws.com/key and the HTTP
+    # client connects to attacker.example.
+    defp validate_host_bucket!(bucket) when is_binary(bucket) and bucket != "" do
+      if hostname_chars?(bucket) do
+        bucket
+      else
+        raise ArgumentError,
+              "invalid bucket name #{inspect(bucket)} for virtual host style requests: " <>
+                "only letters, digits, `.`, `-` and `_` are allowed"
+      end
+    end
+
+    defp validate_host_bucket!(bucket) do
+      raise ArgumentError,
+            "invalid bucket name #{inspect(bucket)} for virtual host style requests"
+    end
+
+    defp hostname_chars?(<<c, rest::binary>>)
+         when c in ?a..?z or c in ?A..?Z or c in ?0..?9 or c in [?., ?-, ?_],
+         do: hostname_chars?(rest)
+
+    defp hostname_chars?(<<>>), do: true
+    defp hostname_chars?(_), do: false
 
     # A subset of Elixir's built-in Path.expand/1 - because it's OS-specific
     # we can't use it to normalise paths with "." or ".." in them (otherwise
