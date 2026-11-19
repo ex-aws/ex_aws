@@ -77,9 +77,28 @@ defmodule ExAws.Config.Defaults do
     |> Map.merge(defaults(:timestream))
   end
 
-  def defaults(service) when service in [:places, :maps, :geofencing, :tracking, :routes] do
+  def defaults(service)
+      when service in [
+             :places,
+             :maps,
+             :geofencing,
+             :tracking,
+             :routes,
+             :metadata,
+             :places_cp,
+             :maps_cp,
+             :geofencing_cp,
+             :tracking_cp,
+             :routes_cp,
+             :metadata_cp
+           ] do
     %{service_override: :geo}
     |> Map.merge(defaults(:geo))
+  end
+
+  def defaults(:maps_v2) do
+    %{service_override: :"geo-maps"}
+    |> Map.merge(defaults(:"geo-maps"))
   end
 
   def defaults(:places_v2) do
@@ -148,10 +167,18 @@ defmodule ExAws.Config.Defaults do
   defp service_map(:ingest_timestream), do: "ingest.timestream"
   defp service_map(:query_timestream), do: "query.timestream"
   defp service_map(place_service) when place_service in [:places, :places_v2], do: "places.geo"
-  defp service_map(:maps), do: "maps.geo"
+  defp service_map(map_service) when map_service in [:maps, :maps_v2], do: "maps.geo"
   defp service_map(:geofencing), do: "geofencing.geo"
   defp service_map(:tracking), do: "tracking.geo"
   defp service_map(route_service) when route_service in [:routes, :routes_v2], do: "routes.geo"
+  defp service_map(:metadata), do: "metadata.geo"
+  # Amazon Location control plane (resource management) endpoints
+  defp service_map(:places_cp), do: "cp.places.geo"
+  defp service_map(:maps_cp), do: "cp.maps.geo"
+  defp service_map(:geofencing_cp), do: "cp.geofencing.geo"
+  defp service_map(:tracking_cp), do: "cp.tracking.geo"
+  defp service_map(:routes_cp), do: "cp.routes.geo"
+  defp service_map(:metadata_cp), do: "cp.metadata.geo"
 
   defp service_map(service) do
     service

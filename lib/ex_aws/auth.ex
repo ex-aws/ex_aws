@@ -151,8 +151,10 @@ defmodule ExAws.Auth do
   defp query_from_parsed_uri(%{query: nil}), do: []
 
   defp query_from_parsed_uri(%{query: query_string}) do
+    # Not URI.decode_query/1: that returns a map, which would drop repeated keys
+    # (e.g. `tagKeys=a&tagKeys=b`) and so produce an invalid signature.
     query_string
-    |> URI.decode_query()
+    |> URI.query_decoder()
     |> Enum.to_list()
   end
 

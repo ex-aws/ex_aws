@@ -1,3 +1,9 @@
+Unreleased
+- Add Amazon Location control plane (`:maps_cp`, `:places_cp`, `:routes_cp`, `:geofencing_cp`,
+  `:tracking_cp`, `:metadata_cp`), `:metadata` and `:maps_v2` (geo-maps) services
+- Update Amazon Location regions
+- Fix request signing when a query parameter is repeated
+
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x
 - Correctly handle pod identity authorization when using Req adapter
