@@ -127,4 +127,47 @@ defmodule ExAws.ConfigTest do
              |> Map.get(:bucket_as_host_allowlist) == allowlist
     end
   end
+
+  describe "Amazon Location services" do
+    test "data plane hosts and signing names" do
+      for {service, host, signing_name} <- [
+            {:maps, "maps.geo.eu-west-1.amazonaws.com", :geo},
+            {:places, "places.geo.eu-west-1.amazonaws.com", :geo},
+            {:routes, "routes.geo.eu-west-1.amazonaws.com", :geo},
+            {:geofencing, "geofencing.geo.eu-west-1.amazonaws.com", :geo},
+            {:tracking, "tracking.geo.eu-west-1.amazonaws.com", :geo},
+            {:metadata, "metadata.geo.eu-west-1.amazonaws.com", :geo},
+            {:maps_v2, "maps.geo.eu-west-1.amazonaws.com", :"geo-maps"},
+            {:places_v2, "places.geo.eu-west-1.amazonaws.com", :"geo-places"},
+            {:routes_v2, "routes.geo.eu-west-1.amazonaws.com", :"geo-routes"}
+          ] do
+        config = ExAws.Config.new(service, region: "eu-west-1")
+        assert {service, config.host} == {service, host}
+        assert {service, config.service_override} == {service, signing_name}
+      end
+    end
+
+    test "control plane hosts and signing names" do
+      for {service, host} <- [
+            {:maps_cp, "cp.maps.geo.ap-southeast-5.amazonaws.com"},
+            {:places_cp, "cp.places.geo.ap-southeast-5.amazonaws.com"},
+            {:routes_cp, "cp.routes.geo.ap-southeast-5.amazonaws.com"},
+            {:geofencing_cp, "cp.geofencing.geo.ap-southeast-5.amazonaws.com"},
+            {:tracking_cp, "cp.tracking.geo.ap-southeast-5.amazonaws.com"},
+            {:metadata_cp, "cp.metadata.geo.ap-southeast-5.amazonaws.com"}
+          ] do
+        config = ExAws.Config.new(service, region: "ap-southeast-5")
+        assert {service, config.host} == {service, host}
+        assert {service, config.service_override} == {service, :geo}
+      end
+    end
+
+    test "GovCloud hosts" do
+      assert ExAws.Config.new(:tracking_cp, region: "us-gov-west-1").host ==
+               "cp.tracking.geo.us-gov-west-1.amazonaws.com"
+
+      assert ExAws.Config.new(:maps_v2, region: "us-gov-west-1").host ==
+               "maps.geo.us-gov-west-1.amazonaws.com"
+    end
+  end
 end

@@ -1,3 +1,9 @@
+Unreleased
+- Add Amazon Location control plane (`:maps_cp`, `:places_cp`, `:routes_cp`, `:geofencing_cp`,
+  `:tracking_cp`, `:metadata_cp`), `:metadata` and `:maps_v2` (geo-maps) services
+- Update Amazon Location regions
+- Fix request signing when a query parameter is repeated
+
 v2.8.0 (2026-11-24)
 - Security: `ExAws.Operation.S3` now rejects bucket names containing anything other than letters, digits, `.`, `-` and `_` when `virtual_host: true` (with or without `bucket_as_host: true`). Previously the bucket name was interpolated into the request hostname unchecked, so a bucket such as `attacker.example/x?` sent the signed request, including the body and the access key id, to `attacker.example` (GHSA-rcv9-2jx2-63xh)
 - Security: add the opt-in S3 config option `bucket_as_host_allowlist`. With `bucket_as_host: true` the bucket name is the whole request hostname, so a syntactically valid name such as `attacker.example` or `169.254.169.254` still receives the signed request; the character check above cannot prevent that. Never pass an untrusted bucket name with `bucket_as_host: true`, or set `bucket_as_host_allowlist` to the list of trusted hostnames so any other bucket raises `ArgumentError`. See the `ExAws.Operation.S3` docs
