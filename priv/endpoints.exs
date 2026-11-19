@@ -48,6 +48,28 @@ chime_voice_regions = [
   "us-west-2"
 ]
 
+# See https://docs.aws.amazon.com/general/latest/gr/location.html
+# The same regions apply to all of the Amazon Location services (maps, places, routes,
+# geofencing, tracking and metadata), including their control plane (cp.*) endpoints.
+location_regions = [
+  "ap-northeast-1",
+  "ap-south-1",
+  "ap-south-2",
+  "ap-southeast-1",
+  "ap-southeast-2",
+  "ap-southeast-5",
+  "ca-central-1",
+  "eu-central-1",
+  "eu-north-1",
+  "eu-south-2",
+  "eu-west-1",
+  "eu-west-2",
+  "sa-east-1",
+  "us-east-1",
+  "us-east-2",
+  "us-west-2"
+]
+
 %{
   "partitions" => [
     %{
@@ -2935,101 +2957,18 @@ chime_voice_regions = [
             "us-west-2" => %{}
           }
         },
-        "places.geo" => %{
-          "endpoints" => %{
-            "us-east-1" => %{},
-            "us-east-2" => %{},
-            "us-west-2" => %{},
-            "eu-north-1" => %{},
-            "eu-central-1" => %{},
-            "eu-west-1" => %{},
-            "eu-west-2" => %{},
-            "ap-northeast-1" => %{},
-            "ap-south-1" => %{},
-            "ap-south-2" => %{},
-            "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{},
-            "ca-central-1" => %{},
-            "sa-east-1" => %{},
-            "us-gov-west-1" => %{}
-          }
-        },
-        "maps.geo" => %{
-          "endpoints" => %{
-            "us-east-1" => %{},
-            "us-east-2" => %{},
-            "us-west-2" => %{},
-            "eu-north-1" => %{},
-            "eu-central-1" => %{},
-            "eu-west-1" => %{},
-            "eu-west-2" => %{},
-            "ap-northeast-1" => %{},
-            "ap-south-1" => %{},
-            "ap-south-2" => %{},
-            "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{},
-            "ca-central-1" => %{},
-            "sa-east-1" => %{},
-            "us-gov-west-1" => %{}
-          }
-        },
-        "geofencing.geo" => %{
-          "endpoints" => %{
-            "us-east-1" => %{},
-            "us-east-2" => %{},
-            "us-west-2" => %{},
-            "eu-north-1" => %{},
-            "eu-central-1" => %{},
-            "eu-west-1" => %{},
-            "eu-west-2" => %{},
-            "ap-northeast-1" => %{},
-            "ap-south-1" => %{},
-            "ap-south-2" => %{},
-            "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{},
-            "ca-central-1" => %{},
-            "sa-east-1" => %{},
-            "us-gov-west-1" => %{}
-          }
-        },
-        "tracking.geo" => %{
-          "endpoints" => %{
-            "us-east-1" => %{},
-            "us-east-2" => %{},
-            "us-west-2" => %{},
-            "eu-north-1" => %{},
-            "eu-central-1" => %{},
-            "eu-west-1" => %{},
-            "eu-west-2" => %{},
-            "ap-northeast-1" => %{},
-            "ap-south-1" => %{},
-            "ap-south-2" => %{},
-            "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{},
-            "ca-central-1" => %{},
-            "sa-east-1" => %{},
-            "us-gov-west-1" => %{}
-          }
-        },
-        "routes.geo" => %{
-          "endpoints" => %{
-            "us-east-1" => %{},
-            "us-east-2" => %{},
-            "us-west-2" => %{},
-            "eu-north-1" => %{},
-            "eu-central-1" => %{},
-            "eu-west-1" => %{},
-            "eu-west-2" => %{},
-            "ap-northeast-1" => %{},
-            "ap-south-1" => %{},
-            "ap-south-2" => %{},
-            "ap-southeast-1" => %{},
-            "ap-southeast-2" => %{},
-            "ca-central-1" => %{},
-            "sa-east-1" => %{},
-            "us-gov-west-1" => %{}
-          }
-        },
+        "places.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "cp.places.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "maps.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "cp.maps.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "geofencing.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "cp.geofencing.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "tracking.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "cp.tracking.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "routes.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "cp.routes.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "metadata.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
+        "cp.metadata.geo" => %{"endpoints" => Map.new(location_regions, &{&1, %{}})},
         "sso" => %{
           "endpoints" => %{
             "ap-northeast-1" => %{},
@@ -3482,16 +3421,18 @@ chime_voice_regions = [
         "cloudformation" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "swf" => %{"endpoints" => %{"us-gov-east-1" => %{}, "us-gov-west-1" => %{}}},
         "sagemaker" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
-        "places.geo" => %{
-          "endpoints" => %{
-            "us-gov-west-1" => %{}
-          }
-        },
-        "routes.geo" => %{
-          "endpoints" => %{
-            "us-gov-west-1" => %{}
-          }
-        },
+        "places.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "cp.places.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "maps.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "cp.maps.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "geofencing.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "cp.geofencing.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "tracking.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "cp.tracking.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "routes.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "cp.routes.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "metadata.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
+        "cp.metadata.geo" => %{"endpoints" => %{"us-gov-west-1" => %{}}},
         "sso" => %{
           "endpoints" => %{
             "us-gov-east-1" => %{},
