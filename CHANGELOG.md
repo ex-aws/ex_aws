@@ -1,3 +1,6 @@
+Unreleased
+- Security: the IMDSv2 token request (`ExAws.InstanceMetaTokenProvider`) no longer follows HTTP redirects. Previously anyone able to answer the request to the instance metadata endpoint could redirect it to another host, and the body returned there was used as the metadata session token (GHSA-mww9-g5mj-j664). A redirect now raises an `Instance Meta Error`. A custom `:http_client` must honour the `follow_redirect: false` option it is given
+
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x
 - Correctly handle pod identity authorization when using Req adapter
