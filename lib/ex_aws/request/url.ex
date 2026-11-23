@@ -16,7 +16,15 @@ defmodule ExAws.Request.Url do
     |> convert_port_to_integer
     |> (&struct(URI, &1)).()
     |> URI.to_string()
+    |> trim_dangling_query()
   end
+
+  # Some services put the query string in the operation path themselves:
+  # ex_aws_lambda builds "<path>?<query>", which is just "<path>?" when there
+  # are no params. Drop that dangling `?`, as this function always has. An S3
+  # path is percent-encoded above, so it can never end in a literal `?` and a
+  # key such as "foo?" is left alone.
+  defp trim_dangling_query(url), do: String.trim_trailing(url, "?")
 
   # S3 object keys may contain any UTF-8 character, including ones that are
   # reserved in URLs such as `?` and `#`. Percent-encode the whole S3 path

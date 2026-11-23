@@ -183,6 +183,17 @@ defmodule ExAws.Request.UrlTest do
       assert Url.build(operation, config) ==
                "https://example.com/functions/arn:aws:lambda:fn/invocations"
     end
+
+    test "it drops a dangling ? from the path of other services", %{config: config} do
+      # ex_aws_lambda appends "?" and the encoded params to the path itself.
+      operation = %{path: "/2015-03-31/functions/my-fn?", service: :lambda}
+      assert Url.build(operation, config) == "https://example.com/2015-03-31/functions/my-fn"
+
+      operation = %{path: "/2015-03-31/functions/fn/invocations?Qualifier=1", service: :lambda}
+
+      assert Url.build(operation, config) ==
+               "https://example.com/2015-03-31/functions/fn/invocations?Qualifier=1"
+    end
   end
 
   describe "get_path" do
