@@ -227,6 +227,37 @@ defmodule ExAws.Operation.S3Test do
       end
     end
 
+    test "bucket_as_host_allowlist set through ExAws.Config.new/2 is enforced" do
+      config =
+        ExAws.Config.new(:s3,
+          virtual_host: true,
+          bucket_as_host: true,
+          bucket_as_host_allowlist: ["assets.example.com", "media.example.com"]
+        )
+
+      for bucket <- ["assets.example.com", "media.example.com"] do
+        {_operation, processed_config} = S3.add_bucket_to_path(s3_operation(bucket), config)
+        assert processed_config.host == bucket
+      end
+
+      assert_raise ArgumentError, ~r/is not in the configured/, fn ->
+        S3.add_bucket_to_path(s3_operation("attacker.example"), config)
+      end
+    end
+
+    test "an empty bucket_as_host_allowlist set through ExAws.Config.new/2 rejects every bucket" do
+      config =
+        ExAws.Config.new(:s3,
+          virtual_host: true,
+          bucket_as_host: true,
+          bucket_as_host_allowlist: []
+        )
+
+      assert_raise ArgumentError, ~r/is not in the configured/, fn ->
+        S3.add_bucket_to_path(s3_operation("assets.example.com"), config)
+      end
+    end
+
     test "bucket_as_host_allowlist does not apply without bucket_as_host" do
       config =
         ExAws.Config.new(:s3)

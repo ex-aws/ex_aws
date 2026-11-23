@@ -114,4 +114,17 @@ defmodule ExAws.ConfigTest do
            |> ExAws.Config.new(headers: headers)
            |> Map.get(:headers) == headers
   end
+
+  test "bucket_as_host_allowlist is passed as provided" do
+    for allowlist <- [["assets.example.com", "media.example.com"], ["assets.example.com"], []] do
+      assert :s3
+             |> ExAws.Config.new(bucket_as_host_allowlist: allowlist)
+             |> Map.get(:bucket_as_host_allowlist) == allowlist
+
+      # Application config is resolved through the same function
+      assert %{bucket_as_host_allowlist: allowlist}
+             |> ExAws.Config.retrieve_runtime_config()
+             |> Map.get(:bucket_as_host_allowlist) == allowlist
+    end
+  end
 end
