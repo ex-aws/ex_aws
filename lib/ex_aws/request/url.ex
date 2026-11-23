@@ -127,6 +127,36 @@ defmodule ExAws.Request.Url do
 
   def uri_encode(url), do: URI.encode(url, &valid_path_char?/1)
 
+  @doc """
+  Percent-encodes a caller-supplied value so that it occupies exactly one
+  segment of a request path.
+
+  Everything outside the RFC 3986 unreserved set is encoded, including `/`,
+  `?`, `#` and `:`, so a value such as `"a/../b?x"` cannot add path segments or
+  start the query string. The dot segments `.` and `..` are encoded as `%2E`
+  and `%2E%2E` so that nothing between the client and the service can resolve
+  them as path traversal. Other values that only contain unreserved characters
+  are returned unchanged.
+
+  Use this for a single segment (a resource name, an ARN, an email address).
+  `uri_encode/1` is for whole paths and leaves `/` as it is.
+
+      iex> ExAws.Request.Url.encode_path_segment("a/../b?x")
+      "a%2F..%2Fb%3Fx"
+      iex> ExAws.Request.Url.encode_path_segment("..")
+      "%2E%2E"
+      iex> ExAws.Request.Url.encode_path_segment("my-fn_1.0~")
+      "my-fn_1.0~"
+  """
+  @spec encode_path_segment(String.Chars.t()) :: binary
+  def encode_path_segment(segment) do
+    case to_string(segment) do
+      "." -> "%2E"
+      ".." -> "%2E%2E"
+      string -> URI.encode(string, &URI.char_unreserved?/1)
+    end
+  end
+
   # Space character
   defp valid_path_char?(?\s), do: false
   defp valid_path_char?(?/), do: true

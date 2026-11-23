@@ -261,6 +261,35 @@ defmodule ExAws.Request.UrlTest do
     end
   end
 
+  describe "encode_path_segment" do
+    test "it encodes everything outside the unreserved set" do
+      assert Url.encode_path_segment("a/../b?x=1&y#z") == "a%2F..%2Fb%3Fx%3D1%26y%23z"
+      assert Url.encode_path_segment("a b+c%25") == "a%20b%2Bc%2525"
+      assert Url.encode_path_segment("user@example.com") == "user%40example.com"
+      assert Url.encode_path_segment("ü\r\n") == "%C3%BC%0D%0A"
+
+      assert Url.encode_path_segment("arn:aws:lambda:us-east-1:123:function:f") ==
+               "arn%3Aaws%3Alambda%3Aus-east-1%3A123%3Afunction%3Af"
+    end
+
+    test "it encodes dot segments" do
+      assert Url.encode_path_segment(".") == "%2E"
+      assert Url.encode_path_segment("..") == "%2E%2E"
+    end
+
+    test "it leaves other unreserved values unchanged" do
+      for segment <- ["my-fn_1.0~", "...", ".hidden", "a..b", "v1.2..txt", ""] do
+        assert Url.encode_path_segment(segment) == segment
+      end
+    end
+
+    test "it accepts anything that can be turned into a string" do
+      assert Url.encode_path_segment(:my_function) == "my_function"
+      assert Url.encode_path_segment(42) == "42"
+      assert Url.encode_path_segment(~c"a/b") == "a%2Fb"
+    end
+  end
+
   defp s3_operation(path, params \\ %{}) do
     %ExAws.Operation.S3{path: path, params: params}
   end
