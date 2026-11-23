@@ -1,4 +1,4 @@
-v2.8.0
+Unreleased
 - Remove functionality which pre-resolves . and .. in s3 paths. S3 already deals with this and
 the way we were doing it can cause security issues.
 
