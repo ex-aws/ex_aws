@@ -1,4 +1,4 @@
-Unreleased
+v2.8.1 (2026-11-24)
 - Add Amazon Location control plane (`:maps_cp`, `:places_cp`, `:routes_cp`, `:geofencing_cp`,
   `:tracking_cp`, `:metadata_cp`), `:metadata` and `:maps_v2` (geo-maps) services
 - Update Amazon Location regions
