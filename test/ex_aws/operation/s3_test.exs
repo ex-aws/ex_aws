@@ -57,12 +57,12 @@ defmodule ExAws.Operation.S3Test do
                  fn -> S3.add_bucket_to_path(operation, config) end
   end
 
-  test "ensure paths with . and .. are correctly resolved" do
+  test "paths . and .. should *not* be normalised away" do
     config = ExAws.Config.new(:s3)
     operation = %{s3_operation() | path: "a/../b/../c/./d"}
 
     {processed_operation, _processed_config} = S3.add_bucket_to_path(operation, config)
-    assert processed_operation.path == "/my-bucket-1/c/d"
+    assert processed_operation.path == "/my-bucket-1/a/../b/../c/./d"
   end
 
   test "ensure paths ending with / preserve the trailing /" do

@@ -3,6 +3,8 @@ Unreleased
 - Security: add the opt-in S3 config option `bucket_as_host_allowlist`. With `bucket_as_host: true` the bucket name is the whole request hostname, so a syntactically valid name such as `attacker.example` or `169.254.169.254` still receives the signed request; the character check above cannot prevent that. Never pass an untrusted bucket name with `bucket_as_host: true`, or set `bucket_as_host_allowlist` to the list of trusted hostnames so any other bucket raises `ArgumentError`. See the `ExAws.Operation.S3` docs
 - Behaviour change: with `virtual_host: true`, an S3 operation with an empty bucket name (e.g. `ExAws.S3.list_buckets/0`) now raises `ArgumentError` instead of returning `{:error, :nxdomain}` from a request to `.s3.amazonaws.com`. Use `virtual_host: false` for such operations
 - Security: the IMDSv2 token request (`ExAws.InstanceMetaTokenProvider`) no longer follows HTTP redirects. Previously anyone able to answer the request to the instance metadata endpoint could redirect it to another host, and the body returned there was used as the metadata session token (GHSA-mww9-g5mj-j664). A redirect now raises an `Instance Meta Error`. A custom `:http_client` must honour the `follow_redirect: false` option it is given
+- Remove functionality which pre-resolves . and .. in s3 paths. S3 already deals with this and
+the way we were doing it can cause security issues.
 
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x
