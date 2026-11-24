@@ -5,6 +5,10 @@ Unreleased
 - Security: the IMDSv2 token request (`ExAws.InstanceMetaTokenProvider`) no longer follows HTTP redirects. Previously anyone able to answer the request to the instance metadata endpoint could redirect it to another host, and the body returned there was used as the metadata session token (GHSA-mww9-g5mj-j664). A redirect now raises an `Instance Meta Error`. A custom `:http_client` must honour the `follow_redirect: false` option it is given
 - Remove functionality which pre-resolves . and .. in s3 paths. S3 already deals with this and
 the way we were doing it can cause security issues.
+- Percent-encode the path of S3 request URLs (`base_path` and object key) when building them. A `?` in a key could previously truncate the key and turn the rest into the query string, letting an attacker-controlled key address a different object or inject S3 sub-resource operations into a signed request (GHSA-96q9-mcc7-hqj8)
+- `ExAws.Auth.presigned_url/9` now accepts a `%URI{}` whose `path` is the unencoded request path. Pass one to presign S3 object keys that contain `?` or `#`: with a URL string, a `?` in the key still starts the query string, so presigned URLs are only fixed once `ex_aws_s3` is upgraded to a version that passes a `%URI{}` (GHSA-96q9-mcc7-hqj8)
+- `ExAws.Request.request/6` and `ExAws.Auth.headers/6` now expect S3 URLs whose path is already percent-encoded, as produced by `ExAws.Request.Url.build/2`. Code that calls them directly with a raw URL has to encode the path first (`ExAws.Request.Url.uri_encode/1`), otherwise the request is malformed or its signature does not match
+- Add `ExAws.Request.Url.encode_path_segment/1`, which percent-encodes a caller-supplied value so that it occupies exactly one path segment, including the dot segments `.` and `..`. Service libraries that interpolate names into request paths use it
 
 v2.7.0 (2026-03-04)
 - Upgrade hackney to 3.x

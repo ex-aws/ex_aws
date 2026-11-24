@@ -67,7 +67,19 @@ defmodule ExAws.RequestTest do
 
   test "handles encoding S3 URLs with params", context do
     http_method = :get
-    url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt?acl=21"
+    # URLs reach request_and_retry/7 from ExAws.Request.Url.build/2, which
+    # percent-encodes the S3 object key.
+    url =
+      ExAws.Request.Url.build(
+        %ExAws.Operation.S3{path: "/test hello #3.txt", params: %{"acl" => 21}},
+        %{
+          scheme: "https://",
+          host: "examplebucket.s3.amazonaws.com",
+          port: 443,
+          normalize_path: true
+        }
+      )
+
     service = :s3
     request_body = ""
 
@@ -111,7 +123,18 @@ defmodule ExAws.RequestTest do
 
   test "handles encoding S3 URLs without params", context do
     http_method = :get
-    url = "https://examplebucket.s3.amazonaws.com/up//double//test hello+#3.txt"
+
+    url =
+      ExAws.Request.Url.build(
+        %ExAws.Operation.S3{path: "/up//double//test hello+#3.txt"},
+        %{
+          scheme: "https://",
+          host: "examplebucket.s3.amazonaws.com",
+          port: 443,
+          normalize_path: false
+        }
+      )
+
     service = :s3
     request_body = ""
 
