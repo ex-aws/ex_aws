@@ -113,6 +113,32 @@ defmodule ExAws.AuthTest do
     assert {:ok, expected} == actual
   end
 
+  test "presigned url preserves repeated query params" do
+    http_method = :delete
+    url = "https://cp.metadata.geo.us-east-1.amazonaws.com/tags/arn?tagKeys=b&tagKeys=a"
+    service = :geo
+    datetime = {{2013, 5, 24}, {0, 0, 0}}
+    expires = 86400
+
+    {:ok, actual} =
+      ExAws.Auth.presigned_url(http_method, url, service, datetime, @config, expires)
+
+    assert actual =~ "/tags/arn?tagKeys=a&tagKeys=b&X-Amz-Algorithm="
+
+    {:ok, single} =
+      ExAws.Auth.presigned_url(
+        http_method,
+        "https://cp.metadata.geo.us-east-1.amazonaws.com/tags/arn?tagKeys=a",
+        service,
+        datetime,
+        @config,
+        expires
+      )
+
+    signature = fn url -> url |> String.split("X-Amz-Signature=") |> List.last() end
+    refute signature.(actual) == signature.(single)
+  end
+
   test "presigned url with empty request body" do
     # Required for RDS generate_db_token
     # Data taken from botocore https://github.com/boto/botocore/blob/master/tests/unit/test_signers.py#L922
