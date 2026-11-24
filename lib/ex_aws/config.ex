@@ -170,6 +170,12 @@ defmodule ExAws.Config do
       {:refreshable, refreshable}, config ->
         Map.put(config, :refreshable, refreshable)
 
+      # A list of hostnames, not a fallback chain: keep it as is. The generic
+      # clause below would collapse it to its first element (and `[]` to `nil`,
+      # which would silently disable the allowlist).
+      {:bucket_as_host_allowlist, allowlist}, config ->
+        Map.put(config, :bucket_as_host_allowlist, allowlist)
+
       {k, v}, config ->
         case retrieve_runtime_value(v, config) do
           %{} = result -> Map.merge(config, result)
