@@ -1,5 +1,12 @@
-Unreleased
+v2.8.2 (2026-11-25)
 - Fix `CaseClauseError` on `HEAD` requests (e.g. `ExAws.S3.head_object/3`) when using the hackney client
+- Gracefully handle error responses with a `nil` body
+- Fix Req client rewriting bodyless `GET` requests into `POST` (which broke request signing)
+- Don't clobber `:redirect` and `:receive_timeout` Req options with their hackney equivalents
+- Add Bedrock AgentCore endpoints
+- Add EC2 support for ap-southeast-5 (Malaysia) region
+- Replace deprecated `xref: [exclude: ...]` with the `no_warn_undefined` compiler option
+- Drop support for Elixir < 1.17 and OTP < 27
 
 v2.8.1 (2026-11-24)
 - Add Amazon Location control plane (`:maps_cp`, `:places_cp`, `:routes_cp`, `:geofencing_cp`,
