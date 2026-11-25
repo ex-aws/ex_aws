@@ -25,7 +25,7 @@ if Code.ensure_loaded?(:hackney) do
 
         # HEAD requests have no body, so hackney returns a 3-tuple
         {:ok, status, headers} ->
-          {:ok, %{status_code: status, headers: headers, body: ""}}
+          {:ok, %{status_code: status, headers: headers, body: nil}}
 
         {:error, reason} ->
           {:error, %{reason: reason}}

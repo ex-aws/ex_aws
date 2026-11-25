@@ -23,7 +23,7 @@ defmodule ExAws.Request.HackneyTest do
       |> Plug.Conn.send_resp(200, "")
     end)
 
-    assert {:ok, %{status_code: 200, headers: headers, body: ""}} =
+    assert {:ok, %{status_code: 200, headers: headers, body: nil}} =
              ExAws.Request.Hackney.request(:head, url(bypass), "", [], [])
 
     assert List.keyfind(headers, "x-foo", 0) == {"x-foo", "bar"}
