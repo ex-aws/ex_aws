@@ -13,7 +13,7 @@ if Code.ensure_loaded?(Req) do
     The default config handles setting the above.
     """
 
-    @default_opts [receive_timeout: 30_000]
+    @default_opts [receive_timeout: 30_000, redirect: false]
 
     @impl true
     def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
@@ -27,7 +27,8 @@ if Code.ensure_loaded?(Req) do
         decode_body: false,
         retry: false
       ]
-      |> Keyword.merge(Application.get_env(:ex_aws, :req_opts, @default_opts))
+      |> Keyword.merge(@default_opts)
+      |> Keyword.merge(Application.get_env(:ex_aws, :req_opts, []))
       |> Keyword.merge(http_opts)
       |> Req.request()
       |> case do
@@ -48,16 +49,18 @@ if Code.ensure_loaded?(Req) do
     # Req >= 0.4.0 uses :redirect, but some clients pass the :hackney option
     # :follow_redirect. Rename the option for Req to use.
     defp rename_follow_redirect(opts) do
-      {follow, opts} = Keyword.pop(opts, :follow_redirect, false)
-
-      Keyword.put_new(opts, :redirect, follow)
+      case Keyword.pop(opts, :follow_redirect) do
+        {nil, opts} -> opts
+        {follow, opts} -> Keyword.put_new(opts, :redirect, follow)
+      end
     end
 
     # Rename :recv_timeout to :receive_timeout for Req to use.
     defp rename_recv_timeout(opts) do
-      {recv_timeout, opts} = Keyword.pop(opts, :recv_timeout, @default_opts[:receive_timeout])
-
-      Keyword.put_new(opts, :receive_timeout, recv_timeout)
+      case Keyword.pop(opts, :recv_timeout) do
+        {nil, opts} -> opts
+        {recv_timeout, opts} -> Keyword.put_new(opts, :receive_timeout, recv_timeout)
+      end
     end
   end
 end
