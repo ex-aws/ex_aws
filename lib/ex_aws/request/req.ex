@@ -17,7 +17,8 @@ if Code.ensure_loaded?(Req) do
 
     @impl true
     def request(method, url, body \\ "", headers \\ [], http_opts \\ []) do
-      http_opts = http_opts |> rename_follow_redirect() |> rename_recv_timeout()
+      http_opts =
+        http_opts |> rename_follow_redirect() |> rename_recv_timeout() |> drop_pool()
 
       [
         method: method,
@@ -44,6 +45,10 @@ if Code.ensure_loaded?(Req) do
     # the method. See https://github.com/ex-aws/ex_aws/issues/1246.
     defp normalize_body(body) when body in [nil, ""], do: nil
     defp normalize_body(body), do: body
+
+    # Some internal requests (e.g. SSO credentials) pass the :hackney option :pool,
+    # which Req has no equivalent for and rejects as unknown. Drop it.
+    defp drop_pool(opts), do: Keyword.delete(opts, :pool)
 
     # Req >= 0.4.0 uses :redirect, but some clients pass the :hackney option
     # :follow_redirect. Rename the option for Req to use.

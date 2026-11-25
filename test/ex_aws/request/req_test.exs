@@ -159,5 +159,13 @@ defmodule ExAws.Request.ReqTest do
       assert_receive {:request, request}
       assert Map.get(request.options, :receive_timeout) == 30_000
     end
+
+    @tag http_opts: [pool: false]
+    test "drops hackney's :pool option", %{config: config} do
+      ExAws.Request.request(:get, "https://test-server", "", [], config, :s3)
+
+      assert_receive {:request, request}
+      refute Map.has_key?(request.options, :pool)
+    end
   end
 end
