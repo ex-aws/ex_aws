@@ -74,7 +74,7 @@ defmodule ExAws.Request.ReqTest do
     assert resp.status_code == 200
     assert resp.body == "GET"
   end
-  
+
   describe "Req option renaming" do
     setup tags do
       inspect_adapter = fn request ->
