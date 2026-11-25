@@ -1,3 +1,6 @@
+Unreleased
+- Fix `CaseClauseError` on `HEAD` requests (e.g. `ExAws.S3.head_object/3`) when using the hackney client
+
 v2.8.1 (2026-11-24)
 - Add Amazon Location control plane (`:maps_cp`, `:places_cp`, `:routes_cp`, `:geofencing_cp`,
   `:tracking_cp`, `:metadata_cp`), `:metadata` and `:maps_v2` (geo-maps) services
