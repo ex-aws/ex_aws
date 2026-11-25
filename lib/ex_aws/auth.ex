@@ -51,16 +51,7 @@ defmodule ExAws.Auth do
         ]
         |> handle_temp_credentials(config)
 
-      auth_header =
-        auth_header(
-          http_method,
-          url,
-          headers,
-          body,
-          service |> service_override(config) |> service_name,
-          datetime,
-          config
-        )
+      auth_header = auth_header(http_method, url, headers, body, service, datetime, config)
 
       {:ok, [{"Authorization", auth_header} | headers]}
     end
@@ -79,9 +70,9 @@ defmodule ExAws.Auth do
       ) do
     with {:ok, config} <- validate_config(config) do
       service = service_name(service)
-      signed_headers = presigned_url_headers(url, headers)
+      {uri, path} = presigned_target(url, service)
+      signed_headers = presigned_url_headers(uri, headers)
 
-      uri = URI.parse(url)
       uri_query = query_from_parsed_uri(uri)
 
       org_query_params =
@@ -101,12 +92,10 @@ defmodule ExAws.Auth do
           amz_query_string
         end
 
-      path = url |> Url.get_path(service) |> Url.uri_encode()
-
       signature =
         signature(
           http_method,
-          url,
+          path,
           query_to_sign,
           signed_headers,
           body,
@@ -116,8 +105,41 @@ defmodule ExAws.Auth do
         )
 
       {:ok,
-       "#{uri.scheme}://#{uri.authority}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"}
+       "#{uri.scheme}://#{authority(uri)}#{path}?#{query_for_url}&X-Amz-Signature=#{signature}"}
     end
+  end
+
+  # `presigned_url/9` accepts the URL to sign in two forms.
+  #
+  # A `%URI{}` is structured input: its `path` is the *unencoded* request path
+  # (for S3 that is "/<bucket>/<key>", or "/<key>" with virtual-host addressing)
+  # and its `query`, if any, is the query string. Because the path arrives as a
+  # field of its own it is percent-encoded whole, so a `?` or `#` inside an S3
+  # object key stays part of the key. This is the form `ExAws.S3.presigned_url/5`
+  # should use.
+  #
+  # A string is split into path and query the way it always has been: at the
+  # first `?`. A `?` inside an S3 object key cannot be represented in this form.
+  # It is kept for callers that assemble the URL themselves.
+  defp presigned_target(%URI{} = uri, _service) do
+    {uri, uri.path |> ensure_leading_slash() |> Url.uri_encode()}
+  end
+
+  defp presigned_target(url, service) when is_binary(url) do
+    {URI.parse(url), url |> Url.get_path(service) |> Url.uri_encode()}
+  end
+
+  defp ensure_leading_slash(nil), do: "/"
+  defp ensure_leading_slash("/" <> _ = path), do: path
+  defp ensure_leading_slash(path), do: "/" <> path
+
+  # `URI.parse/1` fills in `authority`, but a `%URI{}` built by hand or by
+  # `URI.new/1` leaves it nil, so fall back to host and port in that case.
+  defp authority(%URI{authority: authority}) when is_binary(authority), do: authority
+
+  defp authority(%URI{scheme: scheme, host: host, port: port}) do
+    default_port = scheme && URI.default_port(scheme)
+    if port in [nil, default_port], do: host, else: "#{host}:#{port}"
   end
 
   defp handle_temp_credentials(headers, %{security_token: token}) do
@@ -127,13 +149,16 @@ defmodule ExAws.Auth do
   defp handle_temp_credentials(headers, _), do: headers
 
   defp auth_header(http_method, url, headers, body, service, datetime, config) do
+    path = canonical_path(url, service)
+
     query =
       url
       |> URI.parse()
       |> query_from_parsed_uri()
       |> canonical_query_params()
 
-    signature = signature(http_method, url, query, headers, body, service, datetime, config)
+    service = service |> service_override(config) |> service_name()
+    signature = signature(http_method, path, query, headers, body, service, datetime, config)
 
     [
       "AWS4-HMAC-SHA256 Credential=",
@@ -151,13 +176,21 @@ defmodule ExAws.Auth do
   defp query_from_parsed_uri(%{query: nil}), do: []
 
   defp query_from_parsed_uri(%{query: query_string}) do
+    # Not URI.decode_query/1: that returns a map, which would drop repeated keys
+    # (e.g. `tagKeys=a&tagKeys=b`) and so produce an invalid signature.
     query_string
-    |> URI.decode_query()
+    |> URI.query_decoder()
     |> Enum.to_list()
   end
 
-  defp signature(http_method, url, query, headers, body, service, datetime, config) do
-    path = url |> Url.get_path(service) |> Url.uri_encode()
+  # For S3 the URL was produced by `ExAws.Request.Url.build/2`, which already
+  # percent-encoded the object key, so the path is taken from the URL as-is:
+  # encoding it again would turn every `%` into `%25`. Other services still hand
+  # us an unencoded path that has to be encoded for the canonical request.
+  defp canonical_path(url, service) when service in ["s3", :s3], do: URI.parse(url).path || "/"
+  defp canonical_path(url, service), do: url |> Url.get_path(service) |> Url.uri_encode()
+
+  defp signature(http_method, path, query, headers, body, service, datetime, config) do
     request = build_canonical_request(http_method, path, query, headers, body)
     string_to_sign = string_to_sign(request, service, datetime, config)
     Signatures.generate_signature_v4(service, config, datetime, string_to_sign)
@@ -271,9 +304,8 @@ defmodule ExAws.Auth do
     |> Enum.sort(fn {k1, _}, {k2, _} -> k1 < k2 end)
   end
 
-  defp presigned_url_headers(url, headers) do
-    uri = URI.parse(url)
-    canonical_headers([{"host", uri.authority} | headers])
+  defp presigned_url_headers(uri, headers) do
+    canonical_headers([{"host", authority(uri)} | headers])
   end
 
   defp build_amz_query_params(service, datetime, config, expires, signed_headers) do

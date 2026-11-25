@@ -67,7 +67,19 @@ defmodule ExAws.RequestTest do
 
   test "handles encoding S3 URLs with params", context do
     http_method = :get
-    url = "https://examplebucket.s3.amazonaws.com/test hello #3.txt?acl=21"
+    # URLs reach request_and_retry/7 from ExAws.Request.Url.build/2, which
+    # percent-encodes the S3 object key.
+    url =
+      ExAws.Request.Url.build(
+        %ExAws.Operation.S3{path: "/test hello #3.txt", params: %{"acl" => 21}},
+        %{
+          scheme: "https://",
+          host: "examplebucket.s3.amazonaws.com",
+          port: 443,
+          normalize_path: true
+        }
+      )
+
     service = :s3
     request_body = ""
 
@@ -111,7 +123,18 @@ defmodule ExAws.RequestTest do
 
   test "handles encoding S3 URLs without params", context do
     http_method = :get
-    url = "https://examplebucket.s3.amazonaws.com/up//double//test hello+#3.txt"
+
+    url =
+      ExAws.Request.Url.build(
+        %ExAws.Operation.S3{path: "/up//double//test hello+#3.txt"},
+        %{
+          scheme: "https://",
+          host: "examplebucket.s3.amazonaws.com",
+          port: 443,
+          normalize_path: false
+        }
+      )
+
     service = :s3
     request_body = ""
 
@@ -298,6 +321,79 @@ defmodule ExAws.RequestTest do
     assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 3, result: :error}}
     assert_receive {[:ex_aws, :request, :start], %{system_time: _}, %{attempt: 4}}
     assert_receive {[:ex_aws, :request, :stop], %{duration: _}, %{attempt: 4, result: :ok}}
+  end
+
+  test "it handles 200 OK HEAD requests properly by returning an empty body", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn :head, _url, _body, _headers, _opts ->
+      # HEAD request with hackney do not have a body, which makes it spec-compliant.
+      {:ok, %{status_code: 200, headers: [{"content-length", 123}], body: nil}}
+    end)
+
+    http_method = :head
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:ok, %{body: nil, headers: [{"content-length", 123}], status_code: 200}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
+
+  test "it handles 4xx HEAD requests properly", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, fn :head, _url, _body, _headers, _opts ->
+      # HEAD request with hackney do not have a body, which makes it spec-compliant.
+      {:ok, %{status_code: 429, headers: [{"x-rate-limit", 1_000}], body: nil}}
+    end)
+
+    http_method = :head
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:error,
+            {:http_error, 429, %{body: nil, headers: [{"x-rate-limit", 1000}], status_code: 429}}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
+  end
+
+  test "it handles 5xx HEAD requests properly", context do
+    ExAws.Request.HttpMock
+    |> expect(:request, 5, fn :head, _url, _body, _headers, _opts ->
+      # HEAD request with hackney do not have a body, which makes it spec-compliant.
+      {:ok, %{status_code: 500, headers: [{"content-type", "text/plain"}], body: "server error"}}
+    end)
+
+    http_method = :head
+    url = "https://examplebucket.s3.amazonaws.com/test.txt"
+    service = :s3
+    request_body = ""
+
+    assert {:error, {:http_error, 500, "server error"}} ==
+             ExAws.Request.request_and_retry(
+               http_method,
+               url,
+               service,
+               context[:config],
+               context[:headers],
+               request_body,
+               {:attempt, 1}
+             )
   end
 
   defp mock_provisioned_throughput_response(success_after_retries) do
