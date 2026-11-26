@@ -161,3 +161,55 @@ defmodule ExAws.Request.ReqTest do
     end
   end
 end
+
+defmodule ExAws.Request.ReqOptsTest do
+  # Sets the global :req_opts, so it must not run alongside async tests using Req
+  use ExUnit.Case, async: false
+
+  setup tags do
+    previous = Application.fetch_env(:ex_aws, :req_opts)
+    Application.put_env(:ex_aws, :req_opts, tags.req_opts)
+
+    on_exit(fn ->
+      case previous do
+        {:ok, value} -> Application.put_env(:ex_aws, :req_opts, value)
+        :error -> Application.delete_env(:ex_aws, :req_opts)
+      end
+    end)
+
+    inspect_adapter = fn request ->
+      send(self(), {:request, request})
+      {request, %Req.Response{status: 200, body: "OK"}}
+    end
+
+    config = %{
+      http_client: ExAws.Request.Req,
+      http_opts: Keyword.put(Map.get(tags, :http_opts, []), :adapter, inspect_adapter),
+      json_codec: Jason,
+      access_key_id: "AKIAIOSFODNN7EXAMPLE",
+      secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+      region: "us-east-1"
+    }
+
+    {:ok, %{config: config}}
+  end
+
+  @tag req_opts: [receive_timeout: 900_000, redirect: true]
+  test "uses :req_opts when http_opts does not set the option", %{config: config} do
+    ExAws.Request.request(:get, "https://test-server", "", [], config, :s3)
+
+    assert_receive {:request, request}
+    assert Map.get(request.options, :receive_timeout) == 900_000
+    assert Map.get(request.options, :redirect) == true
+  end
+
+  @tag req_opts: [receive_timeout: 900_000, redirect: true]
+  @tag http_opts: [recv_timeout: 10_000, follow_redirect: false]
+  test "prefers http_opts to :req_opts", %{config: config} do
+    ExAws.Request.request(:get, "https://test-server", "", [], config, :s3)
+
+    assert_receive {:request, request}
+    assert Map.get(request.options, :receive_timeout) == 10_000
+    assert Map.get(request.options, :redirect) == false
+  end
+end
