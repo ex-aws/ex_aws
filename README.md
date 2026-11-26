@@ -29,8 +29,8 @@ defp deps do
   [
     {:ex_aws, "~> 2.1"},
     {:ex_aws_s3, "~> 2.0"},
-    {:hackney, "~> 1.9"},
-    {:sweet_xml, "~> 0.6"},
+    {:hackney, "~> 4.0"},
+    {:sweet_xml, "~> 0.7"},
   ]
 end
 ```
@@ -70,7 +70,7 @@ This means it will try to resolve credentials in order:
 AWS CLI config files are supported, but require an additional dependency:
 
 ```elixir
-{:configparser_ex, "~> 4.0"}
+{:configparser_ex, "~> 5.0"}
 ```
 
 You can then add `{:awscli, "profile_name", timeout}` to the above config and
